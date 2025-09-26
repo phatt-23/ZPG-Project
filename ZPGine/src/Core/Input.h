@@ -22,11 +22,29 @@ public:
     static std::pair<float, float> GetMousePosition() { return s_Instance->GetMousePositionImpl(); }
     static float GetMouseX() { return GetMousePosition().first; }
     static float GetMouseY() { return GetMousePosition().second; }
+
+    static void ShowCursor() { s_Instance->ShowCursorImpl(); }
+    static void HideCursor() { s_Instance->HideCursorImpl(); }
+    static void GrabCursor() { s_Instance->GrabCursorImpl(); }
+    static void ConfineCursor() { s_Instance->ConfineCursorImpl(); }
+
+    static bool IsCursorShown() { return s_Instance->IsCursorShownImpl(); }
+    static bool IsCursorHidden() { return s_Instance->IsCursorHiddenImpl(); }
+    static bool IsCursorGrabbed() { return s_Instance->IsCursorGrabbedImpl(); }
+    static bool IsCursorConfined() { return s_Instance->IsCursorConfinedImpl(); }
 private:
     // implementation can differ
     virtual bool IsKeyPressedImpl(int keyCode) = 0;
     virtual bool IsMouseButtonPressedImpl(int buttonCode) = 0;
     virtual std::pair<float, float> GetMousePositionImpl() = 0;
+    virtual void ShowCursorImpl() = 0;
+    virtual void HideCursorImpl() = 0;
+    virtual void GrabCursorImpl() = 0;
+    virtual void ConfineCursorImpl() = 0;
+    virtual bool IsCursorShownImpl() = 0;
+    virtual bool IsCursorHiddenImpl() = 0;
+    virtual bool IsCursorGrabbedImpl() = 0;
+    virtual bool IsCursorConfinedImpl() = 0;
     inline static Input* s_Instance = nullptr;
 };
 

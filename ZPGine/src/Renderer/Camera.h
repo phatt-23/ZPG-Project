@@ -13,7 +13,8 @@ namespace ZPG {
 
 class Camera {
 public:
-    Camera(const glm::vec3& position = glm::vec3(0.0), const glm::quat& orientation = glm::quatLookAt(glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0)));
+    Camera(const glm::vec3& position = glm::vec3(0.f), 
+        const glm::quat& orientation = glm::quatLookAt(glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, 1.f, 0.f)));
     ~Camera();
 
     void SetOrthoProjection(f32 left, f32 right, f32 bottom, f32 top);
@@ -22,7 +23,7 @@ public:
     const glm::vec3& GetPosition() const;
     void SetPosition(const glm::vec3& position);
     const glm::quat& GetOrientation() const;
-    const void SetOrientation(const glm::quat& orientation);
+    void SetOrientation(const glm::quat& orientation);
 
     const glm::mat4& GetViewMatrix() const;
     const glm::mat4& GetProjMatrix() const;
@@ -34,14 +35,24 @@ public:
 private:
     void RecalculateViewMatrix();
 
-    glm::mat4 m_ViewMatrix, m_ProjMatrix, m_ViewProjMatrix;
+    glm::mat4 m_ViewMatrix;
+    glm::mat4 m_ProjMatrix;
+    glm::mat4 m_ViewProjMatrix;
+
     glm::vec3 m_Position;
     glm::quat m_Orientation;
 
+    // lens specs
+    // perspective
     f32 m_FOV = 45.0f;
     f32 m_AspectRatio = 0.5f;
-    f32 m_zNear = 1.0f;
-    f32 m_zFar = -1.0f;
+    f32 m_zNear = 0.1f;  // if 0 then behaves weird, clipping
+    f32 m_zFar = 100.0f;
+    // ortho
+    f32 m_Left = -1.f;
+    f32 m_Right = 1.0f;
+    f32 m_Bottom = -1.0f;
+    f32 m_Top = 1.0f;
 };
 
 }

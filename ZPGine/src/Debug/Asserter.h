@@ -97,7 +97,6 @@ public:
 
 }
 
-#define ZPG_ENABLE_ASSERTS
 #ifdef ZPG_ENABLE_ASSERTS
     #define ZPG_CORE_ASSERT(condition, ...) \
         { if (!Asserter::CoreAssert(std::source_location::current(), \

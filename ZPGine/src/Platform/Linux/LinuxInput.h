@@ -18,6 +18,14 @@ private:
     virtual bool IsKeyPressedImpl(int keyCode) override;
     virtual bool IsMouseButtonPressedImpl(int buttonCode) override;
     virtual std::pair<float, float> GetMousePositionImpl() override;
+    virtual void ShowCursorImpl() override;
+    virtual void HideCursorImpl() override;
+    virtual void GrabCursorImpl() override;
+    virtual void ConfineCursorImpl() override;
+    virtual bool IsCursorShownImpl() override;
+    virtual bool IsCursorHiddenImpl() override;
+    virtual bool IsCursorGrabbedImpl() override;
+    virtual bool IsCursorConfinedImpl() override;
 };
 
 }

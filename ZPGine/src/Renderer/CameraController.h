@@ -15,31 +15,27 @@ namespace ZPG {
 class CameraController {
 public:
     CameraController();
-    ~CameraController();
+    virtual ~CameraController();
+    
+    virtual void OnUpdate(Timestep ts);
+    virtual void OnEvent(Event& e);
 
     Camera& GetCamera() { return m_Camera; }
     const Camera& GetCamera() const { return m_Camera; }
-
-    void OnUpdate(Timestep ts);
-    void OnEvent(Event& e);
-
 private:
     bool OnMouseScrolled(MouseScrolledEvent& e);
     bool OnWindowResized(WindowResizeEvent& e);
     bool OnMouseMoved(MouseMovedEvent& e);
-
+    bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 private:
     Camera m_Camera;
 
-    f32 m_AspectRatio = 0.0f;
-
     f32 m_CameraTranslationSpeed = 2.0f;
-
+    f32 m_MouseSensitivity = 1.f;
+    
     glm::vec2 m_LastCursorPos = {0.0, 0.0};
     f32 m_Yaw = 0.f;
     f32 m_Pitch = 0.f;
-    f32 m_MouseSensitivity = 1.f;
-
 };
 }
 

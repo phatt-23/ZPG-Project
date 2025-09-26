@@ -7,6 +7,13 @@ namespace ZPG {
 void OpenGLRendererAPI::Init() {
     ZPG_OPENGL_CALL(glEnable(GL_BLEND));
     ZPG_OPENGL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+    ZPG_OPENGL_CALL(glEnable(GL_DEPTH_TEST));   // Enable depth testing / z-buffer is big as the color buffer.
+    // If the fragment's depth value is less than the stored depth value the fragment's color passes.
+    // By default, this is set to GL_LESS.
+    ZPG_OPENGL_CALL(glDepthFunc(GL_LESS));
+
+    ZPG_OPENGL_CALL(glCullFace(GL_BACK));
 }
 
 void OpenGLRendererAPI::Shutdown() {
@@ -22,7 +29,6 @@ void OpenGLRendererAPI::Clear() {
 }
 
 void OpenGLRendererAPI::SetViewport(int x, int y, int width, int height) {
-    ZPG_CORE_DEBUG("{}", __PRETTY_FUNCTION__);
     ZPG_OPENGL_CALL(glViewport(x, y, width, height));
 }
 

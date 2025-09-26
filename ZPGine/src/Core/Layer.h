@@ -16,8 +16,8 @@ public:
     virtual ~Layer() = default;
     virtual void OnAttach() {}
     virtual void OnDetach() {}
-    virtual void OnUpdate(Timestep ts) {}
-    virtual void OnEvent(Event& event) {}
+    virtual void OnUpdate([[maybe_unused]] Timestep ts) {}
+    virtual void OnEvent([[maybe_unused]] Event& event) {}
 private:
 };
 

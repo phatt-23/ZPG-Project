@@ -2,14 +2,16 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+using namespace glm;
+
 namespace ZPG {
 
 Camera::Camera(const glm::vec3& position, const glm::quat& orientation) 
-: m_ProjMatrix(glm::identity<glm::mat4>())
-, m_ViewMatrix(glm::identity<glm::mat4>())
-, m_ViewProjMatrix(glm::identity<glm::mat4>())
+: m_Position(position) 
 , m_Orientation(orientation)
-, m_Position(position) {
+, m_ProjMatrix(mat4(1.f))
+, m_ViewMatrix(glm::mat4(1.f))
+, m_ViewProjMatrix(glm::mat4(1.f)) {
     RecalculateViewMatrix();
     m_ViewProjMatrix = m_ProjMatrix * m_ViewMatrix;
 }
@@ -17,6 +19,10 @@ Camera::~Camera() {
 
 }
 void Camera::SetOrthoProjection(f32 left, f32 right, f32 bottom, f32 top) {
+    m_Left = left;
+    m_Right = right;
+    m_Bottom = bottom;
+    m_Top = top;
     m_ProjMatrix = glm::ortho(left, right, bottom, top);
     m_ViewProjMatrix = m_ProjMatrix * m_ViewProjMatrix;
 }
@@ -38,11 +44,10 @@ void Camera::SetPosition(const glm::vec3& position) {
 const glm::quat& Camera::GetOrientation() const {
     return m_Orientation;
 }
-const void Camera::SetOrientation(const glm::quat& orientation) {
+void Camera::SetOrientation(const glm::quat& orientation) {
     m_Orientation = orientation;
     RecalculateViewMatrix();
 }
-
 const glm::mat4& Camera::GetViewMatrix() const {
     return m_ViewMatrix;
 }

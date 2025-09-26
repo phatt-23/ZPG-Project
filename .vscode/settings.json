@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "expected": "cpp",
+        "optional": "cpp",
+        "ranges": "cpp",
+        "regex": "cpp",
+        "__locale": "cpp"
+    }
+}

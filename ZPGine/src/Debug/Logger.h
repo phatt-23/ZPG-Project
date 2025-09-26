@@ -21,7 +21,6 @@ private:
 };
 
 }
-#define ZPG_ENABLE_LOGGING
 #ifdef ZPG_ENABLE_LOGGING
     #define ZPG_CORE_TRACE(...) ::ZPG::Logger::GetCoreLogger()->trace(__VA_ARGS__)
     #define ZPG_CORE_DEBUG(...) ::ZPG::Logger::GetCoreLogger()->debug(__VA_ARGS__)

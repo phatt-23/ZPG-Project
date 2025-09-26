@@ -3,8 +3,6 @@
 #include <glad/glad.h>
 #include "Debug/Asserter.h"
 
-#define ZPG_OPENGL_CALL_ERROR_CHECK
-
 #ifdef ZPG_OPENGL_CALL_ERROR_CHECK
 #include <source_location>
 #include "Core/Core.h"

@@ -33,30 +33,33 @@ private:
     float m_YOffset;
 };
 
-class MouseButton : public Event {
+class MouseButtonEvent : public Event {
 public:
+    MouseButtonEvent(int buttonCode) : m_ButtonCode(buttonCode) {}
+    int GetButtonCode() const { return m_ButtonCode; }
+
     EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryMouseButton)
-};
-
-class MouseButtonPressedEvent : public MouseButton {
-public:
-    MouseButtonPressedEvent(int buttonCode)
-        : m_ButtonCode(buttonCode)
-    {}
-
-    EVENT_CLASS_TYPE(EventType::MouseButtonPressed)
 private:
     int m_ButtonCode;
 };
 
-class MouseButtonReleasedEvent : public MouseButton {
+class MouseButtonPressedEvent : public MouseButtonEvent {
+public:
+    MouseButtonPressedEvent(int buttonCode)
+        : MouseButtonEvent(buttonCode)
+    {}
+
+    EVENT_CLASS_TYPE(EventType::MouseButtonPressed)
+private:
+};
+
+class MouseButtonReleasedEvent : public MouseButtonEvent {
 public:
     MouseButtonReleasedEvent(int buttonCode)
-        : m_ButtonCode(buttonCode)
+        : MouseButtonEvent(buttonCode)
     {}
     EVENT_CLASS_TYPE(EventType::MouseButtonReleased)
-private:    
-    int m_ButtonCode;
+private:
 };
 
 }
