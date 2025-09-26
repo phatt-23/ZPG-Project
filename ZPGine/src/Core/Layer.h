@@ -18,6 +18,7 @@ public:
     virtual void OnDetach() {}
     virtual void OnUpdate([[maybe_unused]] Timestep ts) {}
     virtual void OnEvent([[maybe_unused]] Event& event) {}
+    virtual void OnAntTweakBarRender() {}
 private:
 };
 

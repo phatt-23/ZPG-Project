@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 #include "Debug/Asserter.h"
+#include <filesystem>
 
 namespace ZPG {
 
@@ -15,11 +16,19 @@ static std::string GetNameFromPath(const std::string& path) {
 }
 
 static std::string ReadFile(const std::string& path) {
+    ZPG_CORE_DEBUG("Reading file from CWD: {}", std::filesystem::current_path().c_str());
+
     std::ifstream f(path, std::ios::binary); 
+    ZPG_CORE_ASSERT(f.is_open(), "File {} failed to open", path);
 
     f.seekg(0, std::ios::end);
     std::string content;
-    content.resize(f.tellg());
+    u32 fileSize = f.tellg();
+
+    ZPG_CORE_INFO("File size: {}", fileSize);
+    ZPG_CORE_ASSERT(fileSize > 0, "File {} is empty", path);
+
+    content.resize(fileSize);
     f.seekg(0, std::ios::beg);
     f.read(content.data(), content.size());
     f.close();

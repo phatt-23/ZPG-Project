@@ -37,3 +37,5 @@ target_include_directories(Client PRIVATE
         ${CMAKE_SOURCE_DIR}/ZPGine/
         ${CMAKE_SOURCE_DIR}/ZPGine/src
 )
+
+set(WORKING_DIRECTORY "../")

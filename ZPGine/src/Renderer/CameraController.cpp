@@ -32,7 +32,6 @@ void CameraController::OnUpdate(Timestep ts) {
     // Update camera's position
     float translateSpeed = m_CameraTranslationSpeed * ts;
     vec3 cameraPosition = m_Camera.GetPosition();
-
     quat orientation = m_Camera.GetOrientation();
     vec3 front, right, worldUp, forward;
     
@@ -55,7 +54,6 @@ void CameraController::OnUpdate(Timestep ts) {
     if (Input::IsKeyPressed(ZPG_KEY_LEFT_CONTROL))
         cameraPosition -= worldUp * translateSpeed;
     
-    // ZPG_CORE_DEBUG("POS: {}, {}, {}", cameraPosition.x, cameraPosition.y, cameraPosition.z);
     m_Camera.SetPosition(cameraPosition);
 }
 void CameraController::OnEvent(Event& event) {
@@ -81,7 +79,7 @@ bool CameraController::OnMouseMoved(MouseMovedEvent& e) {
         quat qPitch = angleAxis(radians(-m_Pitch), vec3(1.0, 0.0, 0.0));
         quat qRoll = angleAxis(radians(0.f), vec3(0.0, 0.0, -1.0));
         
-        ZPG_CORE_DEBUG("YAW: {}, PITCH: {}", m_Yaw, m_Pitch);
+        // ZPG_CORE_DEBUG("YAW: {}, PITCH: {}", m_Yaw, m_Pitch);
         m_Camera.SetOrientation(normalize(qYaw * qPitch * qRoll));
         
         m_LastCursorPos = currentPos;

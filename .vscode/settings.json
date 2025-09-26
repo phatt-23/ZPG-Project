@@ -4,6 +4,7 @@
         "optional": "cpp",
         "ranges": "cpp",
         "regex": "cpp",
-        "__locale": "cpp"
+        "__locale": "cpp",
+        "ios": "cpp"
     }
 }

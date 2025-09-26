@@ -10,6 +10,7 @@
             "cStandard": "c17",
             "cppStandard": "c++17",
             "intelliSenseMode": "linux-clang-x64",
+            "cwd": "${workspaceFolder}",
             "compileCommands": [
                 "${workspaceFolder}/build/compile_commands.json"
             ]
