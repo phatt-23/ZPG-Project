@@ -12,5 +12,9 @@
 #include <algorithm>
 #include <functional>
 #include <filesystem>
+#include <exception>
+#include <source_location>
+#include <fstream>
+#include <sstream>
 
 #endif //PCH_H

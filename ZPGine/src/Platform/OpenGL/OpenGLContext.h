@@ -5,4 +5,23 @@
 #ifndef OPENGLCONTEXT_H
 #define OPENGLCONTEXT_H
 
+#include "Renderer/GraphicsContext.h"
+#include <GLFW/glfw3.h>
+#include "Core/Window.h"
+
+namespace ZPG {
+
+class OpenGLContext : public GraphicsContext {
+public:
+    OpenGLContext(GLFWwindow* windowHandle);
+    virtual ~OpenGLContext() override;
+
+    virtual void Init() override;
+    virtual void SwapBuffers() override;
+private:
+    GLFWwindow* m_WindowHandle;
+};
+
+}
+
 #endif //OPENGLCONTEXT_H

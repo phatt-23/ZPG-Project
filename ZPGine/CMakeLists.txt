@@ -16,7 +16,7 @@ add_library(ZPGine STATIC
 target_include_directories(ZPGine PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/vendor
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendorer
 )
 
 target_precompile_headers(ZPGine PUBLIC
@@ -28,8 +28,9 @@ target_compile_definitions(ZPGine
         PUBLIC $<$<CONFIG:DEBUG>:ZPG_ENABLE_LOGGING>
         PUBLIC $<$<CONFIG:DEBUG>:ZPG_OPENGL_CALL_ERROR_CHECK>
         # PUBLIC ZPG_ENABLE_PROFILING
-        PUBLIC ZPG_FUNCTION_CURRYING_USE_LAMBDA
+        PUBLIC ZPG_FORWARD_EVENT_TO_MEMBER_FN_USE_LAMBDAS
         PUBLIC GLFW_INCLUDE_NONE
+        GLM_ENABLE_EXPERIMENTAL
 )
 
 

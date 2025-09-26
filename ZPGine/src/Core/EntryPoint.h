@@ -7,14 +7,21 @@
 
 #include <iostream>
 #include "Application.h"
+#include "Debug/Logger.h"
 
 extern ZPG::Application* ZPG::CreateApplication();
 
 int main(void) {
-    std::cout << "Running..." << std::endl;
+    ZPG::Logger::Init();
+    ZPG_CORE_INFO("Logger initialised.");
 
-    auto* app = ZPG::CreateApplication();
+    ZPG_CORE_INFO("Creating application...");
+    ZPG::Application* app = ZPG::CreateApplication();
+
+    ZPG_CORE_INFO("Running...");
 	app->Run();
+
+    ZPG_CORE_INFO("Deleting app...");
     delete app;
 
     return EXIT_SUCCESS;

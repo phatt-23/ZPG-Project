@@ -12,9 +12,9 @@ add_compile_options(
         -Wextra
         -Wconversion
         -pedantic
-        $<$<CONFIG:DEBUG>:-g3>
-        $<$<CONFIG:DEBUG>:-Og>
-        $<$<CONFIG:RELEASE>:-O3>
+        # $<$<CONFIG:DEBUG>:-g3>
+        # $<$<CONFIG:DEBUG>:-Og>
+        # $<$<CONFIG:RELEASE>:-O3>
 )
 
 if (NOT DISABLE_ASAN AND $<CONFIG:DEBUG>)
