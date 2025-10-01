@@ -38,5 +38,14 @@ void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, const u
                     : indexCount;
     ZPG_OPENGL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
 }
+void OpenGLRendererAPI::DrawArrays(const Ref<VertexArray>& vertexArray) {
+    u64 count = 0;
+    for (auto& vbo : vertexArray->GetVertexBuffers()) {
+        count += vbo->GetSize() / vbo->GetLayout().GetStride();
+    }
+
+    ZPG_OPENGL_CALL(glDrawArrays(GL_TRIANGLES, 0, count));
+
+}
 
 }

@@ -5,6 +5,15 @@
         "ranges": "cpp",
         "regex": "cpp",
         "__locale": "cpp",
-        "ios": "cpp"
+        "ios": "cpp",
+        "bit": "cpp",
+        "fstream": "cpp",
+        "functional": "cpp",
+        "system_error": "cpp",
+        "tuple": "cpp",
+        "__hash_table": "cpp",
+        "deque": "cpp",
+        "array": "cpp",
+        "iostream": "cpp"
     }
 }

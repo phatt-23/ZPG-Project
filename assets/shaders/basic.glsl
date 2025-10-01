@@ -11,10 +11,9 @@ out vec4 f_Color;
 
 void main() {
     gl_Position = u_ViewProj * u_Model * vec4(a_Pos, 1.0);
+    
     f_Color = a_Color;
 }
-
-
 
 
 #type fragment

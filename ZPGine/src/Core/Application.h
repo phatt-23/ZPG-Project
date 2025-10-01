@@ -10,6 +10,7 @@
 #include "Window.h"
 #include "SceneManager.h"
 #include "Event/WindowEvent.h"
+#include "ImGuiManager.h"
 
 namespace ZPG {
 
@@ -22,6 +23,8 @@ public:
 
     void Run();
     void OnEvent(Event& e);
+    virtual void OnImGuiRender() {};
+
     const Window& GetWindow() { return *m_Window; } 
 private:
     bool OnWindowClose(WindowCloseEvent& event);

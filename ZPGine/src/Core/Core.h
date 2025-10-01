@@ -51,6 +51,7 @@ Scope<T> CreateScope(Args... args) {
 
 #define ZPG_BIT(x) (1 << (x))
 #define ZPG_IM_UNUSED(_PARAM) ((void)_PARAM)
+#define ZPG_ARRAYSIZE(array) (sizeof(array)/sizeof(*array))
 
 // #define ZPG_FORWARD_EVENT_TO_MEMBER_FN_USE_LAMBDAS
 #ifdef ZPG_FORWARD_EVENT_TO_MEMBER_FN_USE_LAMBDAS
@@ -58,6 +59,7 @@ Scope<T> CreateScope(Args... args) {
 #else
     #define ZPG_FORWARD_EVENT_TO_MEMBER_FN(fn) (std::bind(&(fn), this, std::placeholders::_1))
 #endif
+
 
 
 #endif //CORE_H

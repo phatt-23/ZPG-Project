@@ -23,7 +23,11 @@ void Renderer::Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<VertexA
     shaderProgram->SetMat4("u_ViewProj", s_DrawData->ViewProjMatrix);
 
     vertexArray->Bind();
-    RenderCommand::DrawIndexed(vertexArray);
+    if (vertexArray->HasIndexBuffer()) {
+        RenderCommand::DrawIndexed(vertexArray);
+    } else {
+        RenderCommand::DrawArrays(vertexArray);
+    }
 }
 
 void Renderer::OnWindowResize(int width, int height) {

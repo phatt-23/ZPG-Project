@@ -31,6 +31,11 @@ add_executable(Client
         ${client_headers}
 )
 
+target_include_directories(Client PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 target_link_libraries(Client PRIVATE ZPGine::ZPGine)
 
 target_include_directories(Client PRIVATE

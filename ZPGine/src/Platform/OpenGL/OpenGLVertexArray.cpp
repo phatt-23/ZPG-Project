@@ -48,6 +48,9 @@ void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) {
     this->Unbind();
     m_IndexBuffer->Unbind();
 }
+bool OpenGLVertexArray::HasIndexBuffer() const {
+    return m_IndexBuffer != nullptr;
+}
 const std::vector<Ref<VertexBuffer>>& OpenGLVertexArray::GetVertexBuffers() const {
     return m_VertexBuffers;
 }

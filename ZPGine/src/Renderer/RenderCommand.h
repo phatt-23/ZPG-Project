@@ -41,6 +41,9 @@ public:
     static void DrawIndexed(const Ref<VertexArray>& vertexArray, const u32 indexCount = 0) {
         s_RendererAPI->DrawIndexed(vertexArray, indexCount);
     }
+    static void DrawArrays(const Ref<VertexArray>& vertexArray) {
+        s_RendererAPI->DrawArrays(vertexArray);
+    }
 
 private:
     inline static RendererAPI* s_RendererAPI = nullptr;

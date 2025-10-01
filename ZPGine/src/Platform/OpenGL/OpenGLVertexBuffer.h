@@ -10,6 +10,7 @@ public:
     ~OpenGLVertexBuffer() override;
 
     virtual void SetData(const void* data, const u32 size) override;
+    virtual u32 GetSize() const override;
 
     virtual void Bind() const override;
     virtual void Unbind() const override;

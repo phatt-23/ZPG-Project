@@ -15,6 +15,8 @@ namespace ZPG {
 
 class Scene {
 public:
+    virtual ~Scene() {}
+
     virtual void OnUpdate(Timestep ts) {
         UpdateLayers(ts);
     }
@@ -24,6 +26,7 @@ public:
     }
     virtual void OnAttach() {}
     virtual void OnDetach() {}
+    virtual void OnImGuiRender();
 
     void PushLayer(Layer* layer);
     void PopLayer();

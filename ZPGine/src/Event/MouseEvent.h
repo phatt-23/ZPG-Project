@@ -9,7 +9,10 @@
 
 namespace ZPG {
 
-class MouseMovedEvent : public Event {
+class MouseEvent : public Event {
+};
+
+class MouseMovedEvent : public MouseEvent {
 public:
     MouseMovedEvent(float xPos, float yPos) : m_XPos(xPos), m_YPos(yPos) {}
     EVENT_CLASS_CATEGORY(EventCategoryMouse)
@@ -23,7 +26,7 @@ private:
     float m_YPos;
 };
 
-class MouseScrolledEvent : public Event {
+class MouseScrolledEvent : public MouseEvent {
 public:
     MouseScrolledEvent(float xOffset, float yOffset) : m_XOffset(xOffset), m_YOffset(yOffset) {}
     EVENT_CLASS_CATEGORY(EventCategoryMouse)
@@ -33,7 +36,7 @@ private:
     float m_YOffset;
 };
 
-class MouseButtonEvent : public Event {
+class MouseButtonEvent : public MouseEvent {
 public:
     MouseButtonEvent(int buttonCode) : m_ButtonCode(buttonCode) {}
     int GetButtonCode() const { return m_ButtonCode; }

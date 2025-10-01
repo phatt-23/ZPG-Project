@@ -11,6 +11,7 @@ public:
     virtual ~VertexBuffer() = default;
 
     virtual void SetData(const void* data, const u32 size) = 0;
+    virtual u32 GetSize() const = 0;
 
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;

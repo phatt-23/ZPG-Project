@@ -27,6 +27,16 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Camera.h"
 #include "Renderer/CameraController.h"
+#include "Renderer/ShaderDataType.h"
 
+#include "Model/CompoundTransform.h"
+#include "Model/DrawableObject.h"
+#include "Model/Material.h"
+#include "Model/Mesh.h"
+#include "Model/Model.h"
+#include "Model/RotationTransform.h"
+#include "Model/ScaleTransform.h"
+#include "Model/Transformation.h"
+#include "Model/TranslationTransform.h"
 
 #endif //ENGINE_H

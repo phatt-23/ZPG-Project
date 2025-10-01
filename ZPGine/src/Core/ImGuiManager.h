@@ -1,0 +1,24 @@
+#pragma once
+#include "Core.h"
+#include "Window.h"
+#include <GLFW/glfw3.h>
+
+namespace ZPG {
+
+class ImGuiManager {
+public:
+    virtual ~ImGuiManager() {}
+
+    static void Init(const Scope<Window>& window);
+    static void Shutdown();
+    static void BeginFrame() { s_Instance->BeginFrameImpl(); }
+    static void EndFrame() { s_Instance->EndFrameImpl(); }
+
+private:
+    virtual void BeginFrameImpl() = 0;
+    virtual void EndFrameImpl() = 0;
+
+    inline static ImGuiManager* s_Instance = nullptr;
+};
+
+}

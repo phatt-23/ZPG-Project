@@ -16,6 +16,7 @@ public:
 
     virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override;
     virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
+    virtual bool HasIndexBuffer() const override;
 
     virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const override;
     virtual const Ref<IndexBuffer>& GetIndexBuffer() const override;

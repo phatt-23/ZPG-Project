@@ -24,6 +24,9 @@ void OpenGLVertexBuffer::SetData(const void* data, const u32 size) {
     glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
     Unbind();
 }
+u32 OpenGLVertexBuffer::GetSize() const {
+    return m_Size;
+}
 void OpenGLVertexBuffer::Bind() const {
     glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 }

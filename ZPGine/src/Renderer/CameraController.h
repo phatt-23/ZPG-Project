@@ -7,6 +7,7 @@
 
 #include "Event/MouseEvent.h"
 #include "Event/WindowEvent.h"
+#include "Event/KeyEvent.h"
 #include "Core/Timestep.h"
 
 #include "Camera.h"
@@ -23,10 +24,14 @@ public:
     Camera& GetCamera() { return m_Camera; }
     const Camera& GetCamera() const { return m_Camera; }
 private:
+    bool OnWindowResize(WindowResizeEvent& e);
+    bool OnWindowFocus(WindowFocusEvent& e);
+    bool OnWindowLostFocus(WindowLostFocusEvent& e);
     bool OnMouseScrolled(MouseScrolledEvent& e);
     bool OnWindowResized(WindowResizeEvent& e);
     bool OnMouseMoved(MouseMovedEvent& e);
     bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
+    bool OnKeyPressed(KeyPressedEvent& e);
 private:
     Camera m_Camera;
 

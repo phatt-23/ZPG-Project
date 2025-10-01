@@ -7,6 +7,7 @@
 #include "Debug/Logger.h"
 #include <GLFW/glfw3.h>
 #include "Core/Application.h"
+#include "imgui.h"
 
 using namespace glm;
 
@@ -62,6 +63,24 @@ void CameraController::OnEvent(Event& event) {
     dispatcher.Dispatch<WindowResizeEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowResized));
     dispatcher.Dispatch<MouseMovedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnMouseMoved));
     dispatcher.Dispatch<MouseButtonPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnMouseButtonPressed));
+    dispatcher.Dispatch<KeyPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnKeyPressed));
+    dispatcher.Dispatch<WindowLostFocusEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowLostFocus));
+    dispatcher.Dispatch<WindowFocusEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowFocus));
+    dispatcher.Dispatch<WindowResizeEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowResize));
+}
+bool CameraController::OnWindowFocus(WindowFocusEvent& e) {
+    return false;
+}
+bool CameraController::OnWindowResize(WindowResizeEvent& e) {
+    Input::ShowCursor();
+    return false;
+}
+bool CameraController::OnWindowLostFocus(WindowLostFocusEvent& e) {
+    Input::ShowCursor();
+    return false;
+}
+bool CameraController::OnKeyPressed(KeyPressedEvent& e) {
+    return false;
 }
 bool CameraController::OnMouseMoved(MouseMovedEvent& e) {
     if (Input::IsCursorGrabbed()) {
