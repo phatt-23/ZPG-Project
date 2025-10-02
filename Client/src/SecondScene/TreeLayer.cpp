@@ -27,7 +27,7 @@ static u32 planeIndices[] = {
 TreeLayer::TreeLayer(CameraController& cameraController) : m_CameraController(cameraController) {
 }
 void TreeLayer::OnAttach() {
-    m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/normal.glsl");
+    m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/basic_normal.glsl");
     m_RedShaderProgram = ShaderProgram::Create("./assets/shaders/red.glsl");
 
     auto treeVBO = VertexBuffer::Create(tree, ZPG_ARRAYSIZE(tree));

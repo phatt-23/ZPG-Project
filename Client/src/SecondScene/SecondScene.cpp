@@ -17,7 +17,7 @@ SecondScene::SecondScene() : m_CameraController(), m_Timestep(0.f) {
 SecondScene::~SecondScene() {
 }
 void SecondScene::OnAttach() {
-    // PushLayer(new TreeLayer(m_CameraController));
+    PushLayer(new TreeLayer(m_CameraController));
     PushLayer(new SphereLayer(m_CameraController));
 }
 void SecondScene::OnUpdate(Timestep ts) {

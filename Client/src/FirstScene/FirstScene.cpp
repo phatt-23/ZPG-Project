@@ -65,7 +65,7 @@ public:
         camera.SetOrientation(glm::quatLookAt(glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0)));
     }
     void OnAttach() override {
-        m_BasicShaderProgram = ShaderProgram::Create("./assets/shaders/basic.glsl");
+        m_BasicShaderProgram = ShaderProgram::Create("./assets/shaders/basic_color.glsl");
         m_RedShaderProgram = ShaderProgram::Create("./assets/shaders/red.glsl");
 
         auto boxVbo = VertexBuffer::Create(boxVertices, ZPG_ARRAYSIZE(boxVertices));

@@ -11,7 +11,7 @@ SphereLayer::SphereLayer(ZPG::CameraController& cameraController) : m_CameraCont
 }
 void SphereLayer::OnAttach() {
     m_SphereVAO = VertexArray::Create();
-    m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/normal.glsl");
+    m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/basic_normal.glsl");
     
     Ref<VertexBuffer> vbo = VertexBuffer::Create(sphere, ZPG_ARRAYSIZE(sphere));
     vbo->SetLayout({
