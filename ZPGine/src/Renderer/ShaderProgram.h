@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 #include "Core/Core.h"
+#include "Shader.h"
 
 namespace ZPG {
 
@@ -28,9 +29,16 @@ public:
     virtual void SetMat3(const std::string& uniName, glm::mat3 mat) = 0;
     virtual void SetMat4(const std::string& uniName, glm::mat4 mat) = 0;
 
-    static Ref<ShaderProgram> Create(const std::string& path);
-    static Ref<ShaderProgram> Create(const std::string& name, const std::string& vertexSource, const std::string& fragmentSource);
+    // Factories for creating shader program: create with shaders, or create by reading in a GLSL file containing 
+    // all shader codes in one. These must have a type directive #type (vertex, fragment/pixel, geometry) set at 
+    // the top of the source code (just like #version). 
+
+    // This factory checks that there is only one shader of each ShaderType.
+    static Ref<ShaderProgram> Create(const std::string& name, const std::vector<Ref<Shader>>& shaders);
+    static Ref<ShaderProgram> Create(const std::string& filePath);
+    static Ref<ShaderProgram> Create(const std::string& name, const std::string& filePath);
 private:
+
 };
 
 }

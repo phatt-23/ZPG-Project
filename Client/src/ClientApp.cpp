@@ -7,12 +7,14 @@
 #include <imgui.h>
 #include "FirstScene/FirstScene.h"
 #include "SecondScene/SecondScene.h"
+#include "TestShaderLoadingScene/TestShaderLoadingScene.h"
 
 class ClientApp : public ZPG::Application {
 public:
     ClientApp() {
         m_SceneManager.AddScene("Second", ZPG::CreateRef<SecondScene>());
         m_SceneManager.AddScene("First", ZPG::CreateRef<FirstScene>());
+        m_SceneManager.AddScene("TestShaderLoading", ZPG::CreateRef<TestShaderLoadingScene>());
     }
 
     void OnImGuiRender() override {
