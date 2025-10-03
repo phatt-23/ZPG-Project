@@ -15,10 +15,11 @@ uniform mat4 u_Model;
 uniform mat4 u_ViewProj;
 
 void main() {
-    v_WorldPos = u_Model * vec4(a_Pos, 1.f);
+    vec4 worldPos = u_Model * vec4(a_Pos, 1.f);
+    v_WorldPos = vec3(worldPos);
     v_WorldNormal = normalize(transpose(inverse(mat3(u_Model))) * a_Normal);
     v_TexCoord = a_TexCoord;
-    gl_Position = u_ViewProj * v_WorldPos;
+    gl_Position = u_ViewProj * worldPos;
 }
 
 // Why transform the normal with the transposed inverse of the 3x3 submatrix of the model matrix?

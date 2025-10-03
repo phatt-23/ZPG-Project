@@ -81,7 +81,7 @@ u32 OpenGLShader::CompileShader(ShaderType shaderType, const std::string& source
         ZPG_OPENGL_CALL(glGetShaderInfoLog(shaderID, len, &len, msg));
         ZPG_OPENGL_CALL(glDeleteShader(shaderID));
 
-        ZPG_CORE_ERROR("Shader compilation failed.");
+        ZPG_CORE_ERROR("Shader compilation failed: {}.", m_Name);
         ZPG_CORE_ERROR("{}", msg);
         ZPG_UNREACHABLE();
 

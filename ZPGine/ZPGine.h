@@ -41,5 +41,8 @@
 #include "Transform/Transformation.h"
 #include "Transform/TranslationTransform.h"
 
+#include "Light/Light.h"
+#include "Light/AmbientLight.h"
+#include "Light/PointLight.h"
 
 #endif //ENGINE_H

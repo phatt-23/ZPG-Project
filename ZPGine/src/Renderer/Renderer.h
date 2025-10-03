@@ -11,6 +11,7 @@
 #include "RendererAPI.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
+#include "Light/Light.h"
 
 namespace ZPG {
 
@@ -23,12 +24,15 @@ public:
 
     static void BeginDraw(const Camera& camera);
     static void EndDraw();
+
+    static void SetLights(const std::vector<Ref<Light>>& lights);
     static void Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::identity<glm::mat4>());
     
     static void OnWindowResize(int width, int height);
 private:
     struct DrawData {
         glm::mat4 ViewProjMatrix;
+        std::vector<Ref<Light>> Lights;
     };
     inline static Scope<DrawData> s_DrawData = CreateScope<DrawData>();
 };

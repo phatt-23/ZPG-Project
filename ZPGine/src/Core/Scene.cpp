@@ -44,7 +44,7 @@ void Scene::RenderLayers(Timestep ts) {
     RenderContext ctx = {
         .m_Timestep = ts,
         .m_Camera = m_Camera,
-        .m_Lights = m_Lights,
+        .m_Lights = m_LightManager.GetLights(),
     };
 
     for (auto& layer : m_LayerStack) {
@@ -59,6 +59,12 @@ void Scene::OnResume() {
 }
 void Scene::OnPause() {
 
+}
+void Scene::AddLight(const Ref<Light>& light) {
+    m_LightManager.AddLight(light);
+}
+void Scene::RemoveLight(const Ref<Light>& light) {
+    m_LightManager.RemoveLight(light);
 }
 
 }

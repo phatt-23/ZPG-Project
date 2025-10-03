@@ -1,14 +1,21 @@
 #pragma once
 #include "Core/Core.h"
 #include "LightType.h"
+#include "Renderer/ShaderProgram.h"
 
 namespace ZPG {
 
 class Light {
 public:
-    u32 GetIndex() const { return m_Index; }
+    Light(LightType lightType) 
+    : m_LightType(lightType) {
+    }
+
+    virtual ~Light() = default;
+
+    LightType GetLightType() const { return m_LightType; }
+    virtual void SendToShaderProgram(ShaderProgram& shaderProgram, u32 index) = 0;
 private:
-    u32 m_Index;  
     LightType m_LightType;
 };
 

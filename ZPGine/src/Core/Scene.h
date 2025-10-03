@@ -6,6 +6,7 @@
 #define SCENE_H
 
 #include "Event/Event.h"
+#include "Light/LightManager.h"
 #include "Renderer/Camera.h"
 #include "Timestep.h"
 #include "LayerStack.h"
@@ -29,16 +30,18 @@ public:
 
     void PushLayer(Layer* layer);
     void PopLayer();
+
+    void AddLight(const Ref<Light>& light);
+    void RemoveLight(const Ref<Light>& light);
 protected:
     void PropagateEventDownLayers(Event& event); 
     void UpdateLayers(Timestep ts);
     void RenderLayers(Timestep ts);
     Camera& GetCamera() { return m_Camera; }
-    std::vector<Light>& GetLights() { return m_Lights; }
 private:
     LayerStack m_LayerStack;
     Camera m_Camera;
-    std::vector<Light> m_Lights;
+    LightManager m_LightManager;
 };
 
 }

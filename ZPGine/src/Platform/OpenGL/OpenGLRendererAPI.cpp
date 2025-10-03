@@ -45,7 +45,6 @@ void OpenGLRendererAPI::DrawArrays(const Ref<VertexArray>& vertexArray) {
     }
 
     ZPG_OPENGL_CALL(glDrawArrays(GL_TRIANGLES, 0, count));
-
 }
 
 }

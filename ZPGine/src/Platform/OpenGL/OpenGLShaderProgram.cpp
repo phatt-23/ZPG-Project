@@ -40,7 +40,7 @@ i32 OpenGLShaderProgram::GetUniformLocation(const std::string &name) {
 
     ZPG_OPENGL_CALL(int location = glGetUniformLocation(m_RendererID, name.c_str()));
     if (location == -1)
-        ZPG_CORE_ERROR("Shader ({}): Uniform with name '{}' wasn't found!", m_RendererID, name);
+        ZPG_CORE_ERROR("Shader ({}, {}): Uniform with name '{}' wasn't found!", m_RendererID, m_Name, name);
 
     m_LocationCache[name] = location;
     return location;
@@ -156,46 +156,46 @@ std::unordered_map<Shader::ShaderType, std::string> OpenGLShaderProgram::GetShad
 
 
 
-// deperecated, compiles the shader sources, links a program and deletes the compiled shaders.
-static u32 Compile(std::unordered_map<Shader::ShaderType, std::string> sources) {
-    u32 program;
-    ZPG_OPENGL_CALL(program = glCreateProgram());
+// // deperecated, compiles the shader sources, links a program and deletes the compiled shaders.
+// u32 Compile(std::unordered_map<Shader::ShaderType, std::string> sources) {
+//     u32 program;
+//     ZPG_OPENGL_CALL(program = glCreateProgram());
 
-    std::vector<u32> shaders(sources.size());
-    for (auto& [type, source] : sources) {
-        u32 shaderId = OpenGLShader::CompileShader(type, source);
-        shaders.push_back(shaderId);
-        ZPG_OPENGL_CALL(glAttachShader(program, shaderId));
-    }
+//     std::vector<u32> shaders(sources.size());
+//     for (auto& [type, source] : sources) {
+//         u32 shaderId = OpenGLShader::CompileShader(type, source);
+//         shaders.push_back(shaderId);
+//         ZPG_OPENGL_CALL(glAttachShader(program, shaderId));
+//     }
 
-    ZPG_OPENGL_CALL(glLinkProgram(program));
+//     ZPG_OPENGL_CALL(glLinkProgram(program));
 
-    i32 status;
-    ZPG_OPENGL_CALL(glGetProgramiv(program, GL_LINK_STATUS, &status));
-    if (status == GL_FALSE) {
-        i32 len;
-        ZPG_OPENGL_CALL(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len)); 
+//     i32 status;
+//     ZPG_OPENGL_CALL(glGetProgramiv(program, GL_LINK_STATUS, &status));
+//     if (status == GL_FALSE) {
+//         i32 len;
+//         ZPG_OPENGL_CALL(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len)); 
         
-        char* msg = new char[len];
-        ZPG_OPENGL_CALL(glGetProgramInfoLog(program, len, &len, msg));
+//         char* msg = new char[len];
+//         ZPG_OPENGL_CALL(glGetProgramInfoLog(program, len, &len, msg));
 
-        ZPG_OPENGL_CALL(glDeleteProgram(program));
-        for (u32 shader : shaders) {
-            ZPG_OPENGL_CALL(glDeleteShader(shader));
-        }
+//         ZPG_OPENGL_CALL(glDeleteProgram(program));
+//         for (u32 shader : shaders) {
+//             ZPG_OPENGL_CALL(glDeleteShader(shader));
+//         }
 
-        ZPG_UNREACHABLE("ShaderProgram linking failed: {}", msg);
+//         ZPG_UNREACHABLE("ShaderProgram linking failed: {}", msg);
 
-        delete[] msg;
-        return 0;
-    }
+//         delete[] msg;
+//         return 0;
+//     }
     
-    for (u32 shId : shaders) {
-        ZPG_OPENGL_CALL(glDeleteShader(shId));
-    }
+//     for (u32 shId : shaders) {
+//         ZPG_OPENGL_CALL(glDeleteShader(shId));
+//     }
 
-    return program;
-}
+//     return program;
+// }
 
 
 

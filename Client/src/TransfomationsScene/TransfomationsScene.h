@@ -8,7 +8,8 @@ using namespace ZPG;
 
 class TransformationsScene : public Scene {
 public:
-    TransformationsScene() : m_CameraController(), m_Timestep(0.f) {
+    TransformationsScene() 
+    : m_CameraController(GetCamera()), m_Timestep(0.f) {
         f32 aspectRatio = Application::Get().GetWindow().GetAspectRatio();
         Camera& camera = m_CameraController.GetCamera();
         camera.SetPerspectiveProjection(camera.GetFOV(), aspectRatio, 0.001f, camera.GetZFar());

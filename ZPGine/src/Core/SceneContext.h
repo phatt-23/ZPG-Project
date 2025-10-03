@@ -10,7 +10,7 @@ namespace ZPG {
 struct RenderContext {
     Timestep m_Timestep = 0.f;
     const Camera& m_Camera;
-    const std::vector<Light>& m_Lights;
+    const std::vector<Ref<Light>>& m_Lights;
 };
 
 // APIs for modifying the world
