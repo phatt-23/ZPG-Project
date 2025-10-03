@@ -22,9 +22,8 @@ static T wrap(T value, T low, T high) {
     return value;
 }
 
-CameraController::CameraController() 
-: m_Camera() {
-
+CameraController::CameraController(Camera& camera) 
+: m_Camera(camera) {
 }
 CameraController::~CameraController() {
 

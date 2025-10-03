@@ -13,8 +13,11 @@ namespace ZPG {
 
 class Camera {
 public:
-    Camera(const glm::vec3& position = glm::vec3(0.f), 
-        const glm::quat& orientation = glm::quatLookAt(glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, 1.f, 0.f)));
+    Camera(
+        const glm::vec3& position = glm::vec3(0.f), 
+        const glm::quat& orientation = glm::quatLookAt(
+            glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, 1.f, 0.f)));
+
     ~Camera();
 
     void SetOrthoProjection(f32 left, f32 right, f32 bottom, f32 top);
@@ -36,7 +39,7 @@ private:
     void RecalculateViewMatrix();
 
     glm::mat4 m_ViewMatrix;
-    glm::mat4 m_ProjMatrix;
+    glm::mat4 m_ProjMatrix; 
     glm::mat4 m_ViewProjMatrix;
 
     glm::vec3 m_Position;
@@ -44,7 +47,7 @@ private:
 
     // lens specs
     // perspective
-    f32 m_FOV = 45.0f;
+    f32 m_FOV = 45.0f; // expressed in angles
     f32 m_AspectRatio = 0.5f;
     f32 m_zNear = 0.1f;  // if 0 then behaves weird, clipping
     f32 m_zFar = 100.0f;

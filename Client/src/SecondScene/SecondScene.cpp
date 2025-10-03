@@ -7,7 +7,9 @@
 using namespace ZPG;
 
 
-SecondScene::SecondScene() : m_CameraController(), m_Timestep(0.f) {
+SecondScene::SecondScene() 
+: m_CameraController(GetCamera())
+, m_Timestep(0.f) {
     f32 aspectRatio = Application::Get().GetWindow().GetAspectRatio();
     Camera& camera = m_CameraController.GetCamera();
     camera.SetPerspectiveProjection(camera.GetFOV(), aspectRatio, 0.001f, camera.GetZFar());
@@ -17,15 +19,19 @@ SecondScene::SecondScene() : m_CameraController(), m_Timestep(0.f) {
 SecondScene::~SecondScene() {
 }
 void SecondScene::OnAttach() {
-    PushLayer(new TreeLayer(m_CameraController));
+    PushLayer(new TreeLayer());
     PushLayer(new SphereLayer(m_CameraController));
 }
 void SecondScene::OnUpdate(Timestep ts) {
     m_Timestep = ts;
 
-    // If ImGui wants keyboard, don't let controller "move"
-    if (not ImGui::GetIO().WantCaptureKeyboard) 
-        m_CameraController.OnUpdate(ts);
+    // // If ImGui wants keyboard, don't let controller "move"
+    // // WARN: this cuases the scene, when resuming, to not show anything
+    // // only after the scene is clicked on it is being updated
+    // // mostly likely due to ImGui capturing IO when clicking in the Scene switcher menu
+    // if (not ImGui::GetIO().WantCaptureKeyboard) 
+    //     m_CameraController.OnUpdate(ts);
+    m_CameraController.OnUpdate(ts);
 
     UpdateLayers(ts);
 }

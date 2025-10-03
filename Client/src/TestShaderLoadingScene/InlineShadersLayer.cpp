@@ -4,9 +4,7 @@
 
 using namespace ZPG;
 
-InlineShadersLayer::InlineShadersLayer(ZPG::CameraController& controller)  
-    : m_CameraController(controller)
-{
+InlineShadersLayer::InlineShadersLayer() {
 }
 
 void InlineShadersLayer::OnAttach() {
@@ -55,8 +53,11 @@ void InlineShadersLayer::OnAttach() {
     m_TreeVAO = ZPG::VertexArray::Create();
     m_TreeVAO->AddVertexBuffer(treeVBO);
 }
-void InlineShadersLayer::OnUpdate([[maybe_unused]] ZPG::Timestep ts) {
-    ZPG::Renderer::BeginDraw(m_CameraController.GetCamera());
+
+void InlineShadersLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
+}
+void InlineShadersLayer::OnRender(const ZPG::RenderContext& ctx) {
+    ZPG::Renderer::BeginDraw(ctx.m_Camera);
         glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(1.0, 0.0, -1.f));
         Renderer::Submit(m_ShaderProgram, m_TreeVAO, model);
     ZPG::Renderer::EndDraw();

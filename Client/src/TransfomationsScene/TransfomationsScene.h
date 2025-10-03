@@ -3,16 +3,12 @@
 #include "Models/gift.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
-#include "InlineShadersLayer.h"
-#include "ReadingFromFilesLayer.h"
 
 using namespace ZPG;
 
-class TestShaderLoadingScene : public Scene {
+class TransformationsScene : public Scene {
 public:
-    TestShaderLoadingScene() 
-    : m_CameraController(GetCamera())
-    , m_Timestep(0.f) {
+    TransformationsScene() : m_CameraController(), m_Timestep(0.f) {
         f32 aspectRatio = Application::Get().GetWindow().GetAspectRatio();
         Camera& camera = m_CameraController.GetCamera();
         camera.SetPerspectiveProjection(camera.GetFOV(), aspectRatio, 0.001f, camera.GetZFar());
@@ -20,17 +16,16 @@ public:
         camera.SetOrientation(glm::quatLookAt(glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0)));
     }
     void OnAttach() override {
-        PushLayer(new InlineShadersLayer());
-        PushLayer(new ReadingFromFilesLayer());
+        // PushLayer();
     }
     void OnUpdate(Timestep ts) override {
         m_Timestep = ts;
-        m_CameraController.OnUpdate(ts);
-        Scene::OnUpdate(ts);
+        if (!ImGui::GetIO().WantCaptureKeyboard) 
+            m_CameraController.OnUpdate(ts);
+        UpdateLayers(ts);
     }
     void OnEvent(Event& event) override {
         m_CameraController.OnEvent(event);
-        Scene::OnEvent(event);
     }
 private:
     Ref<ShaderProgram> m_ShaderProgram;
@@ -38,3 +33,4 @@ private:
     Ref<VertexArray> m_TreeVAO;
     Timestep m_Timestep;
 };
+

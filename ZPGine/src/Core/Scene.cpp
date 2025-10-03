@@ -1,5 +1,7 @@
 #include "Scene.h"
 #include "Renderer/RenderCommand.h"
+#include "Application.h"
+#include <imgui.h>
 
 namespace ZPG {
 
@@ -8,11 +10,6 @@ void Scene::PushLayer(Layer* layer) {
 }
 void Scene::PopLayer() {
     m_LayerStack.PopLayer();
-}
-void Scene::OnImGuiRender() {
-    for (auto& layer : m_LayerStack) {
-        layer->OnImGuiRender();
-    }
 }
 void Scene::PropagateEventDownLayers(Event& event) {
     // events travel from top to bottom
@@ -23,13 +20,45 @@ void Scene::PropagateEventDownLayers(Event& event) {
             break;
     }
 }
+void Scene::OnImGuiRender() {
+    for (auto& layer : m_LayerStack) {
+        layer->OnImGuiRender();
+    }
+}
 void Scene::UpdateLayers(Timestep ts) {
     RenderCommand::SetClearColor({0.0, 0.0, 0.0, 1.0});
     RenderCommand::Clear();
 
+    SceneContext ctx;
+    ctx.m_Timestep = ts;
+    ctx.AddLight = [this](const Light& light) {
+        ZPG_CORE_DEBUG("Layer wants to add light.");
+        return;  
+    };
+
     for (auto& layer : m_LayerStack) {
-        layer->OnUpdate(ts);
+        layer->OnUpdate(ctx);
     }
+}
+void Scene::RenderLayers(Timestep ts) {
+    RenderContext ctx = {
+        .m_Timestep = ts,
+        .m_Camera = m_Camera,
+        .m_Lights = m_Lights,
+    };
+
+    for (auto& layer : m_LayerStack) {
+        layer->OnRender(ctx);
+    }
+}
+void Scene::OnResume() {
+    // Sending event because the scene must adapt to the current window size
+    const Window& window = Application::Get().GetWindow();
+    WindowResizeEvent event(window.GetWidth(), window.GetHeight());
+    this->OnEvent(event);
+}
+void Scene::OnPause() {
+
 }
 
 }

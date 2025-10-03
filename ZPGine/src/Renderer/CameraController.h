@@ -15,7 +15,7 @@
 namespace ZPG {
 class CameraController {
 public:
-    CameraController();
+    CameraController(Camera& camera);
     virtual ~CameraController();
     
     virtual void OnUpdate(Timestep ts);
@@ -33,7 +33,7 @@ private:
     bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
     bool OnKeyPressed(KeyPressedEvent& e);
 private:
-    Camera m_Camera;
+    Camera& m_Camera;
 
     f32 m_CameraTranslationSpeed = 2.0f;
     f32 m_MouseSensitivity = 1.f;

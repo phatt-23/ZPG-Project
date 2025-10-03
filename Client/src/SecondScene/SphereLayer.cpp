@@ -1,7 +1,4 @@
 #include "SphereLayer.h"
-#include "Model/RotationTransform.h"
-#include "Model/ScaleTransform.h"
-#include "Model/TranslationTransform.h"
 #include "Models/sphere.h"
 
 using namespace ZPG;
@@ -21,12 +18,12 @@ void SphereLayer::OnAttach() {
 
     m_SphereVAO->AddVertexBuffer(vbo);
 }
-void SphereLayer::OnUpdate(ZPG::Timestep ts) {
+void SphereLayer::OnUpdate(SceneContext& context) {
     using namespace glm;
-    m_Timestep = ts;
+    m_Timestep = context.m_Timestep;
 
     static f32 rot = 0;
-    rot += 50.f * ts;
+    rot += 50.f * m_Timestep;
 
     // to rotate A around B
     // 1. get vector c = pos(A) - pos(B)

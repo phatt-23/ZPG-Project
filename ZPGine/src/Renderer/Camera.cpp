@@ -13,6 +13,7 @@ Camera::Camera(const glm::vec3& position, const glm::quat& orientation)
 , m_ViewMatrix(glm::mat4(1.f))
 , m_ViewProjMatrix(glm::mat4(1.f)) {
     RecalculateViewMatrix();
+    SetPerspectiveProjection(m_FOV, m_AspectRatio, m_zNear, m_zFar);
     m_ViewProjMatrix = m_ProjMatrix * m_ViewMatrix;
 }
 Camera::~Camera() {
@@ -26,12 +27,12 @@ void Camera::SetOrthoProjection(f32 left, f32 right, f32 bottom, f32 top) {
     m_ProjMatrix = glm::ortho(left, right, bottom, top);
     m_ViewProjMatrix = m_ProjMatrix * m_ViewProjMatrix;
 }
-void Camera::SetPerspectiveProjection(f32 fov, f32 aspectRatio, f32 zNear, f32 zFar) {
-    m_FOV = fov;
+void Camera::SetPerspectiveProjection(f32 fovAngle, f32 aspectRatio, f32 zNear, f32 zFar) {
+    m_FOV = fovAngle;
     m_zNear = zNear;
     m_zFar = zFar;
     m_AspectRatio = aspectRatio;
-    m_ProjMatrix = glm::perspective(fov, aspectRatio, zNear, zFar);
+    m_ProjMatrix = glm::perspective(glm::radians(fovAngle), aspectRatio, zNear, zFar);
     m_ViewProjMatrix = m_ProjMatrix * m_ViewProjMatrix;
 }
 const glm::vec3& Camera::GetPosition() const {

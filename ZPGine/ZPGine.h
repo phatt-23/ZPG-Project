@@ -11,6 +11,7 @@
 #include "Core/Layer.h"
 #include "Core/LayerStack.h"
 #include "Core/Scene.h"
+#include "Core/SceneContext.h"
 #include "Core/SceneManager.h"
 #include "Core/Window.h"
 #include "Core/Timestep.h"
@@ -29,14 +30,16 @@
 #include "Renderer/CameraController.h"
 #include "Renderer/ShaderDataType.h"
 
-#include "Model/CompoundTransform.h"
 #include "Model/DrawableObject.h"
 #include "Model/Material.h"
 #include "Model/Mesh.h"
 #include "Model/Model.h"
-#include "Model/RotationTransform.h"
-#include "Model/ScaleTransform.h"
-#include "Model/Transformation.h"
-#include "Model/TranslationTransform.h"
+
+#include "Transform/CompoundTransform.h"
+#include "Transform/RotationTransform.h"
+#include "Transform/ScaleTransform.h"
+#include "Transform/Transformation.h"
+#include "Transform/TranslationTransform.h"
+
 
 #endif //ENGINE_H

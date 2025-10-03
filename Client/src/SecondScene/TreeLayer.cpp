@@ -24,7 +24,7 @@ static u32 planeIndices[] = {
     0, 2, 3,
 };
 
-TreeLayer::TreeLayer(CameraController& cameraController) : m_CameraController(cameraController) {
+TreeLayer::TreeLayer() {
 }
 void TreeLayer::OnAttach() {
     m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/basic_normal.glsl");
@@ -50,17 +50,16 @@ void TreeLayer::OnAttach() {
     m_PlaneVao->AddVertexBuffer(planeVbo);
     m_PlaneVao->SetIndexBuffer(planeIbo);
 }
-void TreeLayer::OnUpdate(Timestep ts) {
-    m_Timestep = ts;
-
+void TreeLayer::OnUpdate(SceneContext& context) {
+}
+void TreeLayer::OnRender(const ZPG::RenderContext& ctx) {
     static f32 rot = 0;
-    rot += 50.f * ts;
+    rot += 50.f * ctx.m_Timestep;
     static glm::mat4 treeTransform = glm::mat4(1.f);
     treeTransform = glm::rotate(glm::mat4(1.f), glm::radians(rot), glm::vec3(0.f, 1.f, 0.f));
 
     static glm::mat4 planeTransform = glm::scale(glm::mat4(1.f), glm::vec3(10.f, 1.0f, 20.f));
-
-    Renderer::BeginDraw(m_CameraController.GetCamera());
+    Renderer::BeginDraw(ctx.m_Camera);
         Renderer::Submit(m_NormalShaderProgram, m_TreeVAO, treeTransform);
         Renderer::Submit(m_RedShaderProgram, m_PlaneVao, planeTransform);
     Renderer::EndDraw();

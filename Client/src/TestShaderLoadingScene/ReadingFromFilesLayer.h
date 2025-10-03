@@ -4,11 +4,11 @@
 
 class ReadingFromFilesLayer : public ZPG::Layer {
 public:
-    ReadingFromFilesLayer(ZPG::CameraController& controller);
+    ReadingFromFilesLayer();
     void OnAttach() override;
-    void OnUpdate([[maybe_unused]] ZPG::Timestep ts) override;
+    void OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) override;
+    void OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) override;
 private: 
-    ZPG::CameraController& m_CameraController;
     ZPG::Ref<ZPG::ShaderProgram> m_ShaderProgram;
     ZPG::Ref<ZPG::VertexArray> m_TreeVAO;
 };

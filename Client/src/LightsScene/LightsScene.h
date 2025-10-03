@@ -1,10 +1,9 @@
 #pragma once
-
 #include "ZPGine.h"
 
-class FirstScene : public ZPG::Scene {
+class LightsScene : public ZPG::Scene {
 public:
-    FirstScene();
+    LightsScene();
     void OnAttach() override;
     void OnUpdate(ZPG::Timestep ts) override;
     void OnEvent(ZPG::Event &event) override;

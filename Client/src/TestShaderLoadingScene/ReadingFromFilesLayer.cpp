@@ -4,9 +4,7 @@
 
 using namespace ZPG;
 
-ReadingFromFilesLayer::ReadingFromFilesLayer(ZPG::CameraController& controller)  
-    : m_CameraController(controller)
-{
+ReadingFromFilesLayer::ReadingFromFilesLayer() {
 }
 
 void ReadingFromFilesLayer::OnAttach() {
@@ -29,8 +27,12 @@ void ReadingFromFilesLayer::OnAttach() {
     m_TreeVAO->AddVertexBuffer(treeVBO);
     
 }
-void ReadingFromFilesLayer::OnUpdate([[maybe_unused]] ZPG::Timestep ts) {
-    ZPG::Renderer::BeginDraw(m_CameraController.GetCamera());
+
+void ReadingFromFilesLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
+}
+void ReadingFromFilesLayer::OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) {
+    ZPG::Renderer::BeginDraw(ctx.m_Camera);
+        // Renderer::SetLights(m_ShaderProgram, lights);
         Renderer::Submit(m_ShaderProgram, m_TreeVAO, glm::mat4(1.f));
     ZPG::Renderer::EndDraw();
 }

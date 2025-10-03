@@ -7,6 +7,7 @@
 
 #include "Event/Event.h"
 #include "Timestep.h"
+#include "SceneContext.h"
 
 namespace ZPG {
 
@@ -16,8 +17,9 @@ public:
     virtual ~Layer() = default;
     virtual void OnAttach() {}
     virtual void OnDetach() {}
-    virtual void OnUpdate([[maybe_unused]] Timestep ts) {}
+    virtual void OnUpdate([[maybe_unused]] SceneContext& ctx) {}
     virtual void OnEvent([[maybe_unused]] Event& event) {}
+    virtual void OnRender([[maybe_unused]] const RenderContext& ctx) {}
     virtual void OnImGuiRender() {}
 private:
 };

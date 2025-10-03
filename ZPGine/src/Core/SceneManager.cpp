@@ -31,7 +31,11 @@ bool SceneManager::Exists(const std::string& name) const {
 
 void SceneManager::SetActiveScene(const std::string& name) {
     ZPG_CORE_ASSERT(Exists(name), "Cannot set scene with name '{}' as active, it doesn't exist.", name);
+    if (Exists(m_ActiveSceneName)) {
+        m_Scenes[m_ActiveSceneName]->OnPause();
+    }
     m_ActiveSceneName = name; 
+    m_Scenes[m_ActiveSceneName]->OnResume();
 }
 
 Ref<Scene>& SceneManager::GetActiveScene() {

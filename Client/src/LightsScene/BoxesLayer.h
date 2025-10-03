@@ -2,13 +2,14 @@
 
 #include "ZPGine.h"
 
-class InlineShadersLayer : public ZPG::Layer {
+class BoxesLayer : public ZPG::Layer {
 public:
-    InlineShadersLayer();
+    BoxesLayer();
     void OnAttach() override;
     void OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) override;
     void OnRender(const ZPG::RenderContext& ctx) override;
-private: 
+
+private:
     ZPG::Ref<ZPG::ShaderProgram> m_ShaderProgram;
-    ZPG::Ref<ZPG::VertexArray> m_TreeVAO;
+    ZPG::Ref<ZPG::VertexArray> m_VAO;
 };

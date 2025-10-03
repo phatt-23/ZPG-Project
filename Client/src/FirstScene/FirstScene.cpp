@@ -57,12 +57,7 @@ class MyLayer : public Layer {
     Timestep m_Timestep = 0;
     std::vector<glm::mat4> m_Transforms;
 public:
-    MyLayer() : m_CameraController() {
-        f32 aspectRatio = Application::Get().GetWindow().GetAspectRatio();
-        Camera& camera = m_CameraController.GetCamera();
-        camera.SetPerspectiveProjection(camera.GetFOV(), aspectRatio, 0.001f, camera.GetZFar());
-        camera.SetPosition(glm::vec3(0.0, 0.0, 1.0));
-        camera.SetOrientation(glm::quatLookAt(glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, 1.0, 0.0)));
+    MyLayer() {
     }
     void OnAttach() override {
         m_BasicShaderProgram = ShaderProgram::Create("./assets/shaders/basic_color.glsl");
@@ -94,17 +89,14 @@ public:
         for (int i = 0; i < 1000; i++)
             m_Transforms.push_back(glm::translate(glm::mat4(1.f), glm::vec3(random_f32(-10.f, 10.f), random_f32(-10.f, 10.f), random_f32(-10.f, 10.f))));
     }
-    void OnUpdate(Timestep ts) override {
-        m_Timestep = ts;
-
-        // If ImGui wants keyboard, don't let controller "move"
-        if (not ImGui::GetIO().WantCaptureKeyboard) 
-            m_CameraController.OnUpdate(ts);
+    void OnUpdate(SceneContext& context) override {
+        m_Timestep = context.m_Timestep;
+    }
+    void OnRender(const RenderContext& ctx) override {
+        using namespace glm;
 
         static f32 rot = 0;
-        rot += 50.f * ts;
-
-        using namespace glm;
+        rot += 50.f * ctx.m_Timestep;
 
         mat4 rotMat = rotate(mat4(1.f), radians(rot), vec3(0.f, 1.f, 0.f));
         mat4 trMat  = translate(mat4(1.f), vec3(1.0, 0.0, 0.0));
@@ -113,10 +105,7 @@ public:
 
         static glm::mat4 planeTransform = glm::scale(glm::mat4(1.f), glm::vec3(10.f, 1.0f, 20.f));
 
-        RenderCommand::SetClearColor({0.0, 0.0, 0.0, 1.0});
-        RenderCommand::Clear();
-
-        Renderer::BeginDraw(m_CameraController.GetCamera());
+        Renderer::BeginDraw(ctx.m_Camera);
             Renderer::Submit(m_BasicShaderProgram, 
                              m_BoxVao, 
                              boxTransform);
@@ -139,30 +128,23 @@ public:
             }
         Renderer::EndDraw();
     }
-    void OnEvent(Event& event) override {
-        m_CameraController.OnEvent(event);
-    }
-    void OnImGuiRender() override {
-        ImGui::Begin("FirstScene Data");
-            ImGui::Text("FPS: %.4f", 1.f/m_Timestep);
-            glm::vec3 cPos = m_CameraController.GetCamera().GetPosition();
-            glm::quat cOr = m_CameraController.GetCamera().GetOrientation();
-            ImGui::InputFloat3("Camera position", glm::value_ptr(cPos));
-            ImGui::InputFloat4("Camera orientation", glm::value_ptr(cOr));
-        ImGui::End();
-    }
-private:
-    CameraController m_CameraController;
 };
 
-
+FirstScene::FirstScene() 
+: m_CameraController(GetCamera()) {
+    f32 aspect = Application::Get().GetWindow().GetAspectRatio();
+    Camera& c = m_CameraController.GetCamera();
+    c.SetPerspectiveProjection(90.f, aspect, c.GetZNear(), c.GetZFar());
+}
 void FirstScene::OnAttach() {
     PushLayer(new MyLayer());
 }
 void FirstScene::OnUpdate(Timestep ts) {
+    m_CameraController.OnUpdate(ts);
     UpdateLayers(ts);
 }
 void FirstScene::OnEvent(Event &event) {
+    m_CameraController.OnEvent(event);
     PropagateEventDownLayers(event);
 }
 

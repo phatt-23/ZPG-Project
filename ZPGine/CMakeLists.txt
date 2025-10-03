@@ -16,7 +16,7 @@ add_library(ZPGine STATIC
 target_include_directories(ZPGine PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/vendorer
+        ${CMAKE_CURRENT_SOURCE_DIR}/vendor
 )
 
 target_precompile_headers(ZPGine PUBLIC

@@ -44,6 +44,8 @@ void Application::Run() {
         m_LastTime = currentTime;
         
         m_SceneManager.GetActiveScene()->OnUpdate(ts);
+
+        m_SceneManager.GetActiveScene()->OnRender(ts);
         
         ImGuiManager::BeginFrame();
         m_SceneManager.GetActiveScene()->OnImGuiRender();
