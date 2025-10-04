@@ -31,15 +31,11 @@ CameraController::~CameraController() {
 void CameraController::OnUpdate(Timestep ts) {
     // Update camera's position
     float translateSpeed = m_CameraTranslationSpeed * ts;
-    vec3 cameraPosition = m_Camera.GetPosition();
-    quat orientation = m_Camera.GetOrientation();
-    vec3 front, right, worldUp, forward;
     
-    front = rotate(orientation, vec3(0.0, 0.0, -1.0));
-    right = rotate(orientation, vec3(1.0, 0.0, 0.0));
-    worldUp = vec3(0.0, 1.0, 0.0);
-
-    forward = cross(worldUp, right);
+    vec3 cameraPosition = m_Camera.GetPosition();
+    vec3 const& worldUp = m_Camera.GetWorldUp();
+    vec3 const& right = m_Camera.GetRight();
+    vec3 const& forward = m_Camera.GetForward();
 
     if (Input::IsKeyPressed(ZPG_KEY_W))
         cameraPosition += forward * translateSpeed;
@@ -53,8 +49,30 @@ void CameraController::OnUpdate(Timestep ts) {
         cameraPosition += worldUp * translateSpeed;
     if (Input::IsKeyPressed(ZPG_KEY_LEFT_CONTROL))
         cameraPosition -= worldUp * translateSpeed;
-    
+
     m_Camera.SetPosition(cameraPosition);
+
+
+    float mouseSensitivity = m_MouseSensitivity * ts * 100;
+    
+    if (Input::IsKeyPressed(ZPG_KEY_UP))
+        m_Pitch -= mouseSensitivity;
+    if (Input::IsKeyPressed(ZPG_KEY_DOWN))
+        m_Pitch += mouseSensitivity;
+    if (Input::IsKeyPressed(ZPG_KEY_LEFT))
+        m_Yaw -= mouseSensitivity;
+    if (Input::IsKeyPressed(ZPG_KEY_RIGHT))
+        m_Yaw += mouseSensitivity;
+
+    m_Yaw = wrap(m_Yaw, -180.f, 180.f);
+    m_Pitch = clamp(m_Pitch, -89.f, 89.f);
+        
+    // Update camera's orientation
+    quat qYaw = angleAxis(radians(-m_Yaw), vec3(0, 1, 0));
+    quat qPitch = angleAxis(radians(-m_Pitch), vec3(1, 0, 0));
+    quat qRoll = angleAxis(radians(0.f), vec3(0, 0, -1));
+    
+    m_Camera.SetOrientation(normalize(qYaw * qPitch * qRoll));
 }
 void CameraController::OnEvent(Event& event) {
     EventDispatcher dispatcher(event);
@@ -65,13 +83,8 @@ void CameraController::OnEvent(Event& event) {
     dispatcher.Dispatch<KeyPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnKeyPressed));
     dispatcher.Dispatch<WindowLostFocusEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowLostFocus));
     dispatcher.Dispatch<WindowFocusEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowFocus));
-    dispatcher.Dispatch<WindowResizeEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowResize));
 }
 bool CameraController::OnWindowFocus(WindowFocusEvent& e) {
-    return false;
-}
-bool CameraController::OnWindowResize(WindowResizeEvent& e) {
-    Input::ShowCursor();
     return false;
 }
 bool CameraController::OnWindowLostFocus(WindowLostFocusEvent& e) {
@@ -97,7 +110,6 @@ bool CameraController::OnMouseMoved(MouseMovedEvent& e) {
         quat qPitch = angleAxis(radians(-m_Pitch), vec3(1.0, 0.0, 0.0));
         quat qRoll = angleAxis(radians(0.f), vec3(0.0, 0.0, -1.0));
         
-        // ZPG_CORE_DEBUG("YAW: {}, PITCH: {}", m_Yaw, m_Pitch);
         m_Camera.SetOrientation(normalize(qYaw * qPitch * qRoll));
         
         m_LastCursorPos = currentPos;
@@ -121,6 +133,7 @@ bool CameraController::OnMouseScrolled(MouseScrolledEvent& e) {
     return false;
 }
 bool CameraController::OnWindowResized(WindowResizeEvent& e) {
+    Input::ShowCursor();
     f32 aspectRatio = e.GetWidth() / (float)e.GetHeight();
     m_Camera.SetPerspectiveProjection(m_Camera.GetFOV(), aspectRatio, m_Camera.GetZNear(), m_Camera.GetZFar());
     return false;

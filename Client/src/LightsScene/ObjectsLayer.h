@@ -2,9 +2,9 @@
 
 #include "ZPGine.h"
 
-class BoxesLayer : public ZPG::Layer {
+class ObjectsLayer : public ZPG::Layer {
 public:
-    BoxesLayer();
+    ObjectsLayer();
     void OnAttach() override;
     void OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) override;
     void OnRender(const ZPG::RenderContext& ctx) override;
@@ -12,4 +12,6 @@ public:
 private:
     ZPG::Ref<ZPG::ShaderProgram> m_ShaderProgram;
     ZPG::Ref<ZPG::VertexArray> m_VAO;
+
+    ZPG::Ref<ZPG::CompoundTransform> m_Transform;
 };

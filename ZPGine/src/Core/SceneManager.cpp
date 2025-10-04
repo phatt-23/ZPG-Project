@@ -9,7 +9,7 @@ void SceneManager::AddScene(const std::string& name, const Ref<Scene>& scene) {
 
     // set this scene as active if the current active scene name doesnt point to any scene
     if (!Exists(m_ActiveSceneName)) {
-        m_ActiveSceneName = name;
+        SetActiveScene(name);
     }
 
     scene->OnAttach();

@@ -50,9 +50,9 @@ void TreeLayer::OnAttach() {
     m_PlaneVao->AddVertexBuffer(planeVbo);
     m_PlaneVao->SetIndexBuffer(planeIbo);
 }
-void TreeLayer::OnUpdate(SceneContext& context) {
+void TreeLayer::OnUpdate([[maybe_unused]] SceneContext& context) {
 }
-void TreeLayer::OnRender(const ZPG::RenderContext& ctx) {
+void TreeLayer::OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) {
     static f32 rot = 0;
     rot += 50.f * ctx.m_Timestep;
     static glm::mat4 treeTransform = glm::mat4(1.f);

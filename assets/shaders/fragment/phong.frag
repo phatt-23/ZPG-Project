@@ -29,8 +29,8 @@ out vec4 f_FragColor;
 
 
 vec3 pointLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition, vec3 lightColor);
-vec3 spotLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition, vec3 lightDirection, vec3 lightColor, float cutoff);
 vec3 directionalLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightDirection, vec3 lightColor);
+vec3 spotLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition, vec3 lightDirection, vec3 lightColor, float cutoff);
 
 void main() {
 
@@ -39,7 +39,7 @@ void main() {
 
 
     vec3 accumColor = vec3(0.f);
-    vec3 color = v_WorldNormal;
+    vec3 color = vec3(1.0, 0.0, 0.0);
 
     for (int i = 0; i < count; i++) {
         Light light = u_Lights[i];
@@ -62,7 +62,14 @@ void main() {
 
 
         } else if (light.type == LightTypeSpotlight) {
-            accumColor += vec3(light.color * 0.1f);
+            accumColor += spotLight(
+                            color, 
+                            v_WorldPos, 
+                            v_WorldNormal, 
+                            light.pos, 
+                            light.dir, 
+                            vec3(light.color), 
+                            light.inCutoff);
         }
     }
 
@@ -102,15 +109,17 @@ vec3 spotLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition,
 
     vec3 lightDir = normalize(lightPosition - worldPos);
 
+    float a = 1.0;
+    float b = 0.7;
+    float distanceFromLight = length(lightPosition - worldPos);
+    float attenuation = 1.f / (a * pow(distanceFromLight, 2.f) + b * distanceFromLight + 1.f);
+
     float theta = dot(lightDir, normalize(-lightDirection));
     if (theta <= cutoff) {
         return vec3(0.0, 0.0, 0.0);
     }
 
     const float specularStrength = 0.4;
-
-    float dist = length(lightPosition - worldPos);
-    float attenuation = clamp(5.0 / dist, 0.0, 1.0);
 
     vec3 viewDir = normalize(u_CameraPos - worldPos);
     vec3 reflectionDir = reflect(-lightDir, normalVector);

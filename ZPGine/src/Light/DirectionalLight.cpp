@@ -1,4 +1,5 @@
 #include "DirectionalLight.h"
+#include "LightArrayUniformNamer.h"
 
 namespace ZPG {
 
@@ -9,10 +10,9 @@ DirectionalLight::DirectionalLight(glm::vec4 const& color, glm::vec3 const& dire
 
 }
 void DirectionalLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
-    std::string idx = std::to_string(index);
-    shaderProgram.SetInt("u_Lights[" + idx + "].type", (i32)GetLightType());
-    shaderProgram.SetFloat4("u_Lights[" + idx + "].color", GetColor());
-    shaderProgram.SetFloat3("u_Lights[" + idx + "].dir", GetDirection());
+    shaderProgram.SetInt(LightArrayUniformNamer::TypeUniName(index), (i32)GetLightType());
+    shaderProgram.SetFloat4(LightArrayUniformNamer::ColorUniName(index), GetColor());
+    shaderProgram.SetFloat3(LightArrayUniformNamer::DirectionUniName(index), GetDirection());
 }
 
 

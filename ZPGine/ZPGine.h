@@ -2,8 +2,8 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef ZPG_ENGINE_H
+#define ZPG_ENGINE_H
 
 #include "Core/Application.h"
 #include "Core/Input.h"
@@ -36,13 +36,20 @@
 #include "Model/Model.h"
 
 #include "Transform/CompoundTransform.h"
-#include "Transform/RotationTransform.h"
-#include "Transform/ScaleTransform.h"
-#include "Transform/Transformation.h"
-#include "Transform/TranslationTransform.h"
+#include "Transform/Transform.h"
+#include "Transform/StaticTransform.h"
+#include "Transform/DynTransform.h"
+#include "Transform/StaticTransform/RotationTransform.h"
+#include "Transform/StaticTransform/ScaleTransform.h"
+#include "Transform/StaticTransform/TranslationTransform.h"
+#include "Transform/DynamicTransform/DynRotationTransform.h"
+#include "Transform/DynamicTransform/DynScaleTransform.h"
+#include "Transform/DynamicTransform/DynTranslationTransform.h"
+#include "Transform/EffectTransform/PulseScaleTransform.h"
 
 #include "Light/Light.h"
 #include "Light/AmbientLight.h"
+#include "Light/SpotLight.h"
 #include "Light/PointLight.h"
 
-#endif //ENGINE_H
+#endif ///ZPG_ENGINE_H

@@ -2,9 +2,10 @@
 #include "Light.h"
 #include "Debug/Asserter.h"
 
-#define ZPG_LIGHT_UNIFORM_BUFFER_ARRAY_LENGTH 100
 
 namespace ZPG {
+
+constexpr u32 ZPG_LIGHT_UNIFORM_BUFFER_ARRAY_LENGTH = 100;
 
 class LightManager {
 public:

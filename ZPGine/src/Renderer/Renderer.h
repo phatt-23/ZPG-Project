@@ -33,6 +33,7 @@ private:
     struct DrawData {
         glm::mat4 ViewProjMatrix;
         std::vector<Ref<Light>> Lights;
+        glm::vec3 CameraPosition;
     };
     inline static Scope<DrawData> s_DrawData = CreateScope<DrawData>();
 };

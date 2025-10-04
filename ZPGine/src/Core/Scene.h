@@ -10,7 +10,6 @@
 #include "Renderer/Camera.h"
 #include "Timestep.h"
 #include "LayerStack.h"
-#include "Debug/Logger.h"
 #include "Light/Light.h"
 
 namespace ZPG {

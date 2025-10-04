@@ -11,6 +11,7 @@ void Renderer::Shutdown() {
 }
 void Renderer::BeginDraw(const Camera& camera) {
     s_DrawData->ViewProjMatrix = camera.GetViewProjMatrix();
+    s_DrawData->CameraPosition = camera.GetPosition();
 }
 void Renderer::EndDraw() {
     // nothing for now
@@ -22,6 +23,7 @@ void Renderer::Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<VertexA
     shaderProgram->Bind();
     shaderProgram->SetMat4("u_Model", transform);
     shaderProgram->SetMat4("u_ViewProj", s_DrawData->ViewProjMatrix);
+    shaderProgram->SetFloat3("u_CameraPos", s_DrawData->CameraPosition);
 
     auto& lights = s_DrawData->Lights;
     size_t index = 0;
@@ -33,7 +35,6 @@ void Renderer::Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<VertexA
     shaderProgram->SetInt("u_LightCount", index);
 
     vertexArray->Bind();
-
     if (vertexArray->HasIndexBuffer()) {
         RenderCommand::DrawIndexed(vertexArray);
     } else {
@@ -42,6 +43,7 @@ void Renderer::Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<VertexA
 }
 void Renderer::SetLights(const std::vector<Ref<Light>>& lights) {
     s_DrawData->Lights = lights;
+
 }
 void Renderer::OnWindowResize(int width, int height) {
     RenderCommand::SetViewport(0, 0, width, height);

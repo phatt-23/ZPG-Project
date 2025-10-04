@@ -1,0 +1,61 @@
+#include "ObjectsLayer.h"
+#include "Models/gift.h"
+
+using namespace ZPG;
+using namespace glm;
+
+ObjectsLayer::ObjectsLayer() {
+}
+void ObjectsLayer::OnAttach() {
+    auto basicNormalVertexShader = Shader::Create("./assets/shaders/vertex/basic_lighting.vert");
+    auto basicNormalFragShader = Shader::Create("./assets/shaders/fragment/phong.frag");
+
+    std::vector<ZPG::Ref<ZPG::Shader>> shaders;
+    shaders.push_back(basicNormalVertexShader);
+    shaders.push_back(basicNormalFragShader);
+
+    m_ShaderProgram = ZPG::ShaderProgram::Create("basic_lighting+phong", shaders);
+
+    auto VBO = ZPG::VertexBuffer::Create(gift, sizeof(gift)/sizeof(*gift));
+    VBO->SetLayout({
+        {ZPG::ShaderDataType::Float3, "a_Pos"},
+        {ZPG::ShaderDataType::Float3, "a_Normal"},
+    });
+    
+    m_VAO = ZPG::VertexArray::Create();
+    m_VAO->AddVertexBuffer(VBO);
+
+    m_Transform = CreateRef<CompoundTransform>();
+    // m_Transform->Push(CreateRef(new Transform(scale(mat4(1.0f), vec3(2.0, 3.0, 4.0)))));
+    // m_Transform->Push(CreateRef(new RotationTransform(45.f, vec3(0, 1, 0))));
+    // m_Transform->Push(CreateRef(new ScaleTransform(vec3(2, 3, 5))));
+    m_Transform->Push(CreateRef(new TranslationTransform(vec3(0, 0, -2))));
+    // m_Transform->Push(CreateRef(new DynRotationTransform(
+    //                                     0.f, 
+    //                                     50.f, 
+    //                                     glm::vec3(0.0, 1.0, 0.0))));
+    // m_Transform->Push(CreateRef(new DynTranslationTransform(
+    //                                     vec3(0.0, 0.0, 0.0),
+    //                                     vec3(0.1, 0.1, 0.1),
+    //                                     vec3(0.0, 0.0, 0.0),
+    //                                     vec3(1.0, 1.0, 1.0))));
+    // m_Transform->Push(CreateRef(new DynScaleTransform(
+    //                                     vec3(1.0, 1.0, 1.0),
+    //                                     2.0f * vec3(0.2, 0.4, 0.8),
+    //                                     vec3(0.1, 0.1, 0.1),
+    //                                     vec3(5.0, 5.0, 5.0))));
+    // m_Transform->Push(CreateRef(new PulseScaleTransform(
+    //                                     vec3(1.0, 1.0, 1.0),
+    //                                     5.f * vec3(0.2, 0.4, 0.8),
+    //                                     vec3(1, 1, 1),
+    //                                     2.f * vec3(1, 1, 1))));
+}
+void ObjectsLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
+    m_Transform->Update(ctx.m_Timestep);
+}
+void ObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
+    ZPG::Renderer::BeginDraw(ctx.m_Camera);
+        Renderer::SetLights(ctx.m_Lights);
+        Renderer::Submit(m_ShaderProgram, m_VAO, m_Transform->GetMatrix());
+    ZPG::Renderer::EndDraw();
+}
