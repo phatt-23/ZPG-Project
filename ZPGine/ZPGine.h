@@ -29,11 +29,10 @@
 #include "Renderer/Camera.h"
 #include "Renderer/CameraController.h"
 #include "Renderer/ShaderDataType.h"
+#include "Renderer/Texture.h"
 
-#include "Model/DrawableObject.h"
 #include "Model/Material.h"
 #include "Model/Mesh.h"
-#include "Model/Model.h"
 
 #include "Transform/CompoundTransform.h"
 #include "Transform/Transform.h"

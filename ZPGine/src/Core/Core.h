@@ -20,6 +20,7 @@ typedef std::uint32_t u32;
 typedef std::uint64_t u64;
 typedef float f32;
 typedef double f64;
+typedef u_char byte;
 
 template<typename T>
 using Ref = std::shared_ptr<T>;

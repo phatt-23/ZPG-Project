@@ -4,7 +4,10 @@ namespace ZPG {
 
 class Material {
 public:
+    
+
 private:
+
 };
 
 }

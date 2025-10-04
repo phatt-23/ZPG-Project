@@ -45,8 +45,8 @@ i32 OpenGLShaderProgram::GetUniformLocation(const std::string &name) {
     m_LocationCache[name] = location;
     return location;
 }
-void OpenGLShaderProgram::SetInt(const std::string& uniName, glm::i32 scalar) {
-    ZPG_OPENGL_CALL(glUniform1iv(GetUniformLocation(uniName), 1, &scalar));
+void OpenGLShaderProgram::SetInt(const std::string& uniName, i32 scalar) {
+    ZPG_OPENGL_CALL(glUniform1i(GetUniformLocation(uniName), scalar));
 }
 void OpenGLShaderProgram::SetInt2(const std::string& uniName, glm::i32vec2 vec) {
     ZPG_OPENGL_CALL(glUniform2iv(GetUniformLocation(uniName), 1, glm::value_ptr(vec)));
@@ -57,8 +57,8 @@ void OpenGLShaderProgram::SetInt3(const std::string& uniName, glm::i32vec3 vec) 
 void OpenGLShaderProgram::SetInt4(const std::string& uniName, glm::i32vec4 vec) {
     ZPG_OPENGL_CALL(glUniform4iv(GetUniformLocation(uniName), 1, glm::value_ptr(vec)));
 }
-void OpenGLShaderProgram::SetFloat(const std::string& uniName, glm::f32 scalar) {
-    ZPG_OPENGL_CALL(glUniform1fv(GetUniformLocation(uniName), 1, &scalar));
+void OpenGLShaderProgram::SetFloat(const std::string& uniName, f32 scalar) {
+    ZPG_OPENGL_CALL(glUniform1f(GetUniformLocation(uniName), scalar));
 }
 void OpenGLShaderProgram::SetFloat2(const std::string& uniName, glm::f32vec2 vec) {
     ZPG_OPENGL_CALL(glUniform2fv(GetUniformLocation(uniName), 1, glm::value_ptr(vec)));

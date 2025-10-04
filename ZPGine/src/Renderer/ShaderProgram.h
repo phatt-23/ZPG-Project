@@ -18,11 +18,11 @@ public:
     virtual void Bind() = 0;
     virtual void Unbind() = 0;
 
-    virtual void SetInt(const std::string& uniName, glm::i32 value) = 0;
+    virtual void SetInt(const std::string& uniName, i32 value) = 0;
     virtual void SetInt2(const std::string& uniName, glm::i32vec2 vec) = 0;
     virtual void SetInt3(const std::string& uniName, glm::i32vec3 vec) = 0;
     virtual void SetInt4(const std::string& uniName, glm::i32vec4 vec) = 0;
-    virtual void SetFloat(const std::string& uniName, glm::f32 value) = 0;
+    virtual void SetFloat(const std::string& uniName, f32 value) = 0;
     virtual void SetFloat2(const std::string& uniName, glm::f32vec2 vec) = 0;
     virtual void SetFloat3(const std::string& uniName, glm::f32vec3 vec) = 0;
     virtual void SetFloat4(const std::string& uniName, glm::f32vec4 vec) = 0;

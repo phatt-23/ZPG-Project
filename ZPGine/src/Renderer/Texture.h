@@ -11,10 +11,10 @@ namespace ZPG {
 
 class Texture {
 public:
-    virtual ~Texture();
+    virtual ~Texture() {}
 
     virtual const std::string& GetName() const = 0;
-    virtual void Bind() = 0;
+    virtual void BindToSlot(u32 slotIndex) = 0;
     virtual void Unbind() = 0;
 
     virtual u32 GetWidth() const = 0;

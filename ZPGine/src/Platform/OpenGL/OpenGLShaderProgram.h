@@ -16,11 +16,11 @@ public:
     virtual void Bind() override;
     virtual void Unbind() override;
 
-    virtual void SetInt(const std::string& uniName, glm::i32 scalar) override;
+    virtual void SetInt(const std::string& uniName, i32 scalar) override;
     virtual void SetInt2(const std::string& uniName, glm::i32vec2 vec) override;
     virtual void SetInt3(const std::string& uniName, glm::i32vec3 vec) override;
     virtual void SetInt4(const std::string& uniName, glm::i32vec4 vec) override;
-    virtual void SetFloat(const std::string& uniName, glm::f32 scalar) override;
+    virtual void SetFloat(const std::string& uniName, f32 scalar) override;
     virtual void SetFloat2(const std::string& uniName, glm::f32vec2 vec) override;
     virtual void SetFloat3(const std::string& uniName, glm::f32vec3 vec) override;
     virtual void SetFloat4(const std::string& uniName, glm::f32vec4 vec) override;

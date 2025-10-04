@@ -7,7 +7,7 @@ LightObjectsLayer::LightObjectsLayer() {
 }
 void LightObjectsLayer::OnAttach() {
     auto basicNormalVertexShader = Shader::Create("./assets/shaders/vertex/basic_lighting.vert");
-    auto basicNormalFragShader = Shader::Create("./assets/shaders/fragment/phong.frag");
+    auto basicNormalFragShader = Shader::Create("./assets/shaders/fragment/phong_constant_red_color.frag");
 
     std::vector<ZPG::Ref<ZPG::Shader>> shaders;
     shaders.push_back(basicNormalVertexShader);
