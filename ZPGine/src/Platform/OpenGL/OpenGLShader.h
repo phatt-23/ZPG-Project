@@ -16,10 +16,10 @@ public:
     virtual void AttachTo(u32 shaderProgramID) const override;
     virtual void DetachFrom(u32 shaderProgramID) const override;
     
+private:
     u32 CompileShader(ShaderType shaderType, const std::string& source);
     static std::pair<ShaderType, std::string> EatAndSetShaderTypeDirective(const std::string& source);
     static GLenum MapShaderTypeToOpenGLenum(ShaderType type);
-    private:
 private:
     ShaderType m_ShaderType;
     std::string m_Name;

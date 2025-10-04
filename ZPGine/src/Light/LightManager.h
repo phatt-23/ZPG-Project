@@ -15,7 +15,9 @@ public:
     void AddLight(const Ref<Light>& light);
     void RemoveLight(const Ref<Light>& light);
 
-    const std::vector<Ref<Light>>& GetLights() const { return m_Lights; }
+    const std::vector<Ref<Light>>& GetLights() const { 
+        return m_Lights; 
+    }
 
     std::vector<Ref<Light>>::iterator begin() { return m_Lights.begin(); }
     std::vector<Ref<Light>>::iterator end() { return m_Lights.end(); }

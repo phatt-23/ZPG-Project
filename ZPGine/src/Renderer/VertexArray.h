@@ -27,6 +27,8 @@ public:
     virtual bool HasIndexBuffer() const = 0;
 
     static Ref<VertexArray> Create();
+    static Ref<VertexArray> Create(const std::vector<Ref<VertexBuffer>>& vertexBuffers);
+    static Ref<VertexArray> Create(const std::vector<Ref<VertexBuffer>>& vertexBuffers, const Ref<IndexBuffer>& indexBuffer);
 private:
 };
 

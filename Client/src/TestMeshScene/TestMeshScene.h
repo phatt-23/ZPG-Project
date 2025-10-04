@@ -1,0 +1,17 @@
+#pragma once
+#include "ZPGine.h"
+
+namespace TestMeshSceneNS {
+
+class TestMeshScene : public ZPG::Scene {
+public:
+    TestMeshScene();
+    void OnAttach() override;
+    void OnUpdate(ZPG::Timestep ts) override;
+    void OnEvent(ZPG::Event &event) override;
+private:
+    ZPG::CameraController m_CameraController;
+    ZPG::Ref<ZPG::SpotLight> m_FlashLight;
+};
+
+}  

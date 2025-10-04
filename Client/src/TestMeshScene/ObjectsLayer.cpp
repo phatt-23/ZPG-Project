@@ -4,17 +4,18 @@
 using namespace ZPG;
 using namespace glm;
 
+namespace TestMeshSceneNS {
+
 ObjectsLayer::ObjectsLayer() {
 }
 void ObjectsLayer::OnAttach() {
-    auto basicNormalVertexShader = Shader::Create("./assets/shaders/vertex/basic_lighting.vert");
-    auto basicNormalFragShader = Shader::Create("./assets/shaders/fragment/phong.frag");
+    auto vertexShader = Shader::Create("./assets/shaders/vertex/basic_lighting.vert");
+    auto fragmentShader = Shader::Create("./assets/shaders/fragment/phong_constant_red_color.frag");
 
-    std::vector<ZPG::Ref<ZPG::Shader>> shaders;
-    shaders.push_back(basicNormalVertexShader);
-    shaders.push_back(basicNormalFragShader);
-
-    m_ShaderProgram = ZPG::ShaderProgram::Create("basic_lighting+phong", shaders);
+    m_ShaderProgram = ZPG::ShaderProgram::Create("basic_lighting+phong", {
+        vertexShader,
+        fragmentShader,
+    });
 
     auto VBO = ZPG::VertexBuffer::Create(gift, sizeof(gift)/sizeof(*gift));
     VBO->SetLayout({
@@ -49,13 +50,33 @@ void ObjectsLayer::OnAttach() {
     //                                     5.f * vec3(0.2, 0.4, 0.8),
     //                                     vec3(1, 1, 1),
     //                                     2.f * vec3(1, 1, 1))));
+
+    // ----- mesh -----------
+    TranslationTransform trTrans(vec3(0.2, 0.0, -1.0));
+    m_Mesh = CreateRef(new Mesh(m_VAO, trTrans.GetMatrix()));
+
+
+    // ----- entity -----------
+    auto entityMesh = CreateRef(new Mesh(m_VAO));
+    
+    auto entityTransform = CreateRef(new CompoundTransform());
+    entityTransform->Push(CreateRef(new TranslationTransform(vec3(0.1, 0.1, 0.1))));
+    entityTransform->Push(CreateRef(new DynRotationTransform(0.f, 50.f, glm::vec3(0.0, 1.0, 0.0))));
 }
+
 void ObjectsLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
     m_Transform->Update(ctx.m_Timestep);
 }
+
 void ObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
     ZPG::Renderer::BeginDraw(ctx.m_Camera);
         Renderer::SetLights(ctx.m_Lights);
         Renderer::Submit(m_ShaderProgram, m_VAO, m_Transform->GetMatrix());
+        // Renderer::Submit(m_ShaderProgram, m_Mesh->GetVertexArray(), m_Mesh->GetLocalTransform());
+        Renderer::Submit(m_ShaderProgram, m_Mesh);
+        Renderer::Submit(m_ShaderProgram, m_Mesh, TranslationTransform(vec3(-0.4, 0.2, 0.0)).GetMatrix());
     ZPG::Renderer::EndDraw();
+}
+
+
 }

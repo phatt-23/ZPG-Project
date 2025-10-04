@@ -18,6 +18,7 @@ public:
     virtual void Bind() = 0;
     virtual void Unbind() = 0;
 
+    // nechci pretizene metody
     virtual void SetInt(const std::string& uniName, i32 value) = 0;
     virtual void SetInt2(const std::string& uniName, glm::i32vec2 vec) = 0;
     virtual void SetInt3(const std::string& uniName, glm::i32vec3 vec) = 0;

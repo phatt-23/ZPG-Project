@@ -12,6 +12,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include "Light/Light.h"
+#include "Model/Mesh.h"
+#include "Entity/Entity.h"
 
 namespace ZPG {
 
@@ -26,8 +28,11 @@ public:
     static void EndDraw();
 
     static void SetLights(const std::vector<Ref<Light>>& lights);
+
     static void Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::identity<glm::mat4>());
-    
+    static void Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f));
+    static void Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<Entity>& entity, const glm::mat4& transform = glm::mat4(1.0f));
+
     static void OnWindowResize(int width, int height);
 private:
     struct DrawData {

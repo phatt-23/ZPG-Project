@@ -2,9 +2,11 @@
 
 #include "ZPGine.h"
 
-class LightObjectsLayer : public ZPG::Layer {
+namespace TestMeshSceneNS {
+
+class ObjectsLayer : public ZPG::Layer {
 public:
-    LightObjectsLayer();
+    ObjectsLayer();
     void OnAttach() override;
     void OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) override;
     void OnRender(const ZPG::RenderContext& ctx) override;
@@ -12,5 +14,8 @@ public:
 private:
     ZPG::Ref<ZPG::ShaderProgram> m_ShaderProgram;
     ZPG::Ref<ZPG::VertexArray> m_VAO;
+    ZPG::Ref<ZPG::CompoundTransform> m_Transform;
+    ZPG::Ref<ZPG::Mesh> m_Mesh;
 };
 
+}

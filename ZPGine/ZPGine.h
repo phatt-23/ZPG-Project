@@ -31,8 +31,10 @@
 #include "Renderer/ShaderDataType.h"
 #include "Renderer/Texture.h"
 
-#include "Model/Material.h"
 #include "Model/Mesh.h"
+#include "Model/Model.h"
+
+#include "Entity/Entity.h"
 
 #include "Transform/CompoundTransform.h"
 #include "Transform/Transform.h"
@@ -50,5 +52,6 @@
 #include "Light/AmbientLight.h"
 #include "Light/SpotLight.h"
 #include "Light/PointLight.h"
+#include "Light/DirectionalLight.h"
 
 #endif ///ZPG_ENGINE_H

@@ -19,6 +19,23 @@ void Renderer::EndDraw() {
     // setup the submitted lights into the shaders
     s_DrawData->Lights.clear();
 }
+
+void Renderer::Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<Entity>& entity, const glm::mat4& transform) {
+    glm::mat4 mat = transform * entity->GetTransformMatrix();
+
+    const Ref<Model>& model = entity->GetModel();
+    const auto& meshes = model->GetMeshes();
+
+    for (auto& mesh : meshes) {
+        Submit(shaderProgram, mesh, mat);
+    }
+}
+
+void Renderer::Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<Mesh>& mesh, const glm::mat4& transform) {
+    glm::mat4 worldMat = transform * mesh->GetLocalTransform();
+    Submit(shaderProgram, mesh->GetVertexArray(), worldMat);
+}
+
 void Renderer::Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<VertexArray>& vertexArray, const glm::mat4& transform) {
     shaderProgram->Bind();
     shaderProgram->SetMat4("u_Model", transform);

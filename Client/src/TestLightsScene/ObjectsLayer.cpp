@@ -1,11 +1,12 @@
-#include "LightObjectsLayer.h"
+#include "ObjectsLayer.h"
 #include "Models/gift.h"
 
 using namespace ZPG;
+using namespace glm;
 
-LightObjectsLayer::LightObjectsLayer() {
+ObjectsLayer::ObjectsLayer() {
 }
-void LightObjectsLayer::OnAttach() {
+void ObjectsLayer::OnAttach() {
     auto basicNormalVertexShader = Shader::Create("./assets/shaders/vertex/basic_lighting.vert");
     auto basicNormalFragShader = Shader::Create("./assets/shaders/fragment/phong_constant_red_color.frag");
 
@@ -23,18 +24,21 @@ void LightObjectsLayer::OnAttach() {
     
     m_VAO = ZPG::VertexArray::Create();
     m_VAO->AddVertexBuffer(VBO);
-}
-void LightObjectsLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
 
+    m_Transform = CreateRef<CompoundTransform>();
+    // m_Transform->Push(CreateRef(new TranslationTransform(vec3(0, 0, -2))));
+    m_Transform->Push(CreateRef(new DynRotationTransform(
+                                        0.f, 
+                                        50.f, 
+                                        glm::vec3(0.0, 1.0, 0.0))));
 }
-void LightObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
-    static float rot = 0.f;
-    rot += 100 * ctx.m_Timestep;
-    auto model = CompoundTransform();
-    model.Emplace<RotationTransform>(rot, glm::vec3(0.f, 1.f, 0.f));
 
+void ObjectsLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
+    m_Transform->Update(ctx.m_Timestep);
+}
+void ObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
     ZPG::Renderer::BeginDraw(ctx.m_Camera);
         Renderer::SetLights(ctx.m_Lights);
-        Renderer::Submit(m_ShaderProgram, m_VAO, model.GetMatrix());
+        Renderer::Submit(m_ShaderProgram, m_VAO, m_Transform->GetMatrix());
     ZPG::Renderer::EndDraw();
 }
