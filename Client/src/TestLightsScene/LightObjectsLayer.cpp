@@ -24,8 +24,8 @@ void LightObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
             if (light->GetLightType() == LightType::Point) {
                 PointLight* pointLight = (PointLight*)light.get();
                 Renderer::Submit(
-                    Renderer::GetShaderProgram("basic_single_color"),
-                    m_VAO, 
+                    *Renderer::GetShaderProgram("basic_single_color"),
+                    *m_VAO, 
                     TranslationTransform(pointLight->GetPosition()).GetMatrix()
                 );
             }

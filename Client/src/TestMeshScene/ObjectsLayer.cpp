@@ -71,10 +71,10 @@ void ObjectsLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
 void ObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
     ZPG::Renderer::BeginDraw(ctx.m_Camera);
         Renderer::SetLights(ctx.m_Lights);
-        Renderer::Submit(m_ShaderProgram, m_VAO, m_Transform->GetMatrix());
+        Renderer::Submit(*m_ShaderProgram, *m_VAO, m_Transform->GetMatrix());
         // Renderer::Submit(m_ShaderProgram, m_Mesh->GetVertexArray(), m_Mesh->GetLocalTransform());
-        Renderer::Submit(m_ShaderProgram, m_Mesh);
-        Renderer::Submit(m_ShaderProgram, m_Mesh, TranslationTransform(vec3(-0.4, 0.2, 0.0)).GetMatrix());
+        Renderer::Submit(*m_ShaderProgram, *m_Mesh);
+        Renderer::Submit(*m_ShaderProgram, *m_Mesh, TranslationTransform(vec3(-0.4, 0.2, 0.0)).GetMatrix());
     ZPG::Renderer::EndDraw();
 }
 

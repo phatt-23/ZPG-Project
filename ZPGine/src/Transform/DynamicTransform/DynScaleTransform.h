@@ -14,7 +14,6 @@ public:
 
     virtual void Update(Timestep ts) override;
 
-protected:
     void ComputeMatrix() override;
     
 protected:

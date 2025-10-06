@@ -22,7 +22,6 @@ public:
         m_Transformations.push_back(CreateRef<T>(std::forward<Args>(args)...));
     }
 
-private:
     void ComputeMatrix() override;
 private:
     std::vector<Ref<Transform>> m_Transformations;

@@ -57,4 +57,6 @@
 #include "Light/PointLight.h"
 #include "Light/DirectionalLight.h"
 
+#include "Core/Utility.h"
+
 #endif ///ZPG_ENGINE_H

@@ -8,7 +8,6 @@ class TranslationTransform : public StaticTransform {
 public:
     TranslationTransform(f32 xTranslate, f32 yTranslate, f32 zTranslate);
     TranslationTransform(const glm::vec3& translation);
-private:
     void ComputeMatrix() override;
 private:
     glm::vec3 m_TranslationVector;

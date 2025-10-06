@@ -39,6 +39,6 @@ void ObjectsLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
 void ObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
     ZPG::Renderer::BeginDraw(ctx.m_Camera);
         Renderer::SetLights(ctx.m_Lights);
-        Renderer::Submit(m_ShaderProgram, m_VAO, m_Transform->GetMatrix());
+        Renderer::Submit(*m_ShaderProgram, *m_VAO, m_Transform->GetMatrix());
     ZPG::Renderer::EndDraw();
 }

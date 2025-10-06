@@ -5,7 +5,7 @@
 
 using namespace ZPG;
 
-f32 random_f32(f32 min, f32 max) {
+static f32 random_f32(f32 min, f32 max) {
     return (max - min) * (f32)rand() / (f32)RAND_MAX + min;
 }
 
@@ -106,25 +106,25 @@ public:
         static glm::mat4 planeTransform = glm::scale(glm::mat4(1.f), glm::vec3(10.f, 1.0f, 20.f));
 
         Renderer::BeginDraw(ctx.m_Camera);
-            Renderer::Submit(m_BasicShaderProgram, 
-                             m_BoxVao, 
+            Renderer::Submit(*m_BasicShaderProgram, 
+                             *m_BoxVao, 
                              boxTransform);
-            Renderer::Submit(m_BasicShaderProgram, 
-                             m_BoxVao, 
+            Renderer::Submit(*m_BasicShaderProgram, 
+                             *m_BoxVao, 
                              scMat * boxTransform);
-            Renderer::Submit(m_BasicShaderProgram, 
-                             m_BoxVao, 
+            Renderer::Submit(*m_BasicShaderProgram, 
+                             *m_BoxVao, 
                              boxTransform * scMat);
-            Renderer::Submit(m_BasicShaderProgram, 
-                             m_BoxVao, 
+            Renderer::Submit(*m_BasicShaderProgram, 
+                             *m_BoxVao, 
                              boxTransform * scMat);
-            Renderer::Submit(m_BasicShaderProgram, 
-                             m_BoxVao, 
+            Renderer::Submit(*m_BasicShaderProgram, 
+                             *m_BoxVao, 
                              scMat * translate(mat4(1.f), vec3(10.0, 0, 0)) * scMat);
-            Renderer::Submit(m_RedShaderProgram, m_PlaneVao, planeTransform);
+            Renderer::Submit(*m_RedShaderProgram, *m_PlaneVao, planeTransform);
 
             for (auto& tr : m_Transforms) {
-                Renderer::Submit(m_BasicShaderProgram, m_BoxVao, tr);
+                Renderer::Submit(*m_BasicShaderProgram, *m_BoxVao, tr);
             }
         Renderer::EndDraw();
     }

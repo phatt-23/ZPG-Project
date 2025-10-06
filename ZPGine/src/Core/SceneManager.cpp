@@ -2,7 +2,18 @@
 #include "Debug/Asserter.h"
 
 namespace ZPG {
-void SceneManager::AddScene(const std::string& name, const Ref<Scene>& scene) {
+
+SceneManager::SceneManager() {
+
+}
+
+SceneManager::~SceneManager() {
+    for (auto& [name, scene] : m_Scenes) {
+        delete scene;
+    }
+}
+
+void SceneManager::AddScene(const std::string& name, Scene* scene) {
     ZPG_CORE_DEBUG("SceneManager added scene with name {}", name);
     ZPG_CORE_ASSERT(!Exists(name), "Scene with the given name already exists."); 
     m_Scenes[name] = scene;
@@ -17,9 +28,10 @@ void SceneManager::AddScene(const std::string& name, const Ref<Scene>& scene) {
 
 bool SceneManager::RemoveScene(const std::string& name) {
     if (Exists(name)) {
-        auto& layer = m_Scenes[name];
+        Scene* scene = m_Scenes[name];
         m_Scenes.erase(name);
-        layer->OnDetach();
+        scene->OnDetach();
+        delete scene;
         return true;
     }
     return false;
@@ -38,10 +50,9 @@ void SceneManager::SetActiveScene(const std::string& name) {
     m_Scenes[m_ActiveSceneName]->OnResume();
 }
 
-Ref<Scene>& SceneManager::GetActiveScene() {
+Scene* SceneManager::GetActiveScene() {
     ZPG_CORE_ASSERT(Exists(m_ActiveSceneName), "There is no active scene with the name: '{}'", m_ActiveSceneName);
     return m_Scenes[m_ActiveSceneName];
 }
-
 
 }

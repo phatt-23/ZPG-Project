@@ -14,7 +14,6 @@ public:
         crVEC3 maxTranslation);
 
     void Update(Timestep ts) override;
-private:
     void ComputeMatrix() override;
 private:
     VEC3 m_CurrentTranslation;

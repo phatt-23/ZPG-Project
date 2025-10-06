@@ -16,9 +16,11 @@ public:
     }
     void OnUpdate(ZPG::Timestep ts) override {
         Scene::OnUpdate(ts);
+        m_CameraController.OnUpdate(ts);
     }
     void OnEvent(ZPG::Event &event) override {
         Scene::OnEvent(event);
+        m_CameraController.OnEvent(event);
     }
 private:
     ZPG::CameraController m_CameraController;

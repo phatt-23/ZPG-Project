@@ -32,14 +32,21 @@ public:
 
     static void SetLights(const std::vector<Ref<Light>>& lights);
 
-    static void Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::identity<glm::mat4>());
-    static void Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f));
-    static void Submit(const Ref<ShaderProgram>& shaderProgram, const Ref<Entity>& entity, const glm::mat4& transform = glm::mat4(1.0f));
+    // ShaderProgram, VAO, Transform
+    static void Submit(ShaderProgram& shaderProgram, const VertexArray& vertexArray, const glm::mat4& transform = glm::identity<glm::mat4>());
+    // ShaderProgram, Mesh, Transform
+    static void Submit(ShaderProgram& shaderProgram, const Mesh& mesh, const glm::mat4& transform = glm::mat4(1.0f));
+    // ShaderProgram, Model, Transform
+    static void Submit(ShaderProgram& shaderProgram, const Model& model, const glm::mat4& transform = glm::mat4(1.0f));
+    // ShaderProgram, Entity, Transform
+    static void Submit(ShaderProgram& shaderProgram, const Entity& entity, const glm::mat4& transform = glm::mat4(1.0f));
 
     static void OnWindowResize(int width, int height);
 
     static void LoadShaderProgram(const std::string& name, const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
-    static Ref<ShaderProgram> GetShaderProgram(const std::string& name);
+
+    // not const because other subjects can change set Uniforms
+    static Ref<ShaderProgram>& GetShaderProgram(const std::string& name);
 private:
     struct DrawData {
         glm::mat4 ViewProjMatrix;

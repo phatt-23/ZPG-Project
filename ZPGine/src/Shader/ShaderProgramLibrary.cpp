@@ -8,10 +8,10 @@ ShaderProgramLibrary::ShaderProgramLibrary() {
 ShaderProgramLibrary::~ShaderProgramLibrary() {
 }
 void ShaderProgramLibrary::AddShaderProgram(const std::string& name, const Ref<ShaderProgram>& shaderProgram) {
-    ZPG_CORE_ASSERT(!Exists(name), "The shader program name is already present in the shader libarary: {}", name);
+    ZPG_CORE_ASSERT(!Exists(name), "The shader program name is already present in the shader libarary: {}");
     m_ShaderPrograms[name] = shaderProgram;
 }
-const Ref<ShaderProgram>& ShaderProgramLibrary::GetShaderProgram(const std::string& name) {
+Ref<ShaderProgram>& ShaderProgramLibrary::GetShaderProgram(const std::string& name) {
     ZPG_CORE_ASSERT(Exists(name), "Requested shader program doesn't exist: {}", name);
     return m_ShaderPrograms[name];
 }

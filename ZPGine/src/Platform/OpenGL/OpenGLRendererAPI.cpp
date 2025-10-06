@@ -32,15 +32,15 @@ void OpenGLRendererAPI::SetViewport(int x, int y, int width, int height) {
     ZPG_OPENGL_CALL(glViewport(x, y, width, height));
 }
 
-void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, const u32 indexCount) {
+void OpenGLRendererAPI::DrawIndexed(const VertexArray& vertexArray, const u32 indexCount) {
     int count = indexCount == 0 
-                    ? vertexArray->GetIndexBuffer()->GetCount()
+                    ? vertexArray.GetIndexBuffer()->GetCount()
                     : indexCount;
     ZPG_OPENGL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
 }
-void OpenGLRendererAPI::DrawArrays(const Ref<VertexArray>& vertexArray) {
+void OpenGLRendererAPI::DrawArrays(const VertexArray& vertexArray) {
     u64 count = 0;
-    for (auto& vbo : vertexArray->GetVertexBuffers()) {
+    for (auto& vbo : vertexArray.GetVertexBuffers()) {
         count += vbo->GetSize() / vbo->GetLayout().GetStride();
     }
 

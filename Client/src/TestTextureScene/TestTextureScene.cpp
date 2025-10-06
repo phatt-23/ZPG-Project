@@ -121,25 +121,25 @@ public:
             m_ShaderProgram->Bind();
             m_ShaderProgram->SetInt("u_Texture", 2);
 
-            Renderer::Submit(m_ShaderProgram, 
-                             m_BoxVao, 
+            Renderer::Submit(*m_ShaderProgram, 
+                             *m_BoxVao, 
                              boxTransform);
-            Renderer::Submit(m_ShaderProgram, 
-                             m_BoxVao, 
+            Renderer::Submit(*m_ShaderProgram, 
+                             *m_BoxVao, 
                              scMat * boxTransform);
-            Renderer::Submit(m_ShaderProgram, 
-                             m_BoxVao, 
+            Renderer::Submit(*m_ShaderProgram, 
+                             *m_BoxVao, 
                              boxTransform * scMat);
-            Renderer::Submit(m_ShaderProgram, 
-                             m_BoxVao, 
+            Renderer::Submit(*m_ShaderProgram, 
+                             *m_BoxVao, 
                              boxTransform * scMat);
-            Renderer::Submit(m_ShaderProgram, 
-                             m_BoxVao, 
+            Renderer::Submit(*m_ShaderProgram, 
+                             *m_BoxVao, 
                              scMat * translate(mat4(1.f), vec3(10.0, 0, 0)) * scMat);
-            Renderer::Submit(m_ShaderProgram, m_PlaneVao, planeTransform);
+            Renderer::Submit(*m_ShaderProgram, *m_PlaneVao, planeTransform);
 
             for (auto& tr : m_Transforms) {
-                Renderer::Submit(m_ShaderProgram, m_BoxVao, tr);
+                Renderer::Submit(*m_ShaderProgram, *m_BoxVao, tr);
             }
         Renderer::EndDraw();
     }

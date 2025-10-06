@@ -11,7 +11,7 @@ public:
     Entity(const Ref<Model>& model, const Ref<Transform>& transform) 
     : m_Model(model)
     , m_Transform(transform) {
-
+        m_Transform->ComputeMatrix();  
     }
 
     virtual ~Entity() {}
@@ -20,7 +20,7 @@ public:
         m_Transform->Update(ts);
     }
 
-    const glm::mat4& GetTransformMatrix() {
+    const glm::mat4& GetTransformMatrix() const {
         return m_Transform->GetMatrix();
     }
 

@@ -59,6 +59,6 @@ void InlineShadersLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
 void InlineShadersLayer::OnRender(const ZPG::RenderContext& ctx) {
     ZPG::Renderer::BeginDraw(ctx.m_Camera);
         glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(1.0, 0.0, -1.f));
-        Renderer::Submit(m_ShaderProgram, m_TreeVAO, model);
+        Renderer::Submit(*m_ShaderProgram, *m_TreeVAO, model);
     ZPG::Renderer::EndDraw();
 }

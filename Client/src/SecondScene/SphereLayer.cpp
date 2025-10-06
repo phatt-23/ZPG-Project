@@ -68,9 +68,9 @@ void SphereLayer::OnUpdate(SceneContext& context) {
 
 
     Renderer::BeginDraw(m_CameraController.GetCamera());
-        Renderer::Submit(m_NormalShaderProgram, m_SphereVAO, sun.GetMatrix());
-        Renderer::Submit(m_NormalShaderProgram, m_SphereVAO, earth.GetMatrix());
-        Renderer::Submit(m_NormalShaderProgram, m_SphereVAO, moon.GetMatrix());
+        Renderer::Submit(*m_NormalShaderProgram, *m_SphereVAO, sun.GetMatrix());
+        Renderer::Submit(*m_NormalShaderProgram, *m_SphereVAO, earth.GetMatrix());
+        Renderer::Submit(*m_NormalShaderProgram, *m_SphereVAO, moon.GetMatrix());
     Renderer::EndDraw();
 }
 

@@ -10,11 +10,17 @@ public:
     Transform(const glm::mat4& matrix) : m_Matrix(matrix) {}
     virtual ~Transform() = default;
 
+    // Gets the computed m_Matrix. 
+    // This should be const.
+    // User must call either Update or ComputeMatrix to update/compute the m_Matrix.
     virtual const glm::mat4& GetMatrix() { return m_Matrix; }
-    virtual void Update([[maybe_unused]] Timestep ts) {}
-protected:
-    virtual void ComputeMatrix() {}
 
+    // Called in every iteration of OnUpdate() in a Scene
+    virtual void Update([[maybe_unused]] Timestep ts) {}
+
+    // Computes the m_Matrix.
+    virtual void ComputeMatrix() {}
+protected:
     glm::mat4 m_Matrix;
 };
 

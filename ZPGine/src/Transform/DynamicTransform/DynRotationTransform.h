@@ -13,7 +13,6 @@ public:
         const glm::vec3& rotationAxis);
 
     void Update(Timestep ts) override;
-private:
     void ComputeMatrix() override;
 private:
     f32 m_CurrentRotationDeg;

@@ -38,10 +38,10 @@ public:
     static void SetViewport(int x, int y, int width, int height) {
         s_RendererAPI->SetViewport(x, y, width, height);
     }
-    static void DrawIndexed(const Ref<VertexArray>& vertexArray, const u32 indexCount = 0) {
+    static void DrawIndexed(const VertexArray& vertexArray, const u32 indexCount = 0) {
         s_RendererAPI->DrawIndexed(vertexArray, indexCount);
     }
-    static void DrawArrays(const Ref<VertexArray>& vertexArray) {
+    static void DrawArrays(const VertexArray& vertexArray) {
         s_RendererAPI->DrawArrays(vertexArray);
     }
 

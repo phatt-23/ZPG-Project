@@ -26,7 +26,7 @@ public:
         f.read(content.data(), content.size());
         f.close();
 
-        return std::move(content);
+        return content;
     }
 
     static std::string GetNameFromPath(const std::string& path) {
@@ -35,6 +35,10 @@ public:
         auto nameBegin = lastSlash == std::string::npos ? 0 : lastSlash + 1;
         auto nameEnd = lastDot == std::string::npos ? path.size() : lastDot;
         return path.substr(nameBegin, nameEnd - nameBegin);
+    }
+
+    static f32 GetRandomFloat(f32 min = -1.0f, f32 max = 1.0f) {
+        return (max - min) * (f32)rand() / (f32)RAND_MAX + min;
     }
 };
 

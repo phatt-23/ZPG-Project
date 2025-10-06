@@ -14,17 +14,24 @@ namespace ZPG {
 
 class SceneManager {
 public:
-    void AddScene(const std::string& name, const Ref<Scene>& scene);
+    SceneManager();
+    ~SceneManager();
+
+    // By adding a scene ptr, the scene manager takes responsibility for it.
+    // No other subject should ever free the scene object.
+    void AddScene(const std::string& name, Scene* scene);
+
+    // This will call delete on the removed scene.
     bool RemoveScene(const std::string& name);
     bool Exists(const std::string& name) const;
 
     void SetActiveScene(const std::string& name);
-    Ref<Scene>& GetActiveScene();
+    Scene* GetActiveScene();
 
-    inline std::map<std::string, Ref<Scene>>::iterator begin() { return m_Scenes.begin(); }
-    inline std::map<std::string, Ref<Scene>>::iterator end() { return m_Scenes.end(); }
+    inline std::map<std::string, Scene*>::iterator begin() { return m_Scenes.begin(); }
+    inline std::map<std::string, Scene*>::iterator end() { return m_Scenes.end(); }
 private:
-    std::map<std::string, Ref<Scene>> m_Scenes;
+    std::map<std::string, Scene*> m_Scenes;
     std::string m_ActiveSceneName;
 };
 

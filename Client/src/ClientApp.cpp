@@ -13,19 +13,23 @@
 #include "TestMeshScene/TestMeshScene.h"
 #include "TestModelScene/TestModelScene.h"
 #include "AxisScene/AxisScene.h"
+#include "ForestScene/ForestScene.h"
 
 class ClientApp : public ZPG::Application {
 public:
     ClientApp() {
+        using namespace ZPG;
+
         // ------ add scenes -------
-        m_SceneManager.AddScene("1. First", ZPG::CreateRef<FirstScene>());
-        m_SceneManager.AddScene("2. Second", ZPG::CreateRef<SecondScene>());
-        m_SceneManager.AddScene("3. TestLights", ZPG::CreateRef<LightsScene>());
-        m_SceneManager.AddScene("4. TestShaderLoading", ZPG::CreateRef<TestShaderLoadingScene>());
-        m_SceneManager.AddScene("5. TestMesh", ZPG::CreateRef<TestMeshSceneNS::TestMeshScene>());
-        m_SceneManager.AddScene("6. TestTexture", ZPG::CreateRef<TestTextureSceneNS::TestTextureScene>());
-        m_SceneManager.AddScene("7. TestModel", ZPG::CreateRef<TestModelSceneNS::TestModelScene>());
-        m_SceneManager.AddScene("8. AxisScene", ZPG::CreateRef<AxisSceneNS::AxisScene>());
+        m_SceneManager.AddScene("1. First", new FirstScene());
+        m_SceneManager.AddScene("2. Second", new SecondScene());
+        m_SceneManager.AddScene("3. TestLights", new LightsScene());
+        m_SceneManager.AddScene("4. TestShaderLoading", new TestShaderLoadingScene());
+        m_SceneManager.AddScene("5. TestMesh", new TestMeshSceneNS::TestMeshScene());
+        m_SceneManager.AddScene("6. TestTexture", new TestTextureSceneNS::TestTextureScene());
+        m_SceneManager.AddScene("7. TestModel", new TestModelSceneNS::TestModelScene());
+        m_SceneManager.AddScene("8. AxisScene", new AxisSceneNS::AxisScene());
+        m_SceneManager.AddScene("9. ForestScene", new ForestSceneNS::ForestScene());
 
         // ------ add shader programs -------
         Renderer::LoadShaderProgram("basic_lit", 
@@ -34,6 +38,10 @@ public:
         Renderer::LoadShaderProgram("basic_single_color", 
                                         "./assets/shaders/vertex/basic_lit.vert", 
                                         "./assets/shaders/fragment/single_color.frag");
+
+        Renderer::LoadShaderProgram("basic_normal_color", 
+                                        "./assets/shaders/vertex/basic_lit.vert", 
+                                        "./assets/shaders/fragment/normal_as_color.frag");
     }
 
     void OnImGuiRender() override {

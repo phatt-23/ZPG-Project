@@ -9,7 +9,6 @@ public:
     ScaleTransform(f32 scalar);
     ScaleTransform(f32 xScale, f32 yScale, f32 zScale);
     ScaleTransform(const glm::vec3& scale);
-private:
     void ComputeMatrix() override;
 private:
     glm::vec3 m_ScaleVector;
