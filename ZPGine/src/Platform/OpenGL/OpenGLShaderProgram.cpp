@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Debug/Asserter.h"
 #include "Core/Utility.h"
-#include "Renderer/Shader.h"
+#include "Shader/Shader.h"
 #include "OpenGLShader.h"
 
 namespace ZPG {

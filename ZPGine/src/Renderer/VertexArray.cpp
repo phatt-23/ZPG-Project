@@ -14,13 +14,13 @@ Ref<VertexArray> VertexArray::Create() {
 }
 Ref<VertexArray> VertexArray::Create(const std::vector<Ref<VertexBuffer>>& vertexBuffers) {
     switch (Renderer::GetAPI()) {
-        case RendererAPI::OpenGL: 
+        case RendererAPI::OpenGL: {
             OpenGLVertexArray* VAO = new OpenGLVertexArray();
             for (auto& VBO : vertexBuffers) {
                 VAO->AddVertexBuffer(VBO);
             }
             return CreateRef(VAO);
-            break;
+        } break;
         case RendererAPI::None: 
             break;
     }
@@ -28,14 +28,14 @@ Ref<VertexArray> VertexArray::Create(const std::vector<Ref<VertexBuffer>>& verte
 }
 Ref<VertexArray> VertexArray::Create(const std::vector<Ref<VertexBuffer>>& vertexBuffers, const Ref<IndexBuffer>& indexBuffer) {
     switch (Renderer::GetAPI()) {
-        case RendererAPI::OpenGL: 
+        case RendererAPI::OpenGL: {
             OpenGLVertexArray* VAO = new OpenGLVertexArray();
             for (auto& VBO : vertexBuffers) {
                 VAO->AddVertexBuffer(VBO);
             }
             VAO->SetIndexBuffer(indexBuffer);
             return CreateRef(VAO);
-            break;
+        } break;
         case RendererAPI::None: 
             break;
     }

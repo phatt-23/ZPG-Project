@@ -28,8 +28,11 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Camera.h"
 #include "Renderer/CameraController.h"
-#include "Renderer/ShaderDataType.h"
 #include "Renderer/Texture.h"
+
+#include "Shader/ShaderDataType.h"
+#include "Shader/Shader.h"
+#include "Shader/ShaderProgram.h"
 
 #include "Model/Mesh.h"
 #include "Model/Model.h"

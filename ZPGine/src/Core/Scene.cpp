@@ -66,6 +66,12 @@ void Scene::AddLight(const Ref<Light>& light) {
 void Scene::RemoveLight(const Ref<Light>& light) {
     m_LightManager.RemoveLight(light);
 }
+void Scene::AddShaderProgram(const std::string& name, const Ref<ShaderProgram>& shaderProgram) {
+    m_ShaderProgramLibrary.AddShaderProgram(name, shaderProgram);
+}
+const Ref<ShaderProgram>& Scene::GetShaderProgram(const std::string& name) {
+    return m_ShaderProgramLibrary.GetShaderProgram(name);
+}
 
 }
 

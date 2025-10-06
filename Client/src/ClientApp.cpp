@@ -12,17 +12,28 @@
 #include "TestTextureScene/TestTextureScene.h"
 #include "TestMeshScene/TestMeshScene.h"
 #include "TestModelScene/TestModelScene.h"
+#include "AxisScene/AxisScene.h"
 
 class ClientApp : public ZPG::Application {
 public:
     ClientApp() {
-        m_SceneManager.AddScene("Second", ZPG::CreateRef<SecondScene>());
-        m_SceneManager.AddScene("First", ZPG::CreateRef<FirstScene>());
-        m_SceneManager.AddScene("TestLights", ZPG::CreateRef<LightsScene>());
-        m_SceneManager.AddScene("TestShaderLoading", ZPG::CreateRef<TestShaderLoadingScene>());
-        m_SceneManager.AddScene("TestMesh", ZPG::CreateRef<TestMeshSceneNS::TestMeshScene>());
-        m_SceneManager.AddScene("TestTexture", ZPG::CreateRef<TestTextureSceneNS::TestTextureScene>());
-        m_SceneManager.AddScene("TestModel", ZPG::CreateRef<TestModelSceneNS::TestModelScene>());
+        // ------ add scenes -------
+        m_SceneManager.AddScene("1. First", ZPG::CreateRef<FirstScene>());
+        m_SceneManager.AddScene("2. Second", ZPG::CreateRef<SecondScene>());
+        m_SceneManager.AddScene("3. TestLights", ZPG::CreateRef<LightsScene>());
+        m_SceneManager.AddScene("4. TestShaderLoading", ZPG::CreateRef<TestShaderLoadingScene>());
+        m_SceneManager.AddScene("5. TestMesh", ZPG::CreateRef<TestMeshSceneNS::TestMeshScene>());
+        m_SceneManager.AddScene("6. TestTexture", ZPG::CreateRef<TestTextureSceneNS::TestTextureScene>());
+        m_SceneManager.AddScene("7. TestModel", ZPG::CreateRef<TestModelSceneNS::TestModelScene>());
+        m_SceneManager.AddScene("8. AxisScene", ZPG::CreateRef<AxisSceneNS::AxisScene>());
+
+        // ------ add shader programs -------
+        Renderer::LoadShaderProgram("basic_lit", 
+                                        "./assets/shaders/vertex/basic_lit.vert", 
+                                        "./assets/shaders/fragment/basic_lit_phong.frag");
+        Renderer::LoadShaderProgram("basic_single_color", 
+                                        "./assets/shaders/vertex/basic_lit.vert", 
+                                        "./assets/shaders/fragment/single_color.frag");
     }
 
     void OnImGuiRender() override {
@@ -34,7 +45,6 @@ public:
             }
         ImGui::End();
     }
-private:
 };
 
 ZPG::Application* ZPG::CreateApplication() {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Renderer/ShaderProgram.h"
+#include "Shader/ShaderProgram.h"
 #include <unordered_map>
-#include "Renderer/Shader.h"
+#include "Shader/Shader.h"
 
 namespace ZPG {
 

@@ -17,9 +17,10 @@ public:
     virtual void Unbind() const = 0;
 
     virtual const BufferLayout& GetLayout() const = 0;
-    virtual void SetLayout(BufferLayout&& layout) = 0;
+    virtual void SetLayout(const BufferLayout& layout) = 0;
 
     static Ref<VertexBuffer> Create(const f32* vertices, const u32 count);
+    static Ref<VertexBuffer> Create(const f32* vertices, const u32 count, const BufferLayout& layout);
     static Ref<VertexBuffer> Create(const u32 size);
 };
 

@@ -65,7 +65,7 @@ public:
     void OnAttach() override {
         m_Texture = Texture::Create("./assets/textures/night_bridge_phone.png");
 
-        auto vertexShader = Shader::Create("./assets/shaders/vertex/basic_lighting.vert");
+        auto vertexShader = Shader::Create("./assets/shaders/vertex/basic_lit.vert");
         auto fragmentShader = Shader::Create("./assets/shaders/fragment/basic_one_uniform_texture.frag");
         
         m_ShaderProgram = ShaderProgram::Create("testing_texture", {

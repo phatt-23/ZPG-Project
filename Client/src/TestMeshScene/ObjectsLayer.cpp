@@ -9,7 +9,7 @@ namespace TestMeshSceneNS {
 ObjectsLayer::ObjectsLayer() {
 }
 void ObjectsLayer::OnAttach() {
-    auto vertexShader = Shader::Create("./assets/shaders/vertex/basic_lighting.vert");
+    auto vertexShader = Shader::Create("./assets/shaders/vertex/basic_lit.vert");
     auto fragmentShader = Shader::Create("./assets/shaders/fragment/phong_constant_red_color.frag");
 
     m_ShaderProgram = ZPG::ShaderProgram::Create("basic_lighting+phong", {

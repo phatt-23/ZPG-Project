@@ -18,7 +18,8 @@ void OpenGLVertexArray::Unbind() const {
 }
 void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) {
     const BufferLayout& layout = vertexBuffer->GetLayout();
-    ZPG_CORE_ASSERT( layout.GetElements().size() != 0, "Layout musn't be empty." );
+    ZPG_CORE_ASSERT( layout.GetElements().size() != 0, 
+                    "Layout musn't be empty. Please provide the layout to the VBO before adding the VBO." );
 
     this->Bind();
     vertexBuffer->Bind();
@@ -27,7 +28,8 @@ void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) {
     int index = 0;
     for (auto const& el : layout) {
         glEnableVertexAttribArray(index);
-        // GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer
+        // GLuint index, GLint size, GLenum type, 
+        // GLboolean normalized, GLsizei stride, const void *pointer
         glVertexAttribPointer(index, 
             el.GetElementCount(), 
             ShaderDataType::ToOpenGLType(el.Type), 

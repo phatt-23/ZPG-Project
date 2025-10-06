@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Debug/Asserter.h"
-#include "ShaderDataType.h"
+#include "Shader/ShaderDataType.h"
 
 namespace ZPG {
 

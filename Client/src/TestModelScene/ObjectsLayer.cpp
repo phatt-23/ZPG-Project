@@ -9,8 +9,8 @@ namespace TestModelSceneNS {
 ObjectsLayer::ObjectsLayer() {
 }
 void ObjectsLayer::OnAttach() {
-    m_ShaderProgram = ZPG::ShaderProgram::Create("basic_lighting+phong", {
-        Shader::Create("./assets/shaders/vertex/basic_lighting.vert"),
+    m_ShaderProgram = ZPG::ShaderProgram::Create("basic_lit+phong", {
+        Shader::Create("./assets/shaders/vertex/basic_lit.vert"),
         Shader::Create("./assets/shaders/fragment/phong_constant_red_color.frag"),
     });
 

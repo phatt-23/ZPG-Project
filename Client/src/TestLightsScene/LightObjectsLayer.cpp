@@ -4,11 +4,6 @@
 using namespace ZPG;
 
 void LightObjectsLayer::OnAttach() {
-    m_ShaderProgram = ZPG::ShaderProgram::Create("basic_lighting+phong", {
-        Shader::Create("./assets/shaders/vertex/basic_lighting.vert"),
-        Shader::Create("./assets/shaders/fragment/single_color.frag"),
-    });
-
     auto VBO = ZPG::VertexBuffer::Create(BoxModel::boxVertices, sizeof(BoxModel::boxVertices)/sizeof(*BoxModel::boxVertices));
     VBO->SetLayout({
         {ZPG::ShaderDataType::Float3, "a_Pos"},
@@ -29,7 +24,7 @@ void LightObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
             if (light->GetLightType() == LightType::Point) {
                 PointLight* pointLight = (PointLight*)light.get();
                 Renderer::Submit(
-                    m_ShaderProgram, 
+                    Renderer::GetShaderProgram("basic_single_color"),
                     m_VAO, 
                     TranslationTransform(pointLight->GetPosition()).GetMatrix()
                 );

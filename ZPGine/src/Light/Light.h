@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Core.h"
 #include "LightType.h"
-#include "Renderer/ShaderProgram.h"
+#include "Shader/ShaderProgram.h"
 
 namespace ZPG {
 

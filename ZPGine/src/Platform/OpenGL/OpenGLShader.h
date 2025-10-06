@@ -1,5 +1,5 @@
 #pragma once
-#include "Renderer/Shader.h"
+#include "Shader/Shader.h"
 #include <glad/glad.h>
 
 namespace ZPG {

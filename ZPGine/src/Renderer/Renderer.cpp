@@ -5,6 +5,8 @@ namespace ZPG {
 
 void Renderer::Init() {
     RenderCommand::Init();
+    s_DrawData = CreateScope<DrawData>();
+    s_ShaderProgramLibrary = CreateScope<ShaderProgramLibrary>();
 }
 void Renderer::Shutdown() {
     RenderCommand::Shutdown();
@@ -64,6 +66,18 @@ void Renderer::SetLights(const std::vector<Ref<Light>>& lights) {
 }
 void Renderer::OnWindowResize(int width, int height) {
     RenderCommand::SetViewport(0, 0, width, height);
+}
+
+void Renderer::LoadShaderProgram(const std::string& name, const std::string& vertexShaderPath, const std::string& fragmentShaderPath) {
+    Ref<ShaderProgram> shaderProgram = ShaderProgram::Create(name, {
+        Shader::Create(vertexShaderPath),
+        Shader::Create(fragmentShaderPath),
+    });
+
+    s_ShaderProgramLibrary->AddShaderProgram(name, std::move(shaderProgram));
+}
+Ref<ShaderProgram> Renderer::GetShaderProgram(const std::string& name) {
+    return s_ShaderProgramLibrary->GetShaderProgram(name);
 }
 
 }

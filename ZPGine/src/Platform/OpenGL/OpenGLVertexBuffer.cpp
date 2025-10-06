@@ -36,7 +36,7 @@ void OpenGLVertexBuffer::Unbind() const {
 const BufferLayout& OpenGLVertexBuffer::GetLayout() const {
     return m_Layout;
 }
-void OpenGLVertexBuffer::SetLayout(BufferLayout&& layout) {
+void OpenGLVertexBuffer::SetLayout(const BufferLayout& layout) {
     m_Layout = layout;
 }
 

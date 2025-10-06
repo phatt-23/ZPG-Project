@@ -2,7 +2,7 @@
 
 namespace BoxModel {
 
-float boxVertices[] = {
+static float boxVertices[] = {
     -0.1f, -0.1f,  0.1f,    1.0, 0.0, 0.0,  1.0, 0.0, // L D F
     -0.1f, -0.1f, -0.1f,    0.0, 1.0, 0.0,  0.0, 0.0, // L D B
     0.1f, -0.1f, -0.1f,    0.0, 0.0, 1.0,   0.0, 1.0, // R D B
@@ -13,7 +13,7 @@ float boxVertices[] = {
     0.1f,  0.1f,  0.1f,    0.0, 1.0, 1.0,   1.0, 1.0, // R U F
 };
 
-unsigned int boxIndices[] = {
+static unsigned int boxIndices[] = {
     0, 1, 2,
     0, 2, 3,
     0, 4, 7,

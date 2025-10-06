@@ -16,5 +16,6 @@
 #include <source_location>
 #include <fstream>
 #include <sstream>
+#include <map>
 
 #endif //PCH_H

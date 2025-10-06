@@ -1,6 +1,6 @@
 #include "ShaderProgram.h"
 #include "Debug/Asserter.h"
-#include "Renderer.h"
+#include "Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLShaderProgram.h"
 
 namespace ZPG {

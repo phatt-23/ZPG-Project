@@ -16,7 +16,7 @@ public:
     virtual void Unbind() const override;
 
     virtual const BufferLayout& GetLayout() const override;
-    virtual void SetLayout(BufferLayout&& layout) override;
+    virtual void SetLayout(const BufferLayout& layout) override; 
 private:
     u32 m_RendererID;
     BufferLayout m_Layout;

@@ -8,7 +8,7 @@
 #include "Scene.h"
 #include "Core.h"
 #include <string>
-#include <unordered_map>
+#include <map>
 
 namespace ZPG {
 
@@ -21,10 +21,10 @@ public:
     void SetActiveScene(const std::string& name);
     Ref<Scene>& GetActiveScene();
 
-    inline std::unordered_map<std::string, Ref<Scene>>::iterator begin() { return m_Scenes.begin(); }
-    inline std::unordered_map<std::string, Ref<Scene>>::iterator end() { return m_Scenes.end(); }
+    inline std::map<std::string, Ref<Scene>>::iterator begin() { return m_Scenes.begin(); }
+    inline std::map<std::string, Ref<Scene>>::iterator end() { return m_Scenes.end(); }
 private:
-    std::unordered_map<std::string, Ref<Scene>> m_Scenes;
+    std::map<std::string, Ref<Scene>> m_Scenes;
     std::string m_ActiveSceneName;
 };
 
