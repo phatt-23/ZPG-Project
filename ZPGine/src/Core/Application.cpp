@@ -11,6 +11,7 @@
 #include <GLFW/glfw3.h> 
 #include "Event/KeyEvent.h"
 #include "Event/MouseEvent.h"
+#include "ResourceManager.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -26,15 +27,18 @@ Application::Application() {
     m_Window->SetEventCallback([this](Event& e){ this->OnEvent(e); });
     m_Window->SetVSync(false);
 
+    // initialize subsystems
     Renderer::Init();
     Input::Init();
     ImGuiManager::Init(m_Window);
+    ResourceManager::Init();
 }
 
 Application::~Application() {
+    ResourceManager::Shutdown();
     ImGuiManager::Shutdown();
-    Renderer::Shutdown();
     Input::Shutdown();
+    Renderer::Shutdown();
 }
 
 void Application::Run() {
@@ -48,6 +52,11 @@ void Application::Run() {
         m_SceneManager.GetActiveScene()->OnRender(ts);
         
         ImGuiManager::BeginFrame();
+
+        ImGui::Begin("Stats");
+        ImGui::Text("FPS: %f\n", 1.0f/ts.AsSeconds());
+        ImGui::End();
+
         m_SceneManager.GetActiveScene()->OnImGuiRender();
         this->OnImGuiRender();
         ImGuiManager::EndFrame();
@@ -59,7 +68,7 @@ void Application::Run() {
 void Application::OnEvent(Event& event) {
     EventDispatcher dispatcher(event);
 
-    // TODO: Put this shit into ImGuiManager or something
+    // taken from imgui sandbox example codes:
     // Poll and handle events (inputs, window resize, etc.)
     // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
     // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.

@@ -14,11 +14,12 @@ public:
     ~ShaderProgramLibrary();
 
     void AddShaderProgram(const std::string& name, const Ref<ShaderProgram>& ShaderProgram);
+
     // non const because other subjects can set uniforms
     Ref<ShaderProgram>& GetShaderProgram(const std::string& name);
     bool Exists(const std::string& name) const;
 private:
-    std::unordered_map<std::string, Ref<ShaderProgram>> m_ShaderPrograms;
+    std::unordered_map<std::string, Ref<ShaderProgram>> m_ShaderProgramMap;
 };
 
 }

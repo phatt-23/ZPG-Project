@@ -53,8 +53,11 @@ target_link_libraries(ZPGine PUBLIC ImGui)
 add_subdirectory(vendor/stb_image)
 target_link_libraries(ZPGine PUBLIC Stb_Image)
 
+target_link_libraries(ZPGine PUBLIC assimp)
+
 # can be referenced both ways
 add_library(ZPGine::ZPGine ALIAS ZPGine)
+
 
 
 

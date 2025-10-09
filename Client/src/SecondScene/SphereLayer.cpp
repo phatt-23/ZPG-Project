@@ -10,7 +10,7 @@ void SphereLayer::OnAttach() {
     m_SphereVAO = VertexArray::Create();
     m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/basic_normal.glsl");
     
-    Ref<VertexBuffer> vbo = VertexBuffer::Create(sphere, ZPG_ARRAYSIZE(sphere));
+    Ref<VertexBuffer> vbo = VertexBuffer::Create(sphere, sizeof(sphere));
     vbo->SetLayout({
         {ShaderDataType::Float3, "a_Pos"},
         {ShaderDataType::Float3, "a_Normal"},

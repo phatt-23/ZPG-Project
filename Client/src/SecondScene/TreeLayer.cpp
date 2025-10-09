@@ -30,7 +30,7 @@ void TreeLayer::OnAttach() {
     m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/basic_normal.glsl");
     m_RedShaderProgram = ShaderProgram::Create("./assets/shaders/red.glsl");
 
-    auto treeVBO = VertexBuffer::Create(tree, ZPG_ARRAYSIZE(tree));
+    auto treeVBO = VertexBuffer::Create(tree, sizeof(tree));
     treeVBO->SetLayout({
         {ShaderDataType::Float3, "a_Pos"},
         {ShaderDataType::Float3, "a_Normal"},
@@ -39,13 +39,13 @@ void TreeLayer::OnAttach() {
     m_TreeVAO = VertexArray::Create();
     m_TreeVAO->AddVertexBuffer(treeVBO);
     
-    auto planeVbo = VertexBuffer::Create(planeVertices, ZPG_ARRAYSIZE(planeVertices));
+    auto planeVbo = VertexBuffer::Create(planeVertices, sizeof(planeVertices));
     planeVbo->SetLayout({
         {ShaderDataType::Float3, "a_Pos"},
         {ShaderDataType::Float4, "a_Color"},
     });
 
-    auto planeIbo = IndexBuffer::Create(planeIndices, ZPG_ARRAYSIZE(planeIndices));
+    auto planeIbo = IndexBuffer::Create(planeIndices, ZPG_ARRAY_LENGTH(planeIndices));
     m_PlaneVao = VertexArray::Create();
     m_PlaneVao->AddVertexBuffer(planeVbo);
     m_PlaneVao->SetIndexBuffer(planeIbo);

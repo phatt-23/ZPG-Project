@@ -6,10 +6,10 @@ namespace ZPG {
 class OpenGLVertexBuffer : public VertexBuffer {
 public:
     OpenGLVertexBuffer(u32 size);
-    OpenGLVertexBuffer(const f32* vertices, u32 count);
+    OpenGLVertexBuffer(const void* vertices, u32 size);
     ~OpenGLVertexBuffer() override;
 
-    virtual void SetData(const void* data, const u32 size) override;
+    virtual void SetData(const void* data, u32 size) override;
     virtual u32 GetSize() const override;
 
     virtual void Bind() const override;

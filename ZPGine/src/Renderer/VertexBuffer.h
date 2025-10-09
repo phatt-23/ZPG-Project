@@ -10,7 +10,7 @@ class VertexBuffer
 public:
     virtual ~VertexBuffer() = default;
 
-    virtual void SetData(const void* data, const u32 size) = 0;
+    virtual void SetData(const void* data, u32 size) = 0;
     virtual u32 GetSize() const = 0;
 
     virtual void Bind() const = 0;
@@ -19,8 +19,9 @@ public:
     virtual const BufferLayout& GetLayout() const = 0;
     virtual void SetLayout(const BufferLayout& layout) = 0;
 
-    static Ref<VertexBuffer> Create(const f32* vertices, const u32 count);
-    static Ref<VertexBuffer> Create(const f32* vertices, const u32 count, const BufferLayout& layout);
+    // 'size' specified in bytes
+    static Ref<VertexBuffer> Create(const void* vertices, u32 size);
+    static Ref<VertexBuffer> Create(const void* vertices, u32 size, const BufferLayout& layout);
     static Ref<VertexBuffer> Create(const u32 size);
 };
 

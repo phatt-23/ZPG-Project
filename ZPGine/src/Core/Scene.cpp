@@ -5,6 +5,11 @@
 
 namespace ZPG {
 
+Scene::Scene(ResourceManager& resourceManager)
+: m_ResourceManager(resourceManager) {
+
+}
+
 void Scene::PushLayer(Layer* layer) {
     m_LayerStack.PushLayer(layer);
 }

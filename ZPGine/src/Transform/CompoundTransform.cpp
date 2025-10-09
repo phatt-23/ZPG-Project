@@ -2,6 +2,11 @@
 
 namespace ZPG {
 
+
+Ref<CompoundTransform> CompoundTransform::Create() {
+    return CreateRef<CompoundTransform>();
+}
+
 CompoundTransform::CompoundTransform() 
 : m_Transformations() {
 }

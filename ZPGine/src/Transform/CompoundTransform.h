@@ -23,6 +23,8 @@ public:
     }
 
     void ComputeMatrix() override;
+
+    static Ref<CompoundTransform> Create();
 private:
     std::vector<Ref<Transform>> m_Transformations;
 };

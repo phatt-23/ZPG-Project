@@ -15,6 +15,7 @@
 #include "Light/Light.h"
 #include "Model/Mesh.h"
 #include "Entity/Entity.h"
+#include "Core/Scene.h"
 
 namespace ZPG {
 
@@ -32,6 +33,16 @@ public:
 
     static void SetLights(const std::vector<Ref<Light>>& lights);
 
+    // Render a whole scene. Pulls the drawable objects from the scene, the lights and camera.
+    // Can optimize by grouping the objects by groupby('shaderProgram', 'material').
+    // Entities that are instances of the same model are drawn by intantiated draw.
+    // Objects that share shadrePrograms are drawn together to reduce the comm between 
+    // CPU and GPU.
+    // Queries the scene, groups the drawable objects and batch draws them.
+    static void RenderScene(const Scene& scene);
+
+    // Methods below allow the client to submit individual geometries with shader programs and transforms. 
+
     // ShaderProgram, VAO, Transform
     static void Submit(ShaderProgram& shaderProgram, const VertexArray& vertexArray, const glm::mat4& transform = glm::identity<glm::mat4>());
     // ShaderProgram, Mesh, Transform
@@ -42,11 +53,6 @@ public:
     static void Submit(ShaderProgram& shaderProgram, const Entity& entity, const glm::mat4& transform = glm::mat4(1.0f));
 
     static void OnWindowResize(int width, int height);
-
-    static void LoadShaderProgram(const std::string& name, const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
-
-    // not const because other subjects can change set Uniforms
-    static Ref<ShaderProgram>& GetShaderProgram(const std::string& name);
 private:
     struct DrawData {
         glm::mat4 ViewProjMatrix;
@@ -54,7 +60,6 @@ private:
         glm::vec3 CameraPosition;
     };
     inline static Scope<DrawData> s_DrawData = nullptr; 
-    inline static Scope<ShaderProgramLibrary> s_ShaderProgramLibrary = nullptr;
 };
 
 }

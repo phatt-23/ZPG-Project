@@ -30,11 +30,13 @@ private:
     bool OnWindowClose(WindowCloseEvent& event);
     bool OnWindowResize(WindowResizeEvent& event);
 protected:
-    static inline Application* s_Instance = nullptr;
     Scope<Window> m_Window;
+    SceneManager m_SceneManager;  // fully owned by the application
+
     bool m_Running = true;
-    SceneManager m_SceneManager;
     float m_LastTime;
+private:
+    static inline Application* s_Instance = nullptr;
 };
 
 // defined by client

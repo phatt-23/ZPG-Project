@@ -127,8 +127,10 @@ public:
             __builtin_trap(); \
         }
 #else
-    #define ZPG_CORE_ASSERT(condition, format, ...)
-    #define ZPG_ASSERT(condition, format, ...)
+    #define ZPG_CORE_ASSERT(condition, ...)
+    #define ZPG_ASSERT(condition, ...)
+    #define ZPG_UNREACHABLE(...) 
+    #define ZPG_NOT_IMPL(...)
 #endif
 
 #endif //ASSERTER_H

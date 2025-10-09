@@ -14,34 +14,44 @@
 #include "TestModelScene/TestModelScene.h"
 #include "AxisScene/AxisScene.h"
 #include "ForestScene/ForestScene.h"
+#include "TestModelLoadingScene/ModelLoadingScene.h"
 
 class ClientApp : public ZPG::Application {
 public:
     ClientApp() {
         using namespace ZPG;
 
+        // ------ add shader programs -------
+        ResourceManager::GetGlobal().LoadShaderProgram("basic_lit", 
+            "./assets/shaders/vertex/basic_lit.vert", 
+            "./assets/shaders/fragment/basic_lit_phong.frag");
+
+        ResourceManager::GetGlobal().LoadShaderProgram("basic_single_color",
+            "./assets/shaders/vertex/basic_lit.vert", 
+            "./assets/shaders/fragment/single_color.frag");
+            
+        ResourceManager::GetGlobal().LoadShaderProgram("basic_normal_color", 
+            "./assets/shaders/vertex/basic_lit.vert", 
+            "./assets/shaders/fragment/normal_as_color.frag");
+            
+        ResourceManager::GetGlobal().LoadShaderProgram("basic_pos_normal_uv", 
+            "./assets/shaders/vertex/basic_pos_normal_uv.vert", 
+            "./assets/shaders/fragment/normal_as_color.frag");
+
         // ------ add scenes -------
-        m_SceneManager.AddScene("1. First", new FirstScene());
-        m_SceneManager.AddScene("2. Second", new SecondScene());
-        m_SceneManager.AddScene("3. TestLights", new LightsScene());
-        m_SceneManager.AddScene("4. TestShaderLoading", new TestShaderLoadingScene());
-        m_SceneManager.AddScene("5. TestMesh", new TestMeshSceneNS::TestMeshScene());
-        m_SceneManager.AddScene("6. TestTexture", new TestTextureSceneNS::TestTextureScene());
-        m_SceneManager.AddScene("7. TestModel", new TestModelSceneNS::TestModelScene());
-        m_SceneManager.AddScene("8. AxisScene", new AxisSceneNS::AxisScene());
+        // m_SceneManager.AddScene("1. First", new FirstScene());
+        // m_SceneManager.AddScene("2. Second", new SecondScene());
+        // m_SceneManager.AddScene("3. TestLights", new LightsScene());
+        // m_SceneManager.AddScene("4. TestShaderLoading", new TestShaderLoadingScene());
+        // m_SceneManager.AddScene("5. TestMesh", new TestMeshSceneNS::TestMeshScene());
+        // m_SceneManager.AddScene("6. TestTexture", new TestTextureSceneNS::TestTextureScene());
+        // m_SceneManager.AddScene("7. TestModel", new TestModelSceneNS::TestModelScene());
+        // m_SceneManager.AddScene("8. AxisScene", new AxisSceneNS::AxisScene());
         m_SceneManager.AddScene("9. ForestScene", new ForestSceneNS::ForestScene());
 
-        // ------ add shader programs -------
-        Renderer::LoadShaderProgram("basic_lit", 
-                                        "./assets/shaders/vertex/basic_lit.vert", 
-                                        "./assets/shaders/fragment/basic_lit_phong.frag");
-        Renderer::LoadShaderProgram("basic_single_color", 
-                                        "./assets/shaders/vertex/basic_lit.vert", 
-                                        "./assets/shaders/fragment/single_color.frag");
+        m_SceneManager.AddScene("10. Test Model Loading", 
+            new TestModelLoadingNS::ModelLoadingScene());
 
-        Renderer::LoadShaderProgram("basic_normal_color", 
-                                        "./assets/shaders/vertex/basic_lit.vert", 
-                                        "./assets/shaders/fragment/normal_as_color.frag");
     }
 
     void OnImGuiRender() override {

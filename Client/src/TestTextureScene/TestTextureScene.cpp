@@ -68,31 +68,30 @@ public:
         auto vertexShader = Shader::Create("./assets/shaders/vertex/basic_lit.vert");
         auto fragmentShader = Shader::Create("./assets/shaders/fragment/basic_one_uniform_texture.frag");
         
-        m_ShaderProgram = ShaderProgram::Create("testing_texture", {
-                                                    vertexShader, fragmentShader
-                                                });
+        m_ShaderProgram = ShaderProgram::Create(
+            "testing_texture", { vertexShader, fragmentShader });
 
-        auto boxVbo = VertexBuffer::Create(boxVertices, ZPG_ARRAYSIZE(boxVertices));
+        auto boxVbo = VertexBuffer::Create(boxVertices, sizeof(boxVertices));
         boxVbo->SetLayout({
             {ShaderDataType::Float3, "a_Pos"},
             {ShaderDataType::Float4, "a_Color"},
             {ShaderDataType::Float2, "a_TexCoord"}
         });
 
-        auto boxIbo = IndexBuffer::Create(boxIndices, ZPG_ARRAYSIZE(boxIndices));
+        auto boxIbo = IndexBuffer::Create(boxIndices, ZPG_ARRAY_LENGTH(boxIndices));
 
         m_BoxVao = VertexArray::Create();
         m_BoxVao->AddVertexBuffer(boxVbo);
         m_BoxVao->SetIndexBuffer(boxIbo);
         
-        auto planeVbo = VertexBuffer::Create(planeVertices, ZPG_ARRAYSIZE(planeVertices));
+        auto planeVbo = VertexBuffer::Create(planeVertices, sizeof(planeVertices));
         planeVbo->SetLayout({
             {ShaderDataType::Float3, "a_Pos"},
             {ShaderDataType::Float4, "a_Color"},
             {ShaderDataType::Float2, "a_TexCoord"}
         });
 
-        auto planeIbo = IndexBuffer::Create(planeIndices, ZPG_ARRAYSIZE(planeIndices));
+        auto planeIbo = IndexBuffer::Create(planeIndices, ZPG_ARRAY_LENGTH(planeIndices));
         m_PlaneVao = VertexArray::Create();
         m_PlaneVao->AddVertexBuffer(planeVbo);
         m_PlaneVao->SetIndexBuffer(planeIbo);

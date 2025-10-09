@@ -15,7 +15,7 @@ public:
     void OnAttach() override {
         using namespace ZPG;
 
-        auto VBO = VertexBuffer::Create(tree, ZPG_ARRAYSIZE(tree), {
+        auto VBO = VertexBuffer::Create(tree, sizeof(tree), {
             {ShaderDataType::Float3, "a_Pos"},
             {ShaderDataType::Float3, "a_Normal"},
             });
@@ -44,7 +44,7 @@ public:
 
         Renderer::BeginDraw(context.m_Camera); 
             for (auto& entity : m_Entities) {
-                Renderer::Submit(*Renderer::GetShaderProgram("basic_normal_color"), *entity);
+                Renderer::Submit(*m_ResourceManager.GetShaderProgram("basic_normal_color"), *entity);
             }
         Renderer::EndDraw();
     }
@@ -63,7 +63,7 @@ public:
     void OnAttach() override {
         using namespace ZPG;
 
-        auto VBO = VertexBuffer::Create(bushes, ZPG_ARRAYSIZE(bushes), {
+        auto VBO = VertexBuffer::Create(bushes, sizeof(bushes), {
             {ShaderDataType::Float3, "a_Pos"},
             {ShaderDataType::Float3, "a_Normal"},
             });
@@ -92,7 +92,7 @@ public:
 
         Renderer::BeginDraw(context.m_Camera); 
             for (auto& entity : m_Entities) {
-                Renderer::Submit(*Renderer::GetShaderProgram("basic_normal_color"), *entity);
+                Renderer::Submit(*m_ResourceManager.GetShaderProgram("basic_normal_color"), *entity);
             }
         Renderer::EndDraw();
     }
@@ -102,10 +102,11 @@ private:
 };
 
 
-
 class ForestScene : public ZPG::Scene {
 public:
-    ForestScene() : m_CameraController(GetCamera()) {}
+    ForestScene() : m_CameraController(GetCamera()) {
+        
+    }
 
     void OnAttach() override {
         PushLayer(new TreesLayer());

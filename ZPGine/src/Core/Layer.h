@@ -8,12 +8,14 @@
 #include "Event/Event.h"
 #include "Timestep.h"
 #include "SceneContext.h"
+#include "ResourceManager.h"
 
 namespace ZPG {
 
 class Layer {
 public:
-    Layer() = default;
+    Layer(ResourceManager& resourceManager = ResourceManager::GetGlobal()); 
+
     virtual ~Layer() = default;
     virtual void OnAttach() {}
     virtual void OnDetach() {}
@@ -21,7 +23,8 @@ public:
     virtual void OnEvent([[maybe_unused]] Event& event) {}
     virtual void OnRender([[maybe_unused]] const RenderContext& ctx) {}
     virtual void OnImGuiRender() {}
-private:
+protected:
+    ResourceManager& m_ResourceManager;
 };
 
 }

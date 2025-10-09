@@ -12,11 +12,13 @@
 #include "Timestep.h"
 #include "LayerStack.h"
 #include "Light/Light.h"
+#include "Core/ResourceManager.h"
 
 namespace ZPG {
 
 class Scene {
 public:
+    Scene(ResourceManager& resourceManager = ResourceManager::GetGlobal());
     virtual ~Scene() {}
 
     virtual void OnAttach() {}
@@ -36,6 +38,7 @@ public:
 
     void AddShaderProgram(const std::string& name, const Ref<ShaderProgram>& shaderProgram);
     const Ref<ShaderProgram>& GetShaderProgram(const std::string& name);
+
 protected:
     void PropagateEventDownLayers(Event& event); 
     void UpdateLayers(Timestep ts);
@@ -46,6 +49,9 @@ private:
     Camera m_Camera;
     LightManager m_LightManager;
     ShaderProgramLibrary m_ShaderProgramLibrary;
+protected:
+    // either its own resource manager or injected by the app's resource manager that is global
+    ResourceManager& m_ResourceManager;
 };
 
 }

@@ -15,6 +15,8 @@
 #include "Core/SceneManager.h"
 #include "Core/Window.h"
 #include "Core/Timestep.h"
+#include "Core/Utility.h"
+#include "Core/ResourceManager.h"
 
 #include "Debug/Asserter.h"
 #include "Debug/Logger.h"
@@ -36,6 +38,8 @@
 
 #include "Model/Mesh.h"
 #include "Model/Model.h"
+#include "Model/ModelLoader.h"
+#include "Model/ModelLibrary.h"
 
 #include "Entity/Entity.h"
 
@@ -57,6 +61,5 @@
 #include "Light/PointLight.h"
 #include "Light/DirectionalLight.h"
 
-#include "Core/Utility.h"
 
 #endif ///ZPG_ENGINE_H
