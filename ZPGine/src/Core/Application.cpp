@@ -12,6 +12,7 @@
 #include "Event/KeyEvent.h"
 #include "Event/MouseEvent.h"
 #include "ResourceManager.h"
+#include <glm/gtc/type_ptr.hpp>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"

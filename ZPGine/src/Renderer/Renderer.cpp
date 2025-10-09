@@ -31,6 +31,31 @@ void Renderer::Submit(ShaderProgram& shaderProgram, const Entity& entity, const 
     Submit(shaderProgram, *model, mat);
 }
 
+void Renderer::SumbitEntity(const Entity& entity, const glm::mat4& transform) {
+    glm::mat4 entityTransform = transform * entity.GetTransformMatrix();
+    const Ref<Model>& model = entity.GetModel();
+    std::vector<Ref<Mesh>> meshes = model->GetMeshes();
+
+    for (auto& mesh : meshes) {
+        const Ref<Material>& material = mesh->GetMaterial();
+        if (material != nullptr) {
+            material->Bind();
+        }
+        SubmitMesh(*mesh, entityTransform);
+    }
+}
+
+void Renderer::SubmitMesh(const Mesh& mesh, const glm::mat4& transform) {
+    glm::mat4 worldMat = transform * mesh.GetLocalTransform();
+    Ref<Material> material = mesh.GetMaterial();
+    if (material) {
+        material->Bind();
+    }
+
+    Submit(*material->GetShaderProgram(), *mesh.GetVertexArray(), worldMat);
+}
+
+
 void Renderer::Submit(ShaderProgram& shaderProgram, const Model& model, const glm::mat4& transform) {
     const std::vector<Ref<Mesh>>& meshes = model.GetMeshes();
 
@@ -41,6 +66,10 @@ void Renderer::Submit(ShaderProgram& shaderProgram, const Model& model, const gl
 
 void Renderer::Submit(ShaderProgram& shaderProgram, const Mesh& mesh, const glm::mat4& transform) {
     glm::mat4 worldMat = transform * mesh.GetLocalTransform();
+    Ref<Material> material = mesh.GetMaterial();
+    if (material) {
+        material->Bind();
+    }
 
     // without dereference this method calls itself, stack overflow 
     Submit(shaderProgram, *mesh.GetVertexArray(), worldMat);

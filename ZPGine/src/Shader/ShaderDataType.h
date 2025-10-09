@@ -11,6 +11,7 @@ struct ShaderDataType {
         Float, Float2, Float3, Float4,
         Int, Int2, Int3, Int4,
         Mat3, Mat4,
+        Texture2D, 
     };
 
     static unsigned int Sizeof(Type type) {
@@ -26,6 +27,7 @@ struct ShaderDataType {
         case ShaderDataType::Int4: return 4 * 4;
         case ShaderDataType::Mat3: return 3 * 3 * 4;
         case ShaderDataType::Mat4: return 4 * 4 * 4;
+        case ShaderDataType::Texture2D: return 4;
         case ShaderDataType::None:
         default:
             break;
@@ -42,6 +44,7 @@ struct ShaderDataType {
         case Float2:
         case Float3:
         case Float4: return GL_FLOAT;
+        case Texture2D:
         case Int:
         case Int2:
         case Int3:

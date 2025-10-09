@@ -17,5 +17,6 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <variant>
 
 #endif //PCH_H

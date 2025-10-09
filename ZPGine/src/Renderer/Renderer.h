@@ -50,7 +50,12 @@ public:
     // ShaderProgram, Model, Transform
     static void Submit(ShaderProgram& shaderProgram, const Model& model, const glm::mat4& transform = glm::mat4(1.0f));
     // ShaderProgram, Entity, Transform
+    // this method doesn't make sense anymore
     static void Submit(ShaderProgram& shaderProgram, const Entity& entity, const glm::mat4& transform = glm::mat4(1.0f));
+
+    // new API
+    static void SumbitEntity(const Entity& entity, const glm::mat4& transform = glm::mat4(1.0f));
+    static void SubmitMesh(const Mesh& mesh, const glm::mat4& transform = glm::mat4(1.0f));
 
     static void OnWindowResize(int width, int height);
 private:

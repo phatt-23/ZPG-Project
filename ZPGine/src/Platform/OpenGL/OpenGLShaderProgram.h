@@ -13,6 +13,8 @@ public:
     OpenGLShaderProgram(const std::string& name, const std::vector<Ref<Shader>>& shaders);
     ~OpenGLShaderProgram() override;
 
+    virtual const std::string& GetName() const override { return m_Name; }
+
     virtual void Bind() override;
     virtual void Unbind() override;
 

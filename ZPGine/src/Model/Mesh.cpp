@@ -30,4 +30,8 @@ void Mesh::Unbind() {
     m_VAO->Unbind();
 }
 
+void Mesh::SetMaterial(const Ref<Material>& material) {
+    m_Material = material;
+}
+
 }

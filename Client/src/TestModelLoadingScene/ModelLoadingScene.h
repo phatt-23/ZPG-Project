@@ -1,27 +1,36 @@
 #pragma once
 
+#include "Core/Core.h"
+#include "Light/PointLight.h"
+#include "Transform/CompoundTransform.h"
 #include "ZPGine.h"
+#include "Models/box.h"
+#include "AxisScene/AxisLayer.h"
 
 namespace TestModelLoadingNS {
 
 class ModelLayer : public ZPG::Layer {
 public:
-    ModelLayer(ZPG::ResourceManager& resourceManager) : Layer(resourceManager) {
+    ModelLayer() {
     }
 
     void OnAttach() override {
         using namespace ZPG;
 
+        m_BoxVAO = VertexArray::Create({
+            VertexBuffer::Create(BoxModel::boxVertices, sizeof(BoxModel::boxVertices), {
+                {ShaderDataType::Float3, "a_Pos"},
+                {ShaderDataType::Float3, "a_Normal"},
+                {ShaderDataType::Float2, "a_TexCoord"},
+            }),
+        }, IndexBuffer::Create(BoxModel::boxIndices, ZPG_ARRAY_LENGTH(BoxModel::boxIndices)));
+
         auto transform = CompoundTransform::Create();
-        transform->Emplace<ScaleTransform>(0.1f * glm::vec3(1.0f));
-        transform->Emplace<TranslationTransform>(glm::vec3(0.0, 0.0, 0.0));
+        transform->Emplace<ScaleTransform>(0.01f * glm::vec3(1.0f));
+        transform->Emplace<TranslationTransform>(glm::vec3(0.0f, 0.8f, 0.0f));
+        transform->Emplace<RotationTransform>(180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
-        auto horseTransform = CompoundTransform::Create();
-        horseTransform->Emplace<ScaleTransform>(0.1f * glm::vec3(1.0f));
-        horseTransform->Emplace<TranslationTransform>(glm::vec3(0.0, 0.0, 0.0));
-
-        m_Entities.push_back( CreateScope(new Entity(m_ResourceManager.GetModel("hyena"), transform)) );
-        m_Entities.push_back( CreateScope(new Entity(m_ResourceManager.GetModel("horse"), horseTransform)) );
+        m_Entities.push_back(CreateScope<Entity>(m_ResourceManager.GetModel("hyena"), transform));
     }
 
     void OnUpdate(ZPG::SceneContext& context) override {
@@ -34,13 +43,30 @@ public:
         using namespace ZPG;
 
         Renderer::BeginDraw(context.m_Camera);
+        Renderer::SetLights(context.m_Lights);
         for (auto& entity : m_Entities) {
-            Renderer::Submit(*m_ResourceManager.GetShaderProgram("basic_pos_normal_uv"), *entity);
+            Renderer::SumbitEntity(*entity);
+        }
+        for (auto& light : context.m_Lights) {
+            if (light->GetLightType() == ZPG::LightType::Point) {
+                auto pointLight = (ZPG::PointLight*)light.get();
+
+                auto transform = CompoundTransform::Create();
+                transform->Emplace<ScaleTransform>(0.4f * glm::vec3(1.0));
+                transform->Emplace<TranslationTransform>(pointLight->GetPosition());
+
+                Renderer::Submit(
+                    *m_ResourceManager.GetShaderProgram("basic_single_color"),
+                    *m_BoxVAO,
+                    transform->GetMatrix()
+                );
+            }
         }
         Renderer::EndDraw();
     }
 private:
     std::vector<ZPG::Scope<ZPG::Entity>> m_Entities;
+    ZPG::Ref<ZPG::VertexArray> m_BoxVAO;
 };
 
 
@@ -50,16 +76,21 @@ public:
     }
 
     void OnAttach() override {
+        using namespace ZPG;
         // The resource manager can be 'overriden' by the client if they should choose to use their 
         // own instead of the global resource manager.
-        m_LocalResourceManager = ZPG::CreateScope<ZPG::ResourceManager>();
-        m_LocalResourceManager->LoadModel("hyena", "assets/models/hyena/hyena_demo_free_download/scene.gltf");
-        m_LocalResourceManager->LoadModel("horse", "assets/models/er_l/scene.gltf");
-        m_LocalResourceManager->LoadShaderProgram("basic_pos_normal_uv", 
-            "./assets/shaders/vertex/basic_pos_normal_uv.vert", 
-            "./assets/shaders/fragment/normal_as_color.frag");
+        // m_LocalResourceManager = ZPG::CreateScope<ZPG::ResourceManager>();
+        m_ResourceManager.LoadModel("hyena", "assets/models/hyena/hyena_demo_free_download/scene.gltf");
+        m_ResourceManager.LoadShaderProgram("ModelLoadingShaderProgram", 
+            "./assets/shaders/vertex/DefaultLit.vert", 
+            "./assets/shaders/fragment/DefaultLit.frag");
+        PushLayer(new ModelLayer());
+        PushLayer(new AxisSceneNS::AxisLayer());
 
-        PushLayer(new ModelLayer(*m_LocalResourceManager));
+        AddLight(CreateRef(new AmbientLight(glm::vec4(1.0, 1.0, 1.0, 0.1))));
+        AddLight(CreateRef(new PointLight(glm::vec4(1.0f), glm::vec3(-1.5, 0.0, 0.0))));
+        AddLight(CreateRef(new PointLight(glm::vec4(1.0f), glm::vec3(0.0, 1.0, -1.0))));
+        AddLight(CreateRef(new PointLight(glm::vec4(1.0f), glm::vec3(1.5, 0.0, 0.0))));
     }
 
     void OnUpdate([[maybe_unused]] ZPG::Timestep ts) override {

@@ -1,9 +1,11 @@
 #include "ModelLoader.h"
-#include <fstream>
+#include "Core/ResourceManager.h"
+#include <filesystem>
+#include "Texture/Texture.h"
 
 namespace ZPG {
 
-static glm::mat4 AssimpMatrixToGlm(const aiMatrix4x4t<float>& m) {
+static glm::mat4 AssimpToGLM(const aiMatrix4x4t<float>& m) {
     glm::mat4 ret(1.0f);
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -13,30 +15,93 @@ static glm::mat4 AssimpMatrixToGlm(const aiMatrix4x4t<float>& m) {
     return ret;
 }
 
-Ref<Model> ModelLoader::Load(const std::string& path) {
-    ZPG_CORE_DEBUG("Loading in model: {}", path);
+static glm::vec3 AssimpToGLM(const aiVector3D& v) {
+    return glm::vec3(v.x, v.y, v.z);
+}
+
+static glm::vec3 AssimpToGLM(const aiColor3D& c) {
+    return glm::vec3(c.r, c.g, c.b);
+}
+
+static glm::vec2 AssimpToGLM(const aiVector2D& v) {
+    return glm::vec2(v.x, v.y);
+}
+
+ModelLoader::ModelLoader(const std::string& path) 
+: m_Path(path) {
+    m_LoadingFlags = aiProcess_Triangulate       // guarantees three vertices per face
+                   | aiProcess_CalcTangentSpace  // guarantees normals exist
+               //  | aiProcess_FlipUVs
+                   ;
+}
+
+Ref<Model> ModelLoader::Load() {
+    ZPG_CORE_DEBUG("Loading in model: {} ...", m_Path);
     
     Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(m_Path, m_LoadingFlags);
+    ZPG_CORE_ASSERT(!(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode),
+        "Model loading failed: {}", m_Path);
 
-    const aiScene* scene = importer.ReadFile(path, m_LoadingFlags);
-
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        ZPG_UNREACHABLE("Model loading failed: {}", path);
+    // load the matrials first (meshes refer to them by index, link them together right away)
+    for (int i = 0; i < scene->mNumMaterials; i++) {
+        m_Materials[i] = ProcessMaterial(scene, scene->mMaterials[i]);
     }
 
-    glm::mat4 rootTransform = AssimpMatrixToGlm(scene->mRootNode->mTransformation);
+    // load in meses (geometry) and reference the loaded material
+    glm::mat4 rootTransform = AssimpToGLM(scene->mRootNode->mTransformation);
     TraverseNode(scene, scene->mRootNode, rootTransform);
 
-    ZPG_CORE_DEBUG("Meshes count: {}", m_Meshes.size());
-
     Ref<Model> model = CreateRef(new Model(m_Meshes));
-    
-    m_Meshes.clear(); 
     return model;
 }
 
-void ModelLoader::TraverseNode(const aiScene* scene, const aiNode* node, const glm::mat4& parentTransform) {
-    glm::mat4 localTransform = AssimpMatrixToGlm(node->mTransformation);
+Ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMaterial* material) {
+    Ref<Material> myMaterial = CreateRef<Material>();
+
+    // TODO: This shouldn't be called like this.
+    // It makes the transient model loader depend on global state.
+    // For now it's ok.
+    myMaterial->SetShaderProgram(ResourceManager::GetGlobal().GetShaderProgram("DefaultLit"));
+
+    // load diffuse
+    aiString textureFile;
+    if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFile) == AI_SUCCESS) {
+        std::string texturePath = std::filesystem::path(m_Path).parent_path() / textureFile.C_Str();
+        Ref<Texture> texture = Texture::Create(texturePath);
+        myMaterial->SetAlbedoMap(texture);
+    }
+
+    // load normal map
+    if (material->GetTexture(aiTextureType_NORMALS, 0, &textureFile) == AI_SUCCESS) {
+        std::string texturePath = std::filesystem::path(m_Path).parent_path() / textureFile.C_Str();
+        Ref<Texture> texture = Texture::Create(texturePath);
+        myMaterial->SetNormalMap(texture);
+    }
+
+    // get color and shininess
+    aiColor3D color; 
+    if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
+        myMaterial->SetAlbedoColor(AssimpToGLM(color));
+    }
+
+    float shininess = 32.0f;  // default
+    material->Get(AI_MATKEY_SHININESS, shininess);
+    myMaterial->SetMetallic(shininess);
+    
+    float roughness = 32.0f;  // default
+    material->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
+    myMaterial->SetRoughness(roughness);
+
+    return myMaterial;
+}
+
+void ModelLoader::TraverseNode(
+    const aiScene* scene, 
+    const aiNode* node, 
+    const glm::mat4& parentTransform
+) {
+    glm::mat4 localTransform = AssimpToGLM(node->mTransformation);
     glm::mat4 nodeTransform = parentTransform * localTransform;
 
     // process this node's meshes
@@ -52,6 +117,7 @@ void ModelLoader::TraverseNode(const aiScene* scene, const aiNode* node, const g
     }
 }
 
+
 void ModelLoader::ProcessMesh(const aiScene* scene, const aiMesh* mesh, const glm::mat4& meshTransform) {
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
@@ -62,31 +128,17 @@ void ModelLoader::ProcessMesh(const aiScene* scene, const aiMesh* mesh, const gl
         glm::vec3 normal(0.0f);
         glm::vec2 texCoord(0.0f);
 
-        aiVector3D p = mesh->mVertices[i];
-        position.x = p.x;
-        position.y = p.y;
-        position.z = p.z;
+        position = AssimpToGLM(mesh->mVertices[i]);
         
         if (mesh->HasNormals()) {
-            aiVector3D n = mesh->mNormals[i];
-            normal.x = n.x;
-            normal.y = n.y;
-            normal.z = n.z;
+            normal = AssimpToGLM(mesh->mNormals[i]);
         }
 
         if (mesh->HasTextureCoords(0)) {
-            aiVector3D t = mesh->mTextureCoords[0][i];
-            texCoord.x = t.x;
-            texCoord.y = t.y;
+            texCoord = AssimpToGLM(mesh->mTextureCoords[0][i]);
         }
 
-        Vertex vertex(
-            glm::vec3(p.x, p.y, p.z),
-            glm::vec3(normal.x, normal.y, normal.z),
-            glm::vec2(texCoord.x, texCoord.y)
-        );
-
-        vertices.push_back(vertex);
+        vertices.push_back(Vertex(position, normal, texCoord));
     }
 
     // add indices
@@ -97,8 +149,14 @@ void ModelLoader::ProcessMesh(const aiScene* scene, const aiMesh* mesh, const gl
         }
     }
     
+    // get material by index, assumes that the materials are loaded already
+    Ref<Material> material = m_Materials[mesh->mMaterialIndex];
+
+    Ref<Mesh> myMesh = CreateRef<Mesh>(vertices, indices, meshTransform);
+    myMesh->SetMaterial(material);
+
     // add the processed mesh
-    m_Meshes.push_back( CreateRef<Mesh>(vertices, indices, meshTransform) ); 
+    m_Meshes.push_back(myMesh); 
 }
 
 }

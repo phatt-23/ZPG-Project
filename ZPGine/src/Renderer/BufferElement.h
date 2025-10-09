@@ -18,6 +18,7 @@ struct BufferElement {
 
     int GetElementCount() const {
         switch (Type) {
+            case ShaderDataType::Texture2D:
             case ShaderDataType::Int:
             case ShaderDataType::Bool:
             case ShaderDataType::Float: return 1;

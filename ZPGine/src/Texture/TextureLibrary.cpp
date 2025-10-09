@@ -1,0 +1,24 @@
+#include "TextureLibrary.h"
+#include "Debug/Asserter.h"
+
+namespace ZPG {
+
+TextureLibrary::TextureLibrary() {
+
+}
+TextureLibrary::~TextureLibrary() {
+
+}
+void TextureLibrary::AddTexture(const std::string& name, const Ref<Texture>& texture) {
+    ZPG_CORE_ASSERT(!Exists(name), "Texture with this name is already in the library: {}", name);
+    m_Textures[name] = texture;
+}
+bool TextureLibrary::Exists(const std::string& name) {
+    return m_Textures.contains(name);
+}
+const Ref<Texture>& TextureLibrary::GetTexture(const std::string& name) {
+    ZPG_CORE_ASSERT(Exists(name), "Texture with this name isn't in the texture library: {}", name);
+    return m_Textures[name];
+}
+
+}

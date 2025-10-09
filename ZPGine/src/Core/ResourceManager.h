@@ -2,6 +2,7 @@
 
 #include "Model/ModelLibrary.h"
 #include "Shader/ShaderProgramLibrary.h"
+#include "Texture/TextureLibrary.h"
 
 namespace ZPG {
 
@@ -26,18 +27,26 @@ public:
 
     static ResourceManager& GetGlobal() { return *s_Instance; }
 
+    // model
     void LoadModel(const std::string& name, const std::string& path);
+    void AddModel(const std::string& name, const Ref<Model>& model);
     const Ref<Model>& GetModel(const std::string& name) const;
 
+    // shader program
     void LoadShaderProgram(const std::string& name, 
         const std::string& vertexShaderPath, 
         const std::string& fragmentShaderPath);
-
+    void AddShaderProgram(const std::string& name, const Ref<ShaderProgram>& shaderProgram);
     const Ref<ShaderProgram>& GetShaderProgram(const std::string& name);
 
+    // texture
+    void LoadTexture(const std::string& name, const std::string& path);
+    void AddTexture(const std::string& name, const Ref<Texture>& texture);
+    const Ref<Texture>& GetTexture(const std::string& name);
 private:
     ModelLibrary m_ModelLib;
     ShaderProgramLibrary m_ShaderProgramLib;
+    TextureLibrary m_TextureLib;
 private:
     inline static ResourceManager* s_Instance = nullptr;
 };

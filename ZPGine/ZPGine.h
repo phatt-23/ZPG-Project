@@ -30,7 +30,9 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Camera.h"
 #include "Renderer/CameraController.h"
-#include "Renderer/Texture.h"
+
+#include "Texture/Texture.h"
+#include "Texture/TextureLibrary.h"
 
 #include "Shader/ShaderDataType.h"
 #include "Shader/Shader.h"

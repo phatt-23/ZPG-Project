@@ -15,10 +15,24 @@ class ShaderProgram {
 public:
     virtual ~ShaderProgram() = default;
 
+    virtual const std::string& GetName() const = 0;
+
     virtual void Bind() = 0;
     virtual void Unbind() = 0;
 
-    // nechci pretizene metody
+    // overloaded methods for setting uniforms
+    void Set(const std::string& uniName, i32 value) { SetInt(uniName, value); }
+    void Set(const std::string& uniName, glm::i32vec2 vec) { SetInt2(uniName, vec); }
+    void Set(const std::string& uniName, glm::i32vec3 vec) { SetInt3(uniName, vec); }
+    void Set(const std::string& uniName, glm::i32vec4 vec) { SetInt4(uniName, vec); }
+    void Set(const std::string& uniName, f32 value) { SetFloat(uniName, value); }
+    void Set(const std::string& uniName, glm::f32vec2 vec) { SetFloat2(uniName, vec); }
+    void Set(const std::string& uniName, glm::f32vec3 vec) { SetFloat3(uniName, vec); }
+    void Set(const std::string& uniName, glm::f32vec4 vec) { SetFloat4(uniName, vec); }
+    void Set(const std::string& uniName, glm::mat3 mat) { SetMat3(uniName, mat); }
+    void Set(const std::string& uniName, glm::mat4 mat) { SetMat4(uniName, mat); }
+
+    // explicit methods for setting uniforms
     virtual void SetInt(const std::string& uniName, i32 value) = 0;
     virtual void SetInt2(const std::string& uniName, glm::i32vec2 vec) = 0;
     virtual void SetInt3(const std::string& uniName, glm::i32vec3 vec) = 0;
@@ -39,7 +53,6 @@ public:
     static Ref<ShaderProgram> Create(const std::string& filePath);
     static Ref<ShaderProgram> Create(const std::string& name, const std::string& filePath);
 private:
-
 };
 
 }

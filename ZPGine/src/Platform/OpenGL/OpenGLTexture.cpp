@@ -16,6 +16,15 @@ OpenGLTexture::OpenGLTexture(const std::string& name, const std::string& filepat
 : m_Name(name) {
     LoadTexture(filepath);
 }
+OpenGLTexture::OpenGLTexture(const std::string& name, u32 width, u32 height) 
+: m_Name(name) 
+, m_Width(width)
+, m_Height(height) 
+, m_Channels(4)
+, m_DataFormat(GL_RGBA)
+, m_InternalDataFormat(GL_RGBA8) {
+    CreateEmptyTexture();
+}
 OpenGLTexture::~OpenGLTexture() {
     ZPG_OPENGL_CALL(glDeleteTextures(1, &m_RendererID));
 }
@@ -33,36 +42,40 @@ void OpenGLTexture::LoadTexture(const std::string& path) {
     m_Height = height; 
     m_Channels = channels;
 
-    auto[m_DataFormat, m_InternalFormat] = [&] -> std::pair<unsigned int, unsigned int> {
-        switch (m_Channels)
-        {
-            case 1: return {GL_RED, GL_R8};
-            case 2: return {GL_RG, GL_RG8};
-            case 3: return {GL_RGB, GL_RGB8};
-            case 4: return {GL_RGBA, GL_RGBA8};
-            default: 
-                ZPG_CORE_ASSERT(false, "Unknown texture format (number of channels) for image '{}'!", path.c_str()); 
-                return {0, 0};
+    auto[dataFormat, internalDataFormat] = [&] -> std::pair<u32, u32> {
+        switch (m_Channels) {
+        case 1: return {GL_RED, GL_R8};
+        case 2: return {GL_RG, GL_RG8};
+        case 3: return {GL_RGB, GL_RGB8};
+        case 4: return {GL_RGBA, GL_RGBA8};
+        default: 
+            ZPG_UNREACHABLE("Unknown texture format (number of channels) for image '{}'!", path.c_str()); 
+            return {0, 0};
         }
     }();
 
+    m_DataFormat = dataFormat;
+    m_InternalDataFormat = internalDataFormat;
+
+    CreateEmptyTexture();
+
+    SetData(imageData, m_Width * m_Height * m_Channels);
+    stbi_image_free(imageData);
+}
+
+void OpenGLTexture::CreateEmptyTexture() {
     ZPG_OPENGL_CALL(glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID));
-    ZPG_OPENGL_CALL(glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height));
+    ZPG_OPENGL_CALL(glTextureStorage2D(m_RendererID, 1, m_InternalDataFormat, m_Width, m_Height));
 
     ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
     ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
     ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT));
     ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT));
 
-    ZPG_CORE_INFO("Image ({}) size in bits: {} ({}x{}x{}) and bytes: {}", 
+    ZPG_CORE_INFO("Image ({}) size in bytes: {} ({}x{}x{})", 
                     m_Name, 
-                    m_Width*m_Height*m_Channels, 
-                    m_Width, m_Height, m_Channels, 
-                    (m_Width*m_Height*m_Channels)/8);
-
-    // WARN: OpenGL (on Linux) leaks memory here (using libgallium).
-    ZPG_OPENGL_CALL(glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, imageData));
-    stbi_image_free(imageData);
+                    m_Width * m_Height * m_Channels, 
+                    m_Width, m_Height, m_Channels);
 }
 void OpenGLTexture::BindToSlot(u32 slotIndex) {
     ZPG_OPENGL_CALL(glBindTextureUnit(slotIndex, m_RendererID));
@@ -80,8 +93,14 @@ u32 OpenGLTexture::GetHeight() const {
     return m_Height;
 }
 void OpenGLTexture::SetData(const void *data, u32 size) {
-    ZPG_CORE_ASSERT(size == m_Width * m_Height * m_Channels, "Size ({}) doesn't match the size of the texture ({})!", size, m_Width * m_Height * m_Channels);
-    ZPG_OPENGL_CALL(glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data));
+    ZPG_CORE_ASSERT(size == (m_Width * m_Height * m_Channels), 
+                    "Size ({} bytes) doesn't match the size of the texture ({} bytes = {}x{}x{})!", 
+                    size, m_Width * m_Height * m_Channels, 
+                    m_Width, m_Height, m_Channels);
+    
+    // WARN: OpenGL (on Linux) leaks memory here (using libgallium).
+    ZPG_OPENGL_CALL(glTextureSubImage2D(m_RendererID, 0, 0, 0, 
+            m_Width, m_Height, m_DataFormat, GL_UNSIGNED_BYTE, data));
 }
 
 }
