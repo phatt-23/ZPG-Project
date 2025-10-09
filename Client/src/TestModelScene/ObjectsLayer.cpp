@@ -14,7 +14,7 @@ void ObjectsLayer::OnAttach() {
         Shader::Create("./assets/shaders/fragment/phong_constant_red_color.frag"),
     });
 
-    auto VBO = ZPG::VertexBuffer::Create(gift, sizeof(gift)/sizeof(*gift));
+    auto VBO = ZPG::VertexBuffer::Create(gift, sizeof(gift));
     VBO->SetLayout({
         {ZPG::ShaderDataType::Float3, "a_Pos"},
         {ZPG::ShaderDataType::Float3, "a_Normal"},

@@ -37,6 +37,10 @@ void CameraController::OnUpdate(Timestep ts) {
     vec3 const& right = m_Camera.GetRight();
     vec3 const& forward = m_Camera.GetForward();
 
+    if (Input::IsKeyPressed(ZPG_KEY_LEFT_SHIFT)) {
+        translateSpeed *= 10.0;
+    }
+
     if (Input::IsKeyPressed(ZPG_KEY_W))
         cameraPosition += forward * translateSpeed;
     if (Input::IsKeyPressed(ZPG_KEY_A))

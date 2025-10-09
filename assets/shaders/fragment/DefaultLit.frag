@@ -83,7 +83,6 @@ void main() {
 }
 
 vec3 pointLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition, vec3 lightColor) {
-    const float specularStrength = 0.4;
 
     float dist = length(lightPosition - worldPos);
     float attenuation = clamp(5.0 / dist, 0.0, 1.0);
@@ -95,12 +94,13 @@ vec3 pointLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition
     float dotProduct = dot(lightDir, normalVector);
     vec3 diffuse = max(dotProduct, 0.0) * color * attenuation;
 
+    const float specularStrength = 0.4;
     float specValue = pow(max(dot(viewDir, reflectionDir), 0.0), 16);
-    vec3 spec = specularStrength * specValue * lightColor;
+    float specFactor = specularStrength * specValue;
     if (dotProduct < 0.0) {
-        spec = vec3(0.0);
+        specFactor = 0.0;
     }
-    vec3 specular = attenuation * spec;
+    vec3 specular = vec3(texture(u_NormalMap, v_TexCoord)) * attenuation * specFactor;
 
     return diffuse + specular;
 }

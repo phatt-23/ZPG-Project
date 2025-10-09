@@ -17,7 +17,7 @@ void ReadingFromFilesLayer::OnAttach() {
 
     m_ShaderProgram = ZPG::ShaderProgram::Create("basic_normal.vert.frag", shaders);
 
-    auto treeVBO = ZPG::VertexBuffer::Create(gift, sizeof(gift)/sizeof(*gift));
+    auto treeVBO = ZPG::VertexBuffer::Create(gift, sizeof(gift));
     treeVBO->SetLayout({
         {ZPG::ShaderDataType::Float3, "a_Pos"},
         {ZPG::ShaderDataType::Float3, "a_Normal"},

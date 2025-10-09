@@ -4,7 +4,7 @@
 using namespace ZPG;
 
 void LightObjectsLayer::OnAttach() {
-    auto VBO = ZPG::VertexBuffer::Create(BoxModel::boxVertices, ZPG_ARRAY_LENGTH(BoxModel::boxVertices));
+    auto VBO = ZPG::VertexBuffer::Create(BoxModel::boxVertices, sizeof(BoxModel::boxVertices));
     VBO->SetLayout({
         {ZPG::ShaderDataType::Float3, "a_Pos"},
         {ZPG::ShaderDataType::Float3, "a_Normal"},

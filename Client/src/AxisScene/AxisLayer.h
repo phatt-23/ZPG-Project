@@ -12,7 +12,7 @@ public:
     void OnAttach() override;
     void OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) override;
 private:
-    ZPG::Scope<ZPG::Model> m_Model;
+    ZPG::Ref<ZPG::Entity> m_Entity;
     ZPG::Ref<ZPG::ShaderProgram> m_ShaderProgram;
 };
 

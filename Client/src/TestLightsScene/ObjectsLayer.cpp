@@ -16,7 +16,7 @@ void ObjectsLayer::OnAttach() {
 
     m_ShaderProgram = ZPG::ShaderProgram::Create("basic_lighting+phong", shaders);
 
-    auto VBO = ZPG::VertexBuffer::Create(gift, sizeof(gift)/sizeof(*gift));
+    auto VBO = ZPG::VertexBuffer::Create(gift, sizeof(gift));
     VBO->SetLayout({
         {ZPG::ShaderDataType::Float3, "a_Pos"},
         {ZPG::ShaderDataType::Float3, "a_Normal"},

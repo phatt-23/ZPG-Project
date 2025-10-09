@@ -29,8 +29,19 @@ public:
         transform->Emplace<ScaleTransform>(0.01f * glm::vec3(1.0f));
         transform->Emplace<TranslationTransform>(glm::vec3(0.0f, 0.8f, 0.0f));
         transform->Emplace<RotationTransform>(180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        transform->Emplace<DynRotationTransform>(0.0f, 20.0f, glm::vec3(0.0, 1.0, 0.0));
+        transform->Emplace<DynRotationTransform>(0.0f, 20.0f, glm::vec3(1.0, 0.0, 0.0));
 
-        m_Entities.push_back(CreateScope<Entity>(m_ResourceManager.GetModel("hyena"), transform));
+        auto transform2 = CompoundTransform::Create();
+        transform2->Emplace<ScaleTransform>(0.01f * glm::vec3(1.0f));
+        transform2->Emplace<TranslationTransform>(glm::vec3(0.0f, 0.8f, 3.0f));
+        transform2->Emplace<RotationTransform>(90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+        transform2->Emplace<DynRotationTransform>(0.0f, 50.0f, glm::vec3(0.0, 1.0, 0.0));
+
+        m_Entities.push_back(CreateScope<Entity>(
+            m_ResourceManager.GetModel("hyena"), transform));
+        m_Entities.push_back(CreateScope<Entity>(
+            m_ResourceManager.GetModel("hyena"), transform2));
     }
 
     void OnUpdate(ZPG::SceneContext& context) override {
@@ -81,6 +92,8 @@ public:
         // own instead of the global resource manager.
         // m_LocalResourceManager = ZPG::CreateScope<ZPG::ResourceManager>();
         m_ResourceManager.LoadModel("hyena", "assets/models/hyena/hyena_demo_free_download/scene.gltf");
+        // m_ResourceManager.LoadModel("ford_mustang", "assets/models/ford_mustang/scene.gltf");
+
         m_ResourceManager.LoadShaderProgram("ModelLoadingShaderProgram", 
             "./assets/shaders/vertex/DefaultLit.vert", 
             "./assets/shaders/fragment/DefaultLit.frag");
