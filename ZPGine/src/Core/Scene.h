@@ -22,7 +22,10 @@ public:
     Scene(const Ref<ResourceManager>& resourceManager = ResourceManager::GetGlobalRef());
     virtual ~Scene() {}
 
-    virtual void OnAttach() {}
+    // is called right away when the scene is pushed in the scene manager
+    virtual void OnAttach() {}  
+    // is called once when the scene is set as active
+    virtual void OnLazyAttach() {}  
     virtual void OnDetach() {}
     virtual void OnResume();
     virtual void OnPause();
@@ -34,11 +37,15 @@ public:
     void PushLayer(Layer* layer);
     void PopLayer();
 
-    void AddLight(const Ref<Light>& light);
-    void RemoveLight(const Ref<Light>& light);
+    void AddLight(Light* light);    
+    void RemoveLight(Light* light);
 
     EntityManager& GetEntityManager() { return m_EntityManager; }
     ResourceManager& GetResourceManager() { return *m_ResourceManager; }
+
+    void MarkAsLazyLoaded() { m_LazyLoaded = true; }
+    bool WasLazyLoaded() const { return m_LazyLoaded; }
+
 protected:
     void PropagateEventDownLayers(Event& event); 
     void UpdateLayers(Timestep ts);
@@ -49,6 +56,8 @@ private:
     Camera m_Camera;
     LightManager m_LightManager;
     EntityManager m_EntityManager;
+
+    bool m_LazyLoaded = false;
 protected:
     // either its own resource manager or injected by the app's resource manager that is global
     Ref<ResourceManager> m_ResourceManager = nullptr;

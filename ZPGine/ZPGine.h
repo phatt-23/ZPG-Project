@@ -29,7 +29,9 @@
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/Camera.h"
-#include "Renderer/CameraController.h"
+
+#include "Controller/ObservableCameraController.h"
+#include "Controller/CameraController.h"
 
 #include "Texture/Texture.h"
 #include "Texture/TextureLibrary.h"
@@ -63,5 +65,7 @@
 #include "Light/PointLight.h"
 #include "Light/DirectionalLight.h"
 
+#include "Observer/Observable.h"
+#include "Observer/Observer.h"
 
 #endif ///ZPG_ENGINE_H

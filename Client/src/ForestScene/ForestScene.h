@@ -39,7 +39,7 @@ public:
         }
     }
 
-    void OnRender(const ZPG::RenderContext& context) override {
+    void OnRender([[maybe_unused]] const ZPG::RenderContext& context) override {
         using namespace ZPG;
 
         for (auto& entity : m_Entities) {
@@ -85,7 +85,7 @@ public:
         }
     }
 
-    void OnRender(const ZPG::RenderContext& context) override {
+    void OnRender([[maybe_unused]] const ZPG::RenderContext& context) override {
         using namespace ZPG;
 
         for (auto& entity : m_Entities) {

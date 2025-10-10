@@ -46,7 +46,15 @@ void SceneManager::SetActiveScene(const std::string& name) {
     if (Exists(m_ActiveSceneName)) {
         m_Scenes[m_ActiveSceneName]->OnPause();
     }
+    
     m_ActiveSceneName = name; 
+    Scene* activeScene = m_Scenes[m_ActiveSceneName];
+
+    if (!activeScene->WasLazyLoaded()) {
+        activeScene->OnLazyAttach();
+        activeScene->MarkAsLazyLoaded();
+    }
+
     m_Scenes[m_ActiveSceneName]->OnResume();
 }
 

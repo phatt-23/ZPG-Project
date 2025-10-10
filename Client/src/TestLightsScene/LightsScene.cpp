@@ -11,14 +11,14 @@ LightsScene::LightsScene()
 }
 
 void LightsScene::OnAttach() {
-    m_FlashLight = CreateRef<SpotLight>( vec4(0.f, 0.f, 0.f, 1.f), vec3(0.0, -0.1, 0.0f), vec3(0.f, 1.f, 0.f), 30.f, 32.f );
+    m_FlashLight = new SpotLight( vec4(0.f, 0.f, 0.f, 1.f), vec3(0.0, -0.1, 0.0f), vec3(0.f, 1.f, 0.f), 30.f, 32.f );
 
     PushLayer(new ObjectsLayer());
     PushLayer(new LightObjectsLayer());
 
     // AddLight(CreateRef<AmbientLight>( vec4(1.f, 1.f, 1.f, 0.1f) ));
-    AddLight(CreateRef<PointLight>( vec4(0.f, 0.f, 1.f, 1.f), vec3(1.f, 0.f, -1.f) ));
-    AddLight(CreateRef<PointLight>( vec4(0.f, 1.f, 0.f, 1.f), vec3(0.f, 0.f, 1.f) ));
+    AddLight(new PointLight( vec4(0.f, 0.f, 1.f, 1.f), vec3(1.f, 0.f, -1.f) ));
+    AddLight(new PointLight( vec4(0.f, 1.f, 0.f, 1.f), vec3(0.f, 0.f, 1.f) ));
     // AddLight(CreateRef<DirectionalLight>( vec4(1.f, 1.f, 1.f, 1.f), vec3(-1.f, -1.f, -1.f) ));
     AddLight(m_FlashLight);
 }

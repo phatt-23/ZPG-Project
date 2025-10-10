@@ -36,6 +36,6 @@ void ObjectsLayer::OnAttach() {
 void ObjectsLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
     m_Transform->Update(ctx.m_Timestep);
 }
-void ObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
+void ObjectsLayer::OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) {
     Renderer::Submit(*m_ShaderProgram, *m_VAO, m_Transform->GetMatrix());
 }

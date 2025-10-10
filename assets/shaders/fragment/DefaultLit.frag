@@ -32,9 +32,25 @@ out vec4 f_FragColor;
 uniform sampler2D u_AlbedoMap;
 uniform sampler2D u_NormalMap;
 
-vec3 pointLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition, vec3 lightColor);
-vec3 directionalLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightDirection, vec3 lightColor);
-vec3 spotLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition, vec3 lightDirection, vec3 lightColor, float cutoff);
+vec3 pointLight(
+    vec3 p_Color, 
+    vec3 p_Normal, 
+    vec3 p_LightPos, 
+    vec3 p_LightColor);
+
+vec3 directionalLight(
+    vec3 p_Color, 
+    vec3 p_nNormal, 
+    vec3 p_LightDir, 
+    vec3 p_LightColor);
+
+vec3 spotLight(
+    vec3 p_Color, 
+    vec3 p_Normal, 
+    vec3 p_LightPos, 
+    vec3 p_LightDir, 
+    vec3 p_LightColor, 
+    float p_Cutoff);
 
 void main() {
     // calculate the final light color
@@ -48,51 +64,48 @@ void main() {
         
         if (light.type == LightTypeDirectional) {
             accumColor += directionalLight(
-                            color, 
-                            v_WorldPos, 
-                            v_WorldNormal, 
-                            light.dir, 
-                            vec3(light.color));
+                color, 
+                v_WorldNormal, 
+                light.dir, 
+                vec3(light.color));
 
         } else if (light.type == LightTypePoint) {
             accumColor += pointLight(
-                            color, 
-                            v_WorldPos, 
-                            v_WorldNormal, 
-                            light.pos, 
-                            vec3(light.color));
-
+                color, 
+                v_WorldNormal, 
+                light.pos, 
+                vec3(light.color));
 
         } else if (light.type == LightTypeSpotlight) {
             accumColor += spotLight(
-                            color, 
-                            v_WorldPos, 
-                            v_WorldNormal, 
-                            light.pos, 
-                            light.dir, 
-                            vec3(light.color), 
-                            light.inCutoff);
+                color, 
+                v_WorldNormal, 
+                light.pos, 
+                light.dir, 
+                vec3(light.color), 
+                light.inCutoff);
         }
     }
 
-    // f_FragColor = vec4(v_WorldNormal, 1.f);
     vec3 ambientColor = color * (u_AmbientColor.xyz * u_AmbientColor.w);
     f_FragColor = vec4(ambientColor + accumColor, 1.0);
-    // f_FragColor = texture(u_AlbedoMap, v_TexCoord);
-    // f_FragColor = vec4(1.0);
 }
 
-vec3 pointLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition, vec3 lightColor) {
+vec3 pointLight(
+    vec3 p_Color, 
+    vec3 p_Normal, 
+    vec3 p_LightPos, 
+    vec3 p_LightColor
+) {
+    float dist = length(p_LightPos - v_WorldPos);
+    float attenuation = 5.0 / (dist * dist);
 
-    float dist = length(lightPosition - worldPos);
-    float attenuation = clamp(5.0 / dist, 0.0, 1.0);
+    vec3 viewDir = normalize(u_CameraPos - v_WorldPos);
+    vec3 lightDir = normalize(p_LightPos - v_WorldPos);
+    vec3 reflectionDir = reflect(-lightDir, p_Normal);
 
-    vec3 viewDir = normalize(u_CameraPos - worldPos);
-    vec3 lightDir = normalize(lightPosition - worldPos);
-    vec3 reflectionDir = reflect(-lightDir, normalVector);
-
-    float dotProduct = dot(lightDir, normalVector);
-    vec3 diffuse = max(dotProduct, 0.0) * color * attenuation;
+    float dotProduct = dot(lightDir, p_Normal);
+    vec3 diffuse = max(dotProduct, 0.0) * p_Color * attenuation;
 
     const float specularStrength = 0.4;
     float specValue = pow(max(dot(viewDir, reflectionDir), 0.0), 16);
@@ -100,34 +113,42 @@ vec3 pointLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition
     if (dotProduct < 0.0) {
         specFactor = 0.0;
     }
-    vec3 specular = vec3(texture(u_NormalMap, v_TexCoord)) * attenuation * specFactor;
 
+    vec3 specular = vec3(texture(u_NormalMap, v_TexCoord)) * attenuation * specFactor;
     return diffuse + specular;
 }
 
-vec3 spotLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition, vec3 lightDirection, vec3 lightColor, float cutoff) {
-    vec3 lightDir = normalize(lightPosition - worldPos);
+
+vec3 spotLight(
+    vec3 p_Color, 
+    vec3 p_Normal, 
+    vec3 p_LightPos, 
+    vec3 p_LightDir, 
+    vec3 p_LightColor, 
+    float p_Cutoff
+) {
+    vec3 lightDir = normalize(p_LightPos - v_WorldPos);
 
     float a = 1.0;
     float b = 0.7;
-    float distanceFromLight = length(lightPosition - worldPos);
+    float distanceFromLight = length(p_LightPos - v_WorldPos);
     float attenuation = 1.f / (a * pow(distanceFromLight, 2.f) + b * distanceFromLight + 1.f);
 
-    float theta = dot(lightDir, normalize(-lightDirection));
-    if (theta <= cutoff) {
+    float theta = dot(lightDir, normalize(-p_LightDir));
+    if (theta <= p_Cutoff) {
         return vec3(0.0, 0.0, 0.0);
     }
 
     const float specularStrength = 0.4;
 
-    vec3 viewDir = normalize(u_CameraPos - worldPos);
-    vec3 reflectionDir = reflect(-lightDir, normalVector);
+    vec3 viewDir = normalize(u_CameraPos - v_WorldPos);
+    vec3 reflectionDir = reflect(-lightDir, p_Normal);
 
-    float dotProduct = dot(lightDir, normalVector);
-    vec3 diffuse = max(dotProduct, 0.0) * color * attenuation;
+    float dotProduct = dot(lightDir, p_Normal);
+    vec3 diffuse = max(dotProduct, 0.0) * p_Color * attenuation + p_LightColor * attenuation;
 
     float specValue = pow(max(dot(viewDir, reflectionDir), 0.0), 16);
-    vec3 spec = specularStrength * specValue * lightColor;
+    vec3 spec = specularStrength * specValue * p_LightColor;
 
     if (dotProduct < 0.0) {
         spec = vec3(0.0);
@@ -138,22 +159,27 @@ vec3 spotLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightPosition,
     return diffuse + specular;
 }
 
-vec3 directionalLight(vec3 color, vec3 worldPos, vec3 normalVector, vec3 lightDirection, vec3 lightColor) {
+vec3 directionalLight(
+    vec3 p_Color, 
+    vec3 p_Normal, 
+    vec3 p_LightDir, 
+    vec3 p_LightColor
+) {
     const float specularStrength = 0.4;
 
-    vec3 lightDir = normalize(-lightDirection);
-    float dotProduct = dot(lightDir, normalVector);
-    vec3 diffuse = max(dotProduct, 0.0) * lightColor;
+    vec3 lightDir = normalize(-p_LightDir);
+    float dotProduct = dot(lightDir, p_Normal);
+    vec3 diffuse = max(dotProduct, 0.0) * p_LightColor;
 
-    vec3 viewDir = normalize(u_CameraPos - worldPos);
-    vec3 reflectionDir = reflect(-lightDir, normalVector);
+    vec3 viewDir = normalize(u_CameraPos - v_WorldPos);
+    vec3 reflectionDir = reflect(-lightDir, p_Normal);
 
     float specValue = pow(max(dot(viewDir, reflectionDir), 0.0), 16);
-    vec3 spec = specularStrength * specValue * lightColor;
+    vec3 spec = specularStrength * specValue * p_LightColor;
     if (dotProduct < 0.0) {
         spec = vec3(0.0);
     }
 
-    return (diffuse + spec) * color;
+    return (diffuse + spec) * p_Color;
 }
 

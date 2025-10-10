@@ -56,7 +56,7 @@ void InlineShadersLayer::OnAttach() {
 
 void InlineShadersLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
 }
-void InlineShadersLayer::OnRender(const ZPG::RenderContext& ctx) {
+void InlineShadersLayer::OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) {
     glm::mat4 model = glm::translate(glm::mat4(1.f), glm::vec3(1.0, 0.0, -1.f));
     Renderer::Submit(*m_ShaderProgram, *m_TreeVAO, model);
 }

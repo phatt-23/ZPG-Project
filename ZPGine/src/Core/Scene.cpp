@@ -70,11 +70,11 @@ void Scene::OnResume() {
 void Scene::OnPause() {
 
 }
-void Scene::AddLight(const Ref<Light>& light) {
-    m_LightManager.AddLight(light);
+void Scene::AddLight(Light* light) {
+    m_LightManager.AddLight(CreateRef(light));
 }
-void Scene::RemoveLight(const Ref<Light>& light) {
-    m_LightManager.RemoveLight(light);
+void Scene::RemoveLight(Light* light) {
+    m_LightManager.RemoveLight(CreateRef(light));
 }
 
 }

@@ -9,8 +9,7 @@
 #include "Event/WindowEvent.h"
 #include "Event/KeyEvent.h"
 #include "Core/Timestep.h"
-
-#include "Camera.h"
+#include "Renderer/Camera.h"
 
 namespace ZPG {
 class CameraController {
@@ -31,7 +30,7 @@ private:
     bool OnMouseMoved(MouseMovedEvent& e);
     bool OnMouseScrolled(MouseScrolledEvent& e);
     bool OnKeyPressed(KeyPressedEvent& e);
-private:
+protected:
     Camera& m_Camera;
 
     f32 m_CameraTranslationSpeed = 2.0f;
