@@ -59,9 +59,7 @@ void TreeLayer::OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) {
     treeTransform = glm::rotate(glm::mat4(1.f), glm::radians(rot), glm::vec3(0.f, 1.f, 0.f));
 
     static glm::mat4 planeTransform = glm::scale(glm::mat4(1.f), glm::vec3(10.f, 1.0f, 20.f));
-    Renderer::BeginDraw(ctx.m_Camera);
-        Renderer::Submit(*m_NormalShaderProgram, m_TreeVAO, treeTransform);
-        Renderer::Submit(*m_RedShaderProgram, m_PlaneVao, planeTransform);
-    Renderer::EndDraw();
+    Renderer::Submit(*m_NormalShaderProgram, m_TreeVAO, treeTransform);
+    Renderer::Submit(*m_RedShaderProgram, m_PlaneVao, planeTransform);
 }
 

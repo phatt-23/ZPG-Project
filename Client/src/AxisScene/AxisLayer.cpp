@@ -2,15 +2,17 @@
 #include "Entity/Entity.h"
 #include "Transform/StaticTransform/TranslationTransform.h"
 
+using namespace ZPG;
+
 namespace AxisSceneNS {
 
-AxisLayer::AxisLayer() {}
+AxisLayer::AxisLayer() {
+}
 
-AxisLayer::~AxisLayer() {}
+AxisLayer::~AxisLayer() {
+}
 
 void AxisLayer::OnAttach() {
-    using namespace ZPG;
-
     m_ShaderProgram = ShaderProgram::Create("AxisShaderProgram", {
         Shader::Create("./assets/shaders/vertex/DefaultLit.vert"),
         Shader::CreateFromCode("just_a_single_color_thing", Shader::Fragment, R"(
@@ -20,7 +22,7 @@ void AxisLayer::OnAttach() {
             void main() {
                 f_FragColor = vec4(u_AlbedoColor, 0.8);
             }
-            )"),
+        )"),
     });
 
     auto VAO = VertexArray::Create({
@@ -63,10 +65,7 @@ void AxisLayer::OnAttach() {
 }
 
 void AxisLayer::OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) {
-    using namespace ZPG;
-    Renderer::BeginDraw(ctx.m_Camera);
     Renderer::SumbitEntity(*m_Entity);
-    Renderer::EndDraw();
 }
 
 }

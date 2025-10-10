@@ -66,11 +66,8 @@ void SphereLayer::OnUpdate(SceneContext& context) {
     moon.Emplace<RotationTransform>(5 * rot, moonAxis);
     moon.Emplace<TranslationTransform>(vec3(earth.GetMatrix()[3]));
 
-
-    Renderer::BeginDraw(m_CameraController.GetCamera());
-        Renderer::Submit(*m_NormalShaderProgram, *m_SphereVAO, sun.GetMatrix());
-        Renderer::Submit(*m_NormalShaderProgram, *m_SphereVAO, earth.GetMatrix());
-        Renderer::Submit(*m_NormalShaderProgram, *m_SphereVAO, moon.GetMatrix());
-    Renderer::EndDraw();
+    Renderer::Submit(*m_NormalShaderProgram, *m_SphereVAO, sun.GetMatrix());
+    Renderer::Submit(*m_NormalShaderProgram, *m_SphereVAO, earth.GetMatrix());
+    Renderer::Submit(*m_NormalShaderProgram, *m_SphereVAO, moon.GetMatrix());
 }
 

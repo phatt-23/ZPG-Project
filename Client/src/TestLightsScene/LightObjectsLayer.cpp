@@ -19,16 +19,14 @@ void LightObjectsLayer::OnAttach() {
 }
 
 void LightObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
-    ZPG::Renderer::BeginDraw(ctx.m_Camera);
-        for (auto& light : ctx.m_Lights) {
-            if (light->GetLightType() == LightType::Point) {
-                PointLight* pointLight = (PointLight*)light.get();
-                Renderer::Submit(
-                    *m_ResourceManager.GetShaderProgram("basic_single_color"),
-                    *m_VAO, 
-                    TranslationTransform(pointLight->GetPosition()).GetMatrix()
-                );
-            }
+    for (auto& light : ctx.m_Lights) {
+        if (light->GetLightType() == LightType::Point) {
+            PointLight* pointLight = (PointLight*)light.get();
+            Renderer::Submit(
+                *m_Scene->GetResourceManager().GetShaderProgram("basic_single_color"),
+                *m_VAO, 
+                TranslationTransform(pointLight->GetPosition()).GetMatrix()
+            );
         }
-    ZPG::Renderer::EndDraw();
+    }
 }

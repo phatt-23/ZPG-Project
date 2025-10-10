@@ -6,6 +6,8 @@
 
 namespace ZPG {
 
+// these are not needed if I set the layer's parent scene
+
 // readonly stuff needed for rendering
 struct RenderContext {
     Timestep m_Timestep = 0.f;

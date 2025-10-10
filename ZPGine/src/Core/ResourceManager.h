@@ -26,6 +26,7 @@ public:
     static void Shutdown();
 
     static ResourceManager& GetGlobal() { return *s_Instance; }
+    static Ref<ResourceManager> GetGlobalRef() { return s_Instance; }
 
     // model
     void LoadModel(const std::string& name, const std::string& path);
@@ -48,7 +49,9 @@ private:
     ShaderProgramLibrary m_ShaderProgramLib;
     TextureLibrary m_TextureLib;
 private:
-    inline static ResourceManager* s_Instance = nullptr;
+        // should be Scope? 
+        // doesn't matter, at termination it's significant if this thing is scoped or ref + lifetime of this is the whole app run
+    inline static Ref<ResourceManager> s_Instance = nullptr;
 };
 
 }

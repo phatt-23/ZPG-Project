@@ -115,32 +115,30 @@ public:
 
         static glm::mat4 planeTransform = glm::scale(glm::mat4(1.f), glm::vec3(10.f, 1.0f, 20.f));
 
-        Renderer::BeginDraw(ctx.m_Camera);
-            m_Texture->BindToSlot(2);
-            m_ShaderProgram->Bind();
-            m_ShaderProgram->SetInt("u_Texture", 2);
+        m_Texture->BindToSlot(2);
+        m_ShaderProgram->Bind();
+        m_ShaderProgram->SetInt("u_Texture", 2);
 
-            Renderer::Submit(*m_ShaderProgram, 
-                             *m_BoxVao, 
-                             boxTransform);
-            Renderer::Submit(*m_ShaderProgram, 
-                             *m_BoxVao, 
-                             scMat * boxTransform);
-            Renderer::Submit(*m_ShaderProgram, 
-                             *m_BoxVao, 
-                             boxTransform * scMat);
-            Renderer::Submit(*m_ShaderProgram, 
-                             *m_BoxVao, 
-                             boxTransform * scMat);
-            Renderer::Submit(*m_ShaderProgram, 
-                             *m_BoxVao, 
-                             scMat * translate(mat4(1.f), vec3(10.0, 0, 0)) * scMat);
-            Renderer::Submit(*m_ShaderProgram, *m_PlaneVao, planeTransform);
+        Renderer::Submit(*m_ShaderProgram, 
+                            *m_BoxVao, 
+                            boxTransform);
+        Renderer::Submit(*m_ShaderProgram, 
+                            *m_BoxVao, 
+                            scMat * boxTransform);
+        Renderer::Submit(*m_ShaderProgram, 
+                            *m_BoxVao, 
+                            boxTransform * scMat);
+        Renderer::Submit(*m_ShaderProgram, 
+                            *m_BoxVao, 
+                            boxTransform * scMat);
+        Renderer::Submit(*m_ShaderProgram, 
+                            *m_BoxVao, 
+                            scMat * translate(mat4(1.f), vec3(10.0, 0, 0)) * scMat);
+        Renderer::Submit(*m_ShaderProgram, *m_PlaneVao, planeTransform);
 
-            for (auto& tr : m_Transforms) {
-                Renderer::Submit(*m_ShaderProgram, *m_BoxVao, tr);
-            }
-        Renderer::EndDraw();
+        for (auto& tr : m_Transforms) {
+            Renderer::Submit(*m_ShaderProgram, *m_BoxVao, tr);
+        }
     }
 };
 

@@ -14,7 +14,7 @@ ResourceManager::~ResourceManager() {
 
 void ResourceManager::Init() {
     ZPG_CORE_ASSERT(s_Instance == nullptr, "The global resource manager was already instantiated.");
-    s_Instance = new ResourceManager();
+    s_Instance = CreateRef<ResourceManager>();
 
     // Material system expects these resources:
     // null AlbedoMap
@@ -43,8 +43,8 @@ void ResourceManager::Init() {
 
 void ResourceManager::Shutdown() {
     ZPG_CORE_ASSERT(s_Instance != nullptr, "The resource manager that wasn't initialized can't be shutdown.");
-    delete s_Instance;
-    s_Instance = nullptr;
+    // delete s_Instance;
+    // s_Instance = nullptr;
 }
 
 // ---------- model ---------------

@@ -13,12 +13,13 @@
 #include "LayerStack.h"
 #include "Light/Light.h"
 #include "Core/ResourceManager.h"
+#include "Entity/EntityManager.h"
 
 namespace ZPG {
 
 class Scene {
 public:
-    Scene(ResourceManager& resourceManager = ResourceManager::GetGlobal());
+    Scene(const Ref<ResourceManager>& resourceManager = ResourceManager::GetGlobalRef());
     virtual ~Scene() {}
 
     virtual void OnAttach() {}
@@ -36,9 +37,8 @@ public:
     void AddLight(const Ref<Light>& light);
     void RemoveLight(const Ref<Light>& light);
 
-    void AddShaderProgram(const std::string& name, const Ref<ShaderProgram>& shaderProgram);
-    const Ref<ShaderProgram>& GetShaderProgram(const std::string& name);
-
+    EntityManager& GetEntityManager() { return m_EntityManager; }
+    ResourceManager& GetResourceManager() { return *m_ResourceManager; }
 protected:
     void PropagateEventDownLayers(Event& event); 
     void UpdateLayers(Timestep ts);
@@ -48,10 +48,10 @@ private:
     LayerStack m_LayerStack;
     Camera m_Camera;
     LightManager m_LightManager;
-    ShaderProgramLibrary m_ShaderProgramLibrary;
+    EntityManager m_EntityManager;
 protected:
     // either its own resource manager or injected by the app's resource manager that is global
-    ResourceManager& m_ResourceManager;
+    Ref<ResourceManager> m_ResourceManager = nullptr;
 };
 
 }

@@ -12,6 +12,5 @@ public:
 private:
     ZPG::Ref<ZPG::ShaderProgram> m_ShaderProgram;
     ZPG::Ref<ZPG::VertexArray> m_VAO;
-
     ZPG::Ref<ZPG::CompoundTransform> m_Transform;
 };

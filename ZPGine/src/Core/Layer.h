@@ -12,10 +12,11 @@
 
 namespace ZPG {
 
+class Scene; 
+
 class Layer {
 public:
-    Layer(ResourceManager& resourceManager = ResourceManager::GetGlobal()); 
-
+    Layer() {} 
     virtual ~Layer() = default;
     virtual void OnAttach() {}
     virtual void OnDetach() {}
@@ -23,8 +24,12 @@ public:
     virtual void OnEvent([[maybe_unused]] Event& event) {}
     virtual void OnRender([[maybe_unused]] const RenderContext& ctx) {}
     virtual void OnImGuiRender() {}
+
+    void SetScene(Scene* scene) { 
+        m_Scene = scene; 
+    }
 protected:
-    ResourceManager& m_ResourceManager;
+    Scene* m_Scene = nullptr; // parent scene
 };
 
 }

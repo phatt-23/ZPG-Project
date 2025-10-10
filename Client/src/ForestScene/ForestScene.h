@@ -18,7 +18,7 @@ public:
         auto VBO = VertexBuffer::Create(tree, sizeof(tree), {
             {ShaderDataType::Float3, "a_Pos"},
             {ShaderDataType::Float3, "a_Normal"},
-            });
+        });
 
         auto VAO = VertexArray::Create({ VBO });
         auto mesh = CreateRef<Mesh>(VAO);
@@ -42,11 +42,9 @@ public:
     void OnRender(const ZPG::RenderContext& context) override {
         using namespace ZPG;
 
-        Renderer::BeginDraw(context.m_Camera); 
-            for (auto& entity : m_Entities) {
-                Renderer::Submit(*m_ResourceManager.GetShaderProgram("basic_normal_color"), *entity);
-            }
-        Renderer::EndDraw();
+        for (auto& entity : m_Entities) {
+            Renderer::Submit(*m_Scene->GetResourceManager().GetShaderProgram("basic_normal_color"), *entity);
+        }
     }
 private:
     ZPG::Ref<ZPG::Model> m_Model;
@@ -66,7 +64,7 @@ public:
         auto VBO = VertexBuffer::Create(bushes, sizeof(bushes), {
             {ShaderDataType::Float3, "a_Pos"},
             {ShaderDataType::Float3, "a_Normal"},
-            });
+        });
 
         auto VAO = VertexArray::Create({ VBO });
         auto mesh = CreateRef<Mesh>(VAO);
@@ -90,11 +88,9 @@ public:
     void OnRender(const ZPG::RenderContext& context) override {
         using namespace ZPG;
 
-        Renderer::BeginDraw(context.m_Camera); 
-            for (auto& entity : m_Entities) {
-                Renderer::Submit(*m_ResourceManager.GetShaderProgram("basic_normal_color"), *entity);
-            }
-        Renderer::EndDraw();
+        for (auto& entity : m_Entities) {
+            Renderer::Submit(*m_Scene->GetResourceManager().GetShaderProgram("basic_normal_color"), *entity);
+        }
     }
 private:
     ZPG::Ref<ZPG::Model> m_Model;

@@ -5,16 +5,18 @@
 
 namespace ZPG {
 
-Scene::Scene(ResourceManager& resourceManager)
+Scene::Scene(const Ref<ResourceManager>& resourceManager)
 : m_ResourceManager(resourceManager) {
 
 }
 
 void Scene::PushLayer(Layer* layer) {
+    layer->SetScene(this);
     m_LayerStack.PushLayer(layer);
 }
 void Scene::PopLayer() {
-    m_LayerStack.PopLayer();
+    Ref<Layer> layer = m_LayerStack.PopLayer();
+    layer->SetScene(nullptr);
 }
 void Scene::PropagateEventDownLayers(Event& event) {
     // events travel from top to bottom
@@ -52,9 +54,12 @@ void Scene::RenderLayers(Timestep ts) {
         .m_Lights = m_LightManager.GetLights(),
     };
 
+    Renderer::BeginDraw(m_Camera);
+    Renderer::SetLights(m_LightManager.GetLights());
     for (auto& layer : m_LayerStack) {
         layer->OnRender(ctx);
     }
+    Renderer::EndDraw();
 }
 void Scene::OnResume() {
     // Sending event because the scene must adapt to the current window size
@@ -70,12 +75,6 @@ void Scene::AddLight(const Ref<Light>& light) {
 }
 void Scene::RemoveLight(const Ref<Light>& light) {
     m_LightManager.RemoveLight(light);
-}
-void Scene::AddShaderProgram(const std::string& name, const Ref<ShaderProgram>& shaderProgram) {
-    m_ShaderProgramLibrary.AddShaderProgram(name, shaderProgram);
-}
-const Ref<ShaderProgram>& Scene::GetShaderProgram(const std::string& name) {
-    return m_ShaderProgramLibrary.GetShaderProgram(name);
 }
 
 }
