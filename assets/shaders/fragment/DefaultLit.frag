@@ -1,8 +1,6 @@
 #type fragment
 #version 400
 
-// TODO: rewrite the light functions to be more descriptive, use better names
-
 // enum of light types
 const uint LightTypeAmbient      = 1 << 0;
 const uint LightTypePoint        = 1 << 1;
@@ -67,14 +65,14 @@ void main() {
                 color, 
                 v_WorldNormal, 
                 light.dir, 
-                vec3(light.color));
+                light.color.xyz * light.color.w);
 
         } else if (light.type == LightTypePoint) {
             accumColor += pointLight(
                 color, 
                 v_WorldNormal, 
                 light.pos, 
-                vec3(light.color));
+                light.color.xyz * light.color.w);
 
         } else if (light.type == LightTypeSpotlight) {
             accumColor += spotLight(
@@ -82,7 +80,7 @@ void main() {
                 v_WorldNormal, 
                 light.pos, 
                 light.dir, 
-                vec3(light.color), 
+                light.color.xyz * light.color.w, 
                 light.inCutoff);
         }
     }
@@ -104,13 +102,13 @@ vec3 pointLight(
     vec3 lightDir = normalize(p_LightPos - v_WorldPos);
     vec3 reflectionDir = reflect(-lightDir, p_Normal);
 
-    float dotProduct = dot(lightDir, p_Normal);
-    vec3 diffuse = max(dotProduct, 0.0) * p_Color * attenuation;
+    float orthogonality = dot(lightDir, p_Normal);
+    vec3 diffuse = max(orthogonality, 0.0) * p_Color * attenuation;
 
     const float specularStrength = 0.4;
     float specValue = pow(max(dot(viewDir, reflectionDir), 0.0), 16);
     float specFactor = specularStrength * specValue;
-    if (dotProduct < 0.0) {
+    if (orthogonality < 0.0) {
         specFactor = 0.0;
     }
 
@@ -131,12 +129,12 @@ vec3 spotLight(
 
     float a = 1.0;
     float b = 0.7;
-    float distanceFromLight = length(p_LightPos - v_WorldPos);
-    float attenuation = 1.f / (a * pow(distanceFromLight, 2.f) + b * distanceFromLight + 1.f);
+    float dist = length(p_LightPos - v_WorldPos);
+    float attenuation = 1.f / (a * pow(dist, 2.f) + b * dist + 1.f);
 
     float theta = dot(lightDir, normalize(-p_LightDir));
     if (theta <= p_Cutoff) {
-        return vec3(0.0, 0.0, 0.0);
+        return vec3(0.0);
     }
 
     const float specularStrength = 0.4;
@@ -144,17 +142,18 @@ vec3 spotLight(
     vec3 viewDir = normalize(u_CameraPos - v_WorldPos);
     vec3 reflectionDir = reflect(-lightDir, p_Normal);
 
-    float dotProduct = dot(lightDir, p_Normal);
-    vec3 diffuse = max(dotProduct, 0.0) * p_Color * attenuation + p_LightColor * attenuation;
+    float orthogonality = dot(lightDir, p_Normal);
+    vec3 diffuse = max(orthogonality, 0.0) * p_Color * attenuation 
+                 + p_LightColor * attenuation;
 
     float specValue = pow(max(dot(viewDir, reflectionDir), 0.0), 16);
-    vec3 spec = specularStrength * specValue * p_LightColor;
+    vec3 specFactor = specularStrength * specValue * p_LightColor;
 
-    if (dotProduct < 0.0) {
-        spec = vec3(0.0);
+    if (orthogonality < 0.0) {
+        specFactor = vec3(0.0);
     }
 
-    vec3 specular = attenuation * spec;
+    vec3 specular = attenuation * specFactor;
 
     return diffuse + specular;
 }
@@ -168,18 +167,18 @@ vec3 directionalLight(
     const float specularStrength = 0.4;
 
     vec3 lightDir = normalize(-p_LightDir);
-    float dotProduct = dot(lightDir, p_Normal);
-    vec3 diffuse = max(dotProduct, 0.0) * p_LightColor;
+    float orthogonality = dot(lightDir, p_Normal);
+    vec3 diffuse = max(orthogonality, 0.0) * p_LightColor;
 
     vec3 viewDir = normalize(u_CameraPos - v_WorldPos);
     vec3 reflectionDir = reflect(-lightDir, p_Normal);
 
     float specValue = pow(max(dot(viewDir, reflectionDir), 0.0), 16);
-    vec3 spec = specularStrength * specValue * p_LightColor;
-    if (dotProduct < 0.0) {
-        spec = vec3(0.0);
+    vec3 specFactor = specularStrength * specValue * p_LightColor;
+    if (orthogonality < 0.0) {
+        specFactor = vec3(0.0);
     }
 
-    return (diffuse + spec) * p_Color;
+    return (diffuse + specFactor) * p_Color;
 }
 

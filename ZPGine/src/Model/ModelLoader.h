@@ -1,7 +1,7 @@
 #pragma once 
 
 #include "Model.h"
-#include "Material.h"
+#include "Material/Material.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>

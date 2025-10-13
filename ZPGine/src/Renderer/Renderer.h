@@ -42,9 +42,15 @@ public:
     static void RenderScene(const Scene& scene);
 
     // Methods below allow the client to submit individual geometries with shader programs and transforms. 
+    
+    // new API
+    // Draw the entity and also draws it into the stencil buffer with color specified by its ID.
+    static void SumbitEntity(const Entity& entity, const glm::mat4& transform = glm::mat4(1.0f));
+    static void SubmitMesh(const Mesh& mesh, const glm::mat4& transform = glm::mat4(1.0f));
 
+    // old API
     // ShaderProgram, VAO, Transform
-    static void Submit(ShaderProgram& shaderProgram, const VertexArray& vertexArray, const glm::mat4& transform = glm::identity<glm::mat4>());
+    static void Submit(ShaderProgram& shaderProgram, const VertexArray& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
     // ShaderProgram, Mesh, Transform
     static void Submit(ShaderProgram& shaderProgram, const Mesh& mesh, const glm::mat4& transform = glm::mat4(1.0f));
     // ShaderProgram, Model, Transform
@@ -52,10 +58,6 @@ public:
     // ShaderProgram, Entity, Transform
     // this method doesn't make sense anymore
     static void Submit(ShaderProgram& shaderProgram, const Entity& entity, const glm::mat4& transform = glm::mat4(1.0f));
-
-    // new API
-    static void SumbitEntity(const Entity& entity, const glm::mat4& transform = glm::mat4(1.0f));
-    static void SubmitMesh(const Mesh& mesh, const glm::mat4& transform = glm::mat4(1.0f));
 
     static void OnWindowResize(int width, int height);
 private:

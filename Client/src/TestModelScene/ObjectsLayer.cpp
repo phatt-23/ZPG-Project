@@ -23,8 +23,8 @@ void ObjectsLayer::OnAttach() {
     auto VAO = ZPG::VertexArray::Create();
     VAO->AddVertexBuffer(VBO);
 
-    auto transform = CreateRef<CompoundTransform>();
-    transform->Push(CreateRef(new DynRotationTransform(
+    auto transform = CreateRef<TransformGroup>();
+    transform->Include(CreateRef(new DynRotate(
                                         0.f, 
                                         50.f, 
                                         glm::vec3(0.0, 1.0, 0.0))));
@@ -34,9 +34,9 @@ void ObjectsLayer::OnAttach() {
     m_Model = CreateRef(new Model({ mesh }));
 
     // ----- entity -----------
-    auto entityTransform = CreateRef<CompoundTransform>();
-    entityTransform->Push(CreateRef<TranslationTransform>(vec3(0.1, 0.1, 0.1)));
-    entityTransform->Push(CreateRef<DynRotationTransform>(0.f, 50.f, glm::vec3(0.0, 1.0, 0.0)));
+    auto entityTransform = CreateRef<TransformGroup>();
+    entityTransform->Include(CreateRef<Translate>(vec3(0.1, 0.1, 0.1)));
+    entityTransform->Include(CreateRef<DynRotate>(0.f, 50.f, glm::vec3(0.0, 1.0, 0.0)));
 
     m_Entity = CreateRef(new Entity(m_Model, entityTransform));
 }

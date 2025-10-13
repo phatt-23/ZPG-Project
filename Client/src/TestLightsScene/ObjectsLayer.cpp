@@ -25,9 +25,9 @@ void ObjectsLayer::OnAttach() {
     m_VAO = ZPG::VertexArray::Create();
     m_VAO->AddVertexBuffer(VBO);
 
-    m_Transform = CreateRef<CompoundTransform>();
+    m_Transform = CreateRef<TransformGroup>();
     // m_Transform->Push(CreateRef(new TranslationTransform(vec3(0, 0, -2))));
-    m_Transform->Push(CreateRef(new DynRotationTransform(
+    m_Transform->Include(CreateRef(new DynRotate(
                                         0.f, 
                                         50.f, 
                                         glm::vec3(0.0, 1.0, 0.0))));

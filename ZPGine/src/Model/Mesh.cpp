@@ -1,4 +1,6 @@
 #include "Mesh.h"
+#include "Core/ResourceManager.h"
+
 
 namespace ZPG {
 
@@ -15,11 +17,16 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<u32>& indices,
     
     m_VAO->AddVertexBuffer(vbo);
     m_VAO->SetIndexBuffer(ibo);
+
+    auto defaultMaterial = ResourceManager::GetGlobal().GetMaterial("null");
+    SetMaterial(defaultMaterial);
 }
 
 Mesh::Mesh(const Ref<VertexArray>& vertexArray, const glm::mat4& localTransform) 
 : m_VAO(vertexArray)
 , m_LocalTransform(localTransform) {
+    auto defaultMaterial = ResourceManager::GetGlobal().GetMaterial("null");
+    SetMaterial(defaultMaterial);
 }
 
 void Mesh::Bind() {
@@ -32,6 +39,21 @@ void Mesh::Unbind() {
 
 void Mesh::SetMaterial(const Ref<Material>& material) {
     m_Material = material;
+}
+
+
+Ref<Mesh> Mesh::Create(
+    const std::vector<Vertex>& vertices, 
+    const std::vector<u32>& indices, 
+    const glm::mat4& localTransform
+) {
+    Mesh* mesh = new Mesh(vertices, indices, localTransform);
+    return CreateRef(mesh);
+}
+
+Ref<Mesh> Mesh::Create(const Ref<VertexArray>& vertexArray, const glm::mat4& localTransform) {
+    Mesh* mesh = new Mesh(vertexArray, localTransform);
+    return CreateRef(mesh);
 }
 
 }

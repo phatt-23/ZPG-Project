@@ -1,6 +1,6 @@
 #include "AxisLayer.h"
 #include "Entity/Entity.h"
-#include "Transform/StaticTransform/TranslationTransform.h"
+#include "ZPGine.h"
 
 using namespace ZPG;
 
@@ -38,9 +38,9 @@ void AxisLayer::OnAttach() {
     }, IndexBuffer::Create(BoxModel::boxIndices, ZPG_ARRAY_LENGTH(BoxModel::boxIndices)));
 
     f32 length = 200.0f;
-    auto x = CreateRef<Mesh>(VAO, ScaleTransform(glm::vec3(length, 0.1, 0.1)).GetMatrix());
-    auto y = CreateRef<Mesh>(VAO, ScaleTransform(glm::vec3(0.1, length, 0.1)).GetMatrix());
-    auto z = CreateRef<Mesh>(VAO, ScaleTransform(glm::vec3(0.1, 0.1, length)).GetMatrix());
+    auto x = CreateRef<Mesh>(VAO, Scale(glm::vec3(length, 0.1, 0.1)).GetMatrix());
+    auto y = CreateRef<Mesh>(VAO, Scale(glm::vec3(0.1, length, 0.1)).GetMatrix());
+    auto z = CreateRef<Mesh>(VAO, Scale(glm::vec3(0.1, 0.1, length)).GetMatrix());
 
     auto xm = CreateRef(new Material());
     xm->SetShaderProgram(m_ShaderProgram);
@@ -59,7 +59,7 @@ void AxisLayer::OnAttach() {
 
     auto model = CreateRef<Model>(new Model({ x, y, z }));
 
-    auto transform = CreateRef<TranslationTransform>(glm::vec3(0.0f));
+    auto transform = CreateRef<Translate>(glm::vec3(0.0f));
 
     m_Entity = CreateRef(new Entity(model, transform));
 }

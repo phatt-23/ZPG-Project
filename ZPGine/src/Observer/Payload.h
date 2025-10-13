@@ -10,8 +10,12 @@ enum PayloadType {
 };
 
 struct Payload {
-    Payload() {}
-    Payload(PayloadType type, void* value) : Type(type), Value(value) {}
+    Payload() {
+    }
+
+    Payload(PayloadType type, void* value) 
+    : Type(type), Value(value) {
+    }
 
     PayloadType Type;
     void* Value;    

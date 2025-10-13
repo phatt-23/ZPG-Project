@@ -7,7 +7,6 @@
 #include "Debug/Logger.h"
 #include <GLFW/glfw3.h>
 #include "Core/Application.h"
-#include "imgui.h"
 
 using namespace glm;
 

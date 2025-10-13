@@ -13,7 +13,7 @@ void TextureLibrary::AddTexture(const std::string& name, const Ref<Texture>& tex
     ZPG_CORE_ASSERT(!Exists(name), "Texture with this name is already in the library: {}", name);
     m_Textures[name] = texture;
 }
-bool TextureLibrary::Exists(const std::string& name) {
+bool TextureLibrary::Exists(const std::string& name) const {
     return m_Textures.contains(name);
 }
 const Ref<Texture>& TextureLibrary::GetTexture(const std::string& name) {

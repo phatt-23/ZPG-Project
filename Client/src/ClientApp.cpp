@@ -15,6 +15,7 @@
 #include "AxisScene/AxisScene.h"
 #include "ForestScene/ForestScene.h"
 #include "TestModelLoadingScene/ModelLoadingScene.h"
+#include "TestSkyboxScene/SkyboxScene.h"
 
 class ClientApp : public ZPG::Application {
 public:
@@ -39,18 +40,17 @@ public:
             "./assets/shaders/fragment/normal_as_color.frag");
 
         // ------ add scenes -------
-        m_SceneManager.AddScene("1. First", new FirstScene());
-        m_SceneManager.AddScene("2. Second", new SecondScene());
-        m_SceneManager.AddScene("3. TestLights", new LightsScene());
-        m_SceneManager.AddScene("4. TestShaderLoading", new TestShaderLoadingScene());
-        m_SceneManager.AddScene("5. TestMesh", new TestMeshSceneNS::TestMeshScene());
-        m_SceneManager.AddScene("6. TestTexture", new TestTextureSceneNS::TestTextureScene());
-        m_SceneManager.AddScene("7. TestModel", new TestModelSceneNS::TestModelScene());
-        m_SceneManager.AddScene("8. AxisScene", new AxisSceneNS::AxisScene());
-        m_SceneManager.AddScene("9. ForestScene", new ForestSceneNS::ForestScene());
-        m_SceneManager.AddScene("10. Test Model Loading", 
-            new TestModelLoadingNS::ModelLoadingScene());
-
+        m_SceneManager.AddScene("First", new FirstScene());
+        m_SceneManager.AddScene("Second", new SecondScene());
+        m_SceneManager.AddScene("TestLights", new LightsScene());
+        m_SceneManager.AddScene("TestShaderLoading", new TestShaderLoadingScene());
+        m_SceneManager.AddScene("TestMesh", new TestMeshSceneNS::TestMeshScene());
+        m_SceneManager.AddScene("TestTexture", new TestTextureSceneNS::TestTextureScene());
+        m_SceneManager.AddScene("TestModel", new TestModelSceneNS::TestModelScene());
+        m_SceneManager.AddScene("AxisScene", new AxisSceneNS::AxisScene());
+        m_SceneManager.AddScene("ForestScene", new ForestSceneNS::ForestScene());
+        m_SceneManager.AddScene("Test Model Loading", new TestModelLoadingNS::ModelLoadingScene());
+        m_SceneManager.AddScene("Test Skybox", new TestSkyboxNS::SkyboxScene());
     }
 
     void OnImGuiRender() override {

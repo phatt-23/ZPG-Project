@@ -5,24 +5,6 @@ project(Client)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# By default CONFIG (which is set by -DCMAKE_BUILD_TYPE=DEBUG
-# or -DCMAKE_BUILD_TYPE=RELEASE) is set to DEBUG
-add_compile_options(
-        -Wall
-        -Wextra
-        -Wconversion
-        -pedantic
-        # $<$<CONFIG:DEBUG>:-g3>
-        # $<$<CONFIG:DEBUG>:-Og>
-        # $<$<CONFIG:RELEASE>:-O3>
-)
-
-if (NOT DISABLE_ASAN AND $<CONFIG:DEBUG>)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
-endif()
-
 file(GLOB_RECURSE client_sources "src/**.cpp")
 file(GLOB_RECURSE client_headers "src/**.h")
 
@@ -43,4 +25,25 @@ target_include_directories(Client PRIVATE
         ${CMAKE_SOURCE_DIR}/ZPGine/src
 )
 
+# By default CONFIG (which is set by -DCMAKE_BUILD_TYPE=DEBUG
+# or -DCMAKE_BUILD_TYPE=RELEASE) is set to DEBUG
+add_compile_options(
+        -Wall
+        -Wextra
+        -Wconversion
+        -pedantic
+        # $<$<CONFIG:DEBUG>:-g3>
+        # $<$<CONFIG:DEBUG>:-Og>
+        # $<$<CONFIG:RELEASE>:-O3>
+)
+
+if (NOT DISABLE_ASAN AND $<CONFIG:DEBUG>)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
+endif()
+
+target_link_options(Client PUBLIC -rdynamic)
+
 set(WORKING_DIRECTORY "../")
+

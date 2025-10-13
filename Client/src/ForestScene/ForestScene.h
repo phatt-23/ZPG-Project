@@ -25,7 +25,7 @@ public:
         m_Model = CreateRef(new Model({ mesh }));
 
         for (int i = 0; i < 25; i++) {
-            auto transform = CreateRef<TranslationTransform>(
+            auto transform = CreateRef<Translate>(
                 10.f * glm::vec3(Utility::GetRandomFloat(), 0.0f, Utility::GetRandomFloat())
             );
 
@@ -71,7 +71,7 @@ public:
         m_Model = CreateRef(new Model({ mesh }));
 
         for (int i = 0; i < 500; i++) {
-            auto transform = CreateRef<TranslationTransform>(
+            auto transform = CreateRef<Translate>(
                 10.f * glm::vec3(Utility::GetRandomFloat(), 0.0f, Utility::GetRandomFloat())
             );
 

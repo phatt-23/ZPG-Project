@@ -9,6 +9,7 @@
 #include <source_location>
 #include <format>
 #include "Logger.h"
+#include <boost/stacktrace.hpp>
 
 namespace ZPG {
 
@@ -97,33 +98,50 @@ public:
 
 }
 
+#define ZPG_PRINT_STACKTRACE() \
+    {                                                   \
+        std::stringstream ss;                           \
+        ss << boost::stacktrace::stacktrace();          \
+        ZPG_CORE_ERROR("{}", ss.str().c_str());      \
+    }
+
 #ifdef ZPG_ENABLE_ASSERTS
     #define ZPG_CORE_ASSERT(condition, ...) \
-        { if (!Asserter::CoreAssert(std::source_location::current(), \
+        { \
+            if (!Asserter::CoreAssert(std::source_location::current(), \
                                     #condition, \
                                     condition \
-                                    __VA_OPT__(, __VA_ARGS__))) \
-            __builtin_trap(); \
+                                    __VA_OPT__(, __VA_ARGS__))) { \
+                ZPG_PRINT_STACKTRACE(); \
+                __builtin_trap(); \
+            } \
         }
 
     #define ZPG_ASSERT(condition, ...) \
-        { if (!Asserter::ClientAssert(std::source_location::current(), \
+        { \
+            if (!Asserter::ClientAssert(std::source_location::current(), \
                                     #condition, \
                                     condition \
-                                    __VA_OPT__(, __VA_ARGS__))) \
-            __builtin_trap(); \
+                                    __VA_OPT__(, __VA_ARGS__))) { \
+                ZPG_PRINT_STACKTRACE(); \
+                __builtin_trap(); \
+            } \
         }
     #define ZPG_UNREACHABLE(...) \
-        { auto loc = std::source_location::current(); \
+        { \
+            auto loc = std::source_location::current(); \
             ZPG_CORE_CRITICAL("Unreachable code {}:{}:{}:{}", loc.file_name(), loc.line(), loc.column(), loc.function_name()); \
             __VA_OPT__(ZPG_CORE_CRITICAL(__VA_ARGS__);) \
+            ZPG_PRINT_STACKTRACE(); \
             __builtin_trap(); \
         }
 
     #define ZPG_NOT_IMPL(...) \
-        { auto loc = std::source_location::current(); \
+        { \
+            auto loc = std::source_location::current(); \
             ZPG_CORE_CRITICAL("Not implemented {}:{}:{}:{}", loc.file_name(), loc.line(), loc.column(), loc.function_name()); \
             __VA_OPT__(ZPG_CORE_CRITICAL(__VA_ARGS__);) \
+            ZPG_PRINT_STACKTRACE(); \
             __builtin_trap(); \
         }
 #else

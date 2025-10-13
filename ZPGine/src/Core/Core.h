@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <cstdint>
+#include <glm/glm.hpp>
 
 namespace ZPG {
 
@@ -21,6 +22,14 @@ typedef std::uint64_t u64;
 typedef float f32;
 typedef double f64;
 typedef u_char byte;
+
+typedef glm::vec1 v1;
+typedef glm::vec2 v2;
+typedef glm::vec3 v3;
+typedef glm::vec4 v4;
+typedef glm::mat3 m3;
+typedef glm::mat4 m4;
+typedef glm::quat qtr;
 
 template<typename T>
 using Ref = std::shared_ptr<T>;

@@ -18,5 +18,6 @@
 #include <sstream>
 #include <map>
 #include <variant>
+#include <boost/stacktrace.hpp>
 
 #endif //PCH_H

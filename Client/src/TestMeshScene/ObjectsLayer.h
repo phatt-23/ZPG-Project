@@ -14,7 +14,7 @@ public:
 private:
     ZPG::Ref<ZPG::ShaderProgram> m_ShaderProgram;
     ZPG::Ref<ZPG::VertexArray> m_VAO;
-    ZPG::Ref<ZPG::CompoundTransform> m_Transform;
+    ZPG::Ref<ZPG::TransformGroup> m_Transform;
     ZPG::Ref<ZPG::Mesh> m_Mesh;
 };
 

@@ -55,6 +55,12 @@ target_link_libraries(ZPGine PUBLIC Stb_Image)
 
 target_link_libraries(ZPGine PUBLIC assimp)
 
+# boost c++ library
+
+if(UNIX AND NOT APPLE)
+    target_link_options(ZPGine PUBLIC -rdynamic)
+endif()
+
 # can be referenced both ways
 add_library(ZPGine::ZPGine ALIAS ZPGine)
 

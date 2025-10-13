@@ -25,7 +25,7 @@ void LightObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
             Renderer::Submit(
                 *m_Scene->GetResourceManager().GetShaderProgram("basic_single_color"),
                 *m_VAO, 
-                TranslationTransform(pointLight->GetPosition()).GetMatrix()
+                Translate(pointLight->GetPosition()).GetMatrix()
             );
         }
     }

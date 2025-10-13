@@ -3,6 +3,7 @@
 #include "Model/ModelLibrary.h"
 #include "Shader/ShaderProgramLibrary.h"
 #include "Texture/TextureLibrary.h"
+#include "Material/MaterialLibrary.h"
 
 namespace ZPG {
 
@@ -28,29 +29,38 @@ public:
     static ResourceManager& GetGlobal() { return *s_Instance; }
     static Ref<ResourceManager> GetGlobalRef() { return s_Instance; }
 
-    // model
+    // Model
     void LoadModel(const std::string& name, const std::string& path);
     void AddModel(const std::string& name, const Ref<Model>& model);
     const Ref<Model>& GetModel(const std::string& name) const;
+    bool HasModel(const std::string& name) const;
 
-    // shader program
+    // ShaderProgram
     void LoadShaderProgram(const std::string& name, 
         const std::string& vertexShaderPath, 
         const std::string& fragmentShaderPath);
     void AddShaderProgram(const std::string& name, const Ref<ShaderProgram>& shaderProgram);
     const Ref<ShaderProgram>& GetShaderProgram(const std::string& name);
+    bool HasShaderProgram(const std::string& name) const;
 
-    // texture
+    // Texture
     void LoadTexture(const std::string& name, const std::string& path);
     void AddTexture(const std::string& name, const Ref<Texture>& texture);
     const Ref<Texture>& GetTexture(const std::string& name);
+    bool HasTexture(const std::string& name) const;
+
+    // Material
+    void AddMaterial(const std::string& name, const Ref<Material>& material);
+    const Ref<Material>& GetMaterial(const std::string& name);
+    bool HasMaterial(const std::string& name) const;
 private:
     ModelLibrary m_ModelLib;
     ShaderProgramLibrary m_ShaderProgramLib;
     TextureLibrary m_TextureLib;
+    MaterialLibrary m_MaterialLib;
 private:
         // should be Scope? 
-        // doesn't matter, at termination it's significant if this thing is scoped or ref + lifetime of this is the whole app run
+        // doesn't matter, at termination it's insignificant if this thing is scoped or ref + lifetime of this is the whole app run
     inline static Ref<ResourceManager> s_Instance = nullptr;
 };
 

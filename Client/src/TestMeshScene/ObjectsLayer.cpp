@@ -26,11 +26,11 @@ void ObjectsLayer::OnAttach() {
     m_VAO = ZPG::VertexArray::Create();
     m_VAO->AddVertexBuffer(VBO);
 
-    m_Transform = CreateRef<CompoundTransform>();
+    m_Transform = CreateRef<TransformGroup>();
     // m_Transform->Push(CreateRef(new Transform(scale(mat4(1.0f), vec3(2.0, 3.0, 4.0)))));
     // m_Transform->Push(CreateRef(new RotationTransform(45.f, vec3(0, 1, 0))));
     // m_Transform->Push(CreateRef(new ScaleTransform(vec3(2, 3, 5))));
-    m_Transform->Push(CreateRef(new TranslationTransform(vec3(0, 0, -2))));
+    m_Transform->Include(CreateRef(new Translate(vec3(0, 0, -2))));
     // m_Transform->Push(CreateRef(new DynRotationTransform(
     //                                     0.f, 
     //                                     50.f, 
@@ -52,16 +52,16 @@ void ObjectsLayer::OnAttach() {
     //                                     2.f * vec3(1, 1, 1))));
 
     // ----- mesh -----------
-    TranslationTransform trTrans(vec3(0.2, 0.0, -1.0));
+    Translate trTrans(vec3(0.2, 0.0, -1.0));
     m_Mesh = CreateRef(new Mesh(m_VAO, trTrans.GetMatrix()));
 
 
     // ----- entity -----------
     auto entityMesh = CreateRef(new Mesh(m_VAO));
     
-    auto entityTransform = CreateRef(new CompoundTransform());
-    entityTransform->Push(CreateRef(new TranslationTransform(vec3(0.1, 0.1, 0.1))));
-    entityTransform->Push(CreateRef(new DynRotationTransform(0.f, 50.f, glm::vec3(0.0, 1.0, 0.0))));
+    auto entityTransform = CreateRef(new TransformGroup());
+    entityTransform->Include(CreateRef(new Translate(vec3(0.1, 0.1, 0.1))));
+    entityTransform->Include(CreateRef(new DynRotate(0.f, 50.f, glm::vec3(0.0, 1.0, 0.0))));
 }
 
 void ObjectsLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
@@ -74,7 +74,7 @@ void ObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
         Renderer::Submit(*m_ShaderProgram, *m_VAO, m_Transform->GetMatrix());
         // Renderer::Submit(m_ShaderProgram, m_Mesh->GetVertexArray(), m_Mesh->GetLocalTransform());
         Renderer::Submit(*m_ShaderProgram, *m_Mesh);
-        Renderer::Submit(*m_ShaderProgram, *m_Mesh, TranslationTransform(vec3(-0.4, 0.2, 0.0)).GetMatrix());
+        Renderer::Submit(*m_ShaderProgram, *m_Mesh, Translate(vec3(-0.4, 0.2, 0.0)).GetMatrix());
     ZPG::Renderer::EndDraw();
 }
 
