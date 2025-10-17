@@ -10,7 +10,7 @@ public:
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
     virtual u32 GetCount() const = 0;
-    static Ref<IndexBuffer> Create(const u32* indices, u32 count);
+    static ref<IndexBuffer> Create(const u32* indices, u32 count);
 };
 
 }

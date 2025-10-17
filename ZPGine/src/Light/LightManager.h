@@ -12,17 +12,17 @@ public:
     LightManager();
     ~LightManager();
 
-    void AddLight(const Ref<Light>& light);
-    void RemoveLight(const Ref<Light>& light);
+    void AddLight(const ref<Light>& light);
+    void RemoveLight(const ref<Light>& light);
 
-    const std::vector<Ref<Light>>& GetLights() const { 
+    const std::vector<ref<Light>>& GetLights() const { 
         return m_Lights; 
     }
 
-    std::vector<Ref<Light>>::iterator begin() { return m_Lights.begin(); }
-    std::vector<Ref<Light>>::iterator end() { return m_Lights.end(); }
+    std::vector<ref<Light>>::iterator begin() { return m_Lights.begin(); }
+    std::vector<ref<Light>>::iterator end() { return m_Lights.end(); }
 private:
-    std::vector<Ref<Light>> m_Lights;
+    std::vector<ref<Light>> m_Lights;
 };
 
 }

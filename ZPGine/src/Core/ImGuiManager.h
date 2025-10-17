@@ -9,7 +9,7 @@ class ImGuiManager {
 public:
     virtual ~ImGuiManager() {}
 
-    static void Init(const Scope<Window>& window);
+    static void Init(const scope<Window>& window);
     static void Shutdown();
     static void BeginFrame() { s_Instance->BeginFrameImpl(); }
     static void EndFrame() { s_Instance->EndFrameImpl(); }

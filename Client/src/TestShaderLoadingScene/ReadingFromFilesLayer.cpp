@@ -1,6 +1,5 @@
 #include "ReadingFromFilesLayer.h"
-#include <imgui.h>
-#include "Models/gift.h"
+#include "../assets/models/nemec/gift.h"
 
 using namespace ZPG;
 
@@ -8,16 +7,16 @@ ReadingFromFilesLayer::ReadingFromFilesLayer() {
 }
 
 void ReadingFromFilesLayer::OnAttach() {
-    auto basicNormalVertexShader = ZPG::Shader::Create("./assets/shaders/basic_normal.vert");
-    auto basicNormalFragShader = ZPG::Shader::Create("basic.frag", "./assets/shaders/basic_normal.frag");
+    auto basicNormalVertexShader = ZPG::Shader::Create("./assets/shaders/deprecated/basic_normal.vert");
+    auto basicNormalFragShader = ZPG::Shader::Create("basic.frag", "./assets/shaders/deprecated/basic_normal.frag");
 
-    std::vector<ZPG::Ref<ZPG::Shader>> shaders;
+    std::vector<ZPG::ref<ZPG::Shader>> shaders;
     shaders.push_back(basicNormalVertexShader);
     shaders.push_back(basicNormalFragShader);
 
     m_ShaderProgram = ZPG::ShaderProgram::Create("basic_normal.vert.frag", shaders);
 
-    auto treeVBO = ZPG::VertexBuffer::Create(gift, sizeof(gift));
+    auto treeVBO = ZPG::VertexBuffer::Create(nemec::gift, sizeof(nemec::gift));
     treeVBO->SetLayout({
         {ZPG::ShaderDataType::Float3, "a_Pos"},
         {ZPG::ShaderDataType::Float3, "a_Normal"},

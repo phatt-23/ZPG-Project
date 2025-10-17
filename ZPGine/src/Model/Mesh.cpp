@@ -1,5 +1,7 @@
 #include "Mesh.h"
-#include "Core/ResourceManager.h"
+
+#include "Resource/CommonResources.h"
+#include "Resource/ResourceManager.h"
 
 
 namespace ZPG {
@@ -10,22 +12,22 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<u32>& indices,
     u32 vboSize = vertices.size() * sizeof(vertices[0]);
     u32 iboCount = indices.size();
     
-    Ref<VertexBuffer> vbo = VertexBuffer::Create(vertices.data(), vboSize);
+    ref<VertexBuffer> vbo = VertexBuffer::Create(vertices.data(), vboSize);
     vbo->SetLayout(Vertex::GetLayout());
 
-    Ref<IndexBuffer> ibo = IndexBuffer::Create(indices.data(), iboCount);
+    ref<IndexBuffer> ibo = IndexBuffer::Create(indices.data(), iboCount);
     
     m_VAO->AddVertexBuffer(vbo);
     m_VAO->SetIndexBuffer(ibo);
 
-    auto defaultMaterial = ResourceManager::GetGlobal().GetMaterial("null");
+    auto defaultMaterial = ResourceManager::GetGlobal().GetMaterial(CommonResources::NULL_MATERIAL);
     SetMaterial(defaultMaterial);
 }
 
-Mesh::Mesh(const Ref<VertexArray>& vertexArray, const glm::mat4& localTransform) 
+Mesh::Mesh(const ref<VertexArray>& vertexArray, const glm::mat4& localTransform) 
 : m_VAO(vertexArray)
 , m_LocalTransform(localTransform) {
-    auto defaultMaterial = ResourceManager::GetGlobal().GetMaterial("null");
+    auto defaultMaterial = ResourceManager::GetGlobal().GetMaterial(CommonResources::NULL_MATERIAL);
     SetMaterial(defaultMaterial);
 }
 
@@ -37,23 +39,34 @@ void Mesh::Unbind() {
     m_VAO->Unbind();
 }
 
-void Mesh::SetMaterial(const Ref<Material>& material) {
+void Mesh::SetMaterial(const ref<Material>& material) {
     m_Material = material;
 }
 
 
-Ref<Mesh> Mesh::Create(
+ref<Mesh> Mesh::Create(
     const std::vector<Vertex>& vertices, 
     const std::vector<u32>& indices, 
     const glm::mat4& localTransform
 ) {
     Mesh* mesh = new Mesh(vertices, indices, localTransform);
-    return CreateRef(mesh);
+    return MakeRef(mesh);
 }
 
-Ref<Mesh> Mesh::Create(const Ref<VertexArray>& vertexArray, const glm::mat4& localTransform) {
+ref<Mesh> Mesh::Create(const ref<VertexArray>& vertexArray, const glm::mat4& localTransform) {
     Mesh* mesh = new Mesh(vertexArray, localTransform);
-    return CreateRef(mesh);
+    return MakeRef(mesh);
+}
+
+
+ref<Mesh> Mesh::Create(
+    const ref<VertexArray>& vertexArray,
+    const ref<Material>& material,
+    const m4& localTransform
+) {
+    Mesh* mesh = new Mesh(vertexArray, localTransform);
+    mesh->SetMaterial(material);
+    return MakeRef(mesh);
 }
 
 }

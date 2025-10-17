@@ -1,6 +1,6 @@
 #include "AmbientLight.h"
-#include "LightArrayUniformNamer.h"
-#include <sstream>
+
+#include "Shader/CommonShaderUniforms.h"
 
 namespace ZPG {
 
@@ -11,12 +11,11 @@ AmbientLight::AmbientLight(const glm::vec4& color)
 }
 
 void AmbientLight::SendToShaderProgram(ShaderProgram& shaderProgram, u32 index) {
-    // This one does have to be set
-    shaderProgram.SetFloat4("u_AmbientColor", GetColor());
+    shaderProgram.SetFloat4(CommonShaderUniforms::AMBIENT_COLOR, GetColor());
 
-    // TODO: These don't have to be set
-    shaderProgram.SetInt(LightArrayUniformNamer::TypeUniName(index), (i32)GetLightType());
-    shaderProgram.SetFloat4(LightArrayUniformNamer::ColorUniName(index), GetColor());
+    // todo: These don't have to be set
+    shaderProgram.SetInt(CommonShaderUniforms::LightArray::Type(index), (i32)GetLightType());
+    shaderProgram.SetFloat4(CommonShaderUniforms::LightArray::Color(index), GetColor());
 }
 
 }

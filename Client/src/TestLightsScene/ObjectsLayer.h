@@ -10,7 +10,7 @@ public:
     void OnRender(const ZPG::RenderContext& ctx) override;
 
 private:
-    ZPG::Ref<ZPG::ShaderProgram> m_ShaderProgram;
-    ZPG::Ref<ZPG::VertexArray> m_VAO;
-    ZPG::Ref<ZPG::TransformGroup> m_Transform;
+    ZPG::ref<ZPG::ShaderProgram> m_ShaderProgram;
+    ZPG::ref<ZPG::VertexArray> m_VAO;
+    ZPG::ref<ZPG::TransformGroup> m_Transform;
 };

@@ -38,7 +38,7 @@ public:
     virtual void* GetNativeWindow() const = 0;
     virtual f32 GetAspectRatio() const { return static_cast<f32>(GetWidth()) / static_cast<f32>(GetHeight()); }
 
-    static Scope<Window> Create(const WindowProps& props = WindowProps());
+    static scope<Window> Create(const WindowProps& props = WindowProps());
 };
 
 }

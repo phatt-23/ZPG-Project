@@ -2,13 +2,13 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "imgui.h"
-#include "Models/tree.h"
-#include "Models/suzi_smooth.h"
-#include "Models/suzi_flat.h"
-#include "Models/sphere.h"
-#include "Models/plain.h"
-#include "Models/bushes.h"
-#include "Models/gift.h"
+#include "../assets/models/nemec/tree.h"
+#include "../assets/models/nemec/suzi_smooth.h"
+#include "../assets/models/nemec/suzi_flat.h"
+#include "../assets/models/nemec/sphere.h"
+#include "../assets/models/nemec/plain.h"
+#include "../assets/models/nemec/bushes.h"
+#include "../assets/models/nemec/gift.h"
 
 using namespace ZPG;
 
@@ -27,10 +27,10 @@ static u32 planeIndices[] = {
 TreeLayer::TreeLayer() {
 }
 void TreeLayer::OnAttach() {
-    m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/basic_normal.glsl");
-    m_RedShaderProgram = ShaderProgram::Create("./assets/shaders/red.glsl");
+    m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/deprecated/basic_normal.glsl");
+    m_RedShaderProgram = ShaderProgram::Create("./assets/shaders/deprecated/red.glsl");
 
-    auto treeVBO = VertexBuffer::Create(tree, sizeof(tree));
+    auto treeVBO = VertexBuffer::Create(nemec::tree, sizeof(nemec::tree));
     treeVBO->SetLayout({
         {ShaderDataType::Float3, "a_Pos"},
         {ShaderDataType::Float3, "a_Normal"},
@@ -54,7 +54,7 @@ void TreeLayer::OnUpdate([[maybe_unused]] SceneContext& context) {
 }
 void TreeLayer::OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) {
     static f32 rot = 0;
-    rot += 50.f * ctx.m_Timestep;
+    rot += 50.f * ctx.Ts;
     static glm::mat4 treeTransform = glm::mat4(1.f);
     treeTransform = glm::rotate(glm::mat4(1.f), glm::radians(rot), glm::vec3(0.f, 1.f, 0.f));
 

@@ -4,28 +4,28 @@
 
 namespace ZPG {
 
-Ref<Texture> Texture::Create(const std::string& filepath) {
+ref<Texture> Texture::Create(const std::string& filepath) {
     switch (Renderer::GetAPI()) {
     case RendererAPI::OpenGL: 
-        return CreateRef<OpenGLTexture>(filepath);
+        return MakeRef<OpenGLTexture>(filepath);
     case RendererAPI::None:
     default:
         ZPG_UNREACHABLE();
     }
 }
-Ref<Texture> Texture::Create(const std::string& name, const std::string& filepath) {
+ref<Texture> Texture::Create(const std::string& name, const std::string& filepath) {
     switch (Renderer::GetAPI()) {
     case RendererAPI::OpenGL: 
-        return CreateRef<OpenGLTexture>(name, filepath);
+        return MakeRef<OpenGLTexture>(name, filepath);
     case RendererAPI::None:
     default:
         ZPG_UNREACHABLE();
     }
 }
-Ref<Texture> Texture::Create(const std::string& name, u32 width, u32 height) {
+ref<Texture> Texture::Create(const std::string& name, u32 width, u32 height) {
     switch (Renderer::GetAPI()) {
     case RendererAPI::OpenGL: 
-        return CreateRef<OpenGLTexture>(name, width, height);
+        return MakeRef<OpenGLTexture>(name, width, height);
     case RendererAPI::None:
     default:
         ZPG_UNREACHABLE();

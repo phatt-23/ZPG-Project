@@ -6,28 +6,28 @@
 
 namespace ZPG {
 
-Ref<VertexBuffer> VertexBuffer::Create(const void* vertices, u32 size) {
+ref<VertexBuffer> VertexBuffer::Create(const void* vertices, u32 size) {
     switch (Renderer::GetAPI()) {
     case RendererAPI::OpenGL: 
-        return std::move(CreateRef<OpenGLVertexBuffer>(vertices, size));
+        return std::move(MakeRef<OpenGLVertexBuffer>(vertices, size));
     case RendererAPI::None: 
         break;
     }
     ZPG_UNREACHABLE();
 }
-Ref<VertexBuffer> VertexBuffer::Create(u32 size) {
+ref<VertexBuffer> VertexBuffer::Create(u32 size) {
     switch (Renderer::GetAPI()) {
     case RendererAPI::OpenGL: 
-        return std::move(CreateRef<OpenGLVertexBuffer>(size));
+        return std::move(MakeRef<OpenGLVertexBuffer>(size));
     case RendererAPI::None: 
         break;
     }
     ZPG_UNREACHABLE();
 }
-Ref<VertexBuffer> VertexBuffer::Create(const void* vertices, u32 size, const BufferLayout& layout) {
+ref<VertexBuffer> VertexBuffer::Create(const void* vertices, u32 size, const BufferLayout& layout) {
     switch (Renderer::GetAPI()) {
     case RendererAPI::OpenGL: {
-        auto VBO = CreateRef<OpenGLVertexBuffer>(vertices, size);
+        auto VBO = MakeRef<OpenGLVertexBuffer>(vertices, size);
         VBO->SetLayout(layout);
         return std::move(VBO);
     }

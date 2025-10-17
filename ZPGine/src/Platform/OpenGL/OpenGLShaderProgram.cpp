@@ -13,15 +13,15 @@ OpenGLShaderProgram::OpenGLShaderProgram(const std::string& filepath) {
     m_Name = Utility::GetNameFromPath(filepath);
 
     std::unordered_map<Shader::ShaderType, std::string> shaderSources = GetShaderSources(Utility::ReadFile(filepath));
-    std::vector<Ref<Shader>> shaders = CompileShaderSources(shaderSources);
+    std::vector<ref<Shader>> shaders = CompileShaderSources(shaderSources);
     m_RendererID = LinkShaders(shaders);
 }
 OpenGLShaderProgram::OpenGLShaderProgram(const std::string& name, const std::string& filepath) : m_Name(name) {
     std::unordered_map<Shader::ShaderType, std::string> shaderSources = GetShaderSources(Utility::ReadFile(filepath));
-    std::vector<Ref<Shader>> shaders = CompileShaderSources(shaderSources);
+    std::vector<ref<Shader>> shaders = CompileShaderSources(shaderSources);
     m_RendererID = LinkShaders(shaders);
 }
-OpenGLShaderProgram::OpenGLShaderProgram(const std::string& name, const std::vector<Ref<Shader>>& shaders) {
+OpenGLShaderProgram::OpenGLShaderProgram(const std::string& name, const std::vector<ref<Shader>>& shaders) {
     m_Name = name;
     m_RendererID = LinkShaders(shaders);
 }
@@ -76,12 +76,12 @@ void OpenGLShaderProgram::SetMat4(const std::string& uniName, glm::mat4 mat) {
     ZPG_OPENGL_CALL(glUniformMatrix4fv(GetUniformLocation(uniName), 1, GL_FALSE, glm::value_ptr(mat)));
 }
 
-u32 OpenGLShaderProgram::LinkShaders(const std::vector<Ref<Shader>>& shaders) {
+u32 OpenGLShaderProgram::LinkShaders(const std::vector<ref<Shader>>& shaders) {
     int programID;
     ZPG_OPENGL_CALL(programID = glCreateProgram());
     ZPG_CORE_ASSERT(programID != 0, "Failed to create OpenGL program!");
     
-    for (Ref<Shader> shader : shaders) {
+    for (ref<Shader> shader : shaders) {
         shader->AttachTo(programID);
     }
 
@@ -95,24 +95,24 @@ u32 OpenGLShaderProgram::LinkShaders(const std::vector<Ref<Shader>>& shaders) {
         
         char* msg = new char[len];
         ZPG_OPENGL_CALL(glGetProgramInfoLog(programID, len, &len, msg));
+        ZPG_UNREACHABLE("ShaderProgram linking failed: {}", msg);
 
         ZPG_OPENGL_CALL(glDeleteProgram(programID));
-        for (Ref<Shader> shader : shaders) {
+        for (ref<Shader> shader : shaders) {
             shader->DetachFrom(programID);
         }
-        ZPG_UNREACHABLE("ShaderProgram linking failed: {}", msg);
 
         delete[] msg;
         return -1;
     }
     return programID;
 }
-std::vector<Ref<Shader>> OpenGLShaderProgram::CompileShaderSources(std::unordered_map<Shader::ShaderType, std::string> shaderSources) {
-    std::vector<Ref<Shader>> shaders;
+std::vector<ref<Shader>> OpenGLShaderProgram::CompileShaderSources(std::unordered_map<Shader::ShaderType, std::string> shaderSources) {
+    std::vector<ref<Shader>> shaders;
     for (auto& [type, code] : shaderSources) {
         // default name will be the (current program's name).(vertex or fragment...)
         std::string shaderName = m_Name + "." + Shader::ShaderTypeToString(type);
-        Ref<Shader> shader = Shader::CreateFromCode(shaderName, type, code);
+        ref<Shader> shader = Shader::CreateFromCode(shaderName, type, code);
         shaders.push_back(shader);
     }
     return shaders;

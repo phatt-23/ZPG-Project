@@ -9,30 +9,37 @@ class Mesh {
 public:
     Mesh(const std::vector<Vertex>& vertices, 
         const std::vector<u32>& indices, 
-        const glm::mat4& localTransform = glm::mat4(1.0f));
+        const m4& localTransform = m4(1.0f));
 
-    Mesh(const Ref<VertexArray>& vertexArray, 
-         const glm::mat4& localTransform = glm::mat4(1.0f));
+    Mesh(const ref<VertexArray>& vertexArray, 
+         const m4& localTransform = m4(1.0f));
 
-    void SetMaterial(const Ref<Material>& material);
+    void SetMaterial(const ref<Material>& material);
 
     void Bind();
     void Unbind();
 
-    const glm::mat4& GetLocalTransform() const { return m_LocalTransform; }
-    const Ref<VertexArray>& GetVertexArray() const { return m_VAO; }
-    const Ref<Material>& GetMaterial() const { return m_Material; }
+    const m4& GetLocalTransform() const { return m_LocalTransform; }
+    const ref<VertexArray>& GetVertexArray() const { return m_VAO; }
+    const ref<Material>& GetMaterial() const { return m_Material; }
 
-    static Ref<Mesh> Create(const std::vector<Vertex>& vertices, 
+    static ref<Mesh> Create(
+        const std::vector<Vertex>& vertices,
         const std::vector<u32>& indices, 
-        const glm::mat4& localTransform = glm::mat4(1.0f));
+        const m4& localTransform = m4(1.0f));
 
-    static Ref<Mesh> Create(const Ref<VertexArray>& vertexArray, 
-         const glm::mat4& localTransform = glm::mat4(1.0f));
+    static ref<Mesh> Create(
+        const ref<VertexArray>& vertexArray,
+        const m4& localTransform = m4(1.0f));
+
+    static ref<Mesh> Create(
+        const ref<VertexArray>& vertexArray,
+        const ref<Material>& material,
+        const m4& localTransform = m4(1.0f));
 private:
-    Ref<VertexArray> m_VAO;
-    glm::mat4 m_LocalTransform;
-    Ref<Material> m_Material = nullptr;
+    ref<VertexArray> m_VAO;
+    m4 m_LocalTransform;
+    ref<Material> m_Material = nullptr;
 };
 
 }

@@ -15,7 +15,7 @@
 #include "Light/Light.h"
 #include "Model/Mesh.h"
 #include "Entity/Entity.h"
-#include "Core/Scene.h"
+#include "Scene/Scene.h"
 
 namespace ZPG {
 
@@ -31,7 +31,7 @@ public:
     static void BeginDraw(const Camera& camera);
     static void EndDraw();
 
-    static void SetLights(const std::vector<Ref<Light>>& lights);
+    static void SetLights(const std::vector<ref<Light>>& lights);
 
     // Render a whole scene. Pulls the drawable objects from the scene, the lights and camera.
     // Can optimize by grouping the objects by groupby('shaderProgram', 'material').
@@ -63,10 +63,10 @@ public:
 private:
     struct DrawData {
         glm::mat4 ViewProjMatrix;
-        std::vector<Ref<Light>> Lights;
+        std::vector<ref<Light>> Lights;
         glm::vec3 CameraPosition;
     };
-    inline static Scope<DrawData> s_DrawData = nullptr; 
+    inline static scope<DrawData> s_DrawData = nullptr; 
 };
 
 }

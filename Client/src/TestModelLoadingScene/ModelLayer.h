@@ -11,7 +11,7 @@ public:
     void OnUpdate(ZPG::SceneContext& context) override;
     void OnRender(const ZPG::RenderContext& context) override;
 private:
-    ZPG::Ref<ZPG::VertexArray> m_BoxVAO;
+    ZPG::ref<ZPG::VertexArray> m_BoxVAO;
 };
 
 }

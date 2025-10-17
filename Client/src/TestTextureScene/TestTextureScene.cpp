@@ -53,20 +53,20 @@ u32 planeIndices[] = {
 
 
 class MyLayer : public Layer {
-    Ref<VertexArray> m_BoxVao;
-    Ref<VertexArray> m_PlaneVao;
-    Ref<ShaderProgram> m_ShaderProgram;
+    ref<VertexArray> m_BoxVao;
+    ref<VertexArray> m_PlaneVao;
+    ref<ShaderProgram> m_ShaderProgram;
     Timestep m_Timestep = 0;
     std::vector<glm::mat4> m_Transforms;
-    Ref<Texture> m_Texture;
+    ref<Texture> m_Texture;
 public:
     MyLayer() {
     }
     void OnAttach() override {
         m_Texture = Texture::Create("./assets/textures/night_bridge_phone.png");
 
-        auto vertexShader = Shader::Create("./assets/shaders/vertex/basic_lit.vert");
-        auto fragmentShader = Shader::Create("./assets/shaders/fragment/basic_one_uniform_texture.frag");
+        auto vertexShader = Shader::Create("./assets/shaders/deprecated/basic_lit.vert");
+        auto fragmentShader = Shader::Create("./assets/shaders/deprecated/basic_one_uniform_texture.frag");
         
         m_ShaderProgram = ShaderProgram::Create(
             "testing_texture", { vertexShader, fragmentShader });
@@ -100,13 +100,13 @@ public:
             m_Transforms.push_back(glm::translate(glm::mat4(1.f), glm::vec3(random_f32(-10.f, 10.f), random_f32(-10.f, 10.f), random_f32(-10.f, 10.f))));
     }
     void OnUpdate(SceneContext& context) override {
-        m_Timestep = context.m_Timestep;
+        m_Timestep = context.Ts;
     }
     void OnRender(const RenderContext& ctx) override {
         using namespace glm;
 
         static f32 rot = 0;
-        rot += 50.f * ctx.m_Timestep;
+        rot += 50.f * ctx.Ts;
 
         mat4 rotMat = rotate(mat4(1.f), radians(rot), vec3(0.f, 1.f, 0.f));
         mat4 trMat  = translate(mat4(1.f), vec3(1.0, 0.0, 0.0));

@@ -10,7 +10,7 @@ class OpenGLShaderProgram : public ShaderProgram {
 public:
     OpenGLShaderProgram(const std::string& filepath);
     OpenGLShaderProgram(const std::string& name, const std::string& filepath);
-    OpenGLShaderProgram(const std::string& name, const std::vector<Ref<Shader>>& shaders);
+    OpenGLShaderProgram(const std::string& name, const std::vector<ref<Shader>>& shaders);
     ~OpenGLShaderProgram() override;
 
     virtual const std::string& GetName() const override { return m_Name; }
@@ -32,15 +32,15 @@ private:
     i32 GetUniformLocation(const std::string& name);
 
     // Attaches provided shaders to this program and links it.
-    static u32 LinkShaders(const std::vector<Ref<Shader>>& shaders);
+    static u32 LinkShaders(const std::vector<ref<Shader>>& shaders);
     // Compiles all the shader sources and puts them into a list.
-    std::vector<Ref<Shader>> CompileShaderSources(std::unordered_map<Shader::ShaderType, std::string> shaderSources);
+    std::vector<ref<Shader>> CompileShaderSources(std::unordered_map<Shader::ShaderType, std::string> shaderSources);
     // Parses the input source code containing possibly many shader source codes into pairs of ShaderType and its source code.
     static std::unordered_map<Shader::ShaderType, std::string> GetShaderSources(const std::string& input);
 private:
     u32 m_RendererID;
     std::string m_Name;
-    std::vector<Ref<Shader>> m_Shaders;
+    std::vector<ref<Shader>> m_Shaders;
     std::unordered_map<std::string, i32> m_LocationCache;  // identity map pattern
 };
 

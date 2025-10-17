@@ -5,7 +5,7 @@ namespace ZPG {
 
 void Renderer::Init() {
     RenderCommand::Init();
-    s_DrawData = CreateScope<DrawData>();
+    s_DrawData = MakeScope<DrawData>();
 }
 
 void Renderer::Shutdown() {
@@ -18,38 +18,42 @@ void Renderer::BeginDraw(const Camera& camera) {
 }
 
 void Renderer::EndDraw() {
+    // TODO:
     // nothing for now
     // batch the drawing by instances of the same DrawableObject, shader being used and material
     // setup the submitted lights into the shaders
+    // draw as little as possible
+
+
     s_DrawData->Lights.clear();
 }
 
 void Renderer::Submit(ShaderProgram& shaderProgram, const Entity& entity, const glm::mat4& transform) {
     glm::mat4 mat = transform * entity.GetTransformMatrix();
-    const Ref<Model>& model = entity.GetModel();
+    const ref<Model>& model = entity.GetModel();
 
     Submit(shaderProgram, *model, mat);
 }
 
 void Renderer::SumbitEntity(const Entity& entity, const glm::mat4& transform) {
     glm::mat4 entityTransform = transform * entity.GetTransformMatrix();
-    const Ref<Model>& model = entity.GetModel();
-    std::vector<Ref<Mesh>> meshes = model->GetMeshes();
+    const ref<Model>& model = entity.GetModel();
+    std::vector<ref<Mesh>> meshes = model->GetMeshes();
 
     for (auto& mesh : meshes) {
-        const Ref<Material>& material = mesh->GetMaterial();
-        if (material != nullptr) {
-            material->Bind();
-        }
+        const ref<Material>& material = mesh->GetMaterial();
         SubmitMesh(*mesh, entityTransform);
     }
 }
 
 void Renderer::SubmitMesh(const Mesh& mesh, const glm::mat4& transform) {
     glm::mat4 worldMat = transform * mesh.GetLocalTransform();
-    Ref<Material> material = mesh.GetMaterial();
+    const ref<Material>& material = mesh.GetMaterial();
+
     if (material) {
         material->Bind();
+    } else {
+        ZPG_CORE_WARN("No shader program attached to a material.");
     }
 
     Submit(*material->GetShaderProgram(), *mesh.GetVertexArray(), worldMat);
@@ -57,18 +61,21 @@ void Renderer::SubmitMesh(const Mesh& mesh, const glm::mat4& transform) {
 
 
 void Renderer::Submit(ShaderProgram& shaderProgram, const Model& model, const glm::mat4& transform) {
-    const std::vector<Ref<Mesh>>& meshes = model.GetMeshes();
+    const std::vector<ref<Mesh>>& meshes = model.GetMeshes();
 
-    for (Ref<Mesh> mesh : meshes) {
+    for (const ref<Mesh>& mesh : meshes) {
         Submit(shaderProgram, *mesh, transform);
     }
 }
 
 void Renderer::Submit(ShaderProgram& shaderProgram, const Mesh& mesh, const glm::mat4& transform) {
     glm::mat4 worldMat = transform * mesh.GetLocalTransform();
-    Ref<Material> material = mesh.GetMaterial();
+    const ref<Material>& material = mesh.GetMaterial();
+
     if (material) {
         material->Bind();
+    } else {
+        ZPG_CORE_WARN("No shader program attached to a material.");
     }
 
     // without dereference this method calls itself, stack overflow 
@@ -93,7 +100,7 @@ void Renderer::Submit(ShaderProgram& shaderProgram, const VertexArray& vertexArr
             continue;
         lights[index]->SendToShaderProgram(shaderProgram, index);
     }
-    shaderProgram.SetInt("u_LightCount", index);
+    shaderProgram.SetInt("u_LightCount", (i32)index);
 
     vertexArray.Bind();
     if (vertexArray.HasIndexBuffer()) {
@@ -103,7 +110,7 @@ void Renderer::Submit(ShaderProgram& shaderProgram, const VertexArray& vertexArr
     }
 }
 
-void Renderer::SetLights(const std::vector<Ref<Light>>& lights) {
+void Renderer::SetLights(const std::vector<ref<Light>>& lights) {
     s_DrawData->Lights = lights;
 
 }

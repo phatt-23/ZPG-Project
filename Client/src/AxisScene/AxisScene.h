@@ -1,6 +1,6 @@
 #pragma once
 #include "ZPGine.h"
-#include "Models/box.h"
+#include "../assets/models/phatt/box.h"
 #include "AxisLayer.h"
 
 namespace AxisSceneNS {
@@ -24,7 +24,7 @@ public:
     }
 private:
     ZPG::CameraController m_CameraController;
-    ZPG::Ref<ZPG::SpotLight> m_FlashLight;
+    ZPG::ref<ZPG::SpotLight> m_FlashLight;
 };
 
 }

@@ -1,5 +1,5 @@
 #include "ObjectsLayer.h"
-#include "Models/gift.h"
+#include "../assets/models/nemec/gift.h"
 
 using namespace ZPG;
 using namespace glm;
@@ -10,11 +10,11 @@ ObjectsLayer::ObjectsLayer() {
 }
 void ObjectsLayer::OnAttach() {
     m_ShaderProgram = ZPG::ShaderProgram::Create("basic_lit+phong", {
-        Shader::Create("./assets/shaders/vertex/basic_lit.vert"),
-        Shader::Create("./assets/shaders/fragment/phong_constant_red_color.frag"),
+        Shader::Create("./assets/shaders/deprecated/basic_lit.vert"),
+        Shader::Create("./assets/shaders/deprecated/phong_constant_red_color.frag"),
     });
 
-    auto VBO = ZPG::VertexBuffer::Create(gift, sizeof(gift));
+    auto VBO = ZPG::VertexBuffer::Create(nemec::gift, sizeof(nemec::gift));
     VBO->SetLayout({
         {ZPG::ShaderDataType::Float3, "a_Pos"},
         {ZPG::ShaderDataType::Float3, "a_Normal"},
@@ -23,30 +23,27 @@ void ObjectsLayer::OnAttach() {
     auto VAO = ZPG::VertexArray::Create();
     VAO->AddVertexBuffer(VBO);
 
-    auto transform = CreateRef<TransformGroup>();
-    transform->Include(CreateRef(new DynRotate(
-                                        0.f, 
-                                        50.f, 
-                                        glm::vec3(0.0, 1.0, 0.0))));
+    auto transform = MakeRef<TransformGroup>();
+    transform->Include(MakeRef<DynRotate>(0.f, 50.f, v3(0.0, 1.0, 0.0)));
 
     // ----- model -----
-    auto mesh = CreateRef<Mesh>(VAO);
-    m_Model = CreateRef(new Model({ mesh }));
+    auto mesh = MakeRef<Mesh>(VAO);
+    m_Model = MakeRef(new Model({ mesh }));
 
     // ----- entity -----------
-    auto entityTransform = CreateRef<TransformGroup>();
-    entityTransform->Include(CreateRef<Translate>(vec3(0.1, 0.1, 0.1)));
-    entityTransform->Include(CreateRef<DynRotate>(0.f, 50.f, glm::vec3(0.0, 1.0, 0.0)));
+    auto entityTransform = MakeRef<TransformGroup>();
+    entityTransform->Include(MakeRef<Translate>(vec3(0.1, 0.1, 0.1)));
+    entityTransform->Include(MakeRef<DynRotate>(0.f, 50.f, v3(0.0, 1.0, 0.0)));
 
-    m_Entity = CreateRef(new Entity(m_Model, entityTransform));
+    m_Entity = MakeRef(new Entity(m_Model, entityTransform));
 }
 
 void ObjectsLayer::OnUpdate([[maybe_unused]] ZPG::SceneContext& ctx) {
-    m_Entity->Update(ctx.m_Timestep);
+    m_Entity->Update(ctx.Ts);
 }
 
 void ObjectsLayer::OnRender(const ZPG::RenderContext& ctx) {
-    Renderer::SetLights(ctx.m_Lights);
+    Renderer::SetLights(ctx.Lights);
     Renderer::Submit(*m_ShaderProgram, *m_Entity);
 }
 

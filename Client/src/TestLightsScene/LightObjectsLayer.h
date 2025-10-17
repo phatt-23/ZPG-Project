@@ -9,6 +9,6 @@ public:
     void OnRender(const ZPG::RenderContext& ctx) override;
 
 private:
-    ZPG::Ref<ZPG::VertexArray> m_VAO;
+    ZPG::ref<ZPG::VertexArray> m_VAO;
 };
 

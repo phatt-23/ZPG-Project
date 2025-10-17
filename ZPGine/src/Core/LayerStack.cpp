@@ -5,18 +5,18 @@ namespace ZPG {
 
 void LayerStack::PushLayer(Layer* layer) {
     ZPG_CORE_DEBUG("Pushing layer...");
-    m_Layers.push_back(CreateRef<Layer>(layer));
+    m_Layers.push_back(MakeRef<Layer>(layer));
     ZPG_CORE_DEBUG("Calling layer's OnAttach...");
     layer->OnAttach();
 }
 
-void LayerStack::PushLayer(Ref<Layer> layer) {
+void LayerStack::PushLayer(ref<Layer> layer) {
     m_Layers.push_back(layer);
     layer->OnAttach();
 }
 
-Ref<Layer> LayerStack::PopLayer() {
-    Ref<Layer> lastLayer = m_Layers.back();
+ref<Layer> LayerStack::PopLayer() {
+    ref<Layer> lastLayer = m_Layers.back();
     m_Layers.pop_back();
     lastLayer->OnDetach();
     return lastLayer;

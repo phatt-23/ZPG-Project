@@ -8,12 +8,12 @@ const uint LightTypeDirectional  = 1 << 2;
 const uint LightTypeSpotlight    = 1 << 3;
 
 struct Light {
-    int type;
-    vec4 color;
-    vec3 pos;
-    vec3 dir;
-    float inCutoff;
-    float outCutoff;
+    int Type;
+    vec4 Color;
+    vec3 Pos;
+    vec3 Dir;
+    float InCutoff;
+    float OutCutoff;
 };
 
 uniform Light u_Lights[100];
@@ -60,28 +60,28 @@ void main() {
     for (int i = 0; i < count; i++) {
         Light light = u_Lights[i];
         
-        if (light.type == LightTypeDirectional) {
+        if (light.Type == LightTypeDirectional) {
             accumColor += directionalLight(
                 color, 
                 v_WorldNormal, 
-                light.dir, 
-                light.color.xyz * light.color.w);
+                light.Dir, 
+                light.Color.xyz * light.Color.w);
 
-        } else if (light.type == LightTypePoint) {
+        } else if (light.Type == LightTypePoint) {
             accumColor += pointLight(
                 color, 
                 v_WorldNormal, 
-                light.pos, 
-                light.color.xyz * light.color.w);
+                light.Pos, 
+                light.Color.xyz * light.Color.w);
 
-        } else if (light.type == LightTypeSpotlight) {
+        } else if (light.Type == LightTypeSpotlight) {
             accumColor += spotLight(
                 color, 
                 v_WorldNormal, 
-                light.pos, 
-                light.dir, 
-                light.color.xyz * light.color.w, 
-                light.inCutoff);
+                light.Pos, 
+                light.Dir, 
+                light.Color.xyz * light.Color.w, 
+                light.InCutoff);
         }
     }
 

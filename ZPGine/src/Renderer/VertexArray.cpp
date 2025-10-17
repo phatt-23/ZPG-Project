@@ -4,29 +4,29 @@
 
 namespace ZPG {
 
-Ref<VertexArray> VertexArray::Create() {
+ref<VertexArray> VertexArray::Create() {
     switch (Renderer::GetAPI()) {
         case RendererAPI::OpenGL: 
-            return CreateRef<OpenGLVertexArray>();
+            return MakeRef<OpenGLVertexArray>();
         case RendererAPI::None: break;
     }
     ZPG_UNREACHABLE();
 }
-Ref<VertexArray> VertexArray::Create(const std::vector<Ref<VertexBuffer>>& vertexBuffers) {
+ref<VertexArray> VertexArray::Create(const std::vector<ref<VertexBuffer>>& vertexBuffers) {
     switch (Renderer::GetAPI()) {
         case RendererAPI::OpenGL: {
             OpenGLVertexArray* VAO = new OpenGLVertexArray();
             for (auto& VBO : vertexBuffers) {
                 VAO->AddVertexBuffer(VBO);
             }
-            return CreateRef(VAO);
+            return MakeRef(VAO);
         } break;
         case RendererAPI::None: 
             break;
     }
     ZPG_UNREACHABLE();
 }
-Ref<VertexArray> VertexArray::Create(const std::vector<Ref<VertexBuffer>>& vertexBuffers, const Ref<IndexBuffer>& indexBuffer) {
+ref<VertexArray> VertexArray::Create(const std::vector<ref<VertexBuffer>>& vertexBuffers, const ref<IndexBuffer>& indexBuffer) {
     switch (Renderer::GetAPI()) {
         case RendererAPI::OpenGL: {
             OpenGLVertexArray* VAO = new OpenGLVertexArray();
@@ -34,7 +34,7 @@ Ref<VertexArray> VertexArray::Create(const std::vector<Ref<VertexBuffer>>& verte
                 VAO->AddVertexBuffer(VBO);
             }
             VAO->SetIndexBuffer(indexBuffer);
-            return CreateRef(VAO);
+            return MakeRef(VAO);
         } break;
         case RendererAPI::None: 
             break;

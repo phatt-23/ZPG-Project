@@ -23,21 +23,21 @@ Shader::ShaderType Shader::ShaderTypeFromString(const std::string& type) {
     ZPG_UNREACHABLE("Cannot convert string to ShaderType from provided string: {}", type);
 }
 
-Ref<Shader> Shader::Create(const std::string& filepath) {
+ref<Shader> Shader::Create(const std::string& filepath) {
     switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return CreateRef<OpenGLShader>(filepath);
+    case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(filepath);
     default: ZPG_UNREACHABLE();
     }
 }
-Ref<Shader> Shader::Create(const std::string& name, const std::string& filepath) {
+ref<Shader> Shader::Create(const std::string& name, const std::string& filepath) {
     switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return CreateRef<OpenGLShader>(name, filepath);
+    case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(name, filepath);
     default: ZPG_UNREACHABLE();
     }
 }
-Ref<Shader> Shader::CreateFromCode(const std::string& name, ShaderType type, const std::string& sourceCode) {
+ref<Shader> Shader::CreateFromCode(const std::string& name, ShaderType type, const std::string& sourceCode) {
     switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return CreateRef<OpenGLShader>(name, type, sourceCode);
+    case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(name, type, sourceCode);
     default: ZPG_UNREACHABLE();
     }
 }

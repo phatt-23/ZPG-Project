@@ -12,9 +12,9 @@ public:
     void OnRender(const ZPG::RenderContext& ctx) override;
 
 private:
-    ZPG::Ref<ZPG::ShaderProgram> m_ShaderProgram;
-    ZPG::Ref<ZPG::Model> m_Model;
-    ZPG::Ref<ZPG::Entity> m_Entity;
+    ZPG::ref<ZPG::ShaderProgram> m_ShaderProgram;
+    ZPG::ref<ZPG::Model> m_Model;
+    ZPG::ref<ZPG::Entity> m_Entity;
 };
 
 }

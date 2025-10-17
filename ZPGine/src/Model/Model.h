@@ -7,17 +7,17 @@ namespace ZPG {
 
 class Model {
 public:
-    Model(const std::vector<Ref<Mesh>>& meshes) 
+    Model(const std::vector<ref<Mesh>>& meshes) 
     : m_Meshes(meshes) {
     }
 
     ~Model() {}
 
-    const std::vector<Ref<Mesh>>& GetMeshes() const { return m_Meshes; }
+    const std::vector<ref<Mesh>>& GetMeshes() const { return m_Meshes; }
 
-    static Ref<Model> Create(const std::vector<Ref<Mesh>>& meshes);
+    static ref<Model> Create(const std::vector<ref<Mesh>>& meshes);
 private:
-    std::vector<Ref<Mesh>> m_Meshes;
+    std::vector<ref<Mesh>> m_Meshes;
 };
 
 }

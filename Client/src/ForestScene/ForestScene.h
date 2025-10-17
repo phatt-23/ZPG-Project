@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ZPGine.h"
-#include "Models/tree.h"
-#include "Models/bushes.h"
+#include "../assets/models/nemec/tree.h"
+#include "../assets/models/nemec/bushes.h"
 
 namespace ForestSceneNS {
 
@@ -15,27 +15,27 @@ public:
     void OnAttach() override {
         using namespace ZPG;
 
-        auto VBO = VertexBuffer::Create(tree, sizeof(tree), {
+        auto VBO = VertexBuffer::Create(nemec::tree, sizeof(nemec::tree), {
             {ShaderDataType::Float3, "a_Pos"},
             {ShaderDataType::Float3, "a_Normal"},
         });
 
         auto VAO = VertexArray::Create({ VBO });
-        auto mesh = CreateRef<Mesh>(VAO);
-        m_Model = CreateRef(new Model({ mesh }));
+        auto mesh = MakeRef<Mesh>(VAO);
+        m_Model = MakeRef(new Model({ mesh }));
 
         for (int i = 0; i < 25; i++) {
-            auto transform = CreateRef<Translate>(
+            auto transform = MakeRef<Translate>(
                 10.f * glm::vec3(Utility::GetRandomFloat(), 0.0f, Utility::GetRandomFloat())
             );
 
-            m_Entities.push_back(CreateScope(new Entity(m_Model, transform)));
+            m_Entities.push_back(MakeScope(new Entity(m_Model, transform)));
         }
     }
 
     void OnUpdate(ZPG::SceneContext& context) override {
         for (auto& entity : m_Entities) {
-            entity->Update(context.m_Timestep);
+            entity->Update(context.Ts);
         }
     }
 
@@ -47,8 +47,8 @@ public:
         }
     }
 private:
-    ZPG::Ref<ZPG::Model> m_Model;
-    std::vector<ZPG::Scope<ZPG::Entity>> m_Entities;
+    ZPG::ref<ZPG::Model> m_Model;
+    std::vector<ZPG::scope<ZPG::Entity>> m_Entities;
 };
 
 
@@ -61,27 +61,27 @@ public:
     void OnAttach() override {
         using namespace ZPG;
 
-        auto VBO = VertexBuffer::Create(bushes, sizeof(bushes), {
+        auto VBO = VertexBuffer::Create(nemec::bushes, sizeof(nemec::bushes), {
             {ShaderDataType::Float3, "a_Pos"},
             {ShaderDataType::Float3, "a_Normal"},
         });
 
         auto VAO = VertexArray::Create({ VBO });
-        auto mesh = CreateRef<Mesh>(VAO);
-        m_Model = CreateRef(new Model({ mesh }));
+        auto mesh = MakeRef<Mesh>(VAO);
+        m_Model = MakeRef(new Model({ mesh }));
 
         for (int i = 0; i < 500; i++) {
-            auto transform = CreateRef<Translate>(
+            auto transform = MakeRef<Translate>(
                 10.f * glm::vec3(Utility::GetRandomFloat(), 0.0f, Utility::GetRandomFloat())
             );
 
-            m_Entities.push_back(CreateScope(new Entity(m_Model, transform)));
+            m_Entities.push_back(MakeScope(new Entity(m_Model, transform)));
         }
     }
 
     void OnUpdate(ZPG::SceneContext& context) override {
         for (auto& entity : m_Entities) {
-            entity->Update(context.m_Timestep);
+            entity->Update(context.Ts);
         }
     }
 
@@ -93,8 +93,8 @@ public:
         }
     }
 private:
-    ZPG::Ref<ZPG::Model> m_Model;
-    std::vector<ZPG::Scope<ZPG::Entity>> m_Entities;
+    ZPG::ref<ZPG::Model> m_Model;
+    std::vector<ZPG::scope<ZPG::Entity>> m_Entities;
 };
 
 

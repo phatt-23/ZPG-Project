@@ -1,5 +1,5 @@
 #include "ModelLayer.h"
-#include "Models/box.h"
+#include "../assets/models/phatt/box.h"
 
 using namespace ZPG;
 using namespace glm;
@@ -11,12 +11,12 @@ ModelLayer::ModelLayer() {
 
 void ModelLayer::OnAttach() {
     m_BoxVAO = VertexArray::Create({
-        VertexBuffer::Create(BoxModel::boxVertices, sizeof(BoxModel::boxVertices), {
+        VertexBuffer::Create(phatt::boxVertices, sizeof(phatt::boxVertices), {
             {ShaderDataType::Float3, "a_Pos"},
             {ShaderDataType::Float3, "a_Normal"},
             {ShaderDataType::Float2, "a_TexCoord"},
         }),
-    }, IndexBuffer::Create(BoxModel::boxIndices, ZPG_ARRAY_LENGTH(BoxModel::boxIndices)));
+    }, IndexBuffer::Create(phatt::boxIndices, ZPG_ARRAY_LENGTH(phatt::boxIndices)));
 
     auto transform = TransformGroup::Create();
     transform->Add<Scale>(0.01f * vec3(1.0f));
@@ -58,7 +58,7 @@ void ModelLayer::OnAttach() {
 
 void ModelLayer::OnUpdate(SceneContext& context) {
     for (auto& entity : m_Scene->GetEntityManager().GetEntities()) {
-        entity->Update(context.m_Timestep);
+        entity->Update(context.Ts);
     }
 }
 
@@ -67,7 +67,7 @@ void ModelLayer::OnRender(const RenderContext& context) {
         Renderer::SumbitEntity(*entity);
     }
 
-    for (auto& light : context.m_Lights) {
+    for (auto& light : context.Lights) {
         if (light->GetLightType() == LightType::Point) {
             auto pointLight = (PointLight*)light.get();
 

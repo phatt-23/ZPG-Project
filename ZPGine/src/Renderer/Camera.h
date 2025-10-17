@@ -13,9 +13,8 @@ namespace ZPG {
 
 class Camera {
 public:
-    Camera(const glm::vec3& position = glm::vec3(0.0, 0.0, 1.0), 
-        const glm::quat& orientation = glm::quatLookAt(
-            glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f, 1.f, 0.f)));
+    Camera(const v3& position = v3(0.0, 0.0, 1.0), 
+        const qtr& orientation = glm::quatLookAt(v3(0.f, 0.f, -1.f), s_WorldUp));
 
     ~Camera();
 

@@ -16,7 +16,7 @@ void OpenGLVertexArray::Bind() const {
 void OpenGLVertexArray::Unbind() const {
     ZPG_OPENGL_CALL(glBindVertexArray(0));
 }
-void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) {
+void OpenGLVertexArray::AddVertexBuffer(const ref<VertexBuffer>& vertexBuffer) {
     const BufferLayout& layout = vertexBuffer->GetLayout();
     ZPG_CORE_ASSERT( layout.GetElements().size() != 0, 
                     "Layout musn't be empty. Please provide the layout to the VBO before adding the VBO." );
@@ -42,7 +42,7 @@ void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) {
     this->Unbind();
     vertexBuffer->Unbind();
 }
-void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) {
+void OpenGLVertexArray::SetIndexBuffer(const ref<IndexBuffer>& indexBuffer) {
     m_IndexBuffer = indexBuffer;
 
     Bind();
@@ -53,10 +53,10 @@ void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) {
 bool OpenGLVertexArray::HasIndexBuffer() const {
     return m_IndexBuffer != nullptr;
 }
-const std::vector<Ref<VertexBuffer>>& OpenGLVertexArray::GetVertexBuffers() const {
+const std::vector<ref<VertexBuffer>>& OpenGLVertexArray::GetVertexBuffers() const {
     return m_VertexBuffers;
 }
-const Ref<IndexBuffer>& OpenGLVertexArray::GetIndexBuffer() const {
+const ref<IndexBuffer>& OpenGLVertexArray::GetIndexBuffer() const {
     return m_IndexBuffer;
 }
 

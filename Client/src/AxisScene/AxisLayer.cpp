@@ -1,67 +1,62 @@
 #include "AxisLayer.h"
 #include "Entity/Entity.h"
 #include "ZPGine.h"
+#include "../assets/models/phatt/box.h"
 
 using namespace ZPG;
 
 namespace AxisSceneNS {
-
-AxisLayer::AxisLayer() {
-}
-
-AxisLayer::~AxisLayer() {
-}
 
 void AxisLayer::OnAttach() {
     m_ShaderProgram = ShaderProgram::Create("AxisShaderProgram", {
         Shader::Create("./assets/shaders/vertex/DefaultLit.vert"),
         Shader::CreateFromCode("just_a_single_color_thing", Shader::Fragment, R"(
             #version 330 core
-            uniform vec3 u_AlbedoColor;
+            uniform vec4 u_Albedo;
             out vec4 f_FragColor;
             void main() {
-                f_FragColor = vec4(u_AlbedoColor, 0.8);
+                f_FragColor = u_Albedo;
             }
         )"),
     });
 
     auto VAO = VertexArray::Create({
         VertexBuffer::Create(
-            BoxModel::boxVertices, 
-            sizeof(BoxModel::boxVertices),
+            phatt::boxVertices,
+            sizeof(phatt::boxVertices),
             {
                 {ShaderDataType::Float3, "a_Pos"},
                 {ShaderDataType::Float3, "a_Normal"},
                 {ShaderDataType::Float2, "a_UV"},
             }
         ),
-    }, IndexBuffer::Create(BoxModel::boxIndices, ZPG_ARRAY_LENGTH(BoxModel::boxIndices)));
+    }, IndexBuffer::Create(phatt::boxIndices, ZPG_ARRAY_LENGTH(phatt::boxIndices)));
 
     f32 length = 200.0f;
-    auto x = CreateRef<Mesh>(VAO, Scale(glm::vec3(length, 0.1, 0.1)).GetMatrix());
-    auto y = CreateRef<Mesh>(VAO, Scale(glm::vec3(0.1, length, 0.1)).GetMatrix());
-    auto z = CreateRef<Mesh>(VAO, Scale(glm::vec3(0.1, 0.1, length)).GetMatrix());
+    auto x = MakeRef<Mesh>(VAO, Scale(glm::vec3(length, 0.1, 0.1)).GetMatrix());
+    auto y = MakeRef<Mesh>(VAO, Scale(glm::vec3(0.1, length, 0.1)).GetMatrix());
+    auto z = MakeRef<Mesh>(VAO, Scale(glm::vec3(0.1, 0.1, length)).GetMatrix());
 
-    auto xm = CreateRef(new Material());
+    auto xm = MakeRef(new Material());
     xm->SetShaderProgram(m_ShaderProgram);
-    xm->SetAlbedoColor(glm::vec3(1.0, 0.0, 0.0));
+    xm->SetAlbedo({1.0, 0.0, 0.0, 1.0});
     x->SetMaterial(xm);
 
-    auto ym = CreateRef(new Material());
+    auto ym = MakeRef(new Material());
     ym->SetShaderProgram(m_ShaderProgram);
-    ym->SetAlbedoColor(glm::vec3(0.0, 1.0, 0.0));
+    ym->SetAlbedo({0.0, 1.0, 0.0, 1.0});
     y->SetMaterial(ym);
 
-    auto zm = CreateRef(new Material());
+    auto zm = MakeRef(new Material());
     zm->SetShaderProgram(m_ShaderProgram);
-    zm->SetAlbedoColor(glm::vec3(0.0, 0.0, 1.0));
+    zm->SetAlbedo({0.0, 0.0, 1.0, 1.0});
     z->SetMaterial(zm);
 
-    auto model = CreateRef<Model>(new Model({ x, y, z }));
+    auto model = MakeRef<Model>(new Model({ x, y, z }));
 
-    auto transform = CreateRef<Translate>(glm::vec3(0.0f));
+    auto transform = MakeRef<Translate>(glm::vec3(0.0f));
 
-    m_Entity = CreateRef(new Entity(model, transform));
+    m_Entity = MakeRef(new Entity(model, transform));
 }
 
 void AxisLayer::OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) {

@@ -1,6 +1,8 @@
 #include "ModelLoader.h"
-#include "Core/ResourceManager.h"
 #include <filesystem>
+
+#include "Resource/ResourceManager.h"
+#include "Resource/CommonResources.h"
 #include "Texture/Texture.h"
 
 namespace ZPG {
@@ -15,27 +17,32 @@ static glm::mat4 AssimpToGLM(const aiMatrix4x4t<float>& m) {
     return ret;
 }
 
-static glm::vec3 AssimpToGLM(const aiVector3D& v) {
-    return glm::vec3(v.x, v.y, v.z);
+static v2 AssimpToGLM(const aiVector2D& v) {
+    return v2(v.x, v.y);
 }
 
-static glm::vec3 AssimpToGLM(const aiColor3D& c) {
-    return glm::vec3(c.r, c.g, c.b);
+static v3 AssimpToGLM(const aiVector3D& v) {
+    return v3(v.x, v.y, v.z);
 }
 
-static glm::vec2 AssimpToGLM(const aiVector2D& v) {
-    return glm::vec2(v.x, v.y);
+static v3 AssimpToGLM(const aiColor3D& c) {
+    return v3(c.r, c.g, c.b);
 }
 
-ModelLoader::ModelLoader(const std::string& path) 
+static v4 AssimpToGLM(const aiColor4D& c) {
+    return v4(c.r, c.g, c.b, c.a);
+}
+
+
+ModelLoader::ModelLoader(const std::string& path)
 : m_Path(path) {
     m_LoadingFlags = aiProcess_Triangulate       // guarantees three vertices per face
-                   | aiProcess_CalcTangentSpace  // guarantees normals exist
+                   | aiProcess_CalcTangentSpace  // guarantees normals and tangents exist
                //  | aiProcess_FlipUVs
                    ;
 }
 
-Ref<Model> ModelLoader::Load() {
+ref<Model> ModelLoader::Load() {
     ZPG_CORE_DEBUG("Loading in model: {} ...", m_Path);
     
     Assimp::Importer importer;
@@ -43,55 +50,115 @@ Ref<Model> ModelLoader::Load() {
     ZPG_CORE_ASSERT(!(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode),
         "Model loading failed: {}", m_Path);
 
-    // load the matrials first (meshes refer to them by index, link them together right away)
+    // load the materials first (meshes refer to them by index, link them together right away)
     for (int i = 0; i < scene->mNumMaterials; i++) {
         m_Materials[i] = ProcessMaterial(scene, scene->mMaterials[i]);
     }
 
-    // load in meses (geometry) and reference the loaded material
+    // load in meshes (geometry) and reference the loaded material
     glm::mat4 rootTransform = AssimpToGLM(scene->mRootNode->mTransformation);
     TraverseNode(scene, scene->mRootNode, rootTransform);
 
-    Ref<Model> model = CreateRef(new Model(m_Meshes));
+    ref<Model> model = MakeRef(new Model(m_Meshes));
     return model;
 }
 
-Ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMaterial* material) {
-    Ref<Material> myMaterial = CreateRef<Material>();
+ref<Texture> ModelLoader::LoadTexture(std::string const& textureFile) {
+    std::string texturePath = std::filesystem::path(m_Path).parent_path() / textureFile;
+    return Texture::Create(texturePath);
+}
 
-    // TODO: This shouldn't be called like this.
-    // It makes the transient model loader depend on global state.
-    // For now it's ok.
-    myMaterial->SetShaderProgram(ResourceManager::GetGlobal().GetShaderProgram("DefaultLit"));
+ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMaterial* material) {
+    ResourceManager& res = ResourceManager::GetGlobal();
 
-    // load diffuse
+    ref<Material> myMaterial = MakeRef<Material>();
+
+
+    // TODO: Determine if its PBR or Legacy workflow.
+    myMaterial->SetShaderProgram(res.GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT_LIT));
+    // myMaterial->SetShaderProgram(res.GetShaderProgram(CommonResources::SHADER_PROGRAM_PBR_PHONG));
+
+
+    // get base color factor
+    // first base color (PBR), fallback to diffuse (legacy)
+    aiColor4D albedo(1.0, 1.0, 1.0, 1.0);
+
+    if (material->Get(AI_MATKEY_BASE_COLOR, albedo) == AI_SUCCESS) {
+        myMaterial->SetAlbedo(AssimpToGLM(albedo));
+    } else if (material->Get(AI_MATKEY_COLOR_DIFFUSE, albedo) == AI_SUCCESS) {
+        myMaterial->SetAlbedo(AssimpToGLM(albedo));
+    } else {
+        myMaterial->SetAlbedo(AssimpToGLM(albedo));
+    }
+
+    // get reflective factor
+    // first metallic then specular
+    float metallic = 0.5;
+
+    if (material->Get(AI_MATKEY_METALLIC_FACTOR, metallic) == AI_SUCCESS) {
+        myMaterial->SetMetallic(metallic);
+    } else if (material->Get(AI_MATKEY_COLOR_SPECULAR, metallic) == AI_SUCCESS) {
+        myMaterial->SetMetallic(metallic);
+    } else {
+        myMaterial->SetMetallic(metallic);
+    }
+
+    // get micro-surface factor
+    // first roughness then glossiness, then 
+    float roughness = 0.5;  
+
+    if (material->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == AI_SUCCESS) {
+        myMaterial->SetRoughness(roughness);
+    } else if (material->Get(AI_MATKEY_SHININESS, roughness) == AI_SUCCESS) {
+        // convert gloss to roughness
+        roughness = 1.0f - glm::clamp(roughness / 128.0f, 0.0f, 1.0f);
+        myMaterial->SetRoughness(roughness);
+    } else {
+        myMaterial->SetRoughness(roughness);
+    }
+
+
+    // load base color map
     aiString textureFile;
-    if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFile) == AI_SUCCESS) {
-        std::string texturePath = std::filesystem::path(m_Path).parent_path() / textureFile.C_Str();
-        Ref<Texture> texture = Texture::Create(texturePath);
-        myMaterial->SetAlbedoMap(texture);
+    if (material->GetTexture(aiTextureType_BASE_COLOR, 0, &textureFile) == AI_SUCCESS) {
+        myMaterial->SetAlbedoMap(LoadTexture(textureFile.C_Str()));
+    } else if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFile) == AI_SUCCESS) {
+        myMaterial->SetAlbedoMap(LoadTexture(textureFile.C_Str()));
+    } else {
+        ref<Texture> defaultMap = res.GetTexture(CommonResources::NULL_ALBEDO_MAP);
+        myMaterial->SetAlbedoMap(defaultMap);
     }
 
     // load normal map
-    if (material->GetTexture(aiTextureType_NORMALS, 0, &textureFile) == AI_SUCCESS) {
-        std::string texturePath = std::filesystem::path(m_Path).parent_path() / textureFile.C_Str();
-        Ref<Texture> texture = Texture::Create(texturePath);
-        myMaterial->SetNormalMap(texture);
+    if (material->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &textureFile) == AI_SUCCESS) {
+        myMaterial->SetNormalMap(LoadTexture(textureFile.C_Str()));
+    } else if (material->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &textureFile) == AI_SUCCESS) {
+        myMaterial->SetNormalMap(LoadTexture(textureFile.C_Str()));
+    } else {
+        ref<Texture> defaultNormalMap = res.GetTexture(CommonResources::NULL_NORMAL_MAP);
+        myMaterial->SetNormalMap(defaultNormalMap);
     }
 
-    // get color and shininess
-    aiColor3D color; 
-    if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
-        myMaterial->SetAlbedoColor(AssimpToGLM(color));
+    // load metalness map
+    if (material->GetTexture(aiTextureType_METALNESS, 0, &textureFile) == AI_SUCCESS) {
+        myMaterial->SetMetalnessMap(LoadTexture(textureFile.C_Str()));
+    } else if (material->GetTexture(aiTextureType_SPECULAR, 0, &textureFile) == AI_SUCCESS) {
+        myMaterial->SetMetalnessMap(LoadTexture(textureFile.C_Str()));
+    } else {
+        ref<Texture> defaultMetalnessMap = res.GetTexture(CommonResources::NULL_METALNESS_MAP);
+        myMaterial->SetMetalnessMap(defaultMetalnessMap);
     }
 
-    float shininess = 32.0f;  // default
-    material->Get(AI_MATKEY_SHININESS, shininess);
-    myMaterial->SetMetallic(shininess);
-    
-    float roughness = 32.0f;  // default
-    material->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
-    myMaterial->SetRoughness(roughness);
+    // load roughness map
+    if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &textureFile) == AI_SUCCESS) {
+        myMaterial->SetRoughnessMap(LoadTexture(textureFile.C_Str()));
+    } else if (material->GetTexture(aiTextureType_SHININESS, 0, &textureFile) == AI_SUCCESS) {
+        myMaterial->SetNormalMap(LoadTexture(textureFile.C_Str()));
+    } else {
+        ref<Texture> defaultRoughnessMap = res.GetTexture(CommonResources::NULL_ROUGHNESS_MAP);
+        myMaterial->SetRoughnessMap(defaultRoughnessMap);
+    }
+
 
     return myMaterial;
 }
@@ -124,9 +191,10 @@ void ModelLoader::ProcessMesh(const aiScene* scene, const aiMesh* mesh, const gl
 
     // add vertices
     for (int i = 0; i < mesh->mNumVertices; i++) {
-        glm::vec3 position(0.0f);
-        glm::vec3 normal(0.0f);
-        glm::vec2 texCoord(0.0f);
+        v3 position(0.0f);
+        v3 normal(0.0, 0.0, 1.0);
+        v2 texCoord(0.0f);
+        v3 tangent(1.0, 0.0, 0.0);
 
         position = AssimpToGLM(mesh->mVertices[i]);
         
@@ -138,7 +206,11 @@ void ModelLoader::ProcessMesh(const aiScene* scene, const aiMesh* mesh, const gl
             texCoord = AssimpToGLM(mesh->mTextureCoords[0][i]);
         }
 
-        vertices.push_back(Vertex(position, normal, texCoord));
+        if (mesh->HasTangentsAndBitangents()) {
+            tangent = AssimpToGLM(mesh->mTangents[i]);
+        }
+
+        vertices.push_back(Vertex(position, normal, texCoord, tangent));
     }
 
     // add indices
@@ -150,9 +222,9 @@ void ModelLoader::ProcessMesh(const aiScene* scene, const aiMesh* mesh, const gl
     }
     
     // get material by index, assumes that the materials are loaded already
-    Ref<Material> material = m_Materials[mesh->mMaterialIndex];
+    ref<Material> material = m_Materials[mesh->mMaterialIndex];
 
-    Ref<Mesh> myMesh = CreateRef<Mesh>(vertices, indices, meshTransform);
+    ref<Mesh> myMesh = MakeRef<Mesh>(vertices, indices, meshTransform);
     myMesh->SetMaterial(material);
 
     // add the processed mesh

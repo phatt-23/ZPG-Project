@@ -32,28 +32,28 @@ typedef glm::mat4 m4;
 typedef glm::quat qtr;
 
 template<typename T>
-using Ref = std::shared_ptr<T>;
+using ref = std::shared_ptr<T>;
 
 template<typename T>
-using Scope = std::unique_ptr<T>;
+using scope = std::unique_ptr<T>;
 
 template<typename T>
-Ref<T> CreateRef(T* ptr) {
+ref<T> MakeRef(T* ptr) {
     return std::shared_ptr<T>(ptr);  // when creating shared_ptr, musn't use make_shared
 }
 
 template<typename T, typename ...Args>
-Ref<T> CreateRef(Args&&... args) {
+ref<T> MakeRef(Args&&... args) {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
 template<typename T>
-Scope<T> CreateScope(T* ptr) {
+scope<T> MakeScope(T* ptr) {
     return std::unique_ptr<T>(ptr);  // when creating unique_ptr, musn't use make_unique
 }
 
 template<typename T, typename ...Args>
-Scope<T> CreateScope(Args... args) {
+scope<T> MakeScope(Args... args) {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 

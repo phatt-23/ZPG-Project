@@ -21,9 +21,9 @@ public:
     virtual void AttachTo(u32 shaderProgramID) const = 0;
     virtual void DetachFrom(u32 shaderProgramID) const = 0;
 
-    static Ref<Shader> Create(const std::string& filepath);
-    static Ref<Shader> Create(const std::string& name, const std::string& filepath);
-    static Ref<Shader> CreateFromCode(const std::string& name, ShaderType type, const std::string& sourceCode);
+    static ref<Shader> Create(const std::string& filepath);
+    static ref<Shader> Create(const std::string& name, const std::string& filepath);
+    static ref<Shader> CreateFromCode(const std::string& name, ShaderType type, const std::string& sourceCode);
 private:
 
 };

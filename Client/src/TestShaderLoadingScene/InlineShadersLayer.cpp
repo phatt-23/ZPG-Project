@@ -1,6 +1,6 @@
 #include "InlineShadersLayer.h"
 #include <imgui.h>
-#include "Models/gift.h"
+#include "../assets/models/nemec/gift.h"
 
 using namespace ZPG;
 
@@ -38,13 +38,13 @@ void InlineShadersLayer::OnAttach() {
         }
         )");
 
-    std::vector<ZPG::Ref<ZPG::Shader>> shaders;
+    std::vector<ZPG::ref<ZPG::Shader>> shaders;
     shaders.push_back(basicNormalVertexShader);
     shaders.push_back(basicNormalFragShader);
 
     m_ShaderProgram = ZPG::ShaderProgram::Create("basic_normal.vert.frag", shaders);
 
-    auto treeVBO = ZPG::VertexBuffer::Create(gift, sizeof(gift));
+    auto treeVBO = ZPG::VertexBuffer::Create(nemec::gift, sizeof(nemec::gift));
     treeVBO->SetLayout({
         {ZPG::ShaderDataType::Float3, "a_Pos"},
         {ZPG::ShaderDataType::Float3, "a_Normal"},

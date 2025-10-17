@@ -49,9 +49,9 @@ public:
     // the top of the source code (just like #version). 
 
     // This factory checks that there is only one shader of each ShaderType.
-    static Ref<ShaderProgram> Create(const std::string& name, const std::vector<Ref<Shader>>& shaders);
-    static Ref<ShaderProgram> Create(const std::string& filePath);
-    static Ref<ShaderProgram> Create(const std::string& name, const std::string& filePath);
+    static ref<ShaderProgram> Create(const std::string& name, const std::vector<ref<Shader>>& shaders);
+    static ref<ShaderProgram> Create(const std::string& filePath);
+    static ref<ShaderProgram> Create(const std::string& name, const std::string& filePath);
 private:
 };
 

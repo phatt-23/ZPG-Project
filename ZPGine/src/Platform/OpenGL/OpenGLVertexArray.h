@@ -14,17 +14,17 @@ public:
     virtual void Bind() const override;
     virtual void Unbind() const override;
 
-    virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) override;
-    virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) override;
+    virtual void AddVertexBuffer(const ref<VertexBuffer>& vertexBuffer) override;
+    virtual void SetIndexBuffer(const ref<IndexBuffer>& indexBuffer) override;
     virtual bool HasIndexBuffer() const override;
 
-    virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const override;
-    virtual const Ref<IndexBuffer>& GetIndexBuffer() const override;
+    virtual const std::vector<ref<VertexBuffer>>& GetVertexBuffers() const override;
+    virtual const ref<IndexBuffer>& GetIndexBuffer() const override;
 
 private:
     u32 m_RendererID;
-    std::vector<Ref<VertexBuffer>> m_VertexBuffers;
-    Ref<IndexBuffer> m_IndexBuffer = nullptr;
+    std::vector<ref<VertexBuffer>> m_VertexBuffers;
+    ref<IndexBuffer> m_IndexBuffer = nullptr;
 };
 
 }

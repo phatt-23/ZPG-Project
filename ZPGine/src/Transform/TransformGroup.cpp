@@ -2,11 +2,11 @@
 
 namespace ZPG {
 
-Ref<TransformGroup> TransformGroup::Create(Ref<Transform> parent) {
-    return CreateRef<TransformGroup>(parent);
+ref<TransformGroup> TransformGroup::Create(ref<Transform> parent) {
+    return MakeRef<TransformGroup>(parent);
 }
 
-TransformGroup::TransformGroup(Ref<Transform> parent)
+TransformGroup::TransformGroup(ref<Transform> parent)
 : m_Parent(parent)
 , m_Transformations() {
 }
@@ -15,7 +15,7 @@ TransformGroup::TransformGroup(TransformGroup& other) {
     this->m_Transformations = other.m_Transformations;
 }
 
-TransformGroup::Self TransformGroup::WithParent(Ref<Transform> parent) {
+TransformGroup::Self TransformGroup::WithParent(ref<Transform> parent) {
     m_Parent = parent; 
     return *this; 
 }
@@ -41,7 +41,7 @@ void TransformGroup::ComputeMatrix() {
     m_Matrix = m;
 }
 
-TransformGroup::Self TransformGroup::Include(const Ref<Transform>& transformation) {
+TransformGroup::Self TransformGroup::Include(const ref<Transform>& transformation) {
     m_Transformations.push_back(std::move(transformation));
     return *this;
 }

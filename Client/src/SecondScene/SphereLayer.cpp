@@ -1,16 +1,17 @@
 #include "SphereLayer.h"
-#include "Models/sphere.h"
+#include "../assets/models/nemec/sphere.h"
 
 using namespace ZPG;
+using namespace glm;
 
 SphereLayer::SphereLayer(ZPG::CameraController& cameraController) : m_CameraController(cameraController) {
 
 }
 void SphereLayer::OnAttach() {
     m_SphereVAO = VertexArray::Create();
-    m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/basic_normal.glsl");
+    m_NormalShaderProgram = ShaderProgram::Create("./assets/shaders/deprecated/basic_normal.glsl");
     
-    Ref<VertexBuffer> vbo = VertexBuffer::Create(sphere, sizeof(sphere));
+    ref<VertexBuffer> vbo = VertexBuffer::Create(nemec::sphere, sizeof(nemec::sphere));
     vbo->SetLayout({
         {ShaderDataType::Float3, "a_Pos"},
         {ShaderDataType::Float3, "a_Normal"},
@@ -19,8 +20,7 @@ void SphereLayer::OnAttach() {
     m_SphereVAO->AddVertexBuffer(vbo);
 }
 void SphereLayer::OnUpdate(SceneContext& context) {
-    using namespace glm;
-    m_Timestep = context.m_Timestep;
+    m_Timestep = context.Ts;
 
     static f32 rot = 0;
     rot += 50.f * m_Timestep;
@@ -34,7 +34,7 @@ void SphereLayer::OnUpdate(SceneContext& context) {
 
     vec3 worldUp(1.0, 0.0, 0.0);
 
-    Ref<TransformGroup> foo = CreateRef<TransformGroup>();
+    ref<TransformGroup> foo = MakeRef<TransformGroup>();
     foo->Add<Scale>(0.6f);
     foo->Add<Rotate>(rot, vec3(1.0, 1.0, 0.0));
     foo->Add<Translate>(vec3(0.0, 0.0, 0.0));

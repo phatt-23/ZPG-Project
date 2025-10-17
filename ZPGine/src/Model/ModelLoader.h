@@ -15,17 +15,18 @@ namespace ZPG {
 class ModelLoader {
 public:
     ModelLoader(const std::string& path);
-    Ref<Model> Load();
+    ref<Model> Load();
 
 private:
     void TraverseNode(const aiScene* scene, const aiNode* node, const glm::mat4& parentTransform);
     void ProcessMesh(const aiScene* scene, const aiMesh* mesh, const glm::mat4& meshTransform);
-    Ref<Material> ProcessMaterial(const aiScene* scene, const aiMaterial* material);
+    ref<Material> ProcessMaterial(const aiScene* scene, const aiMaterial* material);
+    ref<Texture> LoadTexture(std::string const& textureFile);
 
 private:
     std::string m_Path;
-    std::unordered_map<u32, Ref<Material>> m_Materials;
-    std::vector<Ref<Mesh>> m_Meshes;
+    std::unordered_map<u32, ref<Material>> m_Materials;
+    std::vector<ref<Mesh>> m_Meshes;
     u32 m_LoadingFlags;
 };
 

@@ -61,7 +61,7 @@ public:
     }
 private:
     ZPG::ObservableCameraController m_CameraController;
-    ZPG::Scope<ZPG::ResourceManager> m_LocalResourceManager;
+    ZPG::scope<ZPG::ResourceManager> m_LocalResourceManager;
 };
 
 }

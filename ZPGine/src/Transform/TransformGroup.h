@@ -20,32 +20,32 @@ class TransformGroup : public Transform {
 public:
     using Self = TransformGroup&;
 
-    TransformGroup(Ref<Transform> parent = nullptr);
+    TransformGroup(ref<Transform> parent = nullptr);
     TransformGroup(TransformGroup& other);
 
     void Update(Timestep ts) override;
     const glm::mat4& GetMatrix() override;
 
-    Self WithParent(Ref<Transform> parent);
-    Self Include(const Ref<Transform>& transformation);  
+    Self WithParent(ref<Transform> parent);
+    Self Include(const ref<Transform>& transformation);  
 
     template<typename T, typename... Args>
     requires(std::is_base_of_v<Transform, T>)  // T derives form Transformation
     Self Add(Args&& ...args) {
-        m_Transformations.push_back(CreateRef<T>(std::forward<Args>(args)...));
+        m_Transformations.push_back(MakeRef<T>(std::forward<Args>(args)...));
         return *this;
     }
 
     void ComputeMatrix() override;
 
-    static Ref<TransformGroup> Create(Ref<Transform> parent = nullptr);
+    static ref<TransformGroup> Create(ref<Transform> parent = nullptr);
 
     static Self Build() { return *(new TransformGroup()); }
-    Ref<TransformGroup> Compose() { return CreateRef(this); }
+    ref<TransformGroup> Compose() { return MakeRef(this); }
 
 private:
-    Ref<Transform> m_Parent;
-    std::vector<Ref<Transform>> m_Transformations;
+    ref<Transform> m_Parent;
+    std::vector<ref<Transform>> m_Transformations;
 };
 
 }

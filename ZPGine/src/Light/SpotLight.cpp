@@ -1,5 +1,5 @@
 #include "SpotLight.h"
-#include "LightArrayUniformNamer.h"
+#include "Shader/CommonShaderUniforms.h"
 
 namespace ZPG {
 
@@ -12,13 +12,12 @@ SpotLight::SpotLight(glm::vec4 const& color, glm::vec3 const& position,
 , ConeCutoffComponent(innerCutoffAngle, outerCutoffAngle){
 }
 void SpotLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
-    std::string idx = std::to_string(index);
-    shaderProgram.SetInt    (LightArrayUniformNamer::TypeUniName(index),       (i32)GetLightType());
-    shaderProgram.SetFloat4 (LightArrayUniformNamer::ColorUniName(index),       GetColor());
-    shaderProgram.SetFloat3 (LightArrayUniformNamer::DirectionUniName(index),   GetDirection());
-    shaderProgram.SetFloat3 (LightArrayUniformNamer::PositionUniName(index),    GetPosition());
-    shaderProgram.SetFloat  (LightArrayUniformNamer::InnerCutoffUniName(index), GetInnerCutoff());
-    shaderProgram.SetFloat  (LightArrayUniformNamer::OuterCutoffUniName(index), GetOuterCutoff());
+    shaderProgram.SetInt(CommonShaderUniforms::LightArray::Type(index),(i32)GetLightType());
+    shaderProgram.SetFloat4(CommonShaderUniforms::LightArray::Color(index), GetColor());
+    shaderProgram.SetFloat3(CommonShaderUniforms::LightArray::Direction(index), GetDirection());
+    shaderProgram.SetFloat3(CommonShaderUniforms::LightArray::Position(index), GetPosition());
+    shaderProgram.SetFloat(CommonShaderUniforms::LightArray::InnerCutoff(index), GetInnerCutoff());
+    shaderProgram.SetFloat(CommonShaderUniforms::LightArray::OuterCutoff(index), GetOuterCutoff());
 }
 
 }

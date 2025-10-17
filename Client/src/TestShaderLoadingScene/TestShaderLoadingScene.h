@@ -1,8 +1,6 @@
 #pragma once
 #include "ZPGine.h"
-#include "Models/gift.h"
 #include <glm/gtc/type_ptr.hpp>
-#include <imgui.h>
 #include "InlineShadersLayer.h"
 #include "ReadingFromFilesLayer.h"
 
@@ -33,8 +31,8 @@ public:
         Scene::OnEvent(event);
     }
 private:
-    Ref<ShaderProgram> m_ShaderProgram;
+    ref<ShaderProgram> m_ShaderProgram;
     CameraController m_CameraController;
-    Ref<VertexArray> m_TreeVAO;
+    ref<VertexArray> m_TreeVAO;
     Timestep m_Timestep;
 };

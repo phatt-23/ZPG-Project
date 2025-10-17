@@ -8,7 +8,7 @@
 #include "Event/Event.h"
 #include "Core.h"
 #include "Window.h"
-#include "SceneManager.h"
+#include "Scene/SceneManager.h"
 #include "Event/WindowEvent.h"
 #include "ImGuiManager.h"
 
@@ -30,7 +30,7 @@ private:
     bool OnWindowClose(WindowCloseEvent& event);
     bool OnWindowResize(WindowResizeEvent& event);
 protected:
-    Scope<Window> m_Window;
+    scope<Window> m_Window;
     SceneManager m_SceneManager;  // fully owned by the application
 
     bool m_Running = true;

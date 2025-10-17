@@ -5,21 +5,21 @@
 
 namespace ZPG {
 
-Ref<ShaderProgram> ShaderProgram::Create(const std::string& filePath) {
+ref<ShaderProgram> ShaderProgram::Create(const std::string& filePath) {
     switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return CreateRef<OpenGLShaderProgram>(filePath);
+    case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(filePath);
     case RendererAPI::None: break;
     }
     ZPG_UNREACHABLE();
 }
-Ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::string& filePath) {
+ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::string& filePath) {
     switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return CreateRef<OpenGLShaderProgram>(name, filePath);
+    case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(name, filePath);
     case RendererAPI::None: break;
     }
     ZPG_UNREACHABLE();
 }
-Ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::vector<Ref<Shader>>& shaders) {
+ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::vector<ref<Shader>>& shaders) {
     u32 shaderBits = 0b0;
 
     for (auto shader : shaders) {
@@ -34,7 +34,7 @@ Ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::vec
     }
 
     switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return CreateRef<OpenGLShaderProgram>(name, shaders);
+    case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(name, shaders);
     case RendererAPI::None: break;
     }
     ZPG_UNREACHABLE();

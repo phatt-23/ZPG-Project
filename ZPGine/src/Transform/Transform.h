@@ -10,9 +10,9 @@ public:
     Transform(const glm::mat4& matrix) : m_Matrix(matrix) {}
     virtual ~Transform() = default;
 
-    // Gets the computed m_Matrix. 
-    // This should be const.
+    // Gets the computed m_Matrix.
     // User must call either Update or ComputeMatrix to update/compute the m_Matrix.
+    // (should be const, but left un-const for flexibility)
     virtual const glm::mat4& GetMatrix() { return m_Matrix; }
 
     // Called in every iteration of OnUpdate() in a Scene

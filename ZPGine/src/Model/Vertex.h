@@ -5,14 +5,16 @@
 namespace ZPG {
 
 struct Vertex {
-    glm::vec3 Position;
-    glm::vec3 Normal;
-    glm::vec2 TexUV;
+    v3 Position;
+    v3 Normal;
+    v2 TexUV;
+    v3 Tangent;
 
-    Vertex(const glm::vec3& position, const glm::vec3& normal, const glm::vec2& texUV) 
+    Vertex(const v3& position, const v3& normal, const v2& texUV, const v3& tangent)
     : Position(position) 
     , Normal(normal)
-    , TexUV(texUV) { 
+    , TexUV(texUV)
+    , Tangent(tangent) {
     }
 
     static BufferLayout GetLayout() {
@@ -20,6 +22,7 @@ struct Vertex {
             {ShaderDataType::Float3, "a_Position"},
             {ShaderDataType::Float3, "a_Normal"},
             {ShaderDataType::Float2, "a_TexUV"},
+            {ShaderDataType::Float3, "a_Tangent"},
         });
     }
 };

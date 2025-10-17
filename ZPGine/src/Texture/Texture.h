@@ -22,9 +22,9 @@ public:
 
     virtual void SetData(const void *data, u32 size) = 0;
 
-    static Ref<Texture> Create(const std::string& filepath);
-    static Ref<Texture> Create(const std::string& name, const std::string& filepath);
-    static Ref<Texture> Create(const std::string& name, u32 width, u32 height);
+    static ref<Texture> Create(const std::string& filepath);
+    static ref<Texture> Create(const std::string& name, const std::string& filepath);
+    static ref<Texture> Create(const std::string& name, u32 width, u32 height);
 };
 
 }

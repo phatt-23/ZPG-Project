@@ -9,9 +9,9 @@ public:
     void OnUpdate(ZPG::SceneContext& context) override;
     void OnRender(const ZPG::RenderContext& ctx) override;
 private:
-    ZPG::Ref<ZPG::VertexArray> m_TreeVAO;
-    ZPG::Ref<ZPG::VertexArray> m_PlaneVao;
-    ZPG::Ref<ZPG::ShaderProgram> m_NormalShaderProgram;
-    ZPG::Ref<ZPG::ShaderProgram> m_RedShaderProgram;
+    ZPG::ref<ZPG::VertexArray> m_TreeVAO;
+    ZPG::ref<ZPG::VertexArray> m_PlaneVao;
+    ZPG::ref<ZPG::ShaderProgram> m_NormalShaderProgram;
+    ZPG::ref<ZPG::ShaderProgram> m_RedShaderProgram;
 };
 

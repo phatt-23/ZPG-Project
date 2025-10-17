@@ -18,17 +18,17 @@ public:
     virtual void Bind() const = 0;
     virtual void Unbind() const = 0;
 
-    virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) = 0;
-    virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) = 0;
+    virtual void AddVertexBuffer(const ref<VertexBuffer>& vertexBuffer) = 0;
+    virtual void SetIndexBuffer(const ref<IndexBuffer>& indexBuffer) = 0;
 
-    virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
-    virtual const Ref<IndexBuffer>& GetIndexBuffer() const = 0;
+    virtual const std::vector<ref<VertexBuffer>>& GetVertexBuffers() const = 0;
+    virtual const ref<IndexBuffer>& GetIndexBuffer() const = 0;
 
     virtual bool HasIndexBuffer() const = 0;
 
-    static Ref<VertexArray> Create();
-    static Ref<VertexArray> Create(const std::vector<Ref<VertexBuffer>>& vertexBuffers);
-    static Ref<VertexArray> Create(const std::vector<Ref<VertexBuffer>>& vertexBuffers, const Ref<IndexBuffer>& indexBuffer);
+    static ref<VertexArray> Create();
+    static ref<VertexArray> Create(const std::vector<ref<VertexBuffer>>& vertexBuffers);
+    static ref<VertexArray> Create(const std::vector<ref<VertexBuffer>>& vertexBuffers, const ref<IndexBuffer>& indexBuffer);
 private:
 };
 

@@ -20,9 +20,9 @@ public:
     virtual void SetLayout(const BufferLayout& layout) = 0;
 
     // 'size' specified in bytes
-    static Ref<VertexBuffer> Create(const void* vertices, u32 size);
-    static Ref<VertexBuffer> Create(const void* vertices, u32 size, const BufferLayout& layout);
-    static Ref<VertexBuffer> Create(const u32 size);
+    static ref<VertexBuffer> Create(const void* vertices, u32 size);
+    static ref<VertexBuffer> Create(const void* vertices, u32 size, const BufferLayout& layout);
+    static ref<VertexBuffer> Create(const u32 size);
 };
 
 }

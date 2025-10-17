@@ -7,8 +7,8 @@
 
 #include "Event/Event.h"
 #include "Timestep.h"
-#include "SceneContext.h"
-#include "ResourceManager.h"
+#include "Scene/SceneContext.h"
+#include "Resource/ResourceManager.h"
 
 namespace ZPG {
 
@@ -29,6 +29,7 @@ public:
         m_Scene = scene; 
     }
 protected:
+    Scene& GetScene() { return *m_Scene; }
     Scene* m_Scene = nullptr; // parent scene
 };
 

@@ -7,12 +7,12 @@ namespace ZPG {
 
 class MaterialLibrary {
 public:
-    void AddMaterial(const std::string& name, const Ref<Material>& material);
+    void AddMaterial(const std::string& name, const ref<Material>& material);
     bool Exists(const std::string& name) const;
-    const Ref<Material>& GetMaterial(const std::string& name);
+    const ref<Material>& GetMaterial(const std::string& name);
 
 private:
-    std::unordered_map<std::string, Ref<Material>> m_Materials;
+    std::unordered_map<std::string, ref<Material>> m_Materials;
 };
 
 }

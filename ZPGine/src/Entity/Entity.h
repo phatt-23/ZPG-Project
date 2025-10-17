@@ -8,7 +8,7 @@ namespace ZPG {
 
 class Entity {
 public:
-    Entity(const Ref<Model>& model, const Ref<Transform>& transform) 
+    Entity(const ref<Model>& model, const ref<Transform>& transform) 
     : m_Model(model)
     , m_Transform(transform) {
         m_Transform->ComputeMatrix();  
@@ -24,13 +24,17 @@ public:
         return m_Transform->GetMatrix();
     }
 
-    const Ref<Model>& GetModel() const { 
+    const ref<Transform>& GetTransform() const {
+        return m_Transform;
+    }
+
+    const ref<Model>& GetModel() const { 
         return m_Model; 
     }
 
 private:
-    Ref<Model> m_Model;
-    Ref<Transform> m_Transform;
+    ref<Model> m_Model;
+    ref<Transform> m_Transform;
 };
 
 }

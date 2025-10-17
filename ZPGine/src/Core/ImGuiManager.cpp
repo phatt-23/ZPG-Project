@@ -7,7 +7,7 @@
 
 namespace ZPG {
 
-void ImGuiManager::Init(const Scope<Window>& window) {
+void ImGuiManager::Init(const scope<Window>& window) {
     ZPG_CORE_ASSERT(s_Instance == nullptr, "ImGuiManager already initialized.");
 
     switch (Renderer::GetAPI()) {
