@@ -1,12 +1,12 @@
 #pragma once
-#include "ShaderProgram.h"
-#include <unordered_map>
 
 namespace ZPG {
 
+class ShaderProgram;
+
 // Could store scoped shader programs because the ShaderProgramLibrary dictates the 
 // lifetime of its ShaderPrograms. And return raw pointers for less overhead (others should of course not call delete on it).
-// But Im already using Ref<T> and Scope<T> memory system in my project and don't work with raw pointers.
+// But I'm already using Ref<T> and Scope<T> memory system in my project and don't work with raw pointers.
 // So my choice is to just use Ref<T>.
 class ShaderProgramLibrary {
 public:

@@ -151,7 +151,7 @@ TestTextureScene::TestTextureScene()
 void TestTextureScene::OnAttach() {
     PushLayer(new MyLayer());
 }
-void TestTextureScene::OnUpdate(Timestep ts) {
+void TestTextureScene::OnUpdate(Timestep& ts) {
     m_CameraController.OnUpdate(ts);
     UpdateLayers(ts);
 }

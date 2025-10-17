@@ -21,7 +21,7 @@ void SpheresLayer::OnUpdate(ZPG::SceneContext& ctx) {
 
 void SpheresLayer::OnRender(const ZPG::RenderContext& ctx) {
     for (auto& ent : m_Scene->GetEntityManager().GetEntities()) {
-        Renderer::SumbitEntity(*ent);
+        Renderer::SubmitEntity(*ent);
     }
 
     for (auto& light : ctx.Lights) {

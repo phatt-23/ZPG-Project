@@ -1,7 +1,6 @@
 #include "LinuxWindow.h"
 #include "Core/Window.h"
 #include "Debug/Asserter.h"
-#include <GLFW/glfw3.h>
 #include "Platform/OpenGL/OpenGLContext.h"
 #include "Event/WindowEvent.h"
 #include "Event/MouseEvent.h"
@@ -11,7 +10,7 @@ namespace ZPG {
 
 static bool s_GLFWInitialised = false;
 static void CustomGLFWErrorCallback(int error_code, const char* description) {
-    ZPG_CORE_ERROR("GLFW Erorr {}: {}", error_code, description);
+    ZPG_CORE_ERROR("GLFW Error {}: {}", error_code, description);
 }
 
 LinuxWindow::LinuxWindow(const WindowProps& props) 
@@ -35,7 +34,7 @@ void LinuxWindow::Init() {
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); 
     // Create GLFW window    
     m_Window = glfwCreateWindow(m_Data.Props.Width, m_Data.Props.Height, m_Data.Props.Title.c_str(), NULL, NULL);
-    // bring back resizability
+    // bring back resize-ability
     glfwSetWindowAttrib(m_Window, GLFW_RESIZABLE, GLFW_TRUE);
 
     // Create OpenGL context

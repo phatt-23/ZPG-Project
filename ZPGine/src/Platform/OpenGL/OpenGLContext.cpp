@@ -1,12 +1,11 @@
 #include "OpenGLContext.h"
 #include "Debug/Asserter.h"
-#include <GLFW/glfw3.h>
-#include <glad/glad.h>
 #include "OpenGLCore.h"
 
 namespace ZPG {
 
-OpenGLContext::OpenGLContext(GLFWwindow* windowHandle) : m_WindowHandle(windowHandle) {
+OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
+: m_WindowHandle(windowHandle) {
     ZPG_CORE_ASSERT(m_WindowHandle != nullptr);
 }
 

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Core/ImGuiManager.h"
-#include <GLFW/glfw3.h>
+#include "ImGui/ImGuiManager.h"
 
 namespace ZPG {
 

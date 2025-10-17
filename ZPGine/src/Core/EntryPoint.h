@@ -5,7 +5,6 @@
 #ifndef ENTRYPOINT_H
 #define ENTRYPOINT_H
 
-#include <iostream>
 #include "Application.h"
 #include "Debug/Logger.h"
 

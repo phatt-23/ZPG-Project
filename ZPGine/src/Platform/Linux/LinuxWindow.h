@@ -6,10 +6,10 @@
 #define LINUXWINDOW_H
 
 #include "Core/Window.h"
-#include <GLFW/glfw3.h>
-#include "Renderer/GraphicsContext.h"
 
 namespace ZPG {
+
+class GraphicsContext;
 
 class LinuxWindow : public Window {
 public:

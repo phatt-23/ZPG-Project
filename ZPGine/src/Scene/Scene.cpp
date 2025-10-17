@@ -1,7 +1,17 @@
 #include "Scene.h"
+
+#include "SceneContext.h"
 #include "Renderer/RenderCommand.h"
 #include "Core/Application.h"
-#include <imgui.h>
+#include "Core/Window.h"
+#include "Core/Layer.h"
+#include "Debug/Logger.h"
+
+#include "Event/WindowEvent.h"
+#include "Renderer/Renderer.h"
+
+#include "Core/Timestep.h"
+#include "Light/Light.h"
 
 namespace ZPG {
 
@@ -32,7 +42,7 @@ void Scene::OnImGuiRender() {
         layer->OnImGuiRender();
     }
 }
-void Scene::UpdateLayers(Timestep ts) {
+void Scene::UpdateLayers(Timestep& ts) {
     RenderCommand::SetClearColor({0.0, 0.0, 0.0, 1.0});
     RenderCommand::Clear();
 
@@ -47,7 +57,7 @@ void Scene::UpdateLayers(Timestep ts) {
         layer->OnUpdate(ctx);
     }
 }
-void Scene::RenderLayers(Timestep ts) {
+void Scene::RenderLayers(Timestep& ts) {
     RenderContext ctx = {
         .Ts = ts,
         .Cam = m_Camera,

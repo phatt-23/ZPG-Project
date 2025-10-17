@@ -5,17 +5,17 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include "Event/Event.h"
 #include "Light/LightManager.h"
-#include "Renderer/Camera.h"
-#include "Shader/ShaderProgramLibrary.h"
-#include "Core/Timestep.h"
+#include "../Camera/Camera.h"
 #include "Core/LayerStack.h"
-#include "Light/Light.h"
-#include "Resource/ResourceManager.h"
 #include "Entity/EntityManager.h"
+#include "Resource/ResourceManager.h"
 
 namespace ZPG {
+
+class ResourceManager;
+class Timestep;
+class Event;
 
 class Scene {
 public:
@@ -29,8 +29,8 @@ public:
     virtual void OnDetach() {}
     virtual void OnResume();
     virtual void OnPause();
-    virtual void OnUpdate(Timestep ts) { UpdateLayers(ts); }
-    virtual void OnRender(Timestep ts) { RenderLayers(ts); }
+    virtual void OnUpdate(Timestep& ts) { UpdateLayers(ts); }
+    virtual void OnRender(Timestep& ts) { RenderLayers(ts); }
     virtual void OnEvent(Event& event) { PropagateEventDownLayers(event); }
     virtual void OnImGuiRender();
 
@@ -50,8 +50,8 @@ public:
 
 protected:
     void PropagateEventDownLayers(Event& event); 
-    void UpdateLayers(Timestep ts);
-    void RenderLayers(Timestep ts);
+    void UpdateLayers(Timestep& ts);
+    void RenderLayers(Timestep& ts);
     Camera& GetCamera() { return m_Camera; }
 
 private:

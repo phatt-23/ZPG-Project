@@ -1,17 +1,18 @@
 #pragma once 
 
-#include "Model.h"
-#include "Material/Material.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
-#include <assimp/postprocess.h>
 #include <assimp/material.h>
-#include <assimp/vector3.h>
 
 namespace ZPG {
 
+class Model;
+class Mesh;
+class Texture;
+class Material;
+
 // Works as a SCOPED loader, holds data while loading in the model.
-// MUST be discarded afterwards.
+// MUST be discarded afterward.
 class ModelLoader {
 public:
     ModelLoader(const std::string& path);

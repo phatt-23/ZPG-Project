@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Renderer/VertexArray.h"
-#include "Renderer/VertexBuffer.h"
-#include "Renderer/IndexBuffer.h"
+#include "Buffer/VertexArray.h"
 
 namespace ZPG {
+
+class VertexBuffer;
+class IndexBuffer;
 
 class OpenGLVertexArray : public VertexArray {
 public:

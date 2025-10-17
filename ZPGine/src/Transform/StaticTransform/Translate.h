@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Core.h"
+
 #include "Transform/StaticTransform.h"
 
 namespace ZPG {
@@ -10,7 +10,7 @@ public:
     Translate(const glm::vec3& translation);
     void ComputeMatrix() override;
 private:
-    glm::vec3 m_TranslationVector;
+    v3 m_TranslationVector;
 };
 
 }

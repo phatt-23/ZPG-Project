@@ -1,7 +1,6 @@
 #include "LightsScene.h"
 #include "ObjectsLayer.h"
 #include "LightObjectsLayer.h"
-#include <imgui.h>
 
 using namespace ZPG;
 using namespace glm;
@@ -22,7 +21,7 @@ void LightsScene::OnAttach() {
     // AddLight(CreateRef<DirectionalLight>( vec4(1.f, 1.f, 1.f, 1.f), vec3(-1.f, -1.f, -1.f) ));
     AddLight(m_FlashLight);
 }
-void LightsScene::OnUpdate(Timestep ts) {
+void LightsScene::OnUpdate(Timestep& ts) {
     m_CameraController.OnUpdate(ts);
     m_FlashLight->SetPosition(m_CameraController.GetCamera().GetPosition());
     m_FlashLight->SetDirection(m_CameraController.GetCamera().GetFront());

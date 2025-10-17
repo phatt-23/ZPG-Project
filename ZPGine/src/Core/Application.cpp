@@ -7,16 +7,14 @@
 #include "Event/WindowEvent.h"
 #include "Renderer/Renderer.h"
 #include "Input.h"
-#include "Renderer/RenderCommand.h"
-#include <GLFW/glfw3.h> 
-#include "Event/KeyEvent.h"
-#include "Event/MouseEvent.h"
+#include <GLFW/glfw3.h>
 #include "Resource/ResourceManager.h"
-#include <glm/gtc/type_ptr.hpp>
+#include "Window.h"
 
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "ImGui/ImGuiManager.h"
+#include "Timestep.h"
+#include "Scene/Scene.h"
 
 namespace ZPG { 
 

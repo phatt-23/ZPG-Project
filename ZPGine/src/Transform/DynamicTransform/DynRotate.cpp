@@ -1,7 +1,5 @@
 #include "DynRotate.h"
-#include <glm/ext/quaternion_trigonometric.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include "Core/Timestep.h"
 
 using namespace glm;
 
@@ -10,14 +8,14 @@ namespace ZPG {
 DynRotate::DynRotate(
     f32 startingRotationDeg, 
     f32 rotationSpeedDeg, 
-    const glm::vec3& rotationAxis)
+    const v3& rotationAxis)
 : m_CurrentRotationDeg(startingRotationDeg)
 , m_RotationSpeedDeg(rotationSpeedDeg)
 , m_RotationAxis(glm::normalize(rotationAxis)) {
     ComputeMatrix();
 }
 
-void DynRotate::Update(Timestep ts) {
+void DynRotate::Update(Timestep& ts) {
     m_CurrentRotationDeg += m_RotationSpeedDeg * ts.AsSeconds();
     ComputeMatrix();
 }

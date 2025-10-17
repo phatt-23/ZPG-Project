@@ -1,12 +1,16 @@
 #pragma once
-
+#include "Material/MaterialLibrary.h"
 #include "Model/ModelLibrary.h"
 #include "Shader/ShaderProgramLibrary.h"
 #include "Texture/TextureLibrary.h"
-#include "Material/MaterialLibrary.h"
+
 
 namespace ZPG {
 
+class Model;
+class ShaderProgram;
+class Texture;
+class Material;
 
 
 // Lifetime - whole duration of the application

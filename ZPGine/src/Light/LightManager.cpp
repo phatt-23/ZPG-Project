@@ -1,5 +1,7 @@
 #include "LightManager.h"
 
+#include "Debug/Logger.h"
+
 namespace ZPG {
 
 LightManager::LightManager() : m_Lights() {
@@ -28,6 +30,17 @@ void LightManager::RemoveLight(const ref<Light>& light) {
     }
 
     ZPG_CORE_WARN("Light wasn't found in the LightArray.");
+}
+
+
+const std::vector<ref<Light>>& LightManager::GetLights() const {
+    return m_Lights;
+}
+std::vector<ref<Light>>::iterator LightManager::begin() {
+    return m_Lights.begin();
+}
+std::vector<ref<Light>>::iterator LightManager::end() {
+    return m_Lights.end();
 }
 
 }

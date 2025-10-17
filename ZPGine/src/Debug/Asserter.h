@@ -5,11 +5,7 @@
 #ifndef ASSERTER_H
 #define ASSERTER_H
 
-#include <string>
-#include <source_location>
-#include <format>
 #include "Logger.h"
-#include <boost/stacktrace.hpp>
 
 namespace ZPG {
 

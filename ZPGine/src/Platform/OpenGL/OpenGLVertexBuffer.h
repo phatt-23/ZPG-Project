@@ -1,5 +1,5 @@
-#include "Renderer/VertexBuffer.h"
-#include "Renderer/BufferLayout.h"
+#include "Buffer/BufferLayout.h"
+#include "Buffer/VertexBuffer.h"
 
 namespace ZPG {
 

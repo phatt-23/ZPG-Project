@@ -1,4 +1,6 @@
 #include "Texture.h"
+
+#include "Debug/Asserter.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 #include "Renderer/Renderer.h"
 

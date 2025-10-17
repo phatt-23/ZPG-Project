@@ -2,8 +2,8 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef KEYEVENT_H
-#define KEYEVENT_H
+#ifndef KEY_EVENT_H
+#define KEY_EVENT_H
 
 #include "Event.h"
 
@@ -48,4 +48,4 @@ public:
 
 }
 
-#endif //KEYEVENT_H
+#endif

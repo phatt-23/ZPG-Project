@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Material.h"
-#include <unordered_map>
-
 namespace ZPG {
+
+class Material;
 
 class MaterialLibrary {
 public:

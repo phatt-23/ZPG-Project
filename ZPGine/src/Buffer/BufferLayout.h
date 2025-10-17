@@ -1,7 +1,6 @@
 #pragma once 
 
 #include "BufferElement.h"
-#include "Core/Core.h"
 
 namespace ZPG {
 

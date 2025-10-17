@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Texture.h"
-
 namespace ZPG {
+
+class Texture;
 
 class TextureLibrary {
 public:

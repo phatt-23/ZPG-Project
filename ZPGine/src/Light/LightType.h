@@ -1,5 +1,5 @@
-#ifndef INCLUDE_LIGHT_LIGHTTYPE_H_
-#define INCLUDE_LIGHT_LIGHTTYPE_H_
+#ifndef INCLUDE_LIGHT_LIGHT_TYPE_H_
+#define INCLUDE_LIGHT_LIGHT_TYPE_H_
 
 #include "Core/Core.h"
 
@@ -14,4 +14,4 @@ enum class LightType : i32 {
 };
 
 }
-#endif  // INCLUDE_LIGHT_LIGHTTYPE_H_
+#endif

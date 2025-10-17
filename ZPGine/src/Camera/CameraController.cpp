@@ -1,12 +1,15 @@
 #include "CameraController.h"
 #include "Core/Input.h"
 #include "Core/KeyCodes.h"
-#include <glm/ext/quaternion_common.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include "Core/Core.h"
 #include "Debug/Logger.h"
-#include <GLFW/glfw3.h>
 #include "Core/Application.h"
+#include "Core/Timestep.h"
+#include "Core/Window.h"
+#include "Camera.h"
+#include "Event/MouseEvent.h"
+#include "Event/KeyEvent.h"
+#include "Event/WindowEvent.h"
 
 using namespace glm;
 
@@ -24,10 +27,11 @@ static T wrap(T value, T low, T high) {
 CameraController::CameraController(Camera& camera) 
 : m_Camera(camera) {
 }
+
 CameraController::~CameraController() {
 
 }
-void CameraController::OnUpdate(Timestep ts) {
+void CameraController::OnUpdate(Timestep& ts) {
     // Update camera's position
     float translateSpeed = m_CameraTranslationSpeed * ts;
     
@@ -57,7 +61,7 @@ void CameraController::OnUpdate(Timestep ts) {
 
 
     float mouseSensitivity = m_MouseSensitivity * ts * 100;
-    
+
     if (Input::IsKeyPressed(ZPG_KEY_UP))
         m_Pitch -= mouseSensitivity;
     if (Input::IsKeyPressed(ZPG_KEY_DOWN))

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Transform/Transform.h"
+
 namespace ZPG {
 
 class StaticTransform : public Transform {

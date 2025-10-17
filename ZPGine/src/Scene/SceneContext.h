@@ -1,10 +1,12 @@
 #pragma once
 
-#include "Renderer/Camera.h"
-#include "Light/Light.h"
 #include "Core/Timestep.h"
 
 namespace ZPG {
+
+class Scene;
+class Camera;
+class Light;
 
 // these are not needed if I set the layer's parent scene
 

@@ -1,17 +1,15 @@
 #pragma once
-#include <glm/glm.hpp>
 
 namespace ZPG {
 
 class ColorComponent {
 public:
-    ColorComponent(const glm::vec4& color = glm::vec4(1.f, 1.f, 1.f, 1.f)) 
-    : m_Color(color) {
-    }
-    void SetColor(const glm::vec4& color) { m_Color = color; }
-    const glm::vec4& GetColor() const { return m_Color; }
+    ColorComponent(const v4& color = v4(1.f, 1.f, 1.f, 1.f));
+
+    void SetColor(const v4& color);
+    const v4& GetColor() const;
 private:
-    glm::vec4 m_Color;
+    v4 m_Color;
 };
     
 }

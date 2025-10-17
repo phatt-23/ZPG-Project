@@ -2,15 +2,12 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef SCENEMANAGER_H
-#define SCENEMANAGER_H
-
-#include "Scene.h"
-#include "Core/Core.h"
-#include <string>
-#include <map>
+#ifndef SCENE_MANAGER_H
+#define SCENE_MANAGER_H
 
 namespace ZPG {
+
+class Scene;
 
 class SceneManager {
 public:
@@ -37,4 +34,4 @@ private:
 
 }
 
-#endif //SCENEMANAGER_H
+#endif

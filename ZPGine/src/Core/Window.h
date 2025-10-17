@@ -5,20 +5,22 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <functional>
-#include "Core.h"
-#include "Event/Event.h"
-
 namespace ZPG {
+
+class Event;
 
 struct WindowProps {
     std::string Title;
     u32 Width, Height;
     bool VSync;
 
-    WindowProps(const std::string& title = "ZPG Window", u32 width = 800, u32 height = 600, bool vSync = true)
-        : Title(title), Width(width), Height(height), VSync(vSync)
-    {}
+    WindowProps(
+        const std::string& title = "ZPG Window",
+        u32 width = 800,
+        u32 height = 600,
+        bool vSync = true
+    ) : Title(title), Width(width), Height(height), VSync(vSync) {
+    }
 };
 
 class Window {

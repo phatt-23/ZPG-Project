@@ -82,12 +82,12 @@ void SpheresScene::OnAttach() {
 
 }
 
-void SpheresScene::OnUpdate(ZPG::Timestep ts) {
+void SpheresScene::OnUpdate(Timestep& ts) {
     Scene::OnUpdate(ts);
     m_CameraController.OnUpdate(ts);
 }
 
-void SpheresScene::OnEvent(ZPG::Event& event) {
+void SpheresScene::OnEvent(Event& event) {
     m_CameraController.OnEvent(event);
     Scene::OnEvent(event);
 }

@@ -1,6 +1,8 @@
 #include "DynTranslate.h"
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Core/Timestep.h"
+
 namespace ZPG {
 
 DynTranslate::DynTranslate(
@@ -14,13 +16,15 @@ DynTranslate::DynTranslate(
 , m_MaxTranslation(maxTranslation) {
     ComputeMatrix();
 }
-void DynTranslate::Update(Timestep ts) {
+
+void DynTranslate::Update(Timestep& ts) {
     m_CurrentTranslation += (m_TranslationIncrement * ts.AsSeconds());
     m_CurrentTranslation = glm::clamp(m_CurrentTranslation, m_MinTranslation, m_MaxTranslation);
     ComputeMatrix();
 }
+
 void DynTranslate::ComputeMatrix() {
-    m_Matrix = glm::translate(glm::mat4(1.0f), m_CurrentTranslation);
+    m_Matrix = glm::translate(m4(1.0f), m_CurrentTranslation);
 }
 
 }

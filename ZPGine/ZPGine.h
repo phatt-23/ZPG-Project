@@ -30,10 +30,16 @@
 
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
-#include "Renderer/Camera.h"
+#include "src/Camera/Camera.h"
 
-#include "Controller/ObservableCameraController.h"
-#include "Controller/CameraController.h"
+#include "Buffer/VertexArray.h"
+#include "Buffer/VertexBuffer.h"
+#include "Buffer/IndexBuffer.h"
+#include "Buffer/BufferElement.h"
+#include "Buffer/BufferLayout.h"
+
+#include "Camera/ObservableCameraController.h"
+#include "Camera/CameraController.h"
 
 #include "Texture/Texture.h"
 #include "Texture/TextureLibrary.h"
@@ -69,5 +75,9 @@
 
 #include "Observer/Observable.h"
 #include "Observer/Observer.h"
+#include "Observer/Payload.h"
+
+#include "Material/Material.h"
+#include "Material/MaterialLibrary.h"
 
 #endif ///ZPG_ENGINE_H

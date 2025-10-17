@@ -2,14 +2,12 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef RENDERERAPI_H
-#define RENDERERAPI_H
-
-#include <glm/glm.hpp>
-#include "Renderer/VertexArray.h"
-#include "Core/Core.h"
+#ifndef RENDERER_API_H
+#define RENDERER_API_H
 
 namespace ZPG {
+
+class VertexArray;
 
 class RendererAPI {
 public:
@@ -30,4 +28,4 @@ private:
 
 }
 
-#endif //RENDERERAPI_H
+#endif

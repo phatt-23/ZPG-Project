@@ -2,8 +2,8 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef GRAPHICSCONTEXT_H
-#define GRAPHICSCONTEXT_H
+#ifndef GRAPHICS_CONTEXT_H
+#define GRAPHICS_CONTEXT_H
 
 namespace ZPG {
 
@@ -19,4 +19,4 @@ private:
 
 }
 
-#endif //GRAPHICSCONTEXT_H
+#endif

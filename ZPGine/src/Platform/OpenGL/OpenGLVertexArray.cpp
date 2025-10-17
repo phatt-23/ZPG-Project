@@ -2,6 +2,8 @@
 #include "OpenGLCore.h"
 #include <glad/glad.h>
 
+#include "Buffer/BufferLayout.h"
+
 namespace ZPG {
 
 OpenGLVertexArray::OpenGLVertexArray() {
@@ -19,7 +21,7 @@ void OpenGLVertexArray::Unbind() const {
 void OpenGLVertexArray::AddVertexBuffer(const ref<VertexBuffer>& vertexBuffer) {
     const BufferLayout& layout = vertexBuffer->GetLayout();
     ZPG_CORE_ASSERT( layout.GetElements().size() != 0, 
-                    "Layout musn't be empty. Please provide the layout to the VBO before adding the VBO." );
+                    "Layout mustn't be empty. Please provide the layout to the VBO before adding the VBO." );
 
     this->Bind();
     vertexBuffer->Bind();

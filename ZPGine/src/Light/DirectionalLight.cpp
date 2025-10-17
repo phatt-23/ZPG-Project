@@ -1,5 +1,6 @@
 #include "DirectionalLight.h"
 #include "Shader/CommonShaderUniforms.h"
+#include "Shader/ShaderProgram.h"
 
 namespace ZPG {
 

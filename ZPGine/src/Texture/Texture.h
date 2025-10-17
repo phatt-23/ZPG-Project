@@ -5,8 +5,6 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "Core/Core.h"
-
 namespace ZPG {
 
 class Texture {

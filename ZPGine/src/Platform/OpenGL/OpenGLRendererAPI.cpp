@@ -2,6 +2,9 @@
 #include "OpenGLCore.h"
 #include <glad/glad.h>
 
+#include "Buffer/BufferLayout.h"
+#include "Buffer/VertexArray.h"
+
 namespace ZPG {
 
 void OpenGLRendererAPI::Init() {

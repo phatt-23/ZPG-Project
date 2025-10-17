@@ -50,7 +50,7 @@ public:
             glm::vec3(0.0, -0.5, 0.0), 32.f, 34.f));
     }
 
-    void OnUpdate([[maybe_unused]] ZPG::Timestep ts) override {
+    void OnUpdate([[maybe_unused]] ZPG::Timestep& ts) override {
         m_CameraController.OnUpdate(ts);
         Scene::OnUpdate(ts);
     }

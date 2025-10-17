@@ -5,14 +5,13 @@
 #ifndef LAYER_H
 #define LAYER_H
 
-#include "Event/Event.h"
-#include "Timestep.h"
-#include "Scene/SceneContext.h"
-#include "Resource/ResourceManager.h"
 
 namespace ZPG {
 
-class Scene; 
+class SceneContext;
+class Event;
+class RenderContext;
+class Scene;
 
 class Layer {
 public:

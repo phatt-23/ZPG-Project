@@ -22,11 +22,11 @@ void SecondScene::OnAttach() {
     PushLayer(new TreeLayer());
     PushLayer(new SphereLayer(m_CameraController));
 }
-void SecondScene::OnUpdate(Timestep ts) {
+void SecondScene::OnUpdate(Timestep& ts) {
     m_Timestep = ts;
 
     // // If ImGui wants keyboard, don't let controller "move"
-    // // WARN: this cuases the scene, when resuming, to not show anything
+    // // WARN: this cases the scene, when resuming, to not show anything
     // // only after the scene is clicked on it is being updated
     // // mostly likely due to ImGui capturing IO when clicking in the Scene switcher menu
     // if (not ImGui::GetIO().WantCaptureKeyboard) 

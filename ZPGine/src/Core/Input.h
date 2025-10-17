@@ -5,8 +5,6 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include "Debug/Logger.h"
-
 namespace ZPG {
 
 class Input {

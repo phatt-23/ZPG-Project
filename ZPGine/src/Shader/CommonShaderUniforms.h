@@ -5,8 +5,6 @@
 #ifndef COMMON_SHADER_UNIFORMS_H
 #define COMMON_SHADER_UNIFORMS_H
 
-#include "Core/Core.h"
-
 #include "ShaderDataType.h"
 
 namespace ZPG {

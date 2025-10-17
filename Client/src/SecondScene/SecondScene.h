@@ -9,7 +9,7 @@ public:
     ~SecondScene() override;
 
     void OnAttach() override;
-    void OnUpdate(ZPG::Timestep ts) override;
+    void OnUpdate(ZPG::Timestep& ts) override;
     void OnEvent(ZPG::Event &event) override;
     void OnImGuiRender() override;
 private:

@@ -4,7 +4,6 @@
 #include "Debug/Asserter.h"
 
 #ifdef ZPG_OPENGL_CALL_ERROR_CHECK
-#include <source_location>
 #include "Core/Core.h"
 const char* OpenGLErrorTypeToString(GLenum glError);
 #endif

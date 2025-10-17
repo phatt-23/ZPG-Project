@@ -1,10 +1,12 @@
-#include "Renderer/IndexBuffer.h"
+#pragma once
+
+#include "Buffer/IndexBuffer.h"
 
 namespace ZPG {
 
 class OpenGLIndexBuffer : public IndexBuffer {
 public:
-    OpenGLIndexBuffer(const u32* indicies, u32 count);
+    OpenGLIndexBuffer(const u32* indices, u32 count);
     virtual ~OpenGLIndexBuffer() override;
     virtual void Bind() const override;
     virtual void Unbind() const override; 

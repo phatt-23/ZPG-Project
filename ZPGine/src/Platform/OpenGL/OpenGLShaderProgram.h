@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Shader/ShaderProgram.h"
-#include <unordered_map>
 #include "Shader/Shader.h"
+#include "Shader/ShaderProgram.h"
 
 namespace ZPG {
 
@@ -23,11 +22,11 @@ public:
     virtual void SetInt3(const std::string& uniName, glm::i32vec3 vec) override;
     virtual void SetInt4(const std::string& uniName, glm::i32vec4 vec) override;
     virtual void SetFloat(const std::string& uniName, f32 scalar) override;
-    virtual void SetFloat2(const std::string& uniName, glm::f32vec2 vec) override;
-    virtual void SetFloat3(const std::string& uniName, glm::f32vec3 vec) override;
-    virtual void SetFloat4(const std::string& uniName, glm::f32vec4 vec) override;
-    virtual void SetMat3(const std::string& uniName, glm::mat3 mat) override;
-    virtual void SetMat4(const std::string& uniName, glm::mat4 mat) override;
+    virtual void SetFloat2(const std::string& uniName, v2 vec) override;
+    virtual void SetFloat3(const std::string& uniName, v3 vec) override;
+    virtual void SetFloat4(const std::string& uniName, v4 vec) override;
+    virtual void SetMat3(const std::string& uniName, m3 mat) override;
+    virtual void SetMat4(const std::string& uniName, m4 mat) override;
 private:
     i32 GetUniformLocation(const std::string& name);
 

@@ -1,9 +1,15 @@
 #include "ModelLoader.h"
-#include <filesystem>
 
 #include "Resource/ResourceManager.h"
 #include "Resource/CommonResources.h"
 #include "Texture/Texture.h"
+#include "Material/Material.h"
+#include <assimp/postprocess.h>
+
+#include "Mesh.h"
+#include "Model.h"
+#include "Vertex.h"
+#include "Debug/Asserter.h"
 
 namespace ZPG {
 

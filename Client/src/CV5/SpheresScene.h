@@ -42,7 +42,7 @@ public:
         Renderer::SetLights(GetLightManager().GetLights());
     }
 
-    void OnUpdate(Timestep ts) override {
+    void OnUpdate(Timestep& ts) override {
         Scene::OnUpdate(ts);
         m_CameraController.OnUpdate(ts);
         for (auto& entity : GetEntityManager().GetEntities()) {
@@ -55,11 +55,11 @@ public:
         m_CameraController.OnEvent(event);
     }
 
-    void OnRender(Timestep ts) override {
+    void OnRender(Timestep& ts) override {
         Renderer::BeginDraw(GetCamera());
         Renderer::SetLights(GetLightManager().GetLights());
         for (auto& entity : GetEntityManager().GetEntities()) {
-            Renderer::SumbitEntity(*entity);
+            Renderer::SubmitEntity(*entity);
         }
         Renderer::EndDraw();
     }

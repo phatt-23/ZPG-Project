@@ -1,18 +1,20 @@
 #pragma once
-#include "Core/Timestep.h"
+
 #include "Transform/DynTransform.h"
 
 namespace ZPG {
 
+class Timestep;
+
 class DynScale : public DynamicTransform {
 public:
     DynScale(
-        const glm::vec3& startingScale, 
-        const glm::vec3& growth, 
-        const glm::vec3& minScale, 
-        const glm::vec3& maxScale);
+        const v3& startingScale,
+        const v3& growth,
+        const v3& minScale,
+        const v3& maxScale);
 
-    virtual void Update(Timestep ts) override;
+    virtual void Update(Timestep& ts) override;
 
     void ComputeMatrix() override;
     

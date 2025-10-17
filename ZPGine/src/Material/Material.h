@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Shader/ShaderProgram.h"
-#include "Texture/Texture.h"
-#include "Shader/ShaderDataType.h"
-
 namespace ZPG {
+
+class ShaderProgram;
+class Texture;
 
 // This will be a standard material that works with only 
 // some things for now, not everything that aiMaterial provides.
 // Using PBR.
 // I choose metallic/roughness workflow, because it feels more modern?.
 // [https://marmoset.co/posts/physically-based-rendering-and-you-can-too/]
+
 class Material {
 public:
     using UniformName = std::string;

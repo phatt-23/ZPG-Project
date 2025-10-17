@@ -4,12 +4,10 @@
 
 #pragma once
 
-#include <spdlog/spdlog.h>
-
 namespace ZPG {
 
 class Logger {
-    using LoggerRef = std::shared_ptr<spdlog::logger>;
+    using LoggerRef = ref<spdlog::logger>;
 public:
     static void Init();
 

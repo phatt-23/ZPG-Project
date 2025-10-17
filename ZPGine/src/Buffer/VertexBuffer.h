@@ -1,12 +1,10 @@
 #pragma once
 
-#include "BufferLayout.h"
-#include "Core/Core.h"
-
 namespace ZPG {
 
-class VertexBuffer
-{
+class BufferLayout;
+
+class VertexBuffer {
 public:
     virtual ~VertexBuffer() = default;
 

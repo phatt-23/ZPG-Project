@@ -60,7 +60,7 @@ void AxisLayer::OnAttach() {
 }
 
 void AxisLayer::OnRender([[maybe_unused]] const ZPG::RenderContext& ctx) {
-    Renderer::SumbitEntity(*m_Entity);
+    Renderer::SubmitEntity(*m_Entity);
 }
 
 }

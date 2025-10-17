@@ -32,6 +32,7 @@ enum class EventType : unsigned int {
 class Event {
     friend class EventDispatcher;
 public:
+    virtual ~Event() = default;
     virtual unsigned int GetEventCategory() const = 0;
     virtual EventType GetEventType() const = 0;
     virtual const char* GetName() const = 0;

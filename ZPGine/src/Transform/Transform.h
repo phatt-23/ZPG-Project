@@ -1,8 +1,8 @@
 #pragma once
-#include "Core/Timestep.h"
-#include <glm/glm.hpp>
 
 namespace ZPG {
+
+class Timestep;
 
 class Transform {
 public:
@@ -16,7 +16,7 @@ public:
     virtual const glm::mat4& GetMatrix() { return m_Matrix; }
 
     // Called in every iteration of OnUpdate() in a Scene
-    virtual void Update([[maybe_unused]] Timestep ts) {}
+    virtual void Update([[maybe_unused]] Timestep& ts) {}
 
     // Computes the m_Matrix.
     virtual void ComputeMatrix() {}

@@ -2,8 +2,8 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef VERTEXARRAY_H
-#define VERTEXARRAY_H
+#ifndef VERTEX_ARRAY_H
+#define VERTEX_ARRAY_H
 
 #include "IndexBuffer.h"
 #include "VertexBuffer.h"
@@ -28,10 +28,12 @@ public:
 
     static ref<VertexArray> Create();
     static ref<VertexArray> Create(const std::vector<ref<VertexBuffer>>& vertexBuffers);
-    static ref<VertexArray> Create(const std::vector<ref<VertexBuffer>>& vertexBuffers, const ref<IndexBuffer>& indexBuffer);
+    static ref<VertexArray> Create(
+        const std::vector<ref<VertexBuffer>>& vertexBuffers,
+        const ref<IndexBuffer>& indexBuffer);
 private:
 };
 
 }
 
-#endif //VERTEXARRAY_H
+#endif

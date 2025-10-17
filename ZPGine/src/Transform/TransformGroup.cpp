@@ -6,7 +6,7 @@ ref<TransformGroup> TransformGroup::Create(ref<Transform> parent) {
     return MakeRef<TransformGroup>(parent);
 }
 
-TransformGroup::TransformGroup(ref<Transform> parent)
+TransformGroup::TransformGroup(const ref<Transform>& parent)
 : m_Parent(parent)
 , m_Transformations() {
 }
@@ -24,7 +24,7 @@ const glm::mat4& TransformGroup::GetMatrix() {
     ComputeMatrix();
     return m_Matrix;
 }
-void TransformGroup::Update(Timestep ts) {
+void TransformGroup::Update(Timestep& ts) {
     for (auto& t : m_Transformations) {
         t->Update(ts);
     }
@@ -44,6 +44,14 @@ void TransformGroup::ComputeMatrix() {
 TransformGroup::Self TransformGroup::Include(const ref<Transform>& transformation) {
     m_Transformations.push_back(std::move(transformation));
     return *this;
+}
+
+
+TransformGroup::Self TransformGroup::Build() {
+    return *(new TransformGroup());
+}
+ref<TransformGroup> TransformGroup::Compose() {
+    return MakeRef(this);
 }
 
 }

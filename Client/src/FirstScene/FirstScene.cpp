@@ -137,7 +137,7 @@ FirstScene::FirstScene()
 void FirstScene::OnAttach() {
     PushLayer(new MyLayer());
 }
-void FirstScene::OnUpdate(Timestep ts) {
+void FirstScene::OnUpdate(Timestep& ts) {
     m_CameraController.OnUpdate(ts);
     UpdateLayers(ts);
 }

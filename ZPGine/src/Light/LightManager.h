@@ -1,9 +1,8 @@
 #pragma once
-#include "Light.h"
-#include "Debug/Asserter.h"
-
 
 namespace ZPG {
+
+class Light;
 
 constexpr u32 ZPG_LIGHT_UNIFORM_BUFFER_ARRAY_LENGTH = 100;
 
@@ -15,12 +14,10 @@ public:
     void AddLight(const ref<Light>& light);
     void RemoveLight(const ref<Light>& light);
 
-    const std::vector<ref<Light>>& GetLights() const { 
-        return m_Lights; 
-    }
+    const std::vector<ref<Light>>& GetLights() const;
 
-    std::vector<ref<Light>>::iterator begin() { return m_Lights.begin(); }
-    std::vector<ref<Light>>::iterator end() { return m_Lights.end(); }
+    std::vector<ref<Light>>::iterator begin();
+    std::vector<ref<Light>>::iterator end();
 private:
     std::vector<ref<Light>> m_Lights;
 };

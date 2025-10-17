@@ -1,9 +1,8 @@
 #pragma once
-#include "Model/Model.h"
-#include "ModelLoader.h"
-#include <unordered_map>
 
 namespace ZPG {
+
+class Model;
 
 class ModelLibrary {
 public:

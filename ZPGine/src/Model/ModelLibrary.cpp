@@ -1,5 +1,8 @@
 #include "ModelLibrary.h"
 
+#include "ModelLoader.h"
+#include "Debug/Asserter.h"
+
 namespace ZPG {
 
 ModelLibrary::ModelLibrary() {

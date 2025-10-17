@@ -14,7 +14,7 @@ public:
     void OnAttach() override {
         PushLayer(new AxisLayer());
     }
-    void OnUpdate(ZPG::Timestep ts) override {
+    void OnUpdate(ZPG::Timestep& ts) override {
         Scene::OnUpdate(ts);
         m_CameraController.OnUpdate(ts);
     }

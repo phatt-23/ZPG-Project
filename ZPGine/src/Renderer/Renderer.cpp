@@ -1,5 +1,16 @@
 #include "Renderer.h"
 #include "RenderCommand.h"
+#include "Model/Model.h"
+#include "Material/Material.h"
+#include "Model/Mesh.h"
+#include "../Camera/Camera.h"
+#include "Buffer/VertexArray.h"
+#include "Debug/Asserter.h"
+#include "Debug/Logger.h"
+#include "Shader/ShaderProgram.h"
+#include "Light/Light.h"
+#include "Entity/Entity.h"
+#include "Scene/Scene.h"
 
 namespace ZPG {
 
@@ -35,7 +46,7 @@ void Renderer::Submit(ShaderProgram& shaderProgram, const Entity& entity, const 
     Submit(shaderProgram, *model, mat);
 }
 
-void Renderer::SumbitEntity(const Entity& entity, const glm::mat4& transform) {
+void Renderer::SubmitEntity(const Entity& entity, const glm::mat4& transform) {
     glm::mat4 entityTransform = transform * entity.GetTransformMatrix();
     const ref<Model>& model = entity.GetModel();
     std::vector<ref<Mesh>> meshes = model->GetMeshes();

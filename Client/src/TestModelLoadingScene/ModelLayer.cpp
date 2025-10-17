@@ -64,7 +64,7 @@ void ModelLayer::OnUpdate(SceneContext& context) {
 
 void ModelLayer::OnRender(const RenderContext& context) {
     for (auto& entity : m_Scene->GetEntityManager().GetEntities()) {
-        Renderer::SumbitEntity(*entity);
+        Renderer::SubmitEntity(*entity);
     }
 
     for (auto& light : context.Lights) {

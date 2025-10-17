@@ -2,22 +2,29 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef CAMERACONTROLLER_H
-#define CAMERACONTROLLER_H
+#ifndef CAMERA_CONTROLLER_H
+#define CAMERA_CONTROLLER_H
 
-#include "Event/MouseEvent.h"
-#include "Event/WindowEvent.h"
-#include "Event/KeyEvent.h"
-#include "Core/Timestep.h"
-#include "Renderer/Camera.h"
 
 namespace ZPG {
+
+class WindowFocusEvent;
+class WindowResizeEvent;
+class WindowLostFocusEvent;
+class MouseButtonPressedEvent;
+class MouseMovedEvent;
+class MouseScrolledEvent;
+class KeyPressedEvent;
+class Event;
+class Timestep;
+class Camera;
+
 class CameraController {
 public:
     CameraController(Camera& camera);
     virtual ~CameraController();
     
-    virtual void OnUpdate(Timestep ts);
+    virtual void OnUpdate(Timestep& ts);
     virtual void OnEvent(Event& e);
 
     Camera& GetCamera() { return m_Camera; }
@@ -42,4 +49,4 @@ protected:
 };
 }
 
-#endif //CAMERACONTROLLER_H
+#endif //CAMERA_CONTROLLER_H

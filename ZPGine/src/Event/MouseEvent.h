@@ -2,8 +2,8 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef MOUSEEVENT_H
-#define MOUSEEVENT_H
+#ifndef MOUSE_EVENT_H
+#define MOUSE_EVENT_H
 
 #include "Event.h"
 
@@ -67,4 +67,4 @@ private:
 
 }
 
-#endif //MOUSEEVENT_H
+#endif

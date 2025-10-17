@@ -1,5 +1,5 @@
-#ifndef INCLUDE_EVENT_WINDOWEVENT_H_
-#define INCLUDE_EVENT_WINDOWEVENT_H_
+#ifndef INCLUDE_EVENT_WINDOW_EVENT_H_
+#define INCLUDE_EVENT_WINDOW_EVENT_H_
 
 #include "Event.h"
 
@@ -52,4 +52,4 @@ private:
 };
 
 }
-#endif  // INCLUDE_EVENT_WINDOWEVENT_H_
+#endif

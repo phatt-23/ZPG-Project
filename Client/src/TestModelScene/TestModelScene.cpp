@@ -22,7 +22,7 @@ void TestModelScene::OnAttach() {
     // AddLight(CreateRef<DirectionalLight>( vec4(1.f, 1.f, 1.f, 1.f), vec3(-1.f, -1.f, -1.f) ));
     AddLight(m_FlashLight);
 }
-void TestModelScene::OnUpdate(Timestep ts) {
+void TestModelScene::OnUpdate(Timestep& ts) {
     m_CameraController.OnUpdate(ts);
     m_FlashLight->SetPosition(m_CameraController.GetCamera().GetPosition());
     m_FlashLight->SetDirection(m_CameraController.GetCamera().GetFront());

@@ -1,9 +1,10 @@
 #pragma once
-#include "Model/Vertex.h"
-#include "Renderer/VertexArray.h"
-#include "Material/Material.h"
 
 namespace ZPG {
+
+class Vertex;
+class VertexArray;
+class Material;
 
 class Mesh {
 public:

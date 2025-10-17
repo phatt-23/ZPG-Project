@@ -5,11 +5,9 @@
 #ifndef SHADER_PROGRAM_H
 #define SHADER_PROGRAM_H
 
-#include <glm/glm.hpp>
-#include "Core/Core.h"
-#include "Shader.h"
-
 namespace ZPG {
+
+class Shader;
 
 class ShaderProgram {
 public:
@@ -22,27 +20,27 @@ public:
 
     // overloaded methods for setting uniforms
     void Set(const std::string& uniName, i32 value) { SetInt(uniName, value); }
-    void Set(const std::string& uniName, glm::i32vec2 vec) { SetInt2(uniName, vec); }
-    void Set(const std::string& uniName, glm::i32vec3 vec) { SetInt3(uniName, vec); }
-    void Set(const std::string& uniName, glm::i32vec4 vec) { SetInt4(uniName, vec); }
+    void Set(const std::string& uniName, iv2 vec) { SetInt2(uniName, vec); }
+    void Set(const std::string& uniName, iv3 vec) { SetInt3(uniName, vec); }
+    void Set(const std::string& uniName, iv4 vec) { SetInt4(uniName, vec); }
     void Set(const std::string& uniName, f32 value) { SetFloat(uniName, value); }
-    void Set(const std::string& uniName, glm::f32vec2 vec) { SetFloat2(uniName, vec); }
-    void Set(const std::string& uniName, glm::f32vec3 vec) { SetFloat3(uniName, vec); }
-    void Set(const std::string& uniName, glm::f32vec4 vec) { SetFloat4(uniName, vec); }
-    void Set(const std::string& uniName, glm::mat3 mat) { SetMat3(uniName, mat); }
-    void Set(const std::string& uniName, glm::mat4 mat) { SetMat4(uniName, mat); }
+    void Set(const std::string& uniName, v2 vec) { SetFloat2(uniName, vec); }
+    void Set(const std::string& uniName, v3 vec) { SetFloat3(uniName, vec); }
+    void Set(const std::string& uniName, v4 vec) { SetFloat4(uniName, vec); }
+    void Set(const std::string& uniName, m3 mat) { SetMat3(uniName, mat); }
+    void Set(const std::string& uniName, m4 mat) { SetMat4(uniName, mat); }
 
     // explicit methods for setting uniforms
     virtual void SetInt(const std::string& uniName, i32 value) = 0;
-    virtual void SetInt2(const std::string& uniName, glm::i32vec2 vec) = 0;
-    virtual void SetInt3(const std::string& uniName, glm::i32vec3 vec) = 0;
-    virtual void SetInt4(const std::string& uniName, glm::i32vec4 vec) = 0;
+    virtual void SetInt2(const std::string& uniName, iv2 vec) = 0;
+    virtual void SetInt3(const std::string& uniName, iv3 vec) = 0;
+    virtual void SetInt4(const std::string& uniName, iv4 vec) = 0;
     virtual void SetFloat(const std::string& uniName, f32 value) = 0;
-    virtual void SetFloat2(const std::string& uniName, glm::f32vec2 vec) = 0;
-    virtual void SetFloat3(const std::string& uniName, glm::f32vec3 vec) = 0;
-    virtual void SetFloat4(const std::string& uniName, glm::f32vec4 vec) = 0;
-    virtual void SetMat3(const std::string& uniName, glm::mat3 mat) = 0;
-    virtual void SetMat4(const std::string& uniName, glm::mat4 mat) = 0;
+    virtual void SetFloat2(const std::string& uniName, v2 vec) = 0;
+    virtual void SetFloat3(const std::string& uniName, v3 vec) = 0;
+    virtual void SetFloat4(const std::string& uniName, v4 vec) = 0;
+    virtual void SetMat3(const std::string& uniName, m3 mat) = 0;
+    virtual void SetMat4(const std::string& uniName, m4 mat) = 0;
 
     // Factories for creating shader program: create with shaders, or create by reading in a GLSL file containing 
     // all shader codes in one. These must have a type directive #type (vertex, fragment/pixel, geometry) set at 

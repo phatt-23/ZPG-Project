@@ -2,8 +2,8 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef APPLICATIONEVENT_H
-#define APPLICATIONEVENT_H
+#ifndef APPLICATION_EVENT_H
+#define APPLICATION_EVENT_H
 
 #include "Event.h"
 
@@ -29,4 +29,4 @@ public:
 
 }
 
-#endif //APPLICATIONEVENT_H
+#endif

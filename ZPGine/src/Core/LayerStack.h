@@ -5,10 +5,9 @@
 #ifndef LAYERSTACK_H
 #define LAYERSTACK_H
 
-#include "Layer.h"
-#include "Core.h"
-
 namespace ZPG {
+
+class Layer;
 
 class LayerStack {
 public:

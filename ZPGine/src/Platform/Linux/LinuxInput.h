@@ -2,11 +2,10 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef LINUXINPUT_H
-#define LINUXINPUT_H
+#ifndef LINUX_INPUT_H
+#define LINUX_INPUT_H
 
 #include "Core/Input.h"
-#include "Debug/Logger.h"
 
 namespace ZPG {
 
@@ -30,4 +29,4 @@ private:
 
 }
 
-#endif //LINUXINPUT_H
+#endif

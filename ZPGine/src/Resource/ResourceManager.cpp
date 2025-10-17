@@ -1,10 +1,17 @@
 #include "ResourceManager.h"
 #include "Shader/ShaderProgram.h"
-#include <glm/gtc/type_ptr.hpp>
 #include "CommonResources.h"
-#include "../../../assets/models/nemec/bushes.h"
 #include "../../../assets/models/nemec/sphere.h"
 #include "../../../assets/models/phatt/box.h"
+#include "Debug/Asserter.h"
+#include "Material/Material.h"
+#include "Model/Mesh.h"
+#include "Model/Model.h"
+#include "Buffer/VertexArray.h"
+#include "Buffer/BufferLayout.h"
+#include "Shader/ShaderDataType.h"
+#include "Shader/Shader.h"
+#include "Texture/Texture.h"
 
 namespace ZPG {
 

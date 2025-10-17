@@ -1,5 +1,6 @@
 #include "VertexArray.h"
-#include "Renderer.h"
+#include "Renderer/Renderer.h"
+#include "Debug/Asserter.h"
 #include "Platform/OpenGL/OpenGLVertexArray.h"
 
 namespace ZPG {

@@ -1,7 +1,11 @@
 #include "Mesh.h"
 
+#include "Buffer/VertexBuffer.h"
+#include "Buffer/VertexArray.h"
+#include "Buffer/BufferLayout.h"
 #include "Resource/CommonResources.h"
 #include "Resource/ResourceManager.h"
+#include "Vertex.h"
 
 
 namespace ZPG {

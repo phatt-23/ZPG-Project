@@ -21,7 +21,7 @@ public:
         PushLayer(new InlineShadersLayer());
         PushLayer(new ReadingFromFilesLayer());
     }
-    void OnUpdate(Timestep ts) override {
+    void OnUpdate(Timestep& ts) override {
         m_Timestep = ts;
         m_CameraController.OnUpdate(ts);
         Scene::OnUpdate(ts);

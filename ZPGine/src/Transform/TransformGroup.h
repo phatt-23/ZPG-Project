@@ -1,7 +1,6 @@
 #pragma once
-#include <vector>
+
 #include "Transform.h"
-#include "Core/Core.h"
 
 namespace ZPG {
 
@@ -17,17 +16,15 @@ namespace ZPG {
  * Compose()  - finalizes the transform
  */
 class TransformGroup : public Transform {
-public:
     using Self = TransformGroup&;
+public:
 
-    TransformGroup(ref<Transform> parent = nullptr);
+    TransformGroup(const ref<Transform>& parent = nullptr);
     TransformGroup(TransformGroup& other);
 
-    void Update(Timestep ts) override;
+    void Update(Timestep& ts) override;
     const glm::mat4& GetMatrix() override;
-
-    Self WithParent(ref<Transform> parent);
-    Self Include(const ref<Transform>& transformation);  
+    void ComputeMatrix() override;
 
     template<typename T, typename... Args>
     requires(std::is_base_of_v<Transform, T>)  // T derives form Transformation
@@ -35,14 +32,15 @@ public:
         m_Transformations.push_back(MakeRef<T>(std::forward<Args>(args)...));
         return *this;
     }
+    Self Include(const ref<Transform>& transformation);
+    Self WithParent(ref<Transform> parent);
 
-    void ComputeMatrix() override;
 
+    static Self Build();
+    ref<TransformGroup> Compose();
+
+    // deprecated:
     static ref<TransformGroup> Create(ref<Transform> parent = nullptr);
-
-    static Self Build() { return *(new TransformGroup()); }
-    ref<TransformGroup> Compose() { return MakeRef(this); }
-
 private:
     ref<Transform> m_Parent;
     std::vector<ref<Transform>> m_Transformations;

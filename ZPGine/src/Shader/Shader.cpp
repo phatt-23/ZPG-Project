@@ -1,4 +1,6 @@
 #include "Shader.h"
+
+#include "Debug/Asserter.h"
 #include "Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 

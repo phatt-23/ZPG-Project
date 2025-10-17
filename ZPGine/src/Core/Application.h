@@ -4,15 +4,14 @@
 
 #ifndef APPLICATION_H
 #define APPLICATION_H
-
-#include "Event/Event.h"
-#include "Core.h"
-#include "Window.h"
 #include "Scene/SceneManager.h"
-#include "Event/WindowEvent.h"
-#include "ImGuiManager.h"
 
 namespace ZPG {
+
+class WindowCloseEvent;
+class WindowResizeEvent;
+class Window;
+class Event;
 
 class Application
 {

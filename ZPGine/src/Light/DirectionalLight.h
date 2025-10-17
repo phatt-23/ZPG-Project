@@ -3,7 +3,10 @@
 #include "Light/ColorComponent.h"
 #include "Light/DirectionComponent.h"
 #include "Light/Light.h"
+
 namespace ZPG {
+
+class ShaderProgram;
 
 class DirectionalLight : public Light, public ColorComponent, public DirectionComponent {
 public:

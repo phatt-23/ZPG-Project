@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include "Debug/Asserter.h"
+#include "Scene.h"
 
 namespace ZPG {
 

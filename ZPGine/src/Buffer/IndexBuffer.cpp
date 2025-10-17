@@ -1,4 +1,6 @@
 #include "IndexBuffer.h"
+
+#include "Debug/Asserter.h"
 #include "Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLIndexBuffer.h"
 

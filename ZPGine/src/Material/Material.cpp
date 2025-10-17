@@ -4,6 +4,8 @@
 
 #include "Resource/CommonResources.h"
 #include "Resource/ResourceManager.h"
+#include "Texture/Texture.h"
+#include "Shader/ShaderProgram.h"
 
 namespace ZPG {
 Material::Material() {

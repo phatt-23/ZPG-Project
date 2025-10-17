@@ -3,9 +3,7 @@
 
 namespace ZPG {
 
-TextureLibrary::TextureLibrary() {
-
-}
+TextureLibrary::TextureLibrary() = default;
 TextureLibrary::~TextureLibrary() {
 
 }
