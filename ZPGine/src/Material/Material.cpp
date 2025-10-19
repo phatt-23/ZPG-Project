@@ -16,6 +16,7 @@ Material::Material() {
     m_Albedo = v4(1.0);
     m_Roughness = 0.5;
     m_Metallic = 0.5;
+    m_Emissive = v4(0.0);
 
     m_AlbedoMap = res.GetTexture(CommonResources::NULL_ALBEDO_MAP);
     m_NormalMap = res.GetTexture(CommonResources::NULL_NORMAL_MAP);
@@ -32,6 +33,7 @@ void Material::Bind() {
     m_ShaderProgram->SetFloat4(CommonShaderUniforms::ALBEDO, m_Albedo);
     m_ShaderProgram->SetFloat(CommonShaderUniforms::METALLIC, m_Metallic);
     m_ShaderProgram->SetFloat(CommonShaderUniforms::ROUGHNESS, m_Roughness);
+    m_ShaderProgram->SetFloat4(CommonShaderUniforms::EMISSIVE, m_Emissive);
 
     // bind texture maps
     m_AlbedoMap->BindToSlot(0);
@@ -81,6 +83,8 @@ void Material::SetRoughness(f32 roughness) {
 void Material::SetMetallic(f32 metallic) {
     m_Metallic = metallic;
 }
-
+void Material::SetEmissive(const v4& emissive) {
+    m_Emissive = emissive;
+}
 
 }

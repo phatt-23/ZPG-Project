@@ -85,6 +85,9 @@ public:
         if (ImGui::Button("Blinn-Phong")) {
             SetShaderProgram(CommonResources::SHADER_PROGRAM_BLINN_PHONG);
         }
+        if (ImGui::Button("PBR")) {
+            SetShaderProgram(CommonResources::SHADER_PROGRAM_PBR);
+        }
         ImGui::End();
     }
 

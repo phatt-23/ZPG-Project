@@ -30,6 +30,7 @@ public:
     void SetAlbedo(const v4& albedo);
     void SetRoughness(f32 roughness);
     void SetMetallic(f32 metallic);
+    void SetEmissive(const v4& emissive);
 
     void SetAlbedoMap(const ref<Texture>& albedoMap);
     void SetNormalMap(const ref<Texture>& normalMap);
@@ -57,6 +58,8 @@ public:
      */
     f32 m_Metallic;
 
+    // Material's glow.
+    v4 m_Emissive;
 
     /**
      * Color map, base color map, diffuse map.

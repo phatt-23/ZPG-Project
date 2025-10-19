@@ -21,6 +21,7 @@ uniform vec3 u_CameraPos;
 uniform vec4 u_AmbientColor;
 
 uniform vec4 u_Albedo;
+uniform vec4 u_Emissive;
 
 in vec3 v_WorldPos;
 in vec3 v_WorldNormal;
@@ -64,5 +65,5 @@ void main() {
 
     vec3 ambient = u_AmbientColor.xyz * u_AmbientColor.w;
     vec3 La = ambient * albedo;
-    f_FragColor = vec4(Lo + La, 1.0);
+    f_FragColor = vec4(Lo + La, 1.0) + u_Emissive;
 }

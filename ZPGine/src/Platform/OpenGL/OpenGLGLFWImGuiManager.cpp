@@ -23,6 +23,8 @@ void OpenGLGLFWImGuiManager::AttachImGui() {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
     //io.ConfigViewportsNoAutoMerge = true;
     //io.ConfigViewportsNoTaskBarIcon = true;
 
@@ -54,8 +56,12 @@ void OpenGLGLFWImGuiManager::BeginFrameImpl() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+
+    // Create a dockspace in main viewport, where central node is transparent.
+    ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 }
 void OpenGLGLFWImGuiManager::EndFrameImpl() {
+
     ImGuiIO& io = ImGui::GetIO();
     i32 width, height;
     glfwGetWindowSize(m_WindowHandle, &width, &height);

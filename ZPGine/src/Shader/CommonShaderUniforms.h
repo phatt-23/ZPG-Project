@@ -37,6 +37,7 @@ public:
     constexpr static NameType ALBEDO {"u_Albedo", T::Float4};
     constexpr static NameType METALLIC {"u_Metallic", T::Float};
     constexpr static NameType ROUGHNESS {"u_Roughness", T::Float};
+    constexpr static NameType EMISSIVE {"u_Emissive", T::Float};
 
     constexpr static NameType ALBEDO_MAP {"u_AlbedoMap", T::Int};
     constexpr static NameType NORMAL_MAP {"u_NormalMap", T::Int};

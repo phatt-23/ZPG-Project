@@ -6,9 +6,12 @@
 
 namespace ZPG {
 
-class PointLight : public Light, public ColorComponent, public PositionComponent {
+class PointLight
+    : public Light
+    , public ColorComponent
+    , public PositionComponent {
 public:
-    PointLight(const glm::vec4& color, const glm::vec3& position);
+    PointLight(const v4& color, const v3& position);
     void SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) override;
 private:
 };

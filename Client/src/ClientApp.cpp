@@ -19,6 +19,7 @@
 #include "TransformHierarchyScene/TransformHierarchyScene.h"
 #include "CV5/SpheresScene.h"
 #include "CV5/ForestScene.h"
+#include "CV5/SolarSystemScene.h"
 
 class ClientApp : public ZPG::Application {
 public:
@@ -55,6 +56,7 @@ public:
         m_SceneManager.AddScene("Spheres Scene", new PBRSpheresSceneNS::SpheresScene());
         m_SceneManager.AddScene("CV5 - Spheres", new CV5::SpheresScene());
         m_SceneManager.AddScene("CV5 - Forest", new CV5::ForestScene());
+        m_SceneManager.AddScene("CV5 - Solar System", new CV5::SolarSystemScene());
 
 
         m_SceneManager.SetActiveScene("Spheres Scene");
