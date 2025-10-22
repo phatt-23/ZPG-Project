@@ -57,6 +57,8 @@ public:
         constexpr static NameType LIGHT_DIRECTION {"Dir", T::Float3};
         constexpr static NameType LIGHT_INNER_CUTOFF {"InCutoff", T::Float};
         constexpr static NameType LIGHT_OUTER_CUTOFF {"OutCutoff", T::Float};
+        constexpr static NameType LIGHT_BEAM_SIZE {"BeamSize", T::Float};
+        constexpr static NameType LIGHT_BEAM_BLEND {"BeamBlend", T::Float};
 
         static std::string Type(u32 index) { return Indexed(index) + "." + LIGHT_TYPE.Handle; }
         static std::string Color(u32 index) { return Indexed(index) + "." + LIGHT_COLOR.Handle; }
@@ -64,6 +66,8 @@ public:
         static std::string Direction(u32 index) { return Indexed(index) + "." + LIGHT_DIRECTION.Handle; }
         static std::string InnerCutoff(u32 index) { return Indexed(index) + "." + LIGHT_INNER_CUTOFF.Handle; }
         static std::string OuterCutoff(u32 index) { return Indexed(index) + "." + LIGHT_OUTER_CUTOFF.Handle; }
+        static std::string BeamSize(u32 index) { return Indexed(index) + "." + LIGHT_BEAM_SIZE.Handle; }
+        static std::string BeamBlend(u32 index) { return Indexed(index) + "." + LIGHT_BEAM_BLEND.Handle; }
 
         static std::string Indexed(u32 index) { return LIGHT_ARRAY.Handle + "[" + std::to_string(index) + "]"; }
     };

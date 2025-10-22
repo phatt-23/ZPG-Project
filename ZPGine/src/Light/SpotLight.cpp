@@ -8,22 +8,24 @@ SpotLight::SpotLight(
     v4 const& color,
     v3 const& position,
     v3 const& direction,
-    f32 innerCutoffAngle,
-    f32 outerCutoffAngle)
+    f32 beamSize,
+    f32 beamBlend)
 : Light(LightType::Spotlight)
-, ColorComponent(color)
-, PositionComponent(position)
-, DirectionComponent(direction)
-, ConeCutoffComponent(innerCutoffAngle, outerCutoffAngle){
+, m_Color(ColorComponent(color))
+, m_Position (PositionComponent(position))
+, m_Direction (DirectionComponent(direction))
+, m_BeamShape (BeamShapeComponent(beamSize, beamBlend)) {
+
 }
 
 void SpotLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
-    shaderProgram.SetInt(CommonShaderUniforms::LightArray::Type(index),(i32)GetLightType());
-    shaderProgram.SetFloat4(CommonShaderUniforms::LightArray::Color(index), GetColor());
-    shaderProgram.SetFloat3(CommonShaderUniforms::LightArray::Direction(index), GetDirection());
-    shaderProgram.SetFloat3(CommonShaderUniforms::LightArray::Position(index), GetPosition());
-    shaderProgram.SetFloat(CommonShaderUniforms::LightArray::InnerCutoff(index), GetInnerCutoff());
-    shaderProgram.SetFloat(CommonShaderUniforms::LightArray::OuterCutoff(index), GetOuterCutoff());
+    using uniName = CommonShaderUniforms::LightArray;
+    shaderProgram.SetInt(uniName::Type(index),(i32)GetLightType());
+    shaderProgram.SetFloat4(uniName::Color(index), m_Color.GetColor());
+    shaderProgram.SetFloat3(uniName::Direction(index), m_Direction.GetDirection());
+    shaderProgram.SetFloat3(uniName::Position(index), m_Position.GetPosition());
+    shaderProgram.SetFloat(uniName::BeamSize(index), m_BeamShape.GetSize());
+    shaderProgram.SetFloat(uniName::BeamBlend(index), m_BeamShape.GetBlend());
 }
 
 }

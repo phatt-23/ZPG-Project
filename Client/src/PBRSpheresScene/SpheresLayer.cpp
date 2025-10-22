@@ -30,7 +30,7 @@ void SpheresLayer::OnRender(const ZPG::RenderContext& ctx) {
 
             auto transform = TransformGroup::Create();
             transform->Add<Scale>(0.4f * v3(1.0));
-            transform->Add<Translate>(pointLight->GetPosition());
+            transform->Add<Translate>(pointLight->m_Position.GetPosition());
 
             Renderer::Submit(
                 *m_Scene->GetResourceManager().GetShaderProgram("basic_single_color"),

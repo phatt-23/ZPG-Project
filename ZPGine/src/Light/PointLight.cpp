@@ -5,12 +5,17 @@
 namespace ZPG {
 
 PointLight::PointLight(const glm::vec4& color, const glm::vec3& position) 
-: Light(LightType::Point), ColorComponent(color), PositionComponent(position) {
+: Light(LightType::Point)
+, m_Color(ColorComponent(color))
+, m_Position(PositionComponent(position)) {
 }
+
 void PointLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
-    shaderProgram.SetInt(CommonShaderUniforms::LightArray::Type(index), (i32)GetLightType());
-    shaderProgram.SetFloat4(CommonShaderUniforms::LightArray::Color(index), GetColor());
-    shaderProgram.SetFloat3(CommonShaderUniforms::LightArray::Position(index), GetPosition());
+    using un = CommonShaderUniforms::LightArray;
+
+    shaderProgram.SetInt(un::Type(index), (i32)GetLightType());
+    shaderProgram.SetFloat4(un::Color(index), m_Color.GetColor());
+    shaderProgram.SetFloat3(un::Position(index), m_Position.GetPosition());
 }
 
 }

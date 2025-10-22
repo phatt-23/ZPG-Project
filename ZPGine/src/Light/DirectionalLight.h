@@ -8,16 +8,17 @@ namespace ZPG {
 
 class ShaderProgram;
 
-class DirectionalLight
-    : public Light
-    , public ColorComponent
-    , public DirectionComponent {
+class DirectionalLight : public Light {
 public:
     DirectionalLight(
         v4 const& color,
         v3 const& direction);
+
     void SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) override;
-private:
+
+public:
+    ColorComponent m_Color;
+    DirectionComponent m_Direction;
 
 };
 

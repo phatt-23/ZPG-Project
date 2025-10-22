@@ -8,15 +8,15 @@ namespace ZPG {
 
 AmbientLight::AmbientLight(const glm::vec4& color) 
 : Light(LightType::Ambient)
-, ColorComponent(color) {
+, m_Color(ColorComponent(color)) {
 }
 
 void AmbientLight::SendToShaderProgram(ShaderProgram& shaderProgram, u32 index) {
-    shaderProgram.SetFloat4(CommonShaderUniforms::AMBIENT_COLOR, GetColor());
+    shaderProgram.SetFloat4(CommonShaderUniforms::AMBIENT_COLOR, m_Color.GetColor());
 
     // todo: These don't have to be set
     shaderProgram.SetInt(CommonShaderUniforms::LightArray::Type(index), (i32)GetLightType());
-    shaderProgram.SetFloat4(CommonShaderUniforms::LightArray::Color(index), GetColor());
+    shaderProgram.SetFloat4(CommonShaderUniforms::LightArray::Color(index), m_Color.GetColor());
 }
 
 }

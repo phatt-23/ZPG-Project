@@ -23,8 +23,8 @@ void LightsScene::OnAttach() {
 }
 void LightsScene::OnUpdate(Timestep& ts) {
     m_CameraController.OnUpdate(ts);
-    m_FlashLight->SetPosition(m_CameraController.GetCamera().GetPosition());
-    m_FlashLight->SetDirection(m_CameraController.GetCamera().GetFront());
+    m_FlashLight->m_Position.SetPosition(m_CameraController.GetCamera().GetPosition());
+    m_FlashLight->m_Direction.SetDirection(m_CameraController.GetCamera().GetFront());
     Scene::OnUpdate(ts);
 }
 void LightsScene::OnEvent(Event &event) {

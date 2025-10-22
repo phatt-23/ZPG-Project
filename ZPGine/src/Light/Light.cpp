@@ -5,12 +5,21 @@
 
 namespace ZPG {
 
-Light::Light(LightType lightType)
-: m_LightType(lightType) {
+Light::Light(LightType lightType, const ref<Transform>& transform)
+: m_LightType(lightType)
+, m_Transform(transform) {
 }
 
 LightType Light::GetLightType() const {
-  return m_LightType;
+    return m_LightType;
+}
+
+void Light::SetTransform(ref<Transform> const& transform) {
+    m_Transform = transform;
+}
+
+const ref<Transform>& Light::GetTransform() const {
+    return m_Transform;
 }
 
 }

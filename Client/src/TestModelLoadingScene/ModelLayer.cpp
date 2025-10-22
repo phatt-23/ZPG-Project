@@ -73,7 +73,7 @@ void ModelLayer::OnRender(const RenderContext& context) {
 
             auto transform = TransformGroup::Create();
             transform->Add<Scale>(0.4f * vec3(1.0));
-            transform->Add<Translate>(pointLight->GetPosition());
+            transform->Add<Translate>(pointLight->m_Position.GetPosition());
 
             Renderer::Submit(
                 *m_Scene->GetResourceManager().GetShaderProgram("basic_single_color"),
@@ -85,7 +85,7 @@ void ModelLayer::OnRender(const RenderContext& context) {
 
             auto transform = TransformGroup::Create();
             transform->Add<Scale>(vec3(1.0, 1.0, 1.0));
-            transform->Add<Translate>(spotlight->GetPosition());
+            transform->Add<Translate>(spotlight->m_Position.GetPosition());
 
             Renderer::Submit(
                 *m_Scene->GetResourceManager().GetShaderProgram("basic_single_color"),
