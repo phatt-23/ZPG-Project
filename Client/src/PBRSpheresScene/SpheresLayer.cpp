@@ -21,7 +21,7 @@ void SpheresLayer::OnUpdate(ZPG::SceneContext& ctx) {
 
 void SpheresLayer::OnRender(const ZPG::RenderContext& ctx) {
     for (auto& ent : m_Scene->GetEntityManager().GetEntities()) {
-        Renderer::SubmitEntity(*ent);
+        Renderer::SubmitEntity(ent.get());
     }
 
     for (auto& light : ctx.Lights) {
@@ -32,9 +32,8 @@ void SpheresLayer::OnRender(const ZPG::RenderContext& ctx) {
             transform->Add<Scale>(0.4f * v3(1.0));
             transform->Add<Translate>(pointLight->m_Position.GetPosition());
 
-            Renderer::Submit(
-                *m_Scene->GetResourceManager().GetShaderProgram("basic_single_color"),
-                *m_Scene->GetResourceManager().GetModel(CommonResources::MODEL_BOX),
+            Renderer::SubmitModel(
+                m_Scene->GetResourceManager().GetModel(CommonResources::MODEL_BOX).get(),
                 transform->GetMatrix()
             );
         }

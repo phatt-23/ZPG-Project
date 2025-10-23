@@ -2,6 +2,7 @@
 
 #include "imgui.h"
 #include "ZPGine.h"
+#include "../assets/models/nemec/sphere.h"
 
 namespace CV5 {
 
@@ -27,8 +28,8 @@ public:
 
         m_SunMaterial = MakeRef<Material>();
         m_SunMaterial->SetShaderProgram(m_ShaderProgram);
-        m_SunMaterial->SetAlbedo(v4(1.0, 0.5, 0.0, 1.0));
-        m_SunMaterial->SetEmissive(v4(1.0, 0.8, 0.0, 1.0));
+        m_SunMaterial->SetAlbedo(v4(1.0));
+        m_SunMaterial->SetEmissive(v4(1.0, 0.0, 0.0, 1.0));
 
         m_EarthMaterial = MakeRef<Material>();
         m_EarthMaterial->SetShaderProgram(m_ShaderProgram);
@@ -74,7 +75,7 @@ public:
         GetEntityManager().AddEntity(new Entity(earthModel, earth));
         GetEntityManager().AddEntity(new Entity(moonModel, moon));
 
-        AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.2)));
+        AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.1)));
         AddLight(new PointLight(v4(1.0), v3(0.0)));
 
         // make this happen:
@@ -99,15 +100,6 @@ public:
     void OnEvent(Event &event) override {
         Scene::OnEvent(event);
         m_CameraController.OnEvent(event);
-    }
-
-    void OnRender(Timestep& ts) override {
-        Renderer::BeginDraw(GetCamera());
-        Renderer::SetLights(GetLightManager().GetLights());
-        for (auto& entity : GetEntityManager().GetEntities()) {
-            Renderer::SubmitEntity(*entity);
-        }
-        Renderer::EndDraw();
     }
 
     void SetShaderProgram(const std::string& shaderProgramResource) {

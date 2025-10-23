@@ -80,6 +80,16 @@ void Scene::OnResume() {
 void Scene::OnPause() {
 
 }
+
+void Scene::OnRender(Timestep& ts) {
+    Renderer::BeginDraw(m_Camera);
+    Renderer::SetLights(m_LightManager.GetLights());
+    for (const auto& entity : m_EntityManager.GetEntities()) {
+        Renderer::SubmitEntity(entity.get());
+    }
+    Renderer::EndDraw();
+}
+
 void Scene::AddLight(Light* light) {
     m_LightManager.AddLight(MakeRef(light));
 }

@@ -15,7 +15,7 @@ public:
         v3 const& direction);
 
     void SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) override;
-
+    LightStruct MapToLightStruct() override;
 public:
     ColorComponent m_Color;
     DirectionComponent m_Direction;

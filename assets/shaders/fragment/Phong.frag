@@ -11,8 +11,8 @@ struct Light {
     vec4 Color;
     vec3 Pos;
     vec3 Dir;
-    float InCutoff;
-    float OutCutoff;
+    float BeamSize;
+    float BeamBlend;
 };
 
 uniform Light u_Lights[100];

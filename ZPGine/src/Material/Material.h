@@ -21,6 +21,7 @@ public:
     ~Material();
 
     // bind all its uniforms (populates vecs and mats and simple data types and binds textures to slots)
+    // Deprecated when using UBOs or SSBOs.
     void Bind();
     void Unbind();
 

@@ -30,7 +30,7 @@ public:
     virtual void OnResume();
     virtual void OnPause();
     virtual void OnUpdate(Timestep& ts) { UpdateLayers(ts); }
-    virtual void OnRender(Timestep& ts) { RenderLayers(ts); }
+    virtual void OnRender(Timestep& ts);
     virtual void OnEvent(Event& event) { PropagateEventDownLayers(event); }
     virtual void OnImGuiRender();
 
@@ -51,8 +51,10 @@ public:
 protected:
     void PropagateEventDownLayers(Event& event); 
     void UpdateLayers(Timestep& ts);
-    void RenderLayers(Timestep& ts);
     Camera& GetCamera() { return m_Camera; }
+
+    // deprecated:
+    void RenderLayers(Timestep& ts);
 
 private:
     LayerStack m_LayerStack;

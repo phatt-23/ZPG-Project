@@ -12,8 +12,8 @@ struct Light {
     vec4 Color;
     vec3 Pos;
     vec3 Dir;
-    float BeamSize;
-    float BeamBlend;
+    float InCutoff;
+    float OutCutoff;
 };
 
 uniform Light u_Lights[100];
@@ -81,12 +81,13 @@ void main() {
                 light.Pos, 
                 light.Dir, 
                 light.Color.xyz * light.Color.w, 
-                light.BeamSize);
+                light.InCutoff);
         }
     }
 
     vec3 ambientColor = color * (u_AmbientColor.xyz * u_AmbientColor.w);
     f_FragColor = vec4(ambientColor + accumColor, 1.0);
+    f_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
 }
 
 vec3 pointLight(
@@ -123,7 +124,7 @@ vec3 spotLight(
     vec3 p_LightPos, 
     vec3 p_LightDir, 
     vec3 p_LightColor, 
-    float p_BeamSize
+    float p_Cutoff
 ) {
     vec3 lightDir = normalize(p_LightPos - v_WorldPos);
 
@@ -133,7 +134,7 @@ vec3 spotLight(
     float attenuation = 1.f / (a * pow(dist, 2.f) + b * dist + 1.f);
 
     float theta = dot(lightDir, normalize(-p_LightDir));
-    if (theta <= p_BeamSize) {
+    if (theta <= p_Cutoff) {
         return vec3(0.0);
     }
 

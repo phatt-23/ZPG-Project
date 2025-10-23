@@ -19,7 +19,7 @@ void SceneManager::AddScene(const std::string& name, Scene* scene) {
     ZPG_CORE_ASSERT(!Exists(name), "Scene with the given name already exists."); 
     m_Scenes[name] = scene;
 
-    // set this scene as active if the current active scene name doesnt point to any scene
+    // set this scene as active if the current active scene name doesn't point to any scene
     if (!Exists(m_ActiveSceneName)) {
         SetActiveScene(name);
     }

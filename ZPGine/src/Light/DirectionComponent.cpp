@@ -16,5 +16,4 @@ const v3& DirectionComponent::GetDirection() const {
     return m_Direction;
 }
 
-
 }

@@ -19,4 +19,11 @@ void AmbientLight::SendToShaderProgram(ShaderProgram& shaderProgram, u32 index) 
     shaderProgram.SetFloat4(CommonShaderUniforms::LightArray::Color(index), m_Color.GetColor());
 }
 
+LightStruct AmbientLight::MapToLightStruct() {
+    LightStruct lightStruct;
+    lightStruct.Type = (u32)GetLightType();
+    lightStruct.Color = m_Color.GetColor();
+    return std::move(lightStruct);
+}
+
 }

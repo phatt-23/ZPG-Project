@@ -4,6 +4,7 @@
 #include "ZPGine.h"
 #include "../../../assets/models/nemec/plain.h"
 #include "../../../assets/models/nemec/tree.h"
+#include "../../../assets/models/nemec/bushes.h"
 
 namespace CV5 {
 
@@ -13,11 +14,13 @@ class ForestScene final : public ZPG::Scene {
 public:
     ForestScene() : m_CameraController(GetCamera()) {
         m_TreeMaterial = MakeRef(new Material());
+        m_BushMaterial = MakeRef(new Material());
         m_GroundMaterial = MakeRef(new Material());
     }
 
     ref<Material> m_GroundMaterial;
     ref<Material> m_TreeMaterial;
+    ref<Material> m_BushMaterial;
 
     void OnAttach() override {
         m_ShaderProgram = m_ResourceManager->GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT_LIT);
@@ -25,10 +28,25 @@ public:
         m_TreeMaterial->SetAlbedo(v4(0.0, 1.0, 0.0, 1.0));
         m_TreeMaterial->SetShaderProgram(m_ShaderProgram);
 
+        m_BushMaterial->SetAlbedo(v4(0.0, 1.0, 0.0, 0.8));
+        m_BushMaterial->SetShaderProgram(m_ShaderProgram);
+
         auto treeModel = Model::Create({
             Mesh::Create(
                 VertexArray::Create({
                     VertexBuffer::Create(nemec::tree, sizeof(nemec::tree), {
+                        {ShaderDataType::Float3, "a_Pos"},
+                        {ShaderDataType::Float3, "a_Normal"},
+                    })
+                }),
+                m_TreeMaterial
+            )
+        });
+
+        auto bushModel = Model::Create({
+            Mesh::Create(
+                VertexArray::Create({
+                    VertexBuffer::Create(nemec::bushes, sizeof(nemec::bushes), {
                         {ShaderDataType::Float3, "a_Pos"},
                         {ShaderDataType::Float3, "a_Normal"},
                     })
@@ -67,6 +85,18 @@ public:
             GetEntityManager().AddEntity(new Entity(treeModel, transform));
         }
 
+        for (int i = 0; i < 0; i++) {
+            auto transform = TransformGroup::Build()
+                .Add<Translate>(
+                    groundSize * Utility::GetRandomFloat(),
+                    0.0,
+                    groundSize * Utility::GetRandomFloat())
+                .Add<Rotate>(180.0 * Utility::GetRandomFloat(), v3(0.0, 1.0, 0.0))
+                .Compose();
+
+            GetEntityManager().AddEntity(new Entity(bushModel, transform));
+        }
+
         auto groundTransform = TransformGroup::Build()
             .Add<Scale>(groundSize)
             .Compose();
@@ -100,7 +130,7 @@ public:
         Renderer::BeginDraw(GetCamera());
         Renderer::SetLights(GetLightManager().GetLights());
         for (auto& entity : GetEntityManager().GetEntities()) {
-            Renderer::SubmitEntity(*entity);
+            Renderer::SubmitEntity(entity.get());
         }
         Renderer::EndDraw();
     }

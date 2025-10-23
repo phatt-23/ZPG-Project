@@ -14,14 +14,14 @@ UniformBuffer::UniformBuffer(u32 size, u32 bindingPoint)
 
 {
     glGenBuffers(1, &m_RendererId);
-    glBindBuffer(GL_UNIFORM_BUFFER, m_RendererId);
+    Bind();
     {
         glBufferData(GL_UNIFORM_BUFFER, m_Size, NULL, GL_DYNAMIC_DRAW);
 
-        // glBindBufferBase(GL_UNIFORM_BUFFER, m_BindingPoint, m_RendererId);
-        glBindBufferRange(GL_UNIFORM_BUFFER, m_BindingPoint, m_RendererId, 0, m_Size);
+        glBindBufferBase(GL_UNIFORM_BUFFER, m_BindingPoint, m_RendererId);
+        // glBindBufferRange(GL_UNIFORM_BUFFER, m_BindingPoint, m_RendererId, 0, m_Size);
     }
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    Unbind();
 }
 
 UniformBuffer::~UniformBuffer() {
@@ -38,18 +38,16 @@ void UniformBuffer::Unbind() {
 }
 
 void UniformBuffer::SetData(void* data, u32 size, u32 offset) {
-    Bind();
-
     // void* ptr = glMapBufferRange(GL_UNIFORM_BUFFER, offset, size, GL_MAP_WRITE_BIT);
     // memcpy(ptr, data, size);
     // glUnmapBuffer(GL_UNIFORM_BUFFER);
 
-    ZPG_CORE_ASSERT(offset + size < m_Size,
+    ZPG_CORE_ASSERT(offset + size <= m_Size,
         "Cannot write {} bytes at an offset of {} into a UBO with size of {} bytes",
         size, offset, m_Size);
 
+    Bind();
     glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
-    Unbind();
 }
 
 }

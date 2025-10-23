@@ -20,6 +20,7 @@
 #include <sstream>
 #include <map>
 #include <variant>
+#include <ranges>
 
 #include <boost/stacktrace.hpp>
 

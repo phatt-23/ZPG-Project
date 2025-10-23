@@ -59,7 +59,7 @@ public:
         Renderer::BeginDraw(GetCamera());
         Renderer::SetLights(GetLightManager().GetLights());
         for (auto& entity : GetEntityManager().GetEntities()) {
-            Renderer::SubmitEntity(*entity);
+            Renderer::SubmitEntity(entity.get());
         }
         Renderer::EndDraw();
     }

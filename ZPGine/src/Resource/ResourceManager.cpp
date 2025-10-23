@@ -76,33 +76,33 @@ void ResourceManager::InitDefaultModels() {
 void ResourceManager::InitDefaultShaderPrograms() {
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_DEFAULT_LIT,
-        "./assets/shaders/vertex/DefaultLit.vert",
-        "./assets/shaders/fragment/DefaultLit.frag");
+        "./assets/shaders/UBO/vertex/DefaultLit.vert",
+        "./assets/shaders/UBO/fragment/DefaultLit.frag");
 
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_PBR,
-        "./assets/shaders/vertex/PBR.vert",
-        "./assets/shaders/fragment/PBR.frag");
+        "./assets/shaders/UBO/vertex/PBR.vert",
+        "./assets/shaders/UBO/fragment/PBR.frag");
 
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_CONSTANT,
-        "./assets/shaders/vertex/Constant.vert",
-        "./assets/shaders/fragment/Constant.frag");
+        "./assets/shaders/UBO/vertex/Constant.vert",
+        "./assets/shaders/UBO/fragment/Constant.frag");
 
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_LAMBERT,
-        "./assets/shaders/vertex/Lambert.vert",
-        "./assets/shaders/fragment/Lambert.frag");
+        "./assets/shaders/UBO/vertex/Lambert.vert",
+        "./assets/shaders/UBO/fragment/Lambert.frag");
 
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_PHONG,
-        "./assets/shaders/vertex/Phong.vert",
-        "./assets/shaders/fragment/Phong.frag");
+        "./assets/shaders/UBO/vertex/Phong.vert",
+        "./assets/shaders/UBO/fragment/Phong.frag");
 
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_BLINN_PHONG,
-        "./assets/shaders/vertex/Blinn-Phong.vert",
-        "./assets/shaders/fragment/Blinn-Phong.frag");
+        "./assets/shaders/UBO/vertex/Blinn-Phong.vert",
+        "./assets/shaders/UBO/fragment/Blinn-Phong.frag");
 }
 
 void ResourceManager::InitDefaultTextures() {

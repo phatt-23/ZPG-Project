@@ -20,6 +20,7 @@ public:
         f32 beamBlend);
 
     void SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) override;
+    LightStruct MapToLightStruct() override;
 
 public:
     ColorComponent m_Color;

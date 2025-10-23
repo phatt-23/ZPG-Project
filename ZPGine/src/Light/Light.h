@@ -1,4 +1,5 @@
 #pragma once
+#include "LightStruct.h"
 #include "LightType.h"
 
 namespace ZPG {
@@ -13,7 +14,7 @@ public:
 
     LightType GetLightType() const;
     virtual void SendToShaderProgram(ShaderProgram& shaderProgram, u32 index) = 0;
-
+    virtual LightStruct MapToLightStruct() = 0;
 
     void SetTransform(const ref<Transform>& transform);
     const ref<Transform>& GetTransform() const;

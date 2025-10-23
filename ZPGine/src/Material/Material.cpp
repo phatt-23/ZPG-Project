@@ -2,6 +2,7 @@
 
 #include <Shader/CommonShaderUniforms.h>
 
+#include "Debug/Asserter.h"
 #include "Resource/CommonResources.h"
 #include "Resource/ResourceManager.h"
 #include "Texture/Texture.h"
@@ -27,6 +28,8 @@ Material::~Material() {
 
 }
 void Material::Bind() {
+    ZPG_NOT_IMPL();
+
     m_ShaderProgram->Bind();
 
     // bind factors

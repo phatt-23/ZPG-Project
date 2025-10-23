@@ -18,4 +18,12 @@ void PointLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
     shaderProgram.SetFloat3(un::Position(index), m_Position.GetPosition());
 }
 
+LightStruct PointLight::MapToLightStruct() {
+    LightStruct lightStruct;
+    lightStruct.Type = (u32)GetLightType();
+    lightStruct.Color = m_Color.GetColor();
+    lightStruct.Pos = m_Position.GetPosition();
+    return std::move(lightStruct);
+}
+
 }

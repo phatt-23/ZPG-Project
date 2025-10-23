@@ -1,5 +1,5 @@
 #type fragment
-#version 400
+#version 420
 
 const uint LightTypeAmbient      = 1 << 0;
 const uint LightTypePoint        = 1 << 1;
@@ -11,17 +11,25 @@ struct Light {
     vec4 Color;
     vec3 Pos;
     vec3 Dir;
-    float BeamSize;
-    float BeamBlend;
+    float InCutoff;
+    float OutCutoff;
 };
 
-uniform Light u_Lights[100];
-uniform int u_LightCount;
-uniform vec3 u_CameraPos;
-uniform vec4 u_AmbientColor;
+layout (std140, binding = 1) uniform LightsUBO {
+    Light Lights[100];
+    int LightCount;
+} u_Lights;
 
-uniform vec4 u_Albedo;
-uniform vec4 u_Emissive;
+layout (std140, binding = 2) uniform CameraUBO {
+    vec3 CameraPos;
+} u_Camera;
+
+layout (std140, binding = 3) uniform MaterialUBO {
+    vec4 Albedo;
+    vec4 Emissive;
+    float Roughness;
+    float Metallic;
+} u_Material;
 
 in vec3 v_WorldPos;
 in vec3 v_WorldNormal;
@@ -29,12 +37,14 @@ in vec3 v_WorldNormal;
 out vec4 f_FragColor;
 
 void main() {
-    vec3 albedo = u_Albedo.rgb * u_Albedo.a;
+    vec3 albedo = u_Material.Albedo.rgb * u_Material.Albedo.a;
+
     vec3 Lo = vec3(0.0);
+    vec3 La = vec3(0.0);
 
-    for (int i = 0; i < u_LightCount; i++) {
+    for (int i = 0; i < u_Lights.LightCount; i++) {
 
-        Light light = u_Lights[i];
+        Light light = u_Lights.Lights[i];
         vec3 lightColor = light.Color.rgb * light.Color.a;
         vec3 color = lightColor * albedo;
 
@@ -42,7 +52,7 @@ void main() {
             float dist = length(v_WorldPos - light.Pos);
             float atten = 1.0 / (0.2 * dist*dist + 0.2 * dist + 0.1);
 
-            vec3 V = normalize(u_CameraPos - v_WorldPos);
+            vec3 V = normalize(u_Camera.CameraPos - v_WorldPos);
             vec3 L = normalize(light.Pos - v_WorldPos);
             vec3 N = normalize(v_WorldNormal);
             vec3 R = reflect(-L,N);
@@ -52,7 +62,7 @@ void main() {
             Lo += diffuse * atten;
         }
         else if (light.Type == LightTypeDirectional) {
-            vec3 V = normalize(u_CameraPos - v_WorldPos);
+            vec3 V = normalize(u_Camera.CameraPos - v_WorldPos);
             vec3 L = normalize(-light.Dir);
             vec3 N = normalize(v_WorldNormal);
             vec3 R = reflect(-L,N);
@@ -61,9 +71,10 @@ void main() {
 
             Lo += diffuse;
         }
+        else if (light.Type == LightTypeAmbient) {
+            La += color;
+        }
     }
 
-    vec3 ambient = u_AmbientColor.xyz * u_AmbientColor.w;
-    vec3 La = ambient * albedo;
-    f_FragColor = vec4(Lo + La, 1.0) + u_Emissive;
+    f_FragColor = vec4(Lo + La, 1.0) + u_Material.Emissive;
 }
