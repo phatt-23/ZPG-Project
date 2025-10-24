@@ -5,6 +5,7 @@
 #include "../../../assets/models/nemec/plain.h"
 #include "../../../assets/models/nemec/tree.h"
 #include "../../../assets/models/nemec/bushes.h"
+#include "../../../assets/models/nemec/sphere.h"
 
 namespace CV6 {
 
@@ -29,7 +30,7 @@ public:
         bushMaterial->SetShaderProgram(m_ShaderProgram);
 
         auto groundMaterial = MakeRef(new Material());
-        groundMaterial->SetAlbedo(v4(1.0, 0.0, 0.0, 1.0));
+        groundMaterial->SetAlbedo(v4(0.8, 0.5, 0.0, 1.0));
         groundMaterial->SetShaderProgram(m_ShaderProgram);
 
         auto fireflyMaterial = MakeRef(new Material());
@@ -95,7 +96,7 @@ public:
         LoadMaterials();
         LoadModels();
 
-        f32 groundSize = 20.0;
+        f32 groundSize = 40.0;
 
         // trees
         for (int i = 0; i < 100; i++) {
@@ -129,11 +130,8 @@ public:
             .Add<Scale>(groundSize)
             .Compose();
 
-
-
-
         // fireflies
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 20; i++) {
             auto pointLight = MakeRef<PointLight>(
                 v4(1.0, 1.0, 1.0, 0.2),
                 v3(0.0, 1.0, 0.0));
@@ -168,17 +166,17 @@ public:
         GetEntityManager().AddEntity(new Entity(
             m_LocalResourceManager.GetModel("Ground"),
             groundTransform));
-        GetEntityManager().AddEntity(new Entity(
-            m_LocalResourceManager.GetModel("Ground"),
-            groundTransform));
-        GetEntityManager().AddEntity(new Entity(
-            m_LocalResourceManager.GetModel("Ground"),
-            groundTransform));
 
         // lights
-        AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.2), v3(-1.0)));
-        AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.2)));
+        m_DirLight = new DirectionalLight(v4(0.1, 0.1, 1.0, 0.8), v3(-1.0));
+        AddLight(m_DirLight);
+
+        m_AmbientLight = new AmbientLight(v4(1.0, 1.0, 1.0, 0.001));
+        AddLight(m_AmbientLight);
     }
+
+    DirectionalLight* m_DirLight;
+    AmbientLight* m_AmbientLight;
 
     void OnUpdate(Timestep& ts) override {
         Scene::OnUpdate(ts);
@@ -218,6 +216,18 @@ public:
         if (ImGui::Button("PBR")) {
             SetShaderProgram(CommonResources::SHADER_PROGRAM_PBR);
         }
+        ImGui::End();
+
+        ImGui::Begin("Lights");
+        static v4 dirLightColor = m_DirLight->m_Color.GetColor();
+        if (ImGui::SliderFloat4("DirLight Color", glm::value_ptr(dirLightColor), 0.0, 1.0)) {
+            m_DirLight->m_Color.SetColor(dirLightColor);
+        }
+        static v4 ambientLightColor = m_AmbientLight->m_Color.GetColor();
+        if (ImGui::SliderFloat4("AmbientLight Color", glm::value_ptr(ambientLightColor), 0.0, 1.0)) {
+            m_AmbientLight->m_Color.SetColor(ambientLightColor);
+        }
+
         ImGui::End();
     }
 

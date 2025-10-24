@@ -15,6 +15,9 @@ public:
     void Bind();
     void Unbind();
 
+    void* Map(u32 offset = 0, u32 length = 0);
+    void Unmap();
+
     void SetData(void* data, u32 size, u32 offset = 0);
 private:
     u32 m_RendererId;

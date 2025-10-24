@@ -3,15 +3,21 @@
 //
 
 #include "RenderBatch.h"
+#include "Debug/Asserter.h"
 #include "RenderGroups.h"
 
 namespace ZPG {
 
 
 RenderBatch::RenderBatch(u32 batchCapacity)
-: m_BatchCapacity(batchCapacity) {
+: m_BatchCapacity(batchCapacity)
+, m_NeedsSorting(false) {
     m_DrawCommands.reserve(m_BatchCapacity);
+    m_Transforms.reserve(m_BatchCapacity);
 
+    // reserve upfront
+    // since there are at most m_BatchCapacity draw commands,
+    // we need at most m_BatchCapacity of every group
     m_ShaderProgramGroups.reserve(m_BatchCapacity);
     m_MaterialGroups.reserve(m_BatchCapacity);
     m_VertexArrayGroups.reserve(m_BatchCapacity);
@@ -20,16 +26,37 @@ RenderBatch::RenderBatch(u32 batchCapacity)
 RenderBatch::~RenderBatch() {
 }
 
-void RenderBatch::AddCommand(const DrawCommand& command) {
+void RenderBatch::AddCommand(DrawCommand& command, const m4& transform) {
+    m_Transforms.push_back(transform);
+    command.m_TransformIndex = m_Transforms.size() - 1;
+
     m_DrawCommands.push_back(command);
+    m_NeedsSorting = true;  // mark dirty
 }
 
 void RenderBatch::Reset() {
     m_DrawCommands.clear();
+    m_Transforms.clear();
+    m_NeedsSorting = false;
 }
 
 void RenderBatch::SortCommands() {
-    std::ranges::sort(m_DrawCommands.begin(), m_DrawCommands.end(), DrawCommand::DrawCommandComparator());
+    m_NeedsSorting = false;
+    std::ranges::sort(
+        m_DrawCommands.begin(), 
+        m_DrawCommands.end(), 
+        DrawCommand::DrawCommandComparator());
+
+    // after sorting, reorder transforms to match
+    std::vector<m4> sortedTransforms(m_DrawCommands.size());
+    for (size_t i = 0; i < m_DrawCommands.size(); ++i)
+        sortedTransforms[i] = m_Transforms[m_DrawCommands[i].m_TransformIndex];
+
+    m_Transforms = std::move(sortedTransforms);
+
+    // update each command’s transform index to reflect new order
+    for (size_t i = 0; i < m_DrawCommands.size(); i++)
+        m_DrawCommands[i].m_TransformIndex = i;
 }
 
 const std::vector<DrawCommand>& RenderBatch::GetDrawCommands() const {
@@ -45,23 +72,17 @@ u32 RenderBatch::GetBatchCapacity() const {
 }
 
 void RenderBatch::BuildGroups() {
-    // clear old data
-    m_ShaderProgramGroups.resize(0);
-    m_MaterialGroups.resize(0);
-    m_VertexArrayGroups.resize(0);
-
-    // nothing to do
     if (m_DrawCommands.empty()) {
         return;
     }
 
+    // clear old data (only set size to 0)
+    m_ShaderProgramGroups.resize(0);
+    m_MaterialGroups.resize(0);
+    m_VertexArrayGroups.resize(0);
+
     // presort draw commands
     SortCommands();
-
-    // reserve upfront
-    m_ShaderProgramGroups.reserve(64);
-    m_MaterialGroups.reserve(256);
-    m_VertexArrayGroups.reserve(1024);
 
     // current assets being used
     ShaderProgram*  currShaderProgram   = m_DrawCommands[0].m_ShaderProgram;
@@ -96,7 +117,7 @@ void RenderBatch::BuildGroups() {
                 vaoTransformCount,  // up until (i + count)-th command
             }); 
 
-            vaoTransformStart = i;  // the i-th draw command
+            vaoTransformStart = i;  // begins at the i-th draw command
             vaoTransformCount = 0;
 
             materialVaoCount += 1;  // material gets one more vao group
@@ -175,6 +196,14 @@ const std::vector<MaterialGroup>& RenderBatch::GetMaterialGroups() const {
 
 const std::vector<VertexArrayGroup>& RenderBatch::GetVertexArrayGroups() const {
     return m_VertexArrayGroups;
+}
+
+const m4& RenderBatch::GetTransform(u32 transformIndex) const {
+    ZPG_CORE_ASSERT(transformIndex < m_Transforms.size(), "Cannot index Transforms with the size of {} at position {}", m_Transforms.size(), transformIndex);
+    return m_Transforms[transformIndex];
+}
+const std::vector<m4>& RenderBatch::GetTransforms() const {
+    return m_Transforms;
 }
 
 }

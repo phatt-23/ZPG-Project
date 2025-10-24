@@ -28,7 +28,7 @@ public:
     RenderBatch(u32 batchCapacity);
     ~RenderBatch();
 
-    void AddCommand(const DrawCommand& command);
+    void AddCommand(DrawCommand& command, const m4& transform);
     void SortCommands();
     void Reset();
 
@@ -42,15 +42,22 @@ public:
     const std::vector<ShaderProgramGroup>& GetShaderProgramGroups() const;
     const std::vector<MaterialGroup>& GetMaterialGroups() const;
     const std::vector<VertexArrayGroup>& GetVertexArrayGroups() const;
+    
+    const m4& GetTransform(u32 transformIndex) const;
+    const std::vector<m4>& GetTransforms() const;
 
 private:
-    std::vector<DrawCommand> m_DrawCommands;
     u32 m_BatchCapacity;
+
+    std::vector<DrawCommand> m_DrawCommands;
+    std::vector<m4> m_Transforms;
 
     // indexers
     std::vector<ShaderProgramGroup> m_ShaderProgramGroups;
     std::vector<MaterialGroup> m_MaterialGroups;
     std::vector<VertexArrayGroup> m_VertexArrayGroups;
+
+    bool m_NeedsSorting;
 };
 
 } // ZPG

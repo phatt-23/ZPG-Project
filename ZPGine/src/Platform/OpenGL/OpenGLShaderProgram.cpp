@@ -5,7 +5,6 @@
 #include "Debug/Asserter.h"
 #include "Core/Utility.h"
 #include "Shader/Shader.h"
-#include "OpenGLShader.h"
 
 namespace ZPG {
 

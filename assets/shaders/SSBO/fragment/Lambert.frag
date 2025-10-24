@@ -38,44 +38,48 @@ in vec3 v_WorldNormal;
 out vec4 f_FragColor;
 
 void main() {
-    vec3 albedo = ssb_Material.Albedo.rgb * ssb_Material.Albedo.a;
+    vec3 albedo = ssb_Material.Albedo.rgb;
+    vec3 emissive = ssb_Material.Emissive.rgb;
 
     vec3 Lo = vec3(0.0);
     vec3 La = vec3(0.0);
 
-    for (int i = 0; i < ssb_Lights.LightCount; i++) {
+    vec3 N = normalize(v_WorldNormal);
+    vec3 V = normalize(ssb_Camera.CameraPos - v_WorldPos);
 
+    for (int i = 0; i < ssb_Lights.LightCount; i++) {
         Light light = ssb_Lights.Lights[i];
         vec3 lightColor = light.Color.rgb * light.Color.a;
-        vec3 color = lightColor * albedo;
 
         if (light.Type == LightTypePoint) {
-            float dist = length(v_WorldPos - light.Pos);
-            float atten = 1.0 / (0.2 * dist*dist + 0.2 * dist + 0.1);
-
-            vec3 V = normalize(ssb_Camera.CameraPos - v_WorldPos);
             vec3 L = normalize(light.Pos - v_WorldPos);
-            vec3 N = normalize(v_WorldNormal);
-            vec3 R = reflect(-L,N);
+            float dist = length(light.Pos - v_WorldPos);
 
-            vec3 diffuse = max(dot(N,L), 0.0) * color;
+            float atten = 1.0 / (1.0 + 0.22 * dist + 0.20 * dist * dist);
+
+            float NdotL = max(dot(N, L), 0.0);
+
+            vec3 diffuse = NdotL * albedo * lightColor;
 
             Lo += diffuse * atten;
         }
         else if (light.Type == LightTypeDirectional) {
-            vec3 V = normalize(ssb_Camera.CameraPos - v_WorldPos);
             vec3 L = normalize(-light.Dir);
-            vec3 N = normalize(v_WorldNormal);
-            vec3 R = reflect(-L,N);
+            float NdotL = max(dot(N, L), 0.0);
 
-            vec3 diffuse = max(dot(L,N), 0.0) * color;
+            vec3 diffuse = NdotL * albedo * lightColor;
 
             Lo += diffuse;
         }
         else if (light.Type == LightTypeAmbient) {
-            La += color;
+            La += albedo * lightColor;
         }
     }
 
-    f_FragColor = vec4(Lo + La, 1.0) + ssb_Material.Emissive;
+    vec3 color = Lo + La + emissive;
+
+    color = color / (color + vec3(1.0));
+    color = pow(color, vec3(1.0 / 2.2));
+
+    f_FragColor = vec4(color, 1.0);
 }

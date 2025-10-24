@@ -17,26 +17,38 @@ public:
     template<typename T, typename S> using Map = std::unordered_map<T, S>;
 
     // assigns defaults
-    Material();
+    Material(const std::string& name = "");
     ~Material();
 
-    // bind all its uniforms (populates vecs and mats and simple data types and binds textures to slots)
-    // Deprecated when using UBOs or SSBOs.
+    // Bind all its uniforms (populates vecs and mats and simple data types and binds textures to slots).
+    // Don't use when using UBOs or SSBOs.
+    [[deprecated("Don't use with UBOs or SSBOs")]]
     void Bind();
+    [[deprecated("Don't use with UBOs or SSBOs")]]
     void Unbind();
 
     void SetShaderProgram(const ref<ShaderProgram>& shaderProgram);
-    ref<ShaderProgram>& GetShaderProgram() { return m_ShaderProgram; }
+    ref<ShaderProgram>& GetShaderProgram();
 
     void SetAlbedo(const v4& albedo);
     void SetRoughness(f32 roughness);
     void SetMetallic(f32 metallic);
     void SetEmissive(const v4& emissive);
 
+    const v4& GetAlbedo() const;
+    f32 GetRoughness() const;
+    f32 GetMetallic() const;
+    const v4& GetEmissive() const;
+
     void SetAlbedoMap(const ref<Texture>& albedoMap);
     void SetNormalMap(const ref<Texture>& normalMap);
     void SetMetalnessMap(const ref<Texture>& metalnessMap);
     void SetRoughnessMap(const ref<Texture>& roughnessMap);
+
+    const ref<Texture>& GetAlbedoMap() const;
+    const ref<Texture>& GetNormalMap() const;
+    const ref<Texture>& GetMetalnessMap() const;
+    const ref<Texture>& GetRoughnessMap() const;
 
     void SetName(const std::string& name);
     std::string const& GetName() const;

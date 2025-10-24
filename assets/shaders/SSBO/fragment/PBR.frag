@@ -32,6 +32,11 @@ layout (std430, binding = 3) buffer MaterialStorageBuffer {
     float Metallic;
 } ssb_Material;
 
+uniform sampler2D u_AlbedoMap;
+uniform sampler2D u_RoughnessMap;
+uniform sampler2D u_MetalnessMap;
+uniform sampler2D u_NormalMap;
+
 in vec3 v_WorldPos;
 in vec3 v_WorldNormal;
 
@@ -46,7 +51,9 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 
 void main() {
-    vec3 albedo = ssb_Material.Albedo.rgb * ssb_Material.Albedo.a;
+
+    vec3 albedo = pow(ssb_Material.Albedo.rgb, vec3(2.2)); // convert to linear
+
     float ao = 1.0;
     vec3 N = normalize(v_WorldNormal);
     vec3 V = normalize(ssb_Camera.CameraPos - v_WorldPos);
@@ -58,13 +65,14 @@ void main() {
 
     // reflectance equation
     vec3 Lo = vec3(0.0);
+    vec3 La = vec3(0.0);
 
     for(int i = 0; i < ssb_Lights.LightCount; i++) {
 
         Light light = ssb_Lights.Lights[i];
 
         int lightType = light.Type;
-        vec3 lightColor = light.Color.rgb * light.Color.a;
+        vec3 lightColor = light.Color.rgb * light.Color.a * 5.0;
         vec3 lightPos = light.Pos.xyz;
         vec3 lightDir = light.Dir.xyz;
 
@@ -95,16 +103,41 @@ void main() {
             float NdotL = max(dot(N, L), 0.0);
             Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
+        else if (lightType == LightTypeDirectional) {
+            // calculate per-light radiance
+            vec3 L = normalize(-lightDir);
+            vec3 H = normalize(V + L);
+            vec3 radiance     = lightColor;
+
+            // cook-torrance brdf
+            float NDF = DistributionGGX(N, H, roughness);
+            float G   = GeometrySmith(N, V, L, roughness);
+            vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+            vec3 kS = F;
+            vec3 kD = vec3(1.0) - kS;
+            kD *= 1.0 - metallic;
+
+            vec3 numerator    = NDF * G * F;
+            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+            vec3 specular     = numerator / denominator;
+
+            // add to outgoing radiance Lo
+            float NdotL = max(dot(N, L), 0.0);
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        }
+        else if (lightType == LightTypeAmbient) {
+            La += color * ao * 0.03;
+        }
     }
 
-    vec3 ambient = vec3(0.03) * albedo * ao;
-    vec3 color = ambient + Lo;
+    vec3 Lc = La + Lo;
 
-    color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0/2.2));
+    Lc = Lc / (Lc + vec3(1.0));
+    Lc = pow(Lc, vec3(1.0/2.2));
 
     // f_FragColor = vec4(ssb_Lights.LightCount * vec3(0.1, 0.0, 0.0), 1.0); // vec4(color, 1.0);
-    f_FragColor = vec4(color, 1.0);
+    f_FragColor = vec4(Lc, 1.0);
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)

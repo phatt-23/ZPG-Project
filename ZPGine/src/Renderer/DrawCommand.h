@@ -13,10 +13,14 @@ class VertexArray;
 class Transform;
 
 struct DrawCommand {
+    DrawCommand(ShaderProgram* shaderProgram, Material* material, VertexArray* vao);
+
     ShaderProgram* m_ShaderProgram;
     Material* m_Material;
     VertexArray* m_VAO;
-    m4 m_Transform;
+
+    // m4 m_Transform;
+    u32 m_TransformIndex;
 
 
     struct DrawCommandComparator {

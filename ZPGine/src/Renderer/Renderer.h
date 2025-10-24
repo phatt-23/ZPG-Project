@@ -5,6 +5,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include "DrawData.h"
 #include "RendererAPI.h"
 #include "Light/LightManager.h"
 
@@ -46,8 +47,28 @@ public:
     static RendererAPI::API GetAPI();
 
     static void OnWindowResize(int width, int height);
+
+    static void SetInstanced(bool enabled) { s_Instanced = enabled; }
+    static bool IsInstanced() { return s_Instanced; }
+
+
+    struct Statistics {
+        u32 FlushCountPerFrame = 0;
+        u32 DrawCallCountPerFrame = 0;
+
+        void Reset() {
+            FlushCountPerFrame = 0;
+            DrawCallCountPerFrame = 0;
+        }
+    };
+
+    static Statistics* GetStats() { return s_Stats; }
+
 private:
-    static DrawData* s_DrawData;
+    inline static DrawData* s_DrawData = nullptr;
+    inline static bool s_Instanced = true;
+
+    inline static Statistics* s_Stats = nullptr;
 };
 
 

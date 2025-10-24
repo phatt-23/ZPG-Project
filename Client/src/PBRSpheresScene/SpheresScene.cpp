@@ -8,7 +8,6 @@
 
 #include "imgui.h"
 #include "SpheresLayer.h"
-#include "../../../assets/models/nemec/suzi_smooth.h"
 #include "../assets/models/nemec/sphere.h"
 
 using namespace ZPG;

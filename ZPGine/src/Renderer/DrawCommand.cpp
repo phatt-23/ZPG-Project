@@ -6,6 +6,14 @@
 
 namespace ZPG {
 
+
+DrawCommand::DrawCommand(ShaderProgram* shaderProgram, Material* material, VertexArray* vao)
+    : m_ShaderProgram(shaderProgram)
+    , m_Material(material)
+    , m_VAO(vao) 
+    , m_TransformIndex(-1) {
+}
+
 bool DrawCommand::DrawCommandComparator::operator()(const DrawCommand& a, const DrawCommand& b) const {
     if (a.m_ShaderProgram != b.m_ShaderProgram) {
         return a.m_ShaderProgram < b.m_ShaderProgram;

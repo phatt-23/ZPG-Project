@@ -9,10 +9,10 @@
 
 namespace ZPG {
 
-static constexpr u32 sg_ModelsSSBOCapacity = 1024;
+static constexpr u32 s_BatchSize = 1024;
 
 DrawData::DrawData()
-    : Batch             (1024)
+    : Batch             (s_BatchSize)
     // Mirrored Shader Storage Buffers on CPU
     , MatricesStorage   ()
     , LightsStorage     ()
@@ -31,16 +31,19 @@ DrawData::DrawData()
     , ModelsSSBO        (4, 
         sizeof(ModelsStorageBuffer::ModelCount) + 
         sizeof(ModelsStorageBuffer::_pad_ModelCount) +
-        sizeof(m4) * sg_ModelsSSBOCapacity)
+        sizeof(m4) * s_BatchSize)
 {
     LightsStorage.Lights = new LightStruct[LightManager::s_LightCapacity];
 
-    // TODO: make this size configurable
-    ModelsStorage.Models = new m4[sg_ModelsSSBOCapacity];
+    // since there can be only s_BatchSize draw commands
+    // in a single batch, we should only need s_BatchSize
+    // model matrices
+    ModelsStorage.Models = new m4[s_BatchSize];
 }
 
 DrawData::~DrawData() {
     delete[] LightsStorage.Lights;
+    delete[] ModelsStorage.Models;
 }
 
 }

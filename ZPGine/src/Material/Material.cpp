@@ -9,7 +9,9 @@
 #include "Shader/ShaderProgram.h"
 
 namespace ZPG {
-Material::Material() {
+
+Material::Material(const std::string& name) 
+: m_Name(name) {
     ResourceManager& res = ResourceManager::GetGlobal();
 
     m_ShaderProgram = res.GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT_LIT);
@@ -24,9 +26,11 @@ Material::Material() {
     m_MetalnessMap = res.GetTexture(CommonResources::NULL_METALNESS_MAP);
     m_RoughnessMap = res.GetTexture(CommonResources::NULL_ROUGHNESS_MAP);
 }
+
 Material::~Material() {
 
 }
+
 void Material::Bind() {
     ZPG_NOT_IMPL();
 
@@ -51,6 +55,7 @@ void Material::Bind() {
     m_NormalMap->BindToSlot(3);
     m_ShaderProgram->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 3);
 }
+
 void Material::Unbind() {
     m_ShaderProgram->Unbind();
 }
@@ -58,7 +63,9 @@ void Material::Unbind() {
 void Material::SetShaderProgram(const ref<ShaderProgram>& shaderProgram) {
     m_ShaderProgram = shaderProgram;
 }
-
+ref<ShaderProgram>& Material::GetShaderProgram() { 
+    return m_ShaderProgram; 
+}
 
 void Material::SetAlbedoMap(const ref<Texture>& albedoMap) {
     m_AlbedoMap = albedoMap;
@@ -66,19 +73,32 @@ void Material::SetAlbedoMap(const ref<Texture>& albedoMap) {
 void Material::SetNormalMap(const ref<Texture>& normalMap) {
     m_NormalMap = normalMap;
 }
-
-void Material::SetMetalnessMap(const ref<Texture>& metalnessMap)
-{
+void Material::SetMetalnessMap(const ref<Texture>& metalnessMap) {
     m_MetalnessMap = metalnessMap;
 }
 void Material::SetRoughnessMap(const ref<Texture>& roughnessMap) {
     m_RoughnessMap = roughnessMap;
 }
 
-void Material::SetName(const std::string& name) { m_Name = name; }
+const ref<Texture>& Material::GetAlbedoMap() const {
+    return m_AlbedoMap;
+}
+const ref<Texture>& Material::GetNormalMap() const {
+    return m_NormalMap;
+}
+const ref<Texture>& Material::GetMetalnessMap() const {
+    return m_MetalnessMap;
+}
+const ref<Texture>& Material::GetRoughnessMap() const {
+    return m_RoughnessMap;
+}
 
-std::string const& Material::GetName() const { return m_Name; }
-
+void Material::SetName(const std::string& name) { 
+    m_Name = name; 
+}
+std::string const& Material::GetName() const { 
+    return m_Name; 
+}
 
 void Material::SetAlbedo(const v4& albedo) {
     m_Albedo = albedo;
@@ -91,6 +111,19 @@ void Material::SetMetallic(f32 metallic) {
 }
 void Material::SetEmissive(const v4& emissive) {
     m_Emissive = emissive;
+}
+
+const v4& Material::GetAlbedo() const {
+    return m_Albedo;
+}
+f32 Material::GetRoughness() const {
+    return m_Roughness;
+}
+f32 Material::GetMetallic() const {
+    return m_Metallic;
+}
+const v4& Material::GetEmissive() const {
+    return m_Emissive;
 }
 
 }

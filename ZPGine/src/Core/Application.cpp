@@ -53,7 +53,15 @@ void Application::Run() {
         ImGuiManager::BeginFrame();
 
         ImGui::Begin("Stats");
-        ImGui::Text("FPS: %f\n", 1.0f/ts.AsSeconds());
+            ImGui::Text("FPS: %f\n", 1.0f/ts.AsSeconds());
+
+            static bool instancedEnabled = Renderer::IsInstanced();
+            if (ImGui::Checkbox("Renderer is Instanced", &instancedEnabled)) {
+                Renderer::SetInstanced(instancedEnabled);
+            }
+
+            ImGui::Text("Flush Per Frame      : %d", Renderer::GetStats()->FlushCountPerFrame);
+            ImGui::Text("Draw Calls Per Frame : %d", Renderer::GetStats()->DrawCallCountPerFrame);
         ImGui::End();
 
         m_SceneManager.GetActiveScene()->OnImGuiRender();
