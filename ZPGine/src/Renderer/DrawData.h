@@ -44,6 +44,13 @@ struct DrawData {
         f32 _pad0[2];
     };
 
+    struct alignas(sizeof(v4)) ModelsStorageBuffer {
+        int ModelCount;
+        f32 _pad_ModelCount[3];
+
+        m4* Models;
+    };
+
     /**
      *  Batch of some fixed size.
      */
@@ -58,6 +65,7 @@ struct DrawData {
     LightsStorageBuffer LightsStorage;
     CameraStorageBuffer CameraStorage;
     MaterialStorageBuffer MaterialStorage;
+    ModelsStorageBuffer ModelsStorage;
 
     /**
      * Actual Shader Storage Buffers (on GPU).
@@ -67,7 +75,7 @@ struct DrawData {
     ShaderStorageBuffer LightsSSBO;
     ShaderStorageBuffer CameraSSBO;
     ShaderStorageBuffer MaterialSSBO;
-
+    ShaderStorageBuffer ModelsSSBO;
 };
 
 }

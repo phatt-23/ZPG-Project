@@ -75,6 +75,9 @@ void Material::SetRoughnessMap(const ref<Texture>& roughnessMap) {
     m_RoughnessMap = roughnessMap;
 }
 
+void Material::SetName(const std::string& name) { m_Name = name; }
+
+std::string const& Material::GetName() const { return m_Name; }
 
 
 void Material::SetAlbedo(const v4& albedo) {

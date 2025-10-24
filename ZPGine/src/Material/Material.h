@@ -38,7 +38,12 @@ public:
     void SetMetalnessMap(const ref<Texture>& metalnessMap);
     void SetRoughnessMap(const ref<Texture>& roughnessMap);
 
+    void SetName(const std::string& name);
+    std::string const& GetName() const;
+
 public:
+    std::string m_Name;
+
     ref<ShaderProgram> m_ShaderProgram;  // by which this material is drawn
 
     /**
@@ -89,7 +94,6 @@ public:
      * By default, it is 1x1 texture with color (0.5, 0.5, 1.0).
      */
     ref<Texture> m_NormalMap;
-
 };
 
 }

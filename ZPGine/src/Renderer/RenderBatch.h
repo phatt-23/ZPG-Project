@@ -7,6 +7,9 @@
 #include "DrawCommand.h"
 
 namespace ZPG {
+struct VertexArrayGroup;
+struct MaterialGroup;
+struct ShaderProgramGroup;
 
 
 /**
@@ -34,11 +37,22 @@ public:
     u32 GetBatchSize() const;
     u32 GetBatchCapacity() const;
 
+    void BuildGroups();
+
+    const std::vector<ShaderProgramGroup>& GetShaderProgramGroups() const;
+    const std::vector<MaterialGroup>& GetMaterialGroups() const;
+    const std::vector<VertexArrayGroup>& GetVertexArrayGroups() const;
+
 private:
     std::vector<DrawCommand> m_DrawCommands;
     u32 m_BatchCapacity;
+
+    // indexers
+    std::vector<ShaderProgramGroup> m_ShaderProgramGroups;
+    std::vector<MaterialGroup> m_MaterialGroups;
+    std::vector<VertexArrayGroup> m_VertexArrayGroups;
 };
 
-} // ZOG
+} // ZPG
 
 #endif //WORKSPACE_RENDER_BATCH_H

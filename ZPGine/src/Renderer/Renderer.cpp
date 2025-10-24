@@ -20,6 +20,7 @@
 #include "Scene/Scene.h"
 #include "Shader/CommonShaderUniforms.h"
 #include "Texture/Texture.h"
+#include "RenderGroups.h"
 
 namespace ZPG {
 
@@ -138,6 +139,7 @@ void Renderer::Flush() {
             lightCount * sizeof(LightStruct),
             sizeof(DrawData::LightsStorageBuffer::LightCount) + sizeof(DrawData::LightsStorageBuffer::_pad0));
 
+
         // Camera SSBO
         s_DrawData->CameraSSBO.Bind();
         s_DrawData->CameraSSBO.SetData(
@@ -145,8 +147,113 @@ void Renderer::Flush() {
             sizeof(DrawData::CameraStorage));
     }
 
-
     // Batch render
+    {
+        s_DrawData->Batch.BuildGroups();
+
+        const auto& shaderProgramGroups = s_DrawData->Batch.GetShaderProgramGroups();
+        const auto& materialGroups = s_DrawData->Batch.GetMaterialGroups();
+        const auto& vaoGroups = s_DrawData->Batch.GetVertexArrayGroups();
+
+        ZPG_CORE_INFO("shader groups: {}, material groups: {}, vao groups: {}", shaderProgramGroups.size(), materialGroups.size(), vaoGroups.size());
+
+        const auto& drawCommands = s_DrawData->Batch.GetDrawCommands();
+
+        for (const auto& shaderProgramGroup : shaderProgramGroups) {
+
+            auto shaderProgram = shaderProgramGroup.m_ShaderProgram;
+
+            shaderProgram->Bind();
+            shaderProgram->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
+            shaderProgram->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
+            shaderProgram->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
+            shaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
+            
+            for (int materialIdx = shaderProgramGroup.m_MaterialStart;
+                materialIdx < shaderProgramGroup.m_MaterialStart + shaderProgramGroup.m_MaterialCount;
+                materialIdx++) 
+            {
+                const auto& materialGroup = materialGroups[materialIdx];
+
+                auto material = materialGroup.m_Material;
+
+                material->m_AlbedoMap->BindToSlot(0);
+                material->m_MetalnessMap->BindToSlot(1);
+                material->m_RoughnessMap->BindToSlot(2);
+                material->m_NormalMap->BindToSlot(3);
+
+                s_DrawData->MaterialStorage.Albedo = material->m_Albedo;
+                s_DrawData->MaterialStorage.Emissive = material->m_Emissive;
+                s_DrawData->MaterialStorage.Roughness = material->m_Roughness;
+                s_DrawData->MaterialStorage.Metallic = material->m_Metallic;
+
+                s_DrawData->MaterialSSBO.Bind();
+                s_DrawData->MaterialSSBO.SetData(
+                    &s_DrawData->MaterialStorage,
+                    sizeof(s_DrawData->MaterialStorage));
+
+                for (int vaoIdx = materialGroup.m_VertexArrayStart;
+                    vaoIdx < materialGroup.m_VertexArrayStart + materialGroup.m_VertexArrayCount;
+                    vaoIdx++) 
+                {
+                    const auto& vaoGroup = vaoGroups[vaoIdx];
+
+                    vaoGroup.m_VertexArray->Bind();
+                    
+                    i32 i = 0;
+
+                    for(int trIdx = vaoGroup.m_Start; 
+                        trIdx < vaoGroup.m_Start + vaoGroup.m_Count; 
+                        trIdx++) 
+                    {
+                        const auto& command = drawCommands[trIdx];
+
+                        s_DrawData->ModelsStorage.Models[i++] = command.m_Transform;
+
+                        shaderProgram->SetMat4(
+                            CommonShaderUniforms::MODEL, 
+                            command.m_Transform);
+                    }
+
+                    s_DrawData->ModelsStorage.ModelCount = i;
+
+                    s_DrawData->ModelsSSBO.Bind();
+
+                    s_DrawData->ModelsSSBO.SetData(
+                        &s_DrawData->ModelsStorage.ModelCount,
+                        sizeof(i32),
+                        0);
+
+                    u32 size = sizeof(m4) * i;
+                    u32 offset = sizeof(i32) + sizeof(DrawData::ModelsStorageBuffer::_pad_ModelCount);
+
+                    s_DrawData->ModelsSSBO.SetData(
+                        s_DrawData->ModelsStorage.Models,
+                        size,
+                        offset);
+                    
+
+                    if (vaoGroup.m_VertexArray->HasIndexBuffer()) {
+                        RenderCommand::DrawIndexedInstanced(
+                            *vaoGroup.m_VertexArray,
+                            vaoGroup.m_VertexArray->GetIndexBuffer()->GetCount(),
+                            vaoGroup.m_Count);
+                    }
+                    else {
+                        RenderCommand::DrawArraysInstanced(
+                            *vaoGroup.m_VertexArray,
+                            vaoGroup.m_Count);
+                    }
+
+
+                }
+            }
+        }
+        
+        s_DrawData->Batch.Reset();
+    }
+
+    if constexpr (false) // old way
     {
         s_DrawData->Batch.SortCommands();
 

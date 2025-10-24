@@ -29,7 +29,7 @@ public:
         bushMaterial->SetShaderProgram(m_ShaderProgram);
 
         auto groundMaterial = MakeRef(new Material());
-        groundMaterial->SetAlbedo(v4(0.4, 0.2, 0.0, 1.0));
+        groundMaterial->SetAlbedo(v4(1.0, 0.0, 0.0, 1.0));
         groundMaterial->SetShaderProgram(m_ShaderProgram);
 
         auto fireflyMaterial = MakeRef(new Material());
@@ -97,6 +97,7 @@ public:
 
         f32 groundSize = 20.0;
 
+        // trees
         for (int i = 0; i < 100; i++) {
             auto transform = TransformGroup::Build()
                 .Add<Translate>(
@@ -109,6 +110,7 @@ public:
             GetEntityManager().AddEntity(new Entity(m_LocalResourceManager.GetModel("Tree"), transform));
         }
 
+        // bushes
         for (int i = 0; i < 100; i++) {
             auto transform = TransformGroup::Build()
                 .Add<Translate>(
@@ -127,13 +129,10 @@ public:
             .Add<Scale>(groundSize)
             .Compose();
 
-        GetEntityManager().AddEntity(new Entity(
-            m_LocalResourceManager.GetModel("Ground"),
-            groundTransform));
 
-        AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.2), v3(-1.0)));
-        AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.2)));
 
+
+        // fireflies
         for (int i = 0; i < 50; i++) {
             auto pointLight = MakeRef<PointLight>(
                 v4(1.0, 1.0, 1.0, 0.2),
@@ -164,6 +163,21 @@ public:
 
             GetEntityManager().AddEntity(lightEntity);
         }
+
+        // ground
+        GetEntityManager().AddEntity(new Entity(
+            m_LocalResourceManager.GetModel("Ground"),
+            groundTransform));
+        GetEntityManager().AddEntity(new Entity(
+            m_LocalResourceManager.GetModel("Ground"),
+            groundTransform));
+        GetEntityManager().AddEntity(new Entity(
+            m_LocalResourceManager.GetModel("Ground"),
+            groundTransform));
+
+        // lights
+        AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.2), v3(-1.0)));
+        AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.2)));
     }
 
     void OnUpdate(Timestep& ts) override {
