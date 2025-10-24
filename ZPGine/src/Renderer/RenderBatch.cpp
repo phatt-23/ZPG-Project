@@ -46,9 +46,9 @@ u32 RenderBatch::GetBatchCapacity() const {
 
 void RenderBatch::BuildGroups() {
     // clear old data
-    m_ShaderProgramGroups.clear();
-    m_MaterialGroups.clear();
-    m_VertexArrayGroups.clear();
+    m_ShaderProgramGroups.resize(0);
+    m_MaterialGroups.resize(0);
+    m_VertexArrayGroups.resize(0);
 
     // nothing to do
     if (m_DrawCommands.empty()) {
@@ -88,7 +88,7 @@ void RenderBatch::BuildGroups() {
         bool newMaterial        = currMaterial != command.m_Material;
         bool newVAO             = currVAO != command.m_VAO;
 
-        if (newVAO) {
+        if (newVAO || newMaterial || newShaderProgram) {
             // finish previous VAO
             m_VertexArrayGroups.push_back({
                 currVAO,             
@@ -104,7 +104,7 @@ void RenderBatch::BuildGroups() {
             currVAO = command.m_VAO;
         }
 
-        if (newMaterial) {
+        if (newMaterial || newShaderProgram) {
             // finish previous Material
            
             m_MaterialGroups.push_back({
