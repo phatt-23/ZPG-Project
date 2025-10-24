@@ -6,9 +6,13 @@
 #define WORKSPACE_LIGHT_STRUCT_H
 
 namespace ZPG {
+enum class LightType;
+}
+
+namespace ZPG {
 
 // Structure mirroring the light struct in used in shader programs.
-// Must match std140 layout rules from GLSL
+
 struct alignas(16) LightStruct {
     i32 Type        = 0;
     f32 _pad0[3];
@@ -24,6 +28,25 @@ struct alignas(16) LightStruct {
     f32 BeamBlend   = 30;
     f32 _pad3[2];
 };
+
+static_assert(sizeof(LightStruct) == 5 * 16);
+
+/*
+
+    Offset | Size | Member
+    0 | 4 | i32 Type
+    4 | 16 | v4 Color
+    20 | 12 | v3 Pos
+    32 | 12 | v3 Dir
+    44 | 4 | f32 BeamSize
+    48 | 4 | f32 BeamBlend
+    Total: 52 bytes
+
+    I need to pad it to multiple of 16, because the largest member is vec4, which has 16 bytes.
+    The next multiple of 16 that's larger than 52 is 56.
+
+ */
+
 
 }
 

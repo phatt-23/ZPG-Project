@@ -19,6 +19,8 @@ public:
     static void SetViewport(int x, int y, int width, int height);
     static void DrawIndexed(const VertexArray& vertexArray, const u32 indexCount = 0);
     static void DrawArrays(const VertexArray& vertexArray);
+    static void DrawIndexedInstanced(const VertexArray& vertexArray, const u32 indexCount, const u32 instanceCount);
+    static void DrawArraysInstanced(const VertexArray& vertexArray, const u32 instanceCount);
 
 private:
     inline static RendererAPI* s_RendererAPI = nullptr;

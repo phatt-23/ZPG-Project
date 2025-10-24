@@ -30,12 +30,12 @@ void SpotLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
 
 LightStruct SpotLight::MapToLightStruct() {
     LightStruct lightStruct;
-    lightStruct.Type = (u32)GetLightType();
-    lightStruct.Color = m_Color.GetColor();
-    lightStruct.Pos = m_Position.GetPosition();
-    lightStruct.Dir = m_Direction.GetDirection();
-    lightStruct.BeamSize = m_BeamShape.GetSize();
-    lightStruct.BeamBlend = m_BeamShape.GetBlend();
+    lightStruct.Type = u32(GetLightType());
+    lightStruct.Color = (m_Color.GetColor());
+    lightStruct.Pos = (m_Position.GetPosition());
+    lightStruct.Dir = (m_Direction.GetDirection());
+    lightStruct.BeamSize = (m_BeamShape.GetSize());
+    lightStruct.BeamBlend = (m_BeamShape.GetBlend());
     return std::move(lightStruct);
 }
 

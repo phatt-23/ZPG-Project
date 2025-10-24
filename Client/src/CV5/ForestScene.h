@@ -106,11 +106,10 @@ public:
         AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.2), v3(-1.0)));
         AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.2)));
         AddLight(new PointLight(v4(1.0), v3(0.0, 1.0, 0.0)));
-    }
-
-    void OnResume() override {
-        Scene::OnResume();
-        Renderer::SetLights(GetLightManager().GetLights());
+        AddLight(new PointLight(v4(1.0), v3(0.0, 1.0, 0.0)));
+        AddLight(new PointLight(v4(1.0), v3(0.0, 1.0, 0.0)));
+        AddLight(new PointLight(v4(1.0), v3(0.0, 1.0, 0.0)));
+        AddLight(new PointLight(v4(1.0), v3(0.0, 1.0, 0.0)));
     }
 
     void OnUpdate(Timestep& ts) override {
@@ -124,15 +123,6 @@ public:
     void OnEvent(Event &event) override {
         Scene::OnEvent(event);
         m_CameraController.OnEvent(event);
-    }
-
-    void OnRender(Timestep& ts) override {
-        Renderer::BeginDraw(GetCamera());
-        Renderer::SetLights(GetLightManager().GetLights());
-        for (auto& entity : GetEntityManager().GetEntities()) {
-            Renderer::SubmitEntity(entity.get());
-        }
-        Renderer::EndDraw();
     }
 
     void SetShaderProgram(const std::string& shaderProgramResource) {

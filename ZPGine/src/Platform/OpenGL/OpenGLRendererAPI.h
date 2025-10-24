@@ -4,13 +4,15 @@ namespace ZPG {
 
 class OpenGLRendererAPI : public RendererAPI {
 public:
-    virtual void Init() override;
-    virtual void Shutdown() override;
-    virtual void SetClearColor(glm::vec4 color) override;
-    virtual void Clear() override;
-    virtual void SetViewport(int x, int y, int width, int height) override;
-    virtual void DrawIndexed(const VertexArray& vertexArray, const u32 indexCount = 0) override;
-    virtual void DrawArrays(const VertexArray& vertexArray) override;
+    void Init() override;
+    void Shutdown() override;
+    void SetClearColor(glm::vec4 color) override;
+    void Clear() override;
+    void SetViewport(int x, int y, int width, int height) override;
+    void DrawIndexed(const VertexArray& vertexArray, const u32 indexCount) override;
+    void DrawArrays(const VertexArray& vertexArray) override;
+    void DrawIndexedInstanced(const VertexArray& vertexArray, const u32 indexCount, const u32 instanceCount) override;
+    void DrawArraysInstanced(const VertexArray& vertexArray, const u32 instanceCount) override;
 private:
 };
 

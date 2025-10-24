@@ -74,35 +74,36 @@ void ResourceManager::InitDefaultModels() {
 }
 
 void ResourceManager::InitDefaultShaderPrograms() {
-    s_Instance->LoadShaderProgram(
-        CommonResources::SHADER_PROGRAM_DEFAULT_LIT,
-        "./assets/shaders/UBO/vertex/DefaultLit.vert",
-        "./assets/shaders/UBO/fragment/DefaultLit.frag");
+    std::filesystem::path shaderPath = "./assets/shaders/SSBO/";
 
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_PBR,
-        "./assets/shaders/UBO/vertex/PBR.vert",
-        "./assets/shaders/UBO/fragment/PBR.frag");
+        shaderPath / "vertex/General.vert",
+        shaderPath / "fragment/PBR.frag");
 
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_CONSTANT,
-        "./assets/shaders/UBO/vertex/Constant.vert",
-        "./assets/shaders/UBO/fragment/Constant.frag");
+        shaderPath / "vertex/General.vert",
+        shaderPath / "fragment/Constant.frag");
 
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_LAMBERT,
-        "./assets/shaders/UBO/vertex/Lambert.vert",
-        "./assets/shaders/UBO/fragment/Lambert.frag");
+        shaderPath / "vertex/General.vert",
+        shaderPath / "fragment/Lambert.frag");
 
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_PHONG,
-        "./assets/shaders/UBO/vertex/Phong.vert",
-        "./assets/shaders/UBO/fragment/Phong.frag");
+        shaderPath / "vertex/General.vert",
+        shaderPath / "fragment/Phong.frag");
 
     s_Instance->LoadShaderProgram(
         CommonResources::SHADER_PROGRAM_BLINN_PHONG,
-        "./assets/shaders/UBO/vertex/Blinn-Phong.vert",
-        "./assets/shaders/UBO/fragment/Blinn-Phong.frag");
+        shaderPath / "vertex/General.vert",
+        shaderPath / "fragment/Blinn-Phong.frag");
+
+    s_Instance->AddShaderProgram(
+        CommonResources::SHADER_PROGRAM_DEFAULT_LIT,
+        s_Instance->GetShaderProgram(CommonResources::SHADER_PROGRAM_BLINN_PHONG));
 }
 
 void ResourceManager::InitDefaultTextures() {

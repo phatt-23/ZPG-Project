@@ -8,7 +8,7 @@
 
 namespace ZPG {
 
-UniformBuffer::UniformBuffer(u32 size, u32 bindingPoint)
+UniformBuffer::UniformBuffer(u32 bindingPoint, u32 size)
     : m_BindingPoint(bindingPoint)
     , m_Size(size)
 

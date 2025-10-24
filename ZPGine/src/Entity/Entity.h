@@ -11,7 +11,7 @@ public:
     Entity(const ref<Model>& model, const ref<Transform>& transform);
     virtual ~Entity();
 
-    void Update(Timestep& ts);
+    virtual void Update(Timestep& ts);
 
     const glm::mat4& GetTransformMatrix() const;
     const ref<Transform>& GetTransform() const;

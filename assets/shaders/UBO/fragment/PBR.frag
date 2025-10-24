@@ -49,7 +49,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 
 void main() {
-    vec3 albedo = u_Material.Albedo.rgb / u_Material.Albedo.a;
+    vec3 albedo = u_Material.Albedo.rgb * u_Material.Albedo.a;
     float ao = 1.0;
     vec3 N = normalize(v_WorldNormal);
     vec3 V = normalize(u_Camera.CameraPos - v_WorldPos);

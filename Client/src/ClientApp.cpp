@@ -11,6 +11,7 @@
 #include "CV5/SpheresScene.h"
 #include "CV5/ForestScene.h"
 #include "CV5/SolarSystemScene.h"
+#include "CV6/ForestScene.h"
 
 class ClientApp : public ZPG::Application {
 public:
@@ -21,6 +22,7 @@ public:
         m_SceneManager.AddScene("CV5 - Forest", new CV5::ForestScene());
         m_SceneManager.AddScene("CV5 - Solar System", new CV5::SolarSystemScene());
         m_SceneManager.AddScene("Spheres Scene", new PBRSpheresSceneNS::SpheresScene());
+        m_SceneManager.AddScene("CV6 - Forest", new CV6::ForestScene());
 
         // m_SceneManager.SetActiveScene("Spheres Scene");
     }

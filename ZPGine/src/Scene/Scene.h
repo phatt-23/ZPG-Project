@@ -37,7 +37,7 @@ public:
     void PushLayer(Layer* layer);
     void PopLayer();
 
-    void AddLight(Light* light);    
+    void AddLight(Light* light);
     void RemoveLight(Light* light);
 
     // unnecessary, but looks nicer when working with them.

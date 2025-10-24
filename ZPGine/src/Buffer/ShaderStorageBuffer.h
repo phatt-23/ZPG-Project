@@ -9,7 +9,7 @@ namespace ZPG {
 
 class ShaderStorageBuffer {
 public:
-    ShaderStorageBuffer(u32 size, u32 bindingPoint);
+    ShaderStorageBuffer(u32 bindingPoint, u32 size);
     virtual ~ShaderStorageBuffer();
 
     void Bind();

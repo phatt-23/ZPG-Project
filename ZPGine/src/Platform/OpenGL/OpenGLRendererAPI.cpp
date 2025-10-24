@@ -20,7 +20,6 @@ void OpenGLRendererAPI::Init() {
 }
 
 void OpenGLRendererAPI::Shutdown() {
-
 }
 
 void OpenGLRendererAPI::SetClearColor(glm::vec4 color) {
@@ -36,18 +35,24 @@ void OpenGLRendererAPI::SetViewport(int x, int y, int width, int height) {
 }
 
 void OpenGLRendererAPI::DrawIndexed(const VertexArray& vertexArray, const u32 indexCount) {
-    int count = indexCount == 0 
-                    ? vertexArray.GetIndexBuffer()->GetCount()
-                    : indexCount;
-    ZPG_OPENGL_CALL(glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr));
+    ZPG_OPENGL_CALL(glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr));
 }
 void OpenGLRendererAPI::DrawArrays(const VertexArray& vertexArray) {
-    u64 count = 0;
-    for (auto& vbo : vertexArray.GetVertexBuffers()) {
-        count += vbo->GetSize() / vbo->GetLayout().GetStride();
-    }
-
-    ZPG_OPENGL_CALL(glDrawArrays(GL_TRIANGLES, 0, count));
+    ZPG_OPENGL_CALL(glDrawArrays(GL_TRIANGLES, 0, vertexArray.GetVertexCount()));
 }
 
+void OpenGLRendererAPI::DrawIndexedInstanced(
+    const VertexArray& vertexArray,
+    const u32 indexCount,
+    const u32 instanceCount
+) {
+    ZPG_OPENGL_CALL(glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr, instanceCount));
+}
+
+void OpenGLRendererAPI::DrawArraysInstanced(
+    const VertexArray& vertexArray,
+    const u32 instanceCount
+) {
+    ZPG_OPENGL_CALL(glDrawArraysInstanced(GL_TRIANGLES, 0, vertexArray.GetVertexCount(), instanceCount));
+}
 }

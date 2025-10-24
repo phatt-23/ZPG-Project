@@ -4,6 +4,8 @@
 
 namespace ZPG {
 
+const u32 LightManager::s_LightCapacity = 256;
+
 LightManager::LightManager() : m_Lights() {
 }
 
@@ -13,7 +15,8 @@ LightManager::~LightManager() {
 void LightManager::AddLight(const ref<Light>& light) {
     // ZPG_CORE_ASSERT(m_Lights.size() <= ZPG_LIGHT_UNIFORM_BUFFER_ARRAY_LENGTH,
     //     "Light manager cannot hold more than {} lights", ZPG_LIGHT_UNIFORM_BUFFER_ARRAY_LENGTH);
-    if (m_Lights.size() >= ZPG_LIGHT_UNIFORM_BUFFER_ARRAY_LENGTH) {
+    if (m_Lights.size() >= s_LightCapacity) {
+        ZPG_CORE_WARN("Light manager cannot hold more than {} lights", s_LightCapacity);
         return;
     }
 

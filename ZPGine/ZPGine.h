@@ -54,6 +54,7 @@
 #include "Model/ModelLibrary.h"
 
 #include "Entity/Entity.h"
+#include "Entity/PointLightEntity.h"
 
 #include "Transform/TransformGroup.h"
 #include "Transform/Transform.h"

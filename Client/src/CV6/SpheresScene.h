@@ -2,7 +2,7 @@
 
 #include "ZPGine.h"
 
-namespace CV5 {
+namespace CV6 {
 
 using namespace ZPG;
 

@@ -4,7 +4,6 @@ namespace ZPG {
 
 class Light;
 
-constexpr u32 ZPG_LIGHT_UNIFORM_BUFFER_ARRAY_LENGTH = 100;
 
 class LightManager {
 public:
@@ -18,8 +17,13 @@ public:
 
     std::vector<ref<Light>>::iterator begin();
     std::vector<ref<Light>>::iterator end();
+
+public:
+    static const u32 s_LightCapacity;
+
 private:
     std::vector<ref<Light>> m_Lights;
+
 };
 
 }

@@ -14,7 +14,7 @@ namespace ZPG {
  */
 class UniformBuffer {
 public:
-    UniformBuffer(u32 size, u32 bindingPoint);
+    UniformBuffer(u32 bindingPoint, u32 size);
     virtual ~UniformBuffer();
 
     void Bind();

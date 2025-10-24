@@ -8,7 +8,7 @@
 
 namespace ZPG {
 
-ShaderStorageBuffer::ShaderStorageBuffer(u32 size, u32 bindingPoint)
+ShaderStorageBuffer::ShaderStorageBuffer(u32 bindingPoint, u32 size)
     : m_BindingPoint(bindingPoint)
     , m_Size(size)
 {
@@ -17,8 +17,8 @@ ShaderStorageBuffer::ShaderStorageBuffer(u32 size, u32 bindingPoint)
     {
         glBufferData(GL_SHADER_STORAGE_BUFFER, m_Size, NULL, GL_DYNAMIC_DRAW);
 
-        glBindBufferBase(GL_UNIFORM_BUFFER, m_BindingPoint, m_RendererId);
-        // glBindBufferRange(GL_UNIFORM_BUFFER, m_BindingPoint, m_RendererId, 0, m_Size);
+        // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, m_BindingPoint, m_RendererId);
+        glBindBufferRange(GL_SHADER_STORAGE_BUFFER, m_BindingPoint, m_RendererId, 0, m_Size);
     }
     Unbind();
 }

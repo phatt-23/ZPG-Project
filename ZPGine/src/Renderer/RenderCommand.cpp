@@ -41,5 +41,19 @@ void RenderCommand::DrawArrays(const VertexArray& vertexArray) {
     s_RendererAPI->DrawArrays(vertexArray);
 }
 
+void RenderCommand::DrawIndexedInstanced(
+    const VertexArray& vertexArray,
+    const u32 indexCount,
+    const u32 instanceCount
+) {
+    s_RendererAPI->DrawIndexedInstanced(vertexArray, indexCount, instanceCount);
+}
+
+void RenderCommand::DrawArraysInstanced(
+    const VertexArray& vertexArray,
+    const u32 instanceCount
+) {
+    s_RendererAPI->DrawArraysInstanced(vertexArray, instanceCount);
+}
 
 }

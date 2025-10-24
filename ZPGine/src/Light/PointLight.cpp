@@ -20,7 +20,7 @@ void PointLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
 
 LightStruct PointLight::MapToLightStruct() {
     LightStruct lightStruct;
-    lightStruct.Type = (u32)GetLightType();
+    lightStruct.Type = i32(GetLightType());
     lightStruct.Color = m_Color.GetColor();
     lightStruct.Pos = m_Position.GetPosition();
     return std::move(lightStruct);

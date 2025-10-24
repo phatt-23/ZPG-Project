@@ -20,7 +20,7 @@ void DirectionalLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 ind
 
 LightStruct DirectionalLight::MapToLightStruct() {
     LightStruct lightStruct;
-    lightStruct.Type = (u32)GetLightType();
+    lightStruct.Type = i32(GetLightType());
     lightStruct.Color = m_Color.GetColor();
     lightStruct.Dir = m_Direction.GetDirection();
     return std::move(lightStruct);
