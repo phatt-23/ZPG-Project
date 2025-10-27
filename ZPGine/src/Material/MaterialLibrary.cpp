@@ -18,5 +18,8 @@ const ref<Material>& MaterialLibrary::GetMaterial(const std::string& name) {
     ZPG_CORE_ASSERT(Exists(name), "Material with this name isn't in the library: {}", name);
     return m_Materials[name];
 }
+const std::unordered_map<std::string, ref<Material>>& MaterialLibrary::GetMaterials() const {
+    return m_Materials;
+}
 
 }

@@ -23,4 +23,4 @@ private:
 }
 
 
-#endif //WORKSPACE_LIGHTENTITY_H
+#endif

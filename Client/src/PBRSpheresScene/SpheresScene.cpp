@@ -7,7 +7,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "imgui.h"
-#include "SpheresLayer.h"
 #include "../assets/models/nemec/sphere.h"
 
 using namespace ZPG;
@@ -18,8 +17,6 @@ SpheresScene::SpheresScene() : m_CameraController(GetCamera()) {
 }
 
 void SpheresScene::OnAttach() {
-    PushLayer(new SpheresLayer());
-
     AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.3)));
     AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 1.0), v3(-1.0, -1.0, 1.0)));
     AddLight(new PointLight(v4(1.0f), v3(0.0, 0.0, 3.0)));
@@ -92,6 +89,8 @@ void SpheresScene::OnEvent(Event& event) {
 }
 
 void SpheresScene::OnImGuiRender() {
+    // Scene::OnImGuiRender();
+
     auto p = GetCamera().GetPosition();
     static float camPos[3] = {0.f};
     camPos[0] = p.x;

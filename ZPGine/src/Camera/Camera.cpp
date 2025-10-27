@@ -34,6 +34,12 @@ void Camera::SetPerspectiveProjection(f32 fovAngle, f32 aspectRatio, f32 zNear, 
     m_ProjMatrix = glm::perspective(glm::radians(fovAngle), aspectRatio, zNear, zFar);
     m_ViewProjMatrix = m_ProjMatrix * m_ViewProjMatrix;
 }
+void Camera::CalcSetOrthoProjection() {
+    SetOrthoProjection(m_OrthoLeft, m_OrthoRight, m_OrthoBottom, m_OrthoTop);
+}
+void Camera::CalcPerspectiveProjection() {
+    SetPerspectiveProjection(m_FOV, m_AspectRatio, m_zNear, m_zFar);
+}
 const glm::vec3& Camera::GetPosition() const {
     return m_Position;
 }

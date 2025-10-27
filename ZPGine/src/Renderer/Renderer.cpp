@@ -21,6 +21,7 @@
 #include "Shader/CommonShaderUniforms.h"
 #include "RenderGroups.h"
 #include "Texture/Texture.h"
+#include "RenderStatistics.h"
 
 namespace ZPG {
 
@@ -29,7 +30,7 @@ void Renderer::Init() {
 
     RenderCommand::Init();
     s_DrawData = new DrawData();
-    s_Stats = new Statistics();
+    s_Stats = new RenderStatistics();
 }
 
 void Renderer::Shutdown() {
@@ -161,8 +162,9 @@ void Renderer::Flush() {
         const auto& materialGroups = s_DrawData->Batch.GetMaterialGroups();
         const auto& vaoGroups = s_DrawData->Batch.GetVertexArrayGroups();
 
-        ZPG_CORE_INFO("shader groups: {}, material groups: {}, vao groups: {}", 
-                      shaderProgramGroups.size(), materialGroups.size(), vaoGroups.size());
+        s_Stats->ShaderProgramGroupCount = shaderProgramGroups.size();
+        s_Stats->MaterialGroupCount = materialGroups.size();
+        s_Stats->VAOGroupCount = vaoGroups.size();
 
         const auto& drawCommands = s_DrawData->Batch.GetDrawCommands();
 
@@ -190,6 +192,7 @@ void Renderer::Flush() {
                 shaderProgram->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
                 shaderProgram->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
                 shaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
+                shaderProgram->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
             }
             
             for (int materialIdx = shaderProgramGroup.m_MaterialStart;
@@ -207,6 +210,7 @@ void Renderer::Flush() {
                     material->GetMetalnessMap()->BindToSlot(1);
                     material->GetRoughnessMap()->BindToSlot(2);
                     material->GetNormalMap()->BindToSlot(3);
+                    material->GetEmissiveMap()->BindToSlot(4);
 
                     s_DrawData->MaterialStorage.Albedo = material->GetAlbedo();
                     s_DrawData->MaterialStorage.Emissive = material->GetEmissive();

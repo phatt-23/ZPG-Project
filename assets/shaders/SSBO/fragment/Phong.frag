@@ -36,18 +36,21 @@ uniform sampler2D u_AlbedoMap;
 uniform sampler2D u_RoughnessMap;
 uniform sampler2D u_MetalnessMap;
 uniform sampler2D u_NormalMap;
+uniform sampler2D u_EmissiveMap;
 
 in vec3 v_WorldPos;
 in vec3 v_WorldNormal;
+in vec2 v_TexCoord;
+in mat3 v_TBN;
 
 out vec4 f_FragColor;
 
 void main() {
-    vec3 albedo = ssb_Material.Albedo.rgb;
-    vec3 emissive = ssb_Material.Emissive.rgb;
+    vec3 albedo = texture(u_AlbedoMap, v_TexCoord).rgb * ssb_Material.Albedo.rgb;
 
     vec3 Lo = vec3(0.0);
     vec3 La = vec3(0.0);
+    vec3 Le = ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
 
     vec3 N = normalize(v_WorldNormal);
     vec3 V = normalize(ssb_Camera.CameraPos - v_WorldPos);
@@ -55,12 +58,15 @@ void main() {
     for (int i = 0; i < ssb_Lights.LightCount; i++) {
         Light light = ssb_Lights.Lights[i];
         vec3 lightColor = light.Color.rgb * light.Color.a;
+        int lightType = light.Type;
+        vec3 lightPos = light.Pos;
+        vec3 lightDir = light.Dir;
 
-        if (light.Type == LightTypePoint) {
-            vec3 L = normalize(light.Pos - v_WorldPos);
-            float dist = length(light.Pos - v_WorldPos);
-            float atten = 1.0 / (1.0 + 0.22 * dist + 0.20 * dist * dist); 
+        if (lightType == LightTypePoint) {
+            vec3 L = normalize(lightPos - v_WorldPos);
             vec3 R = reflect(-L, N);
+            float dist = length(lightPos - v_WorldPos);
+            float atten = 1.0 / (1.0 + 0.22 * dist + 0.20 * dist * dist); 
 
             float diff = max(dot(N, L), 0.0);
             float spec = pow(max(dot(V, R), 0.0), 32.0);
@@ -70,8 +76,8 @@ void main() {
 
             Lo += (diffuse + specular) * lightColor * atten;
         }
-        else if (light.Type == LightTypeDirectional) {
-            vec3 L = normalize(-light.Dir);
+        else if (lightType == LightTypeDirectional) {
+            vec3 L = normalize(-lightDir);
             vec3 R = reflect(-L, N);
 
             float diff = max(dot(N, L), 0.0);
@@ -82,12 +88,40 @@ void main() {
 
             Lo += (diffuse + specular) * lightColor;
         }
-        else if (light.Type == LightTypeAmbient) {
+        else if (lightType == LightTypeSpotlight) {
+            vec3 L = normalize(lightPos - v_WorldPos);
+            vec3 R = reflect(-L, N);
+            float dist = length(light.Pos - v_WorldPos);
+            float atten = 1.0 / (1.0 + 0.22 * dist + 0.20 * dist * dist);
+
+            float lightBeamSize = light.BeamSize;
+            float lightBeamBlend = light.BeamBlend;
+
+            float beamSizeCos = cos(radians(lightBeamSize));
+            float beamBlendCos = cos(radians(lightBeamSize * (1.0 - lightBeamBlend)));
+
+            if (beamBlendCos <= beamSizeCos) continue;
+
+            float alpha = dot(normalize(light.Dir), -L);
+            float beamNumerator = alpha - beamSizeCos;
+            float beamDenominator = beamBlendCos - beamSizeCos;
+            float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
+
+
+            float diff = max(dot(N, L), 0.0);
+            float spec = pow(max(dot(V, R), 0.0), 32.0);
+
+            vec3 diffuse = diff * albedo;
+            vec3 specular = spec * lightColor;
+
+            Lo += (diffuse + specular) * lightColor * beamContrib * atten;
+        }
+        else if (lightType == LightTypeAmbient) {
             La += albedo * lightColor;
         }
     }
-
-    vec3 color = Lo + La + emissive;
+    
+    vec3 color = Lo + La + Le;
 
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));

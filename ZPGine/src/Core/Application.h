@@ -4,6 +4,8 @@
 
 #ifndef APPLICATION_H
 #define APPLICATION_H
+
+#include "Core/Timestep.h"
 #include "Scene/SceneManager.h"
 
 namespace ZPG {
@@ -33,7 +35,8 @@ protected:
     SceneManager m_SceneManager;  // fully owned by the application
 
     bool m_Running = true;
-    float m_LastTime;
+    float m_LastTime = 0;
+    Timestep m_Delta = 0;
 private:
     static inline Application* s_Instance = nullptr;
 };

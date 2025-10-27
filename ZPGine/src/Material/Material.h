@@ -5,11 +5,9 @@ namespace ZPG {
 class ShaderProgram;
 class Texture;
 
-// This will be a standard material that works with only 
-// some things for now, not everything that aiMaterial provides.
-// Using PBR.
-// I choose metallic/roughness workflow, because it feels more modern?.
-// [https://marmoset.co/posts/physically-based-rendering-and-you-can-too/]
+/**
+ * Can either be texture based or single factor based.
+ */
 
 class Material {
 public:
@@ -19,13 +17,6 @@ public:
     // assigns defaults
     Material(const std::string& name = "");
     ~Material();
-
-    // Bind all its uniforms (populates vecs and mats and simple data types and binds textures to slots).
-    // Don't use when using UBOs or SSBOs.
-    [[deprecated("Don't use with UBOs or SSBOs")]]
-    void Bind();
-    [[deprecated("Don't use with UBOs or SSBOs")]]
-    void Unbind();
 
     void SetShaderProgram(const ref<ShaderProgram>& shaderProgram);
     ref<ShaderProgram>& GetShaderProgram();
@@ -44,11 +35,13 @@ public:
     void SetNormalMap(const ref<Texture>& normalMap);
     void SetMetalnessMap(const ref<Texture>& metalnessMap);
     void SetRoughnessMap(const ref<Texture>& roughnessMap);
+    void SetEmissiveMap(const ref<Texture>& emissiveMap);
 
     const ref<Texture>& GetAlbedoMap() const;
     const ref<Texture>& GetNormalMap() const;
     const ref<Texture>& GetMetalnessMap() const;
     const ref<Texture>& GetRoughnessMap() const;
+    const ref<Texture>& GetEmissiveMap() const;
 
     void SetName(const std::string& name);
     std::string const& GetName() const;
@@ -84,7 +77,7 @@ public:
      *
      * In shader code it is used like this:
      *
-     *     vec3 color = texture(u_AlbedoMap, v_TexCoord) * u_AlbedoColor
+     *     vec3 color = clamp(texture(u_AlbedoMap, v_TexCoord).rgb * u_AlbedoColor, vec3(0.01), vec3(1.0));
      *
      * When none is provided, then it is set to 'null' albedo map,
      * which is a 1x1 texture with single color (1,1,1).
@@ -94,18 +87,29 @@ public:
 
     /**
      * Metalness map. Reflectivity input.
+     *
+     *     float metallic = clamp(texture(u_MetalnessMap, v_TexCoord).r * u_Metallic, 0.01, 1.0);
      */
     ref<Texture> m_MetalnessMap;
 
     /**
      * Roughness map. Micro-surface input.
+     *
+     *     float roughness = clamp(texture(u_RoughnessMap, v_TexCoord).r * u_Metallic, 0.01, 1.0);
      */
     ref<Texture> m_RoughnessMap;
 
     /**
      * By default, it is 1x1 texture with color (0.5, 0.5, 1.0).
+     *
+     *     vec3 normal = normalize(v_TBN * (texture(u_NormalMap, v_TexCoord).rgb * 2.0 - 1.0));
      */
     ref<Texture> m_NormalMap;
+
+    /**
+     * Emissive map, by default (1, 1, 1)
+     */
+    ref<Texture> m_EmissiveMap;
 };
 
 }

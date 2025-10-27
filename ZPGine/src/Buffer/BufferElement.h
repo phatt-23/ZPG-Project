@@ -12,7 +12,7 @@ struct BufferElement {
     unsigned int Offset;
     bool Normalized;
 
-    BufferElement(ShaderDataType::Type type, const std::string& name, bool normalized = false);
+    BufferElement(ShaderDataType::Type type, const std::string& name = "not_specified", bool normalized = false);
     int GetElementCount() const;
 };
 

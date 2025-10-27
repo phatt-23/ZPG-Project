@@ -16,8 +16,7 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<u32>& indices,
     u32 vboSize = vertices.size() * sizeof(vertices[0]);
     u32 iboCount = indices.size();
     
-    ref<VertexBuffer> vbo = VertexBuffer::Create(vertices.data(), vboSize);
-    vbo->SetLayout(Vertex::GetLayout());
+    ref<VertexBuffer> vbo = VertexBuffer::Create(vertices.data(), vboSize, Vertex::GetLayout());
 
     ref<IndexBuffer> ibo = IndexBuffer::Create(indices.data(), iboCount);
     

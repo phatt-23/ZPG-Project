@@ -81,7 +81,7 @@ ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMateria
 
 
     // TODO: Determine if its PBR or Legacy workflow.
-    myMaterial->SetShaderProgram(res.GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT_LIT));
+    myMaterial->SetShaderProgram(res.GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT));
     // myMaterial->SetShaderProgram(res.GetShaderProgram(CommonResources::SHADER_PROGRAM_PBR_PHONG));
 
 
@@ -123,6 +123,14 @@ ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMateria
         myMaterial->SetRoughness(roughness);
     }
 
+    // set emissive
+    aiColor3D emissive(0.0, 0.0, 0.0);
+
+    if (material->Get(AI_MATKEY_COLOR_EMISSIVE, emissive) == AI_SUCCESS) {
+        myMaterial->SetEmissive(v4(AssimpToGLM(emissive), 1.0));
+    }
+
+
 
     // load base color map
     aiString textureFile;
@@ -131,18 +139,16 @@ ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMateria
     } else if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFile) == AI_SUCCESS) {
         myMaterial->SetAlbedoMap(LoadTexture(textureFile.C_Str()));
     } else {
-        ref<Texture> defaultMap = res.GetTexture(CommonResources::NULL_ALBEDO_MAP);
-        myMaterial->SetAlbedoMap(defaultMap);
+        myMaterial->SetAlbedoMap(res.GetTexture(CommonResources::NULL_ALBEDO_MAP));
     }
 
     // load normal map
     if (material->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &textureFile) == AI_SUCCESS) {
         myMaterial->SetNormalMap(LoadTexture(textureFile.C_Str()));
-    } else if (material->GetTexture(aiTextureType_NORMAL_CAMERA, 0, &textureFile) == AI_SUCCESS) {
+    } else if (material->GetTexture(aiTextureType_NORMALS, 0, &textureFile) == AI_SUCCESS) {
         myMaterial->SetNormalMap(LoadTexture(textureFile.C_Str()));
     } else {
-        ref<Texture> defaultNormalMap = res.GetTexture(CommonResources::NULL_NORMAL_MAP);
-        myMaterial->SetNormalMap(defaultNormalMap);
+        myMaterial->SetNormalMap(res.GetTexture(CommonResources::NULL_NORMAL_MAP));
     }
 
     // load metalness map
@@ -151,19 +157,25 @@ ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMateria
     } else if (material->GetTexture(aiTextureType_SPECULAR, 0, &textureFile) == AI_SUCCESS) {
         myMaterial->SetMetalnessMap(LoadTexture(textureFile.C_Str()));
     } else {
-        ref<Texture> defaultMetalnessMap = res.GetTexture(CommonResources::NULL_METALNESS_MAP);
-        myMaterial->SetMetalnessMap(defaultMetalnessMap);
+        myMaterial->SetMetalnessMap(res.GetTexture(CommonResources::NULL_METALNESS_MAP));
     }
 
     // load roughness map
     if (material->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &textureFile) == AI_SUCCESS) {
         myMaterial->SetRoughnessMap(LoadTexture(textureFile.C_Str()));
     } else if (material->GetTexture(aiTextureType_SHININESS, 0, &textureFile) == AI_SUCCESS) {
-        myMaterial->SetNormalMap(LoadTexture(textureFile.C_Str()));
+        myMaterial->SetRoughnessMap(LoadTexture(textureFile.C_Str()));
     } else {
-        ref<Texture> defaultRoughnessMap = res.GetTexture(CommonResources::NULL_ROUGHNESS_MAP);
-        myMaterial->SetRoughnessMap(defaultRoughnessMap);
+        myMaterial->SetRoughnessMap(res.GetTexture(CommonResources::NULL_ROUGHNESS_MAP));
     }
+
+    // load emissive map
+    if (material->GetTexture(aiTextureType_EMISSIVE, 0, &textureFile) == AI_SUCCESS) {
+        myMaterial->SetEmissiveMap(LoadTexture(textureFile.C_Str()));
+    } else {
+        myMaterial->SetEmissiveMap(res.GetTexture(CommonResources::NULL_EMISSIVE_MAP));
+    }
+
 
 
     return myMaterial;
@@ -230,7 +242,7 @@ void ModelLoader::ProcessMesh(const aiScene* scene, const aiMesh* mesh, const gl
     // get material by index, assumes that the materials are loaded already
     ref<Material> material = m_Materials[mesh->mMaterialIndex];
 
-    ref<Mesh> myMesh = MakeRef<Mesh>(vertices, indices, meshTransform);
+    ref<Mesh> myMesh = Mesh::Create(vertices, indices, meshTransform);
     myMesh->SetMaterial(material);
 
     // add the processed mesh

@@ -20,6 +20,7 @@ class Scene;
 class Light;
 class Camera;
 class Material;
+class RenderStatistics;
 
 class Renderer {
 public:
@@ -51,24 +52,13 @@ public:
     static void SetInstanced(bool enabled) { s_Instanced = enabled; }
     static bool IsInstanced() { return s_Instanced; }
 
-
-    struct Statistics {
-        u32 FlushCountPerFrame = 0;
-        u32 DrawCallCountPerFrame = 0;
-
-        void Reset() {
-            FlushCountPerFrame = 0;
-            DrawCallCountPerFrame = 0;
-        }
-    };
-
-    static Statistics* GetStats() { return s_Stats; }
+    static RenderStatistics& GetStats() { return *s_Stats; }
 
 private:
     inline static DrawData* s_DrawData = nullptr;
     inline static bool s_Instanced = true;
 
-    inline static Statistics* s_Stats = nullptr;
+    inline static RenderStatistics* s_Stats = nullptr;
 };
 
 

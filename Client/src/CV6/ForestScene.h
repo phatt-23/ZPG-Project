@@ -19,7 +19,7 @@ public:
     ResourceManager m_LocalResourceManager;
 
     void LoadMaterials() {
-        m_ShaderProgram = m_ResourceManager->GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT_LIT);
+        m_ShaderProgram = GetResourceManager().GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT);
 
         auto treeMaterial = MakeRef(new Material());
         treeMaterial->SetAlbedo(v4(0.0, 1.0, 0.0, 1.0));
@@ -35,7 +35,8 @@ public:
 
         auto fireflyMaterial = MakeRef(new Material());
         fireflyMaterial->SetAlbedo(v4(1.0, 1.0, 0.4, 1.0));
-        fireflyMaterial->SetShaderProgram(m_ResourceManager->GetShaderProgram(CommonResources::SHADER_PROGRAM_CONSTANT));
+        fireflyMaterial->SetShaderProgram(
+            GetResourceManager().GetShaderProgram(CommonResources::SHADER_PROGRAM_CONSTANT));
 
         m_LocalResourceManager.AddMaterial("Tree", treeMaterial);
         m_LocalResourceManager.AddMaterial("Bush", bushMaterial);
@@ -96,10 +97,10 @@ public:
         LoadMaterials();
         LoadModels();
 
-        f32 groundSize = 40.0;
+        f32 groundSize = 20.0;
 
         // trees
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 50; i++) {
             auto transform = TransformGroup::Build()
                 .Add<Translate>(
                     groundSize * Utility::GetRandomFloat(),
@@ -131,7 +132,7 @@ public:
             .Compose();
 
         // fireflies
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             auto pointLight = MakeRef<PointLight>(
                 v4(1.0, 1.0, 1.0, 0.2),
                 v3(0.0, 1.0, 0.0));
@@ -173,26 +174,84 @@ public:
 
         m_AmbientLight = new AmbientLight(v4(1.0, 1.0, 1.0, 0.001));
         AddLight(m_AmbientLight);
+
+        m_SpotlightEntity = new Entity(
+            Model::Create({ GetResourceManager().GetMesh(CommonResources::MESH_SPHERE) }),
+            TransformGroup::Build()
+                .Add<Scale>(0.1)
+                .Add<Translate>(0.0, 1.0, 0.0)
+                .Compose()
+            );
+
+        AddEntity(m_SpotlightEntity);
+
+        m_SpotLight = MakeRef<SpotLight>(v4(1.0, 0.3, 0.3, 1.0), v3(0.0, 1.0, 0.0), v3(0.0, -1.0, 0.0), 40.0, 0.5);
+        AddLight(m_SpotLight);
+
+
+        AddEntity(new SpotLightEntity(
+            m_SpotLight,
+            m_LocalResourceManager.GetModel("Firefly"),
+            TransformGroup::Build()
+                .Add<Scale>(0.05)
+                .Add<Translate>(1.0, 0.0, 0.0)
+                .Add<DynRotate>(0.0, 20.0, v3(0.0, 1.0, 0.0))
+                .Add<Translate>(0.0, 1.0, 0.0)
+                .Compose()));
+
+        // fireflies
+        for (int i = 0; i < 10; i++) {
+            auto spotLight = MakeRef<SpotLight>(
+                v4(1.0, 1.0, 1.0, 0.2),
+                v3(0.0, 1.0, 0.0),
+                v3(0.0, -1.0, 0.0),
+                40.0,
+                0.0);
+
+            GetLightManager().AddLight(spotLight);
+
+            auto transform = TransformGroup::Build()
+                .Add<Scale>(0.05f)
+                .Add<Translate>(
+                    Utility::GetRandomFloat() * 5.0f,
+                    Utility::GetRandomFloat(0.0, 1.0),
+                    Utility::GetRandomFloat() * 5.0f)
+                .Add<DynRotate>(0.0f, 50.0f, v3(
+                    Utility::GetRandomFloat(0.0, 1.0),
+                    5.0,
+                    Utility::GetRandomFloat(0.0, 1.0)))
+                .Add<Translate>(
+                    groundSize * Utility::GetRandomFloat(),
+                    0.0,
+                    groundSize * Utility::GetRandomFloat())
+                .Compose();
+
+            auto lightEntity = new SpotLightEntity(
+                spotLight,
+                m_LocalResourceManager.GetModel("Firefly"),
+                transform);
+
+            GetEntityManager().AddEntity(lightEntity);
+        }
     }
 
+    Entity* m_SpotlightEntity;
+    ref<SpotLight> m_SpotLight;
     DirectionalLight* m_DirLight;
     AmbientLight* m_AmbientLight;
 
     void OnUpdate(Timestep& ts) override {
-        Scene::OnUpdate(ts);
         m_CameraController.OnUpdate(ts);
-        for (auto& entity : GetEntityManager().GetEntities()) {
-            entity->Update(ts);
-        }
+        Scene::OnUpdate(ts);
     }
 
     void OnEvent(Event &event) override {
-        Scene::OnEvent(event);
         m_CameraController.OnEvent(event);
+        Scene::OnEvent(event);
     }
 
     void SetShaderProgram(const std::string& shaderProgramResource) {
-        m_ShaderProgram = m_ResourceManager->GetShaderProgram(shaderProgramResource);
+        m_ShaderProgram = GetResourceManager().GetShaderProgram(shaderProgramResource);
         m_LocalResourceManager.GetMaterial("Tree")->SetShaderProgram(m_ShaderProgram);
         m_LocalResourceManager.GetMaterial("Bush")->SetShaderProgram(m_ShaderProgram);
         m_LocalResourceManager.GetMaterial("Ground")->SetShaderProgram(m_ShaderProgram);
@@ -200,6 +259,8 @@ public:
     }
 
     void OnImGuiRender() override {
+        Scene::OnImGuiRender();
+
         ImGui::Begin("Shader");
         if (ImGui::Button("Constant")) {
             SetShaderProgram(CommonResources::SHADER_PROGRAM_CONSTANT);
@@ -227,6 +288,33 @@ public:
         if (ImGui::SliderFloat4("AmbientLight Color", glm::value_ptr(ambientLightColor), 0.0, 1.0)) {
             m_AmbientLight->m_Color.SetColor(ambientLightColor);
         }
+
+        static v4 spotLightColor = m_SpotLight->m_Color.GetColor();
+        if (ImGui::SliderFloat4("SpotLight Color", glm::value_ptr(spotLightColor), 0.0, 1.0)) {
+            m_SpotLight->m_Color.SetColor(spotLightColor);
+        }
+
+        static v3 spotlightDir = m_SpotLight->m_Direction.GetDirection();
+        if (ImGui::SliderFloat3("SpotLight Direction", glm::value_ptr(spotlightDir), -1.0, 1.0)) {
+            m_SpotLight->m_Direction.SetDirection(spotlightDir);
+        }
+
+        static v3 spotlightPos = m_SpotLight->m_Position.GetPosition();
+        if (ImGui::SliderFloat3("SpotLight Position", glm::value_ptr(spotlightPos), -1.0, 1.0)) {
+            m_SpotLight->m_Position.SetPosition(spotlightPos);
+        }
+
+        static float spotlightBeamSize = m_SpotLight->m_BeamShape.GetSize();
+        if (ImGui::SliderFloat("SpotLight Beam Size", &spotlightBeamSize, 0.0, 180.0)) {
+            m_SpotLight->m_BeamShape.SetSize(spotlightBeamSize);
+        }
+
+        static float spotlightBeamBlend = m_SpotLight->m_BeamShape.GetBlend();
+        if (ImGui::SliderFloat("SpotLight Beam Blend", &spotlightBeamBlend, 0.0, 1.0)) {
+            m_SpotLight->m_BeamShape.SetBlend(spotlightBeamBlend);
+        }
+
+
 
         ImGui::End();
     }

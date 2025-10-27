@@ -15,7 +15,7 @@ public:
 
     void OnAttach() override {
         // copied
-        m_Model = MakeRef<Model>(*m_ResourceManager->GetModel(CommonResources::MODEL_SPHERE));
+        m_Model = MakeRef<Model>(*GetResourceManager().GetModel(CommonResources::MODEL_SPHERE));
 
         std::array<v3, 4> positions({
             {-1.0, -1.0, 0.0},
@@ -35,7 +35,7 @@ public:
 
         m_PointLight = new PointLight(v4(1.0f, 0.0f, 0.0f, 1.0f), v3(0.0));
 
-        AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.2)));
+        AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.01)));
         AddLight(m_PointLight);
 
         GetCamera().SetPosition(v3(0.0, 0.0, 4.0));
@@ -47,35 +47,33 @@ public:
     }
 
     void OnUpdate(Timestep& ts) override {
-        Scene::OnUpdate(ts);
         m_CameraController.OnUpdate(ts);
-        for (auto& entity : GetEntityManager().GetEntities()) {
-            entity->Update(ts);
-        }
+        Scene::OnUpdate(ts);
     }
 
     void OnEvent(Event &event) override {
-        Scene::OnEvent(event);
         m_CameraController.OnEvent(event);
-    }
-
-    void OnRender(Timestep& ts) override {
-        Renderer::BeginDraw(GetCamera());
-        Renderer::SetLights(GetLightManager().GetLights());
-        for (auto& entity : GetEntityManager().GetEntities()) {
-            Renderer::SubmitEntity(entity.get());
-        }
-        Renderer::EndDraw();
+        Scene::OnEvent(event);
     }
 
     void SetShaderProgram(const std::string& shaderProgramResource) {
-        m_ShaderProgram = m_ResourceManager->GetShaderProgram(shaderProgramResource);
+        m_ShaderProgram = GetResourceManager().GetShaderProgram(shaderProgramResource);
 
         for (auto& mesh : m_Model->GetMeshes())
             mesh->GetMaterial()->SetShaderProgram(m_ShaderProgram);
     }
 
     void OnImGuiRender() override {
+        Scene::OnImGuiRender();
+
+        ImGui::Begin("Camera Spec");
+        static float fov = GetCamera().GetFOV();
+        if (ImGui::SliderFloat("FOV", &fov, 0.0, 360.0)) {
+            GetCamera().SetFOV(fov);
+            GetCamera().CalcPerspectiveProjection();
+        }
+        ImGui::End();
+
         ImGui::Begin("Shader");
         if (ImGui::Button("Constant")) {
             SetShaderProgram(CommonResources::SHADER_PROGRAM_CONSTANT);
@@ -96,7 +94,7 @@ public:
 
         ImGui::Begin("Point Light");
         static v4 color = v4(1.0f);
-        if (ImGui::DragFloat4("Color", glm::value_ptr(color), 0.01f, 0.0f, 1.0f)) {
+        if (ImGui::SliderFloat4("Color", glm::value_ptr(color), 0.0f, 1.0f)) {
             m_PointLight->m_Color.SetColor(color);
         }
         ImGui::End();

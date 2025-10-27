@@ -1,6 +1,7 @@
 #include "LightManager.h"
 
 #include "Debug/Logger.h"
+#include "Light/Light.h"
 
 namespace ZPG {
 
@@ -10,6 +11,15 @@ LightManager::LightManager() : m_Lights() {
 }
 
 LightManager::~LightManager() {
+}
+
+void LightManager::AddLight(Light* light) {
+    if (m_Lights.size() >= s_LightCapacity) {
+        ZPG_CORE_WARN("Light manager cannot hold more than {} lights", s_LightCapacity);
+        return;
+    }
+
+    m_Lights.push_back(MakeRef(light));
 }
 
 void LightManager::AddLight(const ref<Light>& light) {

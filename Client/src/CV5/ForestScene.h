@@ -23,7 +23,7 @@ public:
     ref<Material> m_BushMaterial;
 
     void OnAttach() override {
-        m_ShaderProgram = m_ResourceManager->GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT_LIT);
+        m_ShaderProgram = GetResourceManager().GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT);
 
         m_TreeMaterial->SetAlbedo(v4(0.0, 1.0, 0.0, 1.0));
         m_TreeMaterial->SetShaderProgram(m_ShaderProgram);
@@ -126,7 +126,7 @@ public:
     }
 
     void SetShaderProgram(const std::string& shaderProgramResource) {
-        m_ShaderProgram = m_ResourceManager->GetShaderProgram(shaderProgramResource);
+        m_ShaderProgram = GetResourceManager().GetShaderProgram(shaderProgramResource);
         m_GroundMaterial->SetShaderProgram(m_ShaderProgram);
         m_TreeMaterial->SetShaderProgram(m_ShaderProgram);
     }

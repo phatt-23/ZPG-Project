@@ -17,6 +17,9 @@ public:
     void SetOrthoProjection(f32 left, f32 right, f32 bottom, f32 top);
     void SetPerspectiveProjection(f32 fov, f32 aspectRatio, f32 zNear, f32 zFar);
 
+    void CalcSetOrthoProjection();
+    void CalcPerspectiveProjection();
+
     const v3& GetPosition() const;
     void SetPosition(const glm::vec3& position);
     const qtr& GetOrientation() const;
@@ -29,6 +32,10 @@ public:
     f32 GetFOV() const { return m_FOV; }
     f32 GetZNear() const { return m_zNear; }
     f32 GetZFar() const { return m_zFar; }
+
+    void SetFOV(f32 fov) { m_FOV = fov; }
+    void SetZNear(f32 zNear) { m_zNear = zNear; }
+    void SetZFar(f32 zFar) { m_zFar = zFar; }
 
     const v3& GetFront() const { return m_Front; }
     const v3& GetForward() const { return m_Forward; }

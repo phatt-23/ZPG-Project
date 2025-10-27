@@ -13,6 +13,7 @@
 #include "Core/Window.h"
 #include "Core/Timestep.h"
 #include "Core/Utility.h"
+
 #include "Resource/ResourceManager.h"
 #include "Resource/CommonResources.h"
 
@@ -30,7 +31,8 @@
 
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
-#include "src/Camera/Camera.h"
+#include "Renderer/RenderStatistics.h"
+
 
 #include "Buffer/VertexArray.h"
 #include "Buffer/VertexBuffer.h"
@@ -38,6 +40,7 @@
 #include "Buffer/BufferElement.h"
 #include "Buffer/BufferLayout.h"
 
+#include "Camera/Camera.h"
 #include "Camera/ObservableCameraController.h"
 #include "Camera/CameraController.h"
 
@@ -55,6 +58,7 @@
 
 #include "Entity/Entity.h"
 #include "Entity/PointLightEntity.h"
+#include "Entity/SpotLightEntity.h"
 
 #include "Transform/TransformGroup.h"
 #include "Transform/Transform.h"

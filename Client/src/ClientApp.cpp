@@ -8,30 +8,50 @@
 #include <ranges>
 
 #include "PBRSpheresScene/SpheresScene.h"
-#include "CV5/SpheresScene.h"
-#include "CV5/ForestScene.h"
-#include "CV5/SolarSystemScene.h"
 #include "CV6/ForestScene.h"
 #include "CV6/SolarSystemScene.h"
 #include "CV6/SpheresScene.h"
+#include "HyenaScene/Scene.h"
+#include "MustangScene/Scene.h"
+#include "ColtM4CarbineScene/Scene.h"
+#include "HappyGhastScene/Scene.h"
 
-class ClientApp : public ZPG::Application {
+using namespace ZPG;
+
+class ClientApp : public Application {
 public:
     ClientApp() {
-        using namespace ZPG;
 
-        m_SceneManager.AddScene("CV5 - Spheres", new CV5::SpheresScene());
-        m_SceneManager.AddScene("CV5 - Forest", new CV5::ForestScene());
-        m_SceneManager.AddScene("CV5 - Solar System", new CV5::SolarSystemScene());
-        m_SceneManager.AddScene("Spheres Scene", new PBRSpheresSceneNS::SpheresScene());
-        m_SceneManager.AddScene("CV6 - Forest", new CV6::ForestScene());
-        m_SceneManager.AddScene("CV6 - Solar System", new CV6::SolarSystemScene());
-        m_SceneManager.AddScene("CV6 - Spheres", new CV6::SpheresScene());
+        m_SceneManager.AddScene("Spheres Scene",        new PBRSpheresSceneNS::SpheresScene());
+        m_SceneManager.AddScene("CV6 - Forest",         new CV6::ForestScene());
+        m_SceneManager.AddScene("CV6 - Solar System",   new CV6::SolarSystemScene());
+        m_SceneManager.AddScene("CV6 - Spheres",        new CV6::SpheresScene());
+        m_SceneManager.AddScene("Hyena Model",          new HyenaScene::HyenaScene());
+        m_SceneManager.AddScene("Mustang Model",        new MustangScene::MustangScene());
+        m_SceneManager.AddScene("Colt Model",           new ColtM4CarbineScene::ColtM4CarbineScene());
+        m_SceneManager.AddScene("Happy Ghast Model",    new HappyGhastScene::HappyGhastScene());
+                               
 
         // m_SceneManager.SetActiveScene("Spheres Scene");
     }
 
     void OnImGuiRender() override {
+
+        ImGui::Begin("Stats");
+            ImGui::Text("FPS: %f\n", 1.0f / m_Delta.AsSeconds());
+
+            static bool instancedEnabled = Renderer::IsInstanced();
+            if (ImGui::Checkbox("Renderer is Instanced", &instancedEnabled)) {
+                Renderer::SetInstanced(instancedEnabled);
+            }
+
+            ImGui::Text("Flush Per Frame      : %d", Renderer::GetStats().FlushCountPerFrame);
+            ImGui::Text("Draw Calls Per Frame : %d", Renderer::GetStats().DrawCallCountPerFrame);
+            ImGui::Text("Shader Groups        : %d", Renderer::GetStats().ShaderProgramGroupCount);
+            ImGui::Text("Material Groups      : %d", Renderer::GetStats().MaterialGroupCount);
+            ImGui::Text("VAO Groups           : %d", Renderer::GetStats().VAOGroupCount);
+        ImGui::End();
+
         ImGui::Begin("Scene Switcher");
             for (const auto& sceneName : m_SceneManager | std::views::keys) {
                 if (ImGui::Button(sceneName.c_str())) {

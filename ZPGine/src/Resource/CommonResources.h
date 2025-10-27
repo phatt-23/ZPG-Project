@@ -10,13 +10,15 @@ namespace ZPG {
 
 class CommonResources {
 public:
-    constexpr static auto NULL_MATERIAL = "tex://Material_Null";
+    constexpr static auto NULL_MATERIAL = "mat://Material_Null";
+
     constexpr static auto NULL_ALBEDO_MAP = "tex://Albedo_Null";
     constexpr static auto NULL_NORMAL_MAP = "tex://Normal_Null";
     constexpr static auto NULL_METALNESS_MAP = "tex://Metalness_Null";
     constexpr static auto NULL_ROUGHNESS_MAP = "tex://Roughness_Null";
+    constexpr static auto NULL_EMISSIVE_MAP = "tex://Emissive_Null";
 
-    constexpr static auto SHADER_PROGRAM_DEFAULT_LIT = "shader://Default_Lit";
+    constexpr static auto SHADER_PROGRAM_DEFAULT = "shader://Default";
 
     constexpr static auto SHADER_PROGRAM_CONSTANT = "shader://Constant";
     constexpr static auto SHADER_PROGRAM_LAMBERT = "shader://Lambert";
@@ -27,6 +29,12 @@ public:
 
     constexpr static auto MODEL_SPHERE = "model://Sphere";
     constexpr static auto MODEL_BOX = "model://Box";
+
+    constexpr static auto VAO_SPHERE = "vao://Sphere";
+    constexpr static auto VAO_BOX = "vao://Box";
+
+    constexpr static auto MESH_SPHERE = "mesh://Sphere";
+    constexpr static auto MESH_BOX = "mesh://Box";
 };
 
 }

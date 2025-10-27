@@ -43,29 +43,15 @@ Application::~Application() {
 void Application::Run() {
     while (m_Running) {
         float currentTime = glfwGetTime();
-        Timestep ts = currentTime - m_LastTime;
+        m_Delta = currentTime - m_LastTime;
         m_LastTime = currentTime;
         
-        m_SceneManager.GetActiveScene()->OnUpdate(ts);
-
-        m_SceneManager.GetActiveScene()->OnRender(ts);
+        m_SceneManager.GetActiveScene()->OnUpdate(m_Delta);
+        m_SceneManager.GetActiveScene()->OnRender(m_Delta);
         
         ImGuiManager::BeginFrame();
-
-        ImGui::Begin("Stats");
-            ImGui::Text("FPS: %f\n", 1.0f/ts.AsSeconds());
-
-            static bool instancedEnabled = Renderer::IsInstanced();
-            if (ImGui::Checkbox("Renderer is Instanced", &instancedEnabled)) {
-                Renderer::SetInstanced(instancedEnabled);
-            }
-
-            ImGui::Text("Flush Per Frame      : %d", Renderer::GetStats()->FlushCountPerFrame);
-            ImGui::Text("Draw Calls Per Frame : %d", Renderer::GetStats()->DrawCallCountPerFrame);
-        ImGui::End();
-
-        m_SceneManager.GetActiveScene()->OnImGuiRender();
-        this->OnImGuiRender();
+            m_SceneManager.GetActiveScene()->OnImGuiRender();
+            this->OnImGuiRender();
         ImGuiManager::EndFrame();
         
         m_Window->OnUpdate();
@@ -75,14 +61,6 @@ void Application::Run() {
 void Application::OnEvent(Event& event) {
     EventDispatcher dispatcher(event);
 
-    // taken from imgui sandbox example codes:
-    // Poll and handle events (inputs, window resize, etc.)
-    // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-    // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-    // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-    // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-    // io.WantCaptureKeyboard;
-    // io.WantCaptureMouse;
     if (event.IsInCategory(EventCategoryMouse) && ImGui::GetIO().WantCaptureMouse && !Input::IsCursorGrabbed()) {
         return;
     }
@@ -97,6 +75,7 @@ bool Application::OnWindowClose(WindowCloseEvent& event) {
     m_Running = false;
     return true;
 }
+
 bool Application::OnWindowResize(WindowResizeEvent& event) {
     Renderer::OnWindowResize(event.GetWidth(), event.GetHeight());
     return false;

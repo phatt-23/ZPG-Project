@@ -25,4 +25,8 @@ bool ShaderProgramLibrary::Exists(const std::string& name) const {
     return m_ShaderProgramMap.contains(name); 
 }
 
+const std::unordered_map<std::string, std::shared_ptr<ShaderProgram>>& ShaderProgramLibrary::GetShaders() const {
+    return m_ShaderProgramMap;
+}
+
 }

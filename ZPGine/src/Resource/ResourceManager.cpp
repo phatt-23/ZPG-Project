@@ -36,27 +36,19 @@ void ResourceManager::Init() {
     ZPG_CORE_ASSERT(s_Instance == nullptr, "The global resource manager was already instantiated.");
     s_Instance = MakeRef<ResourceManager>();
 
-    InitDefaultTextures();
+    // low-level
     InitDefaultShaderPrograms();
+    InitDefaultVAOs();
+    InitDefaultTextures();
+
+    // high-level
     InitDefaultMaterials();
+    InitDefaultMeshes();
     InitDefaultModels();
 }
 
 void ResourceManager::InitDefaultModels() {
-    // TODO: make a mesh library or even VAO library and put these there
-    //
-    ref<Model> sphereModel = Model::Create({
-        Mesh::Create(
-            VertexArray::Create({
-                VertexBuffer::Create(nemec::sphere, sizeof(nemec::sphere), {
-                    {ShaderDataType::Float3, "a_Pos"},
-                    {ShaderDataType::Float3, "a_Normal"},
-                })
-            })
-        )
-    });
-
-    s_Instance->AddModel(CommonResources::MODEL_SPHERE, sphereModel);
+    s_Instance->AddModel(CommonResources::MODEL_SPHERE, Model::Create({  }));
 
     ref<Model> boxModel = Model::Create({
         Mesh::Create(
@@ -74,67 +66,100 @@ void ResourceManager::InitDefaultModels() {
 }
 
 void ResourceManager::InitDefaultShaderPrograms() {
-    std::filesystem::path shaderPath = "./assets/shaders/SSBO/";
+    using namespace std;
+    using Stages = vector<string>;
+    using Route = string;
 
-    s_Instance->LoadShaderProgram(
-        CommonResources::SHADER_PROGRAM_PBR,
-        shaderPath / "vertex/General.vert",
-        shaderPath / "fragment/PBR.frag");
+    filesystem::path basePath = "./assets/shaders/SSBO/";
 
-    s_Instance->LoadShaderProgram(
-        CommonResources::SHADER_PROGRAM_CONSTANT,
-        shaderPath / "vertex/General.vert",
-        shaderPath / "fragment/Constant.frag");
+    map<Route, variant< Stages, Route >> shaderProgramConfig = {
+        {CommonResources::SHADER_PROGRAM_PBR,           Stages{ "vertex/General.vert", "fragment/PBR.frag"         }},
+        {CommonResources::SHADER_PROGRAM_CONSTANT,      Stages{ "vertex/General.vert", "fragment/Constant.frag"    }},
+        {CommonResources::SHADER_PROGRAM_LAMBERT,       Stages{ "vertex/General.vert", "fragment/Lambert.frag"     }},
+        {CommonResources::SHADER_PROGRAM_PHONG,         Stages{ "vertex/General.vert", "fragment/Phong.frag"       }},
+        {CommonResources::SHADER_PROGRAM_BLINN_PHONG,   Stages{ "vertex/General.vert", "fragment/Blinn-Phong.frag" }},
+        {CommonResources::SHADER_PROGRAM_DEFAULT,       Route(CommonResources::SHADER_PROGRAM_BLINN_PHONG) },
+    };
 
-    s_Instance->LoadShaderProgram(
-        CommonResources::SHADER_PROGRAM_LAMBERT,
-        shaderPath / "vertex/General.vert",
-        shaderPath / "fragment/Lambert.frag");
+    for (auto& [name, entry] : shaderProgramConfig) {
+        // Load shaders from files
+        if (std::vector<string>* stages = get_if<Stages>(&entry)) {
+            for (auto& stage : *stages)
+                stage = (basePath / stage).string();
 
-    s_Instance->LoadShaderProgram(
-        CommonResources::SHADER_PROGRAM_PHONG,
-        shaderPath / "vertex/General.vert",
-        shaderPath / "fragment/Phong.frag");
+            s_Instance->LoadShaderProgram(name, *stages);
+        }
 
-    s_Instance->LoadShaderProgram(
-        CommonResources::SHADER_PROGRAM_BLINN_PHONG,
-        shaderPath / "vertex/General.vert",
-        shaderPath / "fragment/Blinn-Phong.frag");
-
-    s_Instance->AddShaderProgram(
-        CommonResources::SHADER_PROGRAM_DEFAULT_LIT,
-        s_Instance->GetShaderProgram(CommonResources::SHADER_PROGRAM_BLINN_PHONG));
+        // Reuse existing program
+        else if (Route* route = get_if<Route>(&entry)) {
+            s_Instance->AddShaderProgram(name, s_Instance->GetShaderProgram(*route));
+        }
+    }
 }
 
 void ResourceManager::InitDefaultTextures() {
-    // Null Albedo map
-    ref<Texture> albedoMapNull = Texture::Create(CommonResources::NULL_ALBEDO_MAP, 1, 1);
-    u32 nullAlbedoData = 0xFFFFFF;
-    albedoMapNull->SetData(&nullAlbedoData, sizeof(nullAlbedoData));
-    s_Instance->AddTexture(albedoMapNull->GetName(), albedoMapNull);
+    // these data must be passed in as array of bytes
+    // not as a single number, because my CPU stores
+    // it in little endian
 
-    // Normal Map
-    ref<Texture> normalMapNull = Texture::Create(CommonResources::NULL_NORMAL_MAP, 1, 1);
-    u32 nullNormalData = 0x7F7FFF; // (0.5, 0.5, 1.0) -> (0.0, 0.0, 1.0) points in z direction
-    normalMapNull->SetData(&nullNormalData, sizeof(nullNormalData));
-    s_Instance->AddTexture(normalMapNull->GetName(), normalMapNull);
 
-    // Metalness Map
-    ref<Texture> metalnessMapNull = Texture::Create(CommonResources::NULL_METALNESS_MAP, 1, 1);
-    u32 nullMetalnessData = 0xFFFFFFFF;
-    metalnessMapNull->SetData(&nullMetalnessData, sizeof(nullMetalnessData));
-    s_Instance->AddTexture(metalnessMapNull->GetName(), metalnessMapNull);
+    std::unordered_map<const char*, std::vector<u8>> nullMapData = {
+        {CommonResources::NULL_ALBEDO_MAP, { 255, 255, 255, 255 }},
+        {CommonResources::NULL_NORMAL_MAP, { 127, 127, 255, 255 }},
+        {CommonResources::NULL_METALNESS_MAP, { 255, 255, 255, 255 }},
+        {CommonResources::NULL_ROUGHNESS_MAP, { 255, 255, 255, 255 }},
+        {CommonResources::NULL_EMISSIVE_MAP, { 255, 255, 255, 255 }},
+    };
 
-    // Roughness Map
-    ref<Texture> nullRoughnessMap = Texture::Create(CommonResources::NULL_ROUGHNESS_MAP, 1, 1);
-    u32 nullRoughnessData = 0xFFFFFFFF;
-    metalnessMapNull->SetData(&nullRoughnessData, sizeof(nullRoughnessData));
-    s_Instance->AddTexture(nullRoughnessMap->GetName(), nullRoughnessMap);
+    for (auto& [name, bytes] : nullMapData) {
+        auto nullMap = Texture::Create(name, 1, 1);
+
+        nullMap->SetData(bytes.data(), sizeof(u8) * bytes.size());
+
+        s_Instance->AddTexture(nullMap->GetName(), nullMap);
+    }
 }
 
 void ResourceManager::InitDefaultMaterials() {
     // Null Material
     s_Instance->AddMaterial(CommonResources::NULL_MATERIAL, MakeRef(new Material()));
+}
+
+
+void ResourceManager::InitDefaultVAOs() {
+    BufferLayout nemecLayout = {
+        {ShaderDataType::Float3, "a_Pos"},
+        {ShaderDataType::Float3, "a_Normal"},
+    };
+
+    BufferLayout phattLayout = {
+        {ShaderDataType::Float3, "a_Pos"},
+        {ShaderDataType::Float3, "a_Normal"},
+        {ShaderDataType::Float2, "a_TexCoord"},
+    };
+
+    s_Instance->AddVAO(
+        CommonResources::VAO_SPHERE,
+        VertexArray::Create({ VertexBuffer::Create(nemec::sphere, sizeof(nemec::sphere), nemecLayout) })
+    );
+
+    s_Instance->AddVAO(
+        CommonResources::VAO_BOX,
+        VertexArray::Create(
+            { VertexBuffer::Create(phatt::boxVertices, sizeof(phatt::boxVertices), phattLayout) },
+            IndexBuffer::Create(phatt::boxIndices, ZPG_ARRAY_LENGTH(phatt::boxIndices))
+        )
+    );
+}
+
+void ResourceManager::InitDefaultMeshes() {
+    s_Instance->AddMesh(
+        CommonResources::MESH_SPHERE,
+        Mesh::Create(s_Instance->GetVAO(CommonResources::VAO_SPHERE)));
+
+    s_Instance->AddMesh(
+        CommonResources::MESH_BOX,
+        Mesh::Create(s_Instance->GetVAO(CommonResources::VAO_BOX)));
 }
 
 void ResourceManager::Shutdown() {
@@ -150,6 +175,9 @@ void ResourceManager::LoadModel(const std::string& name, const std::string& path
 }
 void ResourceManager::AddModel(const std::string& name, const ref<Model>& model) {
     m_ModelLib.AddModel(name, model);
+}
+const std::unordered_map<std::string, ref<Model>>& ResourceManager::GetModels() const {
+    return m_ModelLib.GetModels();
 }
 const ref<Model>& ResourceManager::GetModel(const std::string& name) const {
     return m_ModelLib.GetModel(name);
@@ -172,12 +200,29 @@ void ResourceManager::LoadShaderProgram(
     m_ShaderProgramLib.AddShaderProgram(name, program);
 }
 
+void ResourceManager::LoadShaderProgram(const std::string& name, const std::vector<std::string>& stages) {
+    std::vector<ref<Shader>> shaders;
+    shaders.reserve(stages.size());
+
+    for (auto& stage : stages) {
+        shaders.push_back(Shader::Create(stage));
+    }
+
+    auto program = ShaderProgram::Create(name, shaders);
+
+    m_ShaderProgramLib.AddShaderProgram(name, program);
+}
+
 void ResourceManager::AddShaderProgram(const std::string& name, const ref<ShaderProgram>& shaderProgram) {
     m_ShaderProgramLib.AddShaderProgram(name, shaderProgram);
 }
     
 const ref<ShaderProgram>& ResourceManager::GetShaderProgram(const std::string& name) {
     return m_ShaderProgramLib.GetShaderProgram(name);
+}
+
+const ResourceManager::MapOf<std::shared_ptr<ShaderProgram>>& ResourceManager::GetShaderPrograms() const {
+    return m_ShaderProgramLib.GetShaders();
 }
 
 bool ResourceManager::HasShaderProgram(const std::string& name) const {
@@ -196,10 +241,30 @@ void ResourceManager::AddTexture(const std::string& name, const ref<Texture>& te
 const ref<Texture>& ResourceManager::GetTexture(const std::string& name) {
     return m_TextureLib.GetTexture(name);
 }
+
+const ResourceManager::MapOf<std::shared_ptr<Texture>>& ResourceManager::GetTextures() const {
+    return m_TextureLib.GetTextures();
+}
+
 bool ResourceManager::HasTexture(const std::string& name) const {
     return m_TextureLib.Exists(name);
 }
 
+void ResourceManager::AddVAO(const std::string& name, const ref<VertexArray>& vao) {
+    m_VAOLib.AddVAO(name, vao);
+}
+
+const ref<VertexArray>& ResourceManager::GetVAO(const std::string& name) {
+    return m_VAOLib.GetVAO(name);
+}
+
+const ResourceManager::MapOf<std::shared_ptr<VertexArray>>& ResourceManager::GetVAOs() const {
+    return m_VAOLib.GetVAOs();
+}
+
+bool ResourceManager::HasVAO(const std::string& name) const {
+    return m_VAOLib.Exists(name);
+}
 
 
 void ResourceManager::AddMaterial(const std::string& name, const ref<Material>& material) {
@@ -209,9 +274,28 @@ void ResourceManager::AddMaterial(const std::string& name, const ref<Material>& 
 ref<Material> ResourceManager::GetMaterial(const std::string& name) {
     return m_MaterialLib.GetMaterial(name);
 }
-
+const std::unordered_map<std::string, ref<Material>>& 
+ResourceManager::GetMaterials(const std::string& name) const {
+    return m_MaterialLib.GetMaterials();
+}
 bool ResourceManager::HasMaterial(const std::string& name) const {
     return m_MaterialLib.Exists(name);
+}
+
+void ResourceManager::AddMesh(const std::string& name, const ref<Mesh>& mesh) {
+    m_MeshLib.AddMesh(name, mesh);
+}
+
+const ref<Mesh>& ResourceManager::GetMesh(const std::string& name) {
+    return m_MeshLib.GetMesh(name);
+}
+
+const ResourceManager::MapOf<std::shared_ptr<Mesh>>& ResourceManager::GetMeshes() const {
+    return m_MeshLib.GetMeshes();
+}
+
+bool ResourceManager::HasMesh(const std::string& name) {
+    return m_MeshLib.Exists(name);
 }
 
 }

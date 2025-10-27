@@ -20,41 +20,67 @@ class Event;
 class Scene {
 public:
     Scene(const ref<ResourceManager>& resourceManager = ResourceManager::GetGlobalRef());
-    virtual ~Scene() {}
+    virtual ~Scene();
 
-    // is called right away when the scene is pushed in the scene manager
-    virtual void OnAttach() {}  
-    // is called once when the scene is set as active
-    virtual void OnLazyAttach() {}  
-    virtual void OnDetach() {}
-    virtual void OnResume();
-    virtual void OnPause();
-    virtual void OnUpdate(Timestep& ts) { UpdateLayers(ts); }
-    virtual void OnRender(Timestep& ts);
+    /**
+     * Lifetime hook-in methods.
+     */
+
+    virtual void OnAttach();        // called right when the scene is pushed in the scene manager
+    virtual void OnLazyAttach();    // called once when the scene is set as active
+    virtual void OnDetach();
+    virtual void OnResume();            
+    virtual void OnPause(); 
+
+    /**
+     * Main methods.
+     * By default the scene assumes the Layering workflow.
+     */
+
+    virtual void OnUpdate(Timestep& ts) { UpdateEachLayer(ts); UpdateEntities(ts); }
+    virtual void OnRender(Timestep& ts) { RenderEachLayer(ts); RenderEntities(ts); }
     virtual void OnEvent(Event& event) { PropagateEventDownLayers(event); }
-    virtual void OnImGuiRender();
+    virtual void OnImGuiRender() { ImGuiRenderEachLayer(); ImGuiRenderDebug(); }
+
+    /**
+     * Layering workflow.
+     */
 
     void PushLayer(Layer* layer);
     void PopLayer();
 
-    void AddLight(Light* light);
+    /**
+     * Helpers for flattening the code.
+     */
+
+    void AddLight(Light* light);        
+    void AddLight(const ref<Light>& light);
     void RemoveLight(Light* light);
 
-    // unnecessary, but looks nicer when working with them.
-    EntityManager& GetEntityManager() { return m_EntityManager; }
+    void AddEntity(Entity* entity);
+    void AddEntity(const ref<Entity>& entity);
+    void RemoveEntity(Entity* entity);
+
+    /**
+     * Scene's various object managers.
+     */
+
     ResourceManager& GetResourceManager() { return *m_ResourceManager; }
+    EntityManager& GetEntityManager() { return m_EntityManager; }
     LightManager& GetLightManager() { return m_LightManager; }
 
-    void MarkAsLazyLoaded() { m_LazyLoaded = true; }
-    bool WasLazyLoaded() const { return m_LazyLoaded; }
+    /**
+     * Lazy load.
+     */
 
-protected:
-    void PropagateEventDownLayers(Event& event); 
-    void UpdateLayers(Timestep& ts);
+    void MarkAsLazyLoaded() { m_AlreadyLazyLoaded = true; }
+    bool WasLazyLoaded() const { return m_AlreadyLazyLoaded; }
+
+    /**
+     * Camera.
+     */
+
     Camera& GetCamera() { return m_Camera; }
-
-    // deprecated:
-    void RenderLayers(Timestep& ts);
 
 private:
     LayerStack m_LayerStack;
@@ -62,10 +88,32 @@ private:
     LightManager m_LightManager;
     EntityManager m_EntityManager;
 
-    bool m_LazyLoaded = false;
-protected:
-    // either its own resource manager or injected by the app's resource manager that is global
+    /**
+     * Either its own resource manager or 
+     * injected by the application's global resource manager.
+     */
+
     ref<ResourceManager> m_ResourceManager = nullptr;
+
+    bool m_AlreadyLazyLoaded = false;  // has it already been lazy loaded?
+
+protected:
+    /**
+     * Layering workflow helper methods
+     */
+
+    void UpdateEachLayer(Timestep& ts);
+    void RenderEachLayer(Timestep& ts);
+    void PropagateEventDownLayers(Event& event); 
+    void ImGuiRenderEachLayer();
+
+    /**
+     * Entities helper methods. Scene centric.
+     */
+
+    void UpdateEntities(Timestep& ts);
+    void RenderEntities(Timestep& ts);
+    void ImGuiRenderDebug();
 };
 
 }

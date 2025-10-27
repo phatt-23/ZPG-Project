@@ -29,5 +29,8 @@ const ref<Model>& ModelLibrary::GetModel(const std::string& name) const {
     ZPG_CORE_ASSERT(Exists(name), "The model with this name doesn't exist: {}", name);
     return m_ModelMap.at(name);
 }
+const std::unordered_map<std::string, ref<Model>>& ModelLibrary::GetModels() const {
+    return m_ModelMap;
+}
 
 }

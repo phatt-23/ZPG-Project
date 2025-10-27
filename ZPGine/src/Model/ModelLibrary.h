@@ -13,6 +13,7 @@ public:
     const ref<Model>& LoadModel(const std::string& name, const std::string& path);
     bool Exists(const std::string& name) const;
     const ref<Model>& GetModel(const std::string& name) const;
+    const std::unordered_map<std::string, ref<Model>>& GetModels() const;
 private:
     std::unordered_map<std::string, ref<Model>> m_ModelMap;
 };

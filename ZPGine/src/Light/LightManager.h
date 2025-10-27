@@ -10,6 +10,7 @@ public:
     LightManager();
     ~LightManager();
 
+    void AddLight(Light* light);
     void AddLight(const ref<Light>& light);
     void RemoveLight(const ref<Light>& light);
 

@@ -14,7 +14,7 @@ PointLightEntity::PointLightEntity(
     const ref<Transform>& transform)
 : Entity(model, transform)
 , m_PointLight(pointLight) {
-
+    m_PointLight->m_Position.SetPosition(GetTransformMatrix()[3]);
 }
 
 PointLightEntity::~PointLightEntity() {

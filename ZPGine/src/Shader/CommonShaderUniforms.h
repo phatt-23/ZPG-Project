@@ -43,6 +43,8 @@ public:
     constexpr static NameType NORMAL_MAP {"u_NormalMap", T::Int};
     constexpr static NameType METALNESS_MAP {"u_MetalnessMap", T::Int};
     constexpr static NameType ROUGHNESS_MAP {"u_RoughnessMap", T::Int};
+    constexpr static NameType EMISSIVE_MAP {"u_EmissiveMap", T::Int};
+
 
     constexpr static NameType BLOCK_MATRICES {"ub_Matrices", T::Int};
     constexpr static NameType BLOCK_LIGHTS {"ub_Lights", T::Int};

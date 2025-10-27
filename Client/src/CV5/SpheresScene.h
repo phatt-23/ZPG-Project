@@ -15,7 +15,7 @@ public:
 
     void OnAttach() override {
         // copied
-        m_Model = MakeRef<Model>(*m_ResourceManager->GetModel(CommonResources::MODEL_SPHERE));
+        m_Model = MakeRef<Model>(*GetResourceManager().GetModel(CommonResources::MODEL_SPHERE));
 
         std::array<v3, 4> positions({
             {-1.0, -1.0, 0.0},
@@ -69,7 +69,7 @@ public:
     }
 
     void SetShaderProgram(const std::string& shaderProgramResource) {
-        m_ShaderProgram = m_ResourceManager->GetShaderProgram(shaderProgramResource);
+        m_ShaderProgram = GetResourceManager().GetShaderProgram(shaderProgramResource);
 
         for (auto& mesh : m_Model->GetMeshes())
             mesh->GetMaterial()->SetShaderProgram(m_ShaderProgram);

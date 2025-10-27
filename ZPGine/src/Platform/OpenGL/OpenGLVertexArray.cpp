@@ -41,17 +41,19 @@ void OpenGLVertexArray::AddVertexBuffer(const ref<VertexBuffer>& vertexBuffer) {
     this->Bind();
     vertexBuffer->Bind();
 
+    int idx = 0;
+
     for (auto const& el : layout) {
-        glEnableVertexAttribArray(m_LayoutLocationIndex);
+        glEnableVertexAttribArray(idx);
         // GLuint index, GLint size, GLenum type, 
         // GLboolean normalized, GLsizei stride, const void *pointer
-        glVertexAttribPointer(m_LayoutLocationIndex,
+        glVertexAttribPointer(idx,
             el.GetElementCount(), 
             ShaderDataType::ToOpenGLType(el.Type), 
             el.Normalized,
             layout.GetStride(), 
             reinterpret_cast<void*>(el.Offset));
-        m_LayoutLocationIndex++;
+        idx++;
     }
 
     this->Unbind();

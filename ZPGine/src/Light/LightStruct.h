@@ -18,18 +18,18 @@ struct alignas(16) LightStruct {
     f32 _pad0[3];
 
     v4 Color        = v4(0.0);
+
     v3 Pos          = v3(0.0);
-    f32 _pad1;
+    f32 _pad1[1];
 
     v3 Dir          = v3(0.0, 0.0, -1.0);
-    f32 _pad2;
+    f32 BeamSize    = 30.0f;
 
-    f32 BeamSize    = 0.5;
-    f32 BeamBlend   = 30;
+    f32 BeamBlend   = 69.0f;
     f32 _pad3[2];
 };
 
-static_assert(sizeof(LightStruct) == 5 * 16);
+static_assert(sizeof(LightStruct) == 80);
 
 /*
 

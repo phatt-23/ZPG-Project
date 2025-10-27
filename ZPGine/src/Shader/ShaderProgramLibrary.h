@@ -18,6 +18,8 @@ public:
     // non const because other subjects can set uniforms
     ref<ShaderProgram>& GetShaderProgram(const std::string& name);
     bool Exists(const std::string& name) const;
+    const std::unordered_map<std::string, std::shared_ptr<ShaderProgram>>& GetShaders() const;
+
 private:
     std::unordered_map<std::string, ref<ShaderProgram>> m_ShaderProgramMap;
 };

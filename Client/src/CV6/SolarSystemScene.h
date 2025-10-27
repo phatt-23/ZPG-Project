@@ -11,7 +11,7 @@ using namespace ZPG;
 class SolarSystemScene : public ZPG::Scene {
 public:
     SolarSystemScene() : m_CameraController(GetCamera()) {
-        m_ShaderProgram = m_ResourceManager->GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT_LIT);
+        m_ShaderProgram = GetResourceManager().GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT);
     }
 
     ref<Material> m_SunMaterial;
@@ -90,26 +90,25 @@ public:
     }
 
     void OnUpdate(Timestep& ts) override {
-        Scene::OnUpdate(ts);
         m_CameraController.OnUpdate(ts);
-        for (auto& entity : GetEntityManager().GetEntities()) {
-            entity->Update(ts);
-        }
+        Scene::OnUpdate(ts);
     }
 
     void OnEvent(Event &event) override {
-        Scene::OnEvent(event);
         m_CameraController.OnEvent(event);
+        Scene::OnEvent(event);
     }
 
     void SetShaderProgram(const std::string& shaderProgramResource) {
-        m_ShaderProgram = m_ResourceManager->GetShaderProgram(shaderProgramResource);
+        m_ShaderProgram = GetResourceManager().GetShaderProgram(shaderProgramResource);
         m_SunMaterial->SetShaderProgram(m_ShaderProgram);
         m_EarthMaterial->SetShaderProgram(m_ShaderProgram);
         m_MoonMaterial->SetShaderProgram(m_ShaderProgram);
     }
 
     void OnImGuiRender() override {
+        Scene::OnImGuiRender();
+
         ImGui::Begin("Shader");
         if (ImGui::Button("Constant")) {
             SetShaderProgram(CommonResources::SHADER_PROGRAM_CONSTANT);
