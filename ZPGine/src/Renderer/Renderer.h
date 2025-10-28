@@ -5,9 +5,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "DrawData.h"
 #include "RendererAPI.h"
-#include "Light/LightManager.h"
 
 namespace ZPG {
 

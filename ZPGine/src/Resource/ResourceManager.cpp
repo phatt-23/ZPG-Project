@@ -9,13 +9,14 @@
 #include "Model/Model.h"
 #include "Buffer/VertexArray.h"
 #include "Buffer/BufferLayout.h"
+#include "Model/ModelLoader.h"
 #include "Shader/ShaderDataType.h"
 #include "Shader/Shader.h"
 #include "Texture/Texture.h"
 
 namespace ZPG {
 
-ResourceManager::ResourceManager() 
+ResourceManager::ResourceManager()
 : m_ModelLib(), m_ShaderProgramLib() {
 
 }
@@ -48,18 +49,16 @@ void ResourceManager::Init() {
 }
 
 void ResourceManager::InitDefaultModels() {
-    s_Instance->AddModel(CommonResources::MODEL_SPHERE, Model::Create({  }));
+    ref<Model> sphereModel = ModelLoader("./assets/models/sphere/scene.gltf").Load();
+    ref<Mesh> sphereMesh = sphereModel->GetMeshes().front();
+    ref<VertexArray> sphereVAO = sphereMesh->GetVertexArray();
+
+    s_Instance->AddModel(CommonResources::MODEL_SPHERE, sphereModel);
+    s_Instance->AddMesh(CommonResources::MESH_SPHERE, sphereMesh);
+    s_Instance->AddVAO(CommonResources::VAO_SPHERE, sphereVAO);
 
     ref<Model> boxModel = Model::Create({
-        Mesh::Create(
-            VertexArray::Create({
-                VertexBuffer::Create(phatt::boxVertices, sizeof(phatt::boxVertices), {
-                    {ShaderDataType::Float3, "a_Pos"},
-                    {ShaderDataType::Float3, "a_Normal"},
-                    {ShaderDataType::Float2, "a_TexCoord"},
-                })
-            }, IndexBuffer::Create(phatt::boxIndices, ZPG_ARRAY_LENGTH(phatt::boxIndices)))
-        )
+        s_Instance->GetMesh(CommonResources::MESH_BOX),
     });
 
     s_Instance->AddModel(CommonResources::MODEL_BOX, boxModel);
@@ -127,21 +126,11 @@ void ResourceManager::InitDefaultMaterials() {
 
 
 void ResourceManager::InitDefaultVAOs() {
-    BufferLayout nemecLayout = {
-        {ShaderDataType::Float3, "a_Pos"},
-        {ShaderDataType::Float3, "a_Normal"},
-    };
-
     BufferLayout phattLayout = {
         {ShaderDataType::Float3, "a_Pos"},
         {ShaderDataType::Float3, "a_Normal"},
         {ShaderDataType::Float2, "a_TexCoord"},
     };
-
-    s_Instance->AddVAO(
-        CommonResources::VAO_SPHERE,
-        VertexArray::Create({ VertexBuffer::Create(nemec::sphere, sizeof(nemec::sphere), nemecLayout) })
-    );
 
     s_Instance->AddVAO(
         CommonResources::VAO_BOX,
@@ -153,10 +142,6 @@ void ResourceManager::InitDefaultVAOs() {
 }
 
 void ResourceManager::InitDefaultMeshes() {
-    s_Instance->AddMesh(
-        CommonResources::MESH_SPHERE,
-        Mesh::Create(s_Instance->GetVAO(CommonResources::VAO_SPHERE)));
-
     s_Instance->AddMesh(
         CommonResources::MESH_BOX,
         Mesh::Create(s_Instance->GetVAO(CommonResources::VAO_BOX)));
@@ -189,10 +174,10 @@ bool ResourceManager::HasModel(const std::string& name) const {
 
 
 void ResourceManager::LoadShaderProgram(
-    const std::string& name, 
-    const std::string& vertexShaderPath, 
+    const std::string& name,
+    const std::string& vertexShaderPath,
     const std::string& fragmentShaderPath) {
-    
+
     auto program = ShaderProgram::Create(name, {
         Shader::Create(vertexShaderPath),
         Shader::Create(fragmentShaderPath),
@@ -216,7 +201,7 @@ void ResourceManager::LoadShaderProgram(const std::string& name, const std::vect
 void ResourceManager::AddShaderProgram(const std::string& name, const ref<ShaderProgram>& shaderProgram) {
     m_ShaderProgramLib.AddShaderProgram(name, shaderProgram);
 }
-    
+
 const ref<ShaderProgram>& ResourceManager::GetShaderProgram(const std::string& name) {
     return m_ShaderProgramLib.GetShaderProgram(name);
 }
@@ -232,7 +217,7 @@ bool ResourceManager::HasShaderProgram(const std::string& name) const {
 
 
 void ResourceManager::LoadTexture(const std::string& name, const std::string& path) {
-    ref<Texture> texture = Texture::Create(path); 
+    ref<Texture> texture = Texture::Create(path);
     m_TextureLib.AddTexture(name, texture);
 }
 void ResourceManager::AddTexture(const std::string& name, const ref<Texture>& texture) {
@@ -274,7 +259,7 @@ void ResourceManager::AddMaterial(const std::string& name, const ref<Material>& 
 ref<Material> ResourceManager::GetMaterial(const std::string& name) {
     return m_MaterialLib.GetMaterial(name);
 }
-const std::unordered_map<std::string, ref<Material>>& 
+const std::unordered_map<std::string, ref<Material>>&
 ResourceManager::GetMaterials(const std::string& name) const {
     return m_MaterialLib.GetMaterials();
 }

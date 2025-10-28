@@ -11,11 +11,11 @@ public:
     SpheresScene() : m_CameraController(GetCamera()) {
     }
 
-   PointLight* m_PointLight;
+    PointLight* m_PointLight;
 
     void OnAttach() override {
         // copied
-        m_Model = MakeRef<Model>(*GetResourceManager().GetModel(CommonResources::MODEL_SPHERE));
+        m_Model = GetResourceManager().GetModel(CommonResources::MODEL_SPHERE);
 
         std::array<v3, 4> positions({
             {-1.0, -1.0, 0.0},
@@ -26,8 +26,7 @@ public:
 
         for (v3 pos : positions) {
             auto transform = TransformGroup::Build()
-                .Add<Scale>(2.0)
-                .Add<Translate>(3.0f * pos)
+                .Add<Translate>(1.0f * pos)
                 .Compose();
 
             GetEntityManager().AddEntity(new Entity(m_Model, transform));
@@ -35,15 +34,10 @@ public:
 
         m_PointLight = new PointLight(v4(1.0f, 0.0f, 0.0f, 1.0f), v3(0.0));
 
-        AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.01)));
+        AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.001)));
         AddLight(m_PointLight);
 
         GetCamera().SetPosition(v3(0.0, 0.0, 4.0));
-    }
-
-    void OnResume() override {
-        Scene::OnResume();
-        Renderer::SetLights(GetLightManager().GetLights());
     }
 
     void OnUpdate(Timestep& ts) override {

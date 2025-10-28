@@ -55,15 +55,13 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0);
 
 void main() {
     vec3 texAlbedo = texture(u_AlbedoMap, v_TexCoord).rgb;
-    vec3 albedo = pow(texAlbedo, vec3(2.2)) * ssb_Material.Albedo.rgb;
-
     vec3 texEmissive = texture(u_EmissiveMap, v_TexCoord).rgb;
-    vec3 emissive = texEmissive * ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
-
     float texMetallic = texture(u_MetalnessMap, v_TexCoord).r;
-    float metallic = clamp(texMetallic * ssb_Material.Metallic, 0.0, 1.0);
-
     float texRoughness = texture(u_RoughnessMap, v_TexCoord).r;
+
+    vec3 albedo = pow(texAlbedo, vec3(2.2)) * ssb_Material.Albedo.rgb;
+    vec3 emissive = texEmissive * ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
+    float metallic = clamp(texMetallic * ssb_Material.Metallic, 0.0, 1.0);
     float roughness = clamp(texRoughness * ssb_Material.Roughness, 0.05, 1.0);
 
     float ao = 1.0;
@@ -180,7 +178,7 @@ void main() {
             Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
         else if (lightType == LightTypeAmbient) {
-            La += albedo * lightColor * ao * 0.03;
+            La += albedo * lightColor * ao;
         }
     }
 

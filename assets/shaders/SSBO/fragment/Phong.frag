@@ -46,13 +46,32 @@ in mat3 v_TBN;
 out vec4 f_FragColor;
 
 void main() {
-    vec3 albedo = texture(u_AlbedoMap, v_TexCoord).rgb * ssb_Material.Albedo.rgb;
+    vec3    texAlbedo       = texture(u_AlbedoMap, v_TexCoord).rgb;
+    vec3    texEmissive     = texture(u_EmissiveMap, v_TexCoord).rgb;
+    float   texMetallic     = texture(u_MetalnessMap, v_TexCoord).r;
+    float   texRoughness    = texture(u_RoughnessMap, v_TexCoord).r;
+
+    vec3    albedo          = pow(texAlbedo, vec3(2.2)) * ssb_Material.Albedo.rgb;
+    vec3    emissive        = texEmissive * ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
+    float   metallic        = clamp(texMetallic * ssb_Material.Metallic, 0.0, 1.0);
+    float   roughness       = clamp(texRoughness * ssb_Material.Roughness, 0.0, 1.0);
+
+    vec3    diffuseColor    = albedo * clamp(1.0 - metallic, 0.01, 1.0);
+
+    float   shininess       = max(pow(1.0 - roughness, 4.0) * 512.0, 16.0);
+
+    vec3    baseSpecColor   = mix(vec3(0.04), albedo, metallic);
+    float   specIntensity   = mix(0.5, 2.0, metallic) * mix(0.2, 1.0, pow(1.0 - roughness + 0.001, 2.0));
+    vec3    specularColor   = baseSpecColor * specIntensity;
+
 
     vec3 Lo = vec3(0.0);
     vec3 La = vec3(0.0);
-    vec3 Le = ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
+    vec3 Le = texture(u_EmissiveMap, v_TexCoord).rgb * ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
 
-    vec3 N = normalize(v_WorldNormal);
+    vec3 tangentNormal = 2.0 * texture(u_NormalMap, v_TexCoord).rgb - 1.0;
+    vec3 N = normalize(v_TBN * tangentNormal);
+
     vec3 V = normalize(ssb_Camera.CameraPos - v_WorldPos);
 
     for (int i = 0; i < ssb_Lights.LightCount; i++) {
@@ -68,11 +87,8 @@ void main() {
             float dist = length(lightPos - v_WorldPos);
             float atten = 1.0 / (1.0 + 0.22 * dist + 0.20 * dist * dist); 
 
-            float diff = max(dot(N, L), 0.0);
-            float spec = pow(max(dot(V, R), 0.0), 32.0);
-
-            vec3 diffuse = diff * albedo;
-            vec3 specular = spec * lightColor;
+            vec3 diffuse = max(dot(N, L), 0.0) * diffuseColor;
+            vec3 specular = pow(max(dot(V, R), 0.0), shininess) * specularColor;
 
             Lo += (diffuse + specular) * lightColor * atten;
         }
@@ -80,11 +96,8 @@ void main() {
             vec3 L = normalize(-lightDir);
             vec3 R = reflect(-L, N);
 
-            float diff = max(dot(N, L), 0.0);
-            float spec = pow(max(dot(V, R), 0.0), 32.0);
-
-            vec3 diffuse = diff * albedo;
-            vec3 specular = spec * lightColor;
+            vec3 diffuse = max(dot(N, L), 0.0) * diffuseColor;
+            vec3 specular = pow(max(dot(V, R), 0.0), shininess) * specularColor;
 
             Lo += (diffuse + specular) * lightColor;
         }
@@ -107,17 +120,13 @@ void main() {
             float beamDenominator = beamBlendCos - beamSizeCos;
             float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
 
-
-            float diff = max(dot(N, L), 0.0);
-            float spec = pow(max(dot(V, R), 0.0), 32.0);
-
-            vec3 diffuse = diff * albedo;
-            vec3 specular = spec * lightColor;
+            vec3 diffuse = max(dot(N, L), 0.0) * diffuseColor;
+            vec3 specular = pow(max(dot(V, R), 0.0), shininess) * specularColor;
 
             Lo += (diffuse + specular) * lightColor * beamContrib * atten;
         }
         else if (lightType == LightTypeAmbient) {
-            La += albedo * lightColor;
+            La += diffuseColor * lightColor;
         }
     }
     

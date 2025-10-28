@@ -1,10 +1,13 @@
 #include "Model.h"
 
+#include "Debug/Asserter.h"
+
 namespace ZPG {
 
 
 Model::Model(const std::vector<ref<Mesh>>& meshes)
 : m_Meshes(meshes) {
+    ZPG_CORE_ASSERT(meshes.size() > 0, "Model must contain at least one mesh.");
 }
 
 Model::~Model() {}

@@ -31,6 +31,7 @@ layout (std430, binding = 3) buffer MaterialStorageBuffer {
     float Metallic;
 } ssb_Material;
 
+// can't be put into buffer :(
 uniform sampler2D u_AlbedoMap;
 uniform sampler2D u_RoughnessMap;
 uniform sampler2D u_MetalnessMap;
@@ -45,13 +46,32 @@ in mat3 v_TBN;
 out vec4 f_FragColor;
 
 void main() {
-    vec3 albedo = texture(u_AlbedoMap, v_TexCoord).rgb * ssb_Material.Albedo.rgb;
+    vec3    texAlbedo       = texture(u_AlbedoMap, v_TexCoord).rgb;
+    vec3    texEmissive     = texture(u_EmissiveMap, v_TexCoord).rgb;
+    float   texMetallic     = texture(u_MetalnessMap, v_TexCoord).r;
+    float   texRoughness    = texture(u_RoughnessMap, v_TexCoord).r;
+
+    vec3    albedo          = pow(texAlbedo, vec3(2.2)) * ssb_Material.Albedo.rgb;
+    vec3    emissive        = texEmissive * ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
+    float   metallic        = clamp(texMetallic * ssb_Material.Metallic, 0.0, 1.0);
+    float   roughness       = clamp(texRoughness * ssb_Material.Roughness, 0.0, 1.0);
+
+    vec3    diffuseColor    = albedo * clamp(1.0 - metallic, 0.01, 1.0);
+
+    float   shininess       = max(pow(1.0 - roughness, 4.0) * 512.0, 16.0);
+
+    vec3    baseSpecColor   = mix(vec3(0.04), albedo, metallic);
+    float   specIntensity   = mix(0.5, 2.0, metallic) * mix(0.2, 1.0, pow(1.0 - roughness + 0.001, 2.0));
+    vec3    specularColor   = baseSpecColor * specIntensity;
+
 
     vec3 Lo = vec3(0.0);
     vec3 La = vec3(0.0);
-    vec3 Le = ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
+    vec3 Le = texture(u_EmissiveMap, v_TexCoord).rgb * ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
 
-    vec3 N = normalize(v_WorldNormal);
+    vec3 tangentNormal = 2.0 * texture(u_NormalMap, v_TexCoord).rgb - 1.0;
+    vec3 N = normalize(v_TBN * tangentNormal);
+
     vec3 V = normalize(ssb_Camera.CameraPos - v_WorldPos);
 
     for (int i = 0; i < ssb_Lights.LightCount; i++) {
@@ -63,27 +83,26 @@ void main() {
 
         if (lightType == LightTypePoint) {
             vec3 L = normalize(lightPos - v_WorldPos);
+            vec3 R = reflect(-L, N);
             float dist = length(lightPos - v_WorldPos);
             float atten = 1.0 / (1.0 + 0.22 * dist + 0.20 * dist * dist);
 
-            float NdotL = max(dot(N, L), 0.0);
+            vec3 diffuse = max(dot(N, L), 0.0) * diffuseColor;
 
-            vec3 diffuse = NdotL * albedo;
-
-            Lo += diffuse * lightColor * atten;
+            Lo += (diffuse) * lightColor * atten;
         }
         else if (lightType == LightTypeDirectional) {
             vec3 L = normalize(-lightDir);
+            vec3 R = reflect(-L, N);
 
-            float NdotL = max(dot(N, L), 0.0);
+            vec3 diffuse = max(dot(N, L), 0.0) * diffuseColor;
 
-            vec3 diffuse = NdotL * albedo;
-
-            Lo += diffuse * lightColor;
+            Lo += (diffuse) * lightColor;
         }
         else if (lightType == LightTypeSpotlight) {
             vec3 L = normalize(lightPos - v_WorldPos);
-            float dist = length(lightPos - v_WorldPos);
+            vec3 R = reflect(-L, N);
+            float dist = length(light.Pos - v_WorldPos);
             float atten = 1.0 / (1.0 + 0.22 * dist + 0.20 * dist * dist);
 
             float lightBeamSize = light.BeamSize;
@@ -99,18 +118,16 @@ void main() {
             float beamDenominator = beamBlendCos - beamSizeCos;
             float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
 
-            float diff = max(dot(N, L), 0.0);
+            vec3 diffuse = max(dot(N, L), 0.0) * diffuseColor;
 
-            vec3 diffuse = diff * albedo;
-
-            Lo += diffuse * lightColor * beamContrib * atten;
+            Lo += (diffuse) * lightColor * beamContrib * atten;
         }
         else if (lightType == LightTypeAmbient) {
-            La += albedo * lightColor;
+            La += diffuseColor * lightColor;
         }
     }
 
-    vec3 color = La + Lo + Le;
+    vec3 color = Lo + La + Le;
 
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));

@@ -206,7 +206,7 @@ public:
                 v3(0.0, 1.0, 0.0),
                 v3(0.0, -1.0, 0.0),
                 40.0,
-                0.0);
+                0.5);
 
             GetLightManager().AddLight(spotLight);
 

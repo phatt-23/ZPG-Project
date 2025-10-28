@@ -19,12 +19,7 @@ public:
     ref<Material> m_MoonMaterial;
 
     void OnAttach() override {
-        auto sphereVAO = VertexArray::Create({
-            VertexBuffer::Create(nemec::sphere, sizeof(nemec::sphere), {
-                {ShaderDataType::Float3, "a_Pos"},
-                {ShaderDataType::Float3, "a_Normal"},
-            })
-        });
+        auto sphereVAO = GetResourceManager().GetVAO(CommonResources::VAO_SPHERE);
 
         m_SunMaterial = MakeRef<Material>();
         m_SunMaterial->SetShaderProgram(m_ShaderProgram);

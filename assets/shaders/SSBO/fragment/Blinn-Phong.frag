@@ -45,14 +45,36 @@ in mat3 v_TBN;
 out vec4 f_FragColor;
 
 void main() {
-    vec3 albedo = texture(u_AlbedoMap, v_TexCoord).rgb * ssb_Material.Albedo.rgb;
+    vec3    texAlbedo       = texture(u_AlbedoMap, v_TexCoord).rgb;
+    vec3    texEmissive     = texture(u_EmissiveMap, v_TexCoord).rgb;
+    float   texMetallic     = texture(u_MetalnessMap, v_TexCoord).r;
+    float   texRoughness    = texture(u_RoughnessMap, v_TexCoord).r;
+
+    vec3    albedo          = pow(texAlbedo, vec3(2.2)) * ssb_Material.Albedo.rgb;
+    vec3    emissive        = texEmissive * ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
+    float   metallic        = clamp(texMetallic * ssb_Material.Metallic, 0.0, 1.0);
+    float   roughness       = clamp(texRoughness * ssb_Material.Roughness, 0.0, 1.0);
+
+    // Metals - less diffuse, more specular and colored reflection
+    vec3    diffuseColor    = albedo * clamp(1.0 - metallic, 0.01, 1.0);
+
+    // Roughness to shininess (higher roughness, lower shininess)
+    float   shininess       = max(pow(1.0 - roughness, 4.0) * 512.0, 16.0);
+
+    // Intensity adjustment:
+    //   metals - higher reflectivity
+    //   rough surfaces - broader and dimmer highlights
+    vec3    baseSpecColor   = mix(vec3(0.04), albedo, metallic);
+    float   specIntensity   = mix(0.5, 2.0, metallic) * mix(0.2, 1.0, pow(1.0 - roughness + 0.001, 2.0));
+    vec3    specularColor   = baseSpecColor * specIntensity;
+
 
     vec3 Lo = vec3(0.0);
     vec3 La = vec3(0.0);
     vec3 Le = texture(u_EmissiveMap, v_TexCoord).rgb * ssb_Material.Emissive.rgb * ssb_Material.Emissive.a;
 
-    vec3 tangentNormal = 2.0 * texture(u_NormalMap, v_TexCoord).rgb - 1.0;
-    vec3 N = normalize(v_TBN * tangentNormal);
+    vec3 tangentNormal  = 2.0 * texture(u_NormalMap, v_TexCoord).rgb - 1.0;
+    vec3 N              = normalize(v_TBN * tangentNormal);
 
     vec3 V = normalize(ssb_Camera.CameraPos - v_WorldPos);
 
@@ -72,9 +94,8 @@ void main() {
             float NdotL = max(dot(N, L), 0.0);
             float NdotH = max(dot(N, H), 0.0);
 
-            vec3 diffuse = NdotL * albedo;
-
-            vec3 specular = pow(NdotH, 32.0) * lightColor;
+            vec3 diffuse = NdotL * diffuseColor;
+            vec3 specular = pow(NdotH, shininess) * specularColor;
 
             Lo += (diffuse + specular) * lightColor * atten;
         }
@@ -85,8 +106,8 @@ void main() {
             float NdotL = max(dot(N, L), 0.0);
             float NdotH = max(dot(N, H), 0.0);
 
-            vec3 diffuse = NdotL * albedo;
-            vec3 specular = pow(NdotH, 32.0) * lightColor;
+            vec3 diffuse = NdotL * diffuseColor;
+            vec3 specular = pow(NdotH, shininess) * specularColor;
 
             Lo += (diffuse + specular) * lightColor;
         }
@@ -97,7 +118,7 @@ void main() {
             float atten = 1.0 / (1.0 + 0.22 * dist + 0.20 * dist * dist);
 
             float lightBeamSize = light.BeamSize;
-            float lightBeamBlend = light.BeamBlend;
+            float lightBeamBlend = max(light.BeamBlend, 0.01);
 
             float beamSizeCos = cos(radians(lightBeamSize));
             float beamBlendCos = cos(radians(lightBeamSize * (1.0 - lightBeamBlend)));
@@ -113,13 +134,13 @@ void main() {
             float NdotL = max(dot(N, L), 0.0);
             float NdotH = max(dot(N, H), 0.0);
 
-            vec3 diffuse = NdotL * albedo;
-            vec3 specular = pow(NdotH, 32.0) * lightColor;
+            vec3 diffuse = NdotL * diffuseColor;
+            vec3 specular = pow(NdotH, shininess) * specularColor;
 
             Lo += (diffuse + specular) * lightColor * beamContrib * atten;
         }
         else if (lightType == LightTypeAmbient) {
-            La += albedo * lightColor;
+            La += diffuseColor * lightColor;
         }
     }
 

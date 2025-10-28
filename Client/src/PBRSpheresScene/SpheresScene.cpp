@@ -27,12 +27,7 @@ void SpheresScene::OnAttach() {
     int gridSize = 5;
     float dist = 1.5;
 
-    auto vao = VertexArray::Create({
-        VertexBuffer::Create(nemec::sphere, sizeof(nemec::sphere), {
-            {ShaderDataType::Float3, "a_Pos"},
-            {ShaderDataType::Float3, "a_Normal"},
-        })
-    });
+    auto vao = GetResourceManager().GetVAO(CommonResources::VAO_SPHERE);
 
     // Entity* parentEnt = nullptr;
 
@@ -56,7 +51,6 @@ void SpheresScene::OnAttach() {
 
             auto transform = TransformGroup::Build()
                 // .WithParent(parentEnt ? parentEnt->GetTransform() : nullptr)
-                .Add<Scale>(0.5)
                 .Add<Translate>(
                     i * dist - dist * gridSize/2,
                     j * dist - dist * gridSize/2,

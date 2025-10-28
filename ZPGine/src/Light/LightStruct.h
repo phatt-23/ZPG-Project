@@ -25,7 +25,7 @@ struct alignas(16) LightStruct {
     v3 Dir          = v3(0.0, 0.0, -1.0);
     f32 BeamSize    = 30.0f;
 
-    f32 BeamBlend   = 69.0f;
+    f32 BeamBlend   = 0.5f;
     f32 _pad3[2];
 };
 

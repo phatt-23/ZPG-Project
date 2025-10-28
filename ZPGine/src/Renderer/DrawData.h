@@ -4,6 +4,7 @@
 
 #ifndef WORKSPACE_DRAWDATA_H
 #define WORKSPACE_DRAWDATA_H
+#include "Buffer/FrameBuffer.h"
 #include "RenderBatch.h"
 #include "Buffer/ShaderStorageBuffer.h"
 
@@ -76,6 +77,12 @@ struct DrawData {
     ShaderStorageBuffer CameraSSBO;
     ShaderStorageBuffer MaterialSSBO;
     ShaderStorageBuffer ModelsSSBO;
+
+    /**
+     * Framebuffer used for rendering only the geometry of a scene.
+     */
+
+    scope<FrameBuffer> GBuffer;
 };
 
 }

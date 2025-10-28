@@ -6,6 +6,10 @@
 
 #include "Light/LightManager.h"
 #include "Light/LightStruct.h"
+#include "Texture/Texture.h"
+#include "Buffer/RenderBuffer.h"
+#include "Core/Application.h"
+#include "Core/Window.h"
 
 namespace ZPG {
 
@@ -39,6 +43,38 @@ DrawData::DrawData()
     // in a single batch, we should only need s_BatchSize
     // model matrices
     ModelsStorage.Models = new m4[s_BatchSize];
+
+
+    const Window& window = Application::Get().GetWindow();
+    window.GetWidth();
+    window.GetHeight();
+
+
+    // G-Buffer
+
+    std::unordered_multimap<AttachmentType::Type, ref<Texture>> gBufferTextureAttachments = {
+        {   
+            AttachmentType::Color,    
+            Texture::Create("PositionColorBuffer", window.GetWidth(), window.GetHeight(), BufferDataFormat::RGBA8),
+        },
+        {   
+            AttachmentType::Color,    
+            Texture::Create("NormalColorBuffer", window.GetWidth(), window.GetHeight(), BufferDataFormat::RGBA8),
+        },
+        {
+            AttachmentType::Color,
+            Texture::Create("ColorAttachment", window.GetWidth(), window.GetHeight(), BufferDataFormat::RGBA8),
+        },
+    };
+
+    std::unordered_multimap<AttachmentType::Type, ref<RenderBuffer>> gBufferRenderBufferAttachments = {
+        {
+            AttachmentType::DepthStencil,
+            RenderBuffer::Create(window.GetWidth(), window.GetHeight(), BufferDataFormat::DEPTH24_STENCIL8),
+        },
+    };
+
+    GBuffer = MakeScope(new FrameBuffer(gBufferTextureAttachments, gBufferRenderBufferAttachments));
 }
 
 DrawData::~DrawData() {

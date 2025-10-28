@@ -5,6 +5,9 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include "Buffer/BufferDataFormat.h"
+#include "Buffer/FrameBuffer.h"
+
 namespace ZPG {
 
 class Texture {
@@ -13,6 +16,7 @@ public:
 
     virtual const std::string& GetName() const = 0;
     virtual void BindToSlot(u32 slotIndex) = 0;
+    virtual void Bind() = 0;
     virtual void Unbind() = 0;
 
     virtual u32 GetWidth() const = 0;
@@ -20,9 +24,22 @@ public:
 
     virtual void SetData(const void *data, u32 size) = 0;
 
-    static ref<Texture> Create(const std::string& filepath);
-    static ref<Texture> Create(const std::string& name, const std::string& filepath);
-    static ref<Texture> Create(const std::string& name, u32 width, u32 height);
+    virtual void AttachToFrameBuffer(u32 frameBufferID, AttachmentType::Type attachmentType, u32 index = 0) = 0;
+
+    static ref<Texture> Create(
+        const std::string& filepath, 
+        BufferDataFormat format = BufferDataFormat(BufferDataFormat::BufferFormat::RGBA8));
+
+    static ref<Texture> Create(
+        const std::string& name, 
+        const std::string& filepath, 
+        BufferDataFormat format = BufferDataFormat(BufferDataFormat::BufferFormat::RGBA8));
+
+    static ref<Texture> Create(
+        const std::string& name, 
+        u32 width, 
+        u32 height,
+        BufferDataFormat format = BufferDataFormat(BufferDataFormat::BufferFormat::RGBA8));
 };
 
 }

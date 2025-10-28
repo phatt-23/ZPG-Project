@@ -22,7 +22,9 @@ in mat3 v_TBN;
 out vec4 f_FragColor;
 
 void main() {
-    vec3 albedo = texture(u_AlbedoMap, v_TexCoord).rgb * ssb_Material.Albedo.rgb;
+    vec3    texAlbedo       = texture(u_AlbedoMap, v_TexCoord).rgb;
 
-    f_FragColor = vec4(albedo, 1.0);
+    vec3 Lo = vec3(0.0);
+
+    f_FragColor = vec4(texAlbedo, 1.0);
 }
