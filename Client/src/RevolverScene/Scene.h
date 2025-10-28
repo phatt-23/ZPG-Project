@@ -1,12 +1,12 @@
 #include "ZPGine.h"
 
-namespace HappyGhastScene {
+namespace RevolverScene {
 
 using namespace ZPG;
     
-class HappyGhastScene : public Scene {
+class RevolverScene : public Scene {
 public:
-    HappyGhastScene();
+    RevolverScene();
 
     void OnLazyAttach() override;
 

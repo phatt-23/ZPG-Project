@@ -22,6 +22,8 @@
 #include "RenderGroups.h"
 #include "Texture/Texture.h"
 #include "RenderStatistics.h"
+#include "Core/Application.h"
+#include "Core/Window.h"
 
 namespace ZPG {
 
@@ -31,6 +33,7 @@ void Renderer::Init() {
     RenderCommand::Init();
     s_DrawData = new DrawData();
     s_Stats = new RenderStatistics();
+
 }
 
 void Renderer::Shutdown() {
@@ -153,9 +156,15 @@ void Renderer::Flush() {
     }
 
 
+
+
     // Batch render
     if (s_Instanced) // instanced way
     {
+        // Use the GBuffer
+
+        // s_DrawData->GBuffer->Bind();
+
         s_DrawData->Batch.BuildGroups();
 
         const auto& shaderProgramGroups = s_DrawData->Batch.GetShaderProgramGroups();
@@ -166,15 +175,10 @@ void Renderer::Flush() {
         s_Stats->MaterialGroupCount = materialGroups.size();
         s_Stats->VAOGroupCount = vaoGroups.size();
 
-        const auto& drawCommands = s_DrawData->Batch.GetDrawCommands();
-
-        // cache current bound states to skip redundant binds
+        // cache currently bound states to skip redundant binds
         ShaderProgram* curShaderProgram = nullptr;
         Material* curMaterial = nullptr;
         VertexArray* curVAO = nullptr;
-
-        // handle to models storage buffer's models array
-        m4* modelsDest = s_DrawData->ModelsStorage.Models;
 
         const m4* batchTransforms = s_DrawData->Batch.GetTransforms().data();
 
@@ -265,6 +269,7 @@ void Renderer::Flush() {
                         s_DrawData->ModelsStorage.Models,
                         sizeof(m4) * vaoGroup.m_Count,
                         offsetof(DrawData::ModelsStorageBuffer, Models));
+
             #endif
 
                     if (vaoGroup.m_VertexArray->HasIndexBuffer()) {
@@ -284,6 +289,8 @@ void Renderer::Flush() {
 
         
         s_DrawData->Batch.Reset();
+
+
     }
     else // non instanced way
     {
@@ -351,6 +358,7 @@ void Renderer::Flush() {
 
         s_DrawData->Batch.Reset();
     }
+
 
     s_Stats->FlushCountPerFrame++;
 }

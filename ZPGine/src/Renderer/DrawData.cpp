@@ -45,12 +45,9 @@ DrawData::DrawData()
     ModelsStorage.Models = new m4[s_BatchSize];
 
 
+    // G-Buffer initialization
+
     const Window& window = Application::Get().GetWindow();
-    window.GetWidth();
-    window.GetHeight();
-
-
-    // G-Buffer
 
     std::unordered_multimap<AttachmentType::Type, ref<Texture>> gBufferTextureAttachments = {
         {   
@@ -65,13 +62,14 @@ DrawData::DrawData()
             AttachmentType::Color,
             Texture::Create("ColorAttachment", window.GetWidth(), window.GetHeight(), BufferDataFormat::RGBA8),
         },
+        {
+            AttachmentType::DepthStencil,
+            Texture::Create("DepthStencilAttachment", window.GetWidth(), window.GetHeight(), BufferDataFormat::DEPTH24_STENCIL8),
+        },
     };
 
     std::unordered_multimap<AttachmentType::Type, ref<RenderBuffer>> gBufferRenderBufferAttachments = {
-        {
-            AttachmentType::DepthStencil,
-            RenderBuffer::Create(window.GetWidth(), window.GetHeight(), BufferDataFormat::DEPTH24_STENCIL8),
-        },
+
     };
 
     GBuffer = MakeScope(new FrameBuffer(gBufferTextureAttachments, gBufferRenderBufferAttachments));

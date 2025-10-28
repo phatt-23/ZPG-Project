@@ -22,7 +22,8 @@ Application::Application() {
     ZPG_CORE_ASSERT(s_Instance == nullptr, "Application already instantiated.");
     s_Instance = this;
 
-    m_Window = Window::Create();
+    m_Window = Window::Create(WindowProps("ZPGine", 1280, 720, true));
+
     m_Window->SetEventCallback([this](Event& e){ this->OnEvent(e); });
     m_Window->SetVSync(false);
 

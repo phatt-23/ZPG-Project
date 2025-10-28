@@ -14,7 +14,7 @@
 #include "HyenaScene/Scene.h"
 #include "MustangScene/Scene.h"
 #include "ColtM4CarbineScene/Scene.h"
-#include "HappyGhastScene/Scene.h"
+#include "RevolverScene/Scene.h"
 
 using namespace ZPG;
 
@@ -29,10 +29,9 @@ public:
         m_SceneManager.AddScene("Hyena Model",          new HyenaScene::HyenaScene());
         m_SceneManager.AddScene("Mustang Model",        new MustangScene::MustangScene());
         m_SceneManager.AddScene("Colt Model",           new ColtM4CarbineScene::ColtM4CarbineScene());
-        m_SceneManager.AddScene("Happy Ghast Model",    new HappyGhastScene::HappyGhastScene());
+        m_SceneManager.AddScene("Revolver Model",       new RevolverScene::RevolverScene());
                                
-
-        // m_SceneManager.SetActiveScene("Spheres Scene");
+        m_SceneManager.SetActiveScene("Revolver Model");
     }
 
     void OnImGuiRender() override {

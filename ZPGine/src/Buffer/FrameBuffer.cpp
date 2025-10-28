@@ -33,6 +33,15 @@ FrameBuffer::FrameBuffer(
 
     }
 
+    std::vector<GLenum> drawBuffers;
+    drawBuffers.reserve(m_ColorTextureAttachments.size());
+
+    for (int i = 0; i < m_ColorTextureAttachments.size(); i++) {
+        drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + i);
+    }
+
+    glDrawBuffers(drawBuffers.size(), drawBuffers.data());
+
     for (auto& [attachType, rbo] : rboAttachments) {
         m_RBOAttachments.insert({attachType, rbo});
 

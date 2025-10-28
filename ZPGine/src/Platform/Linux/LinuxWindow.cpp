@@ -31,7 +31,9 @@ void LinuxWindow::Init() {
     }
 
     // i3 will make windows with this hint "floating", but not resizable
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); 
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    // make sure it has a depth buffer
+    glfwWindowHint(GLFW_DEPTH_BITS, 24);
     // Create GLFW window    
     m_Window = glfwCreateWindow(m_Data.Props.Width, m_Data.Props.Height, m_Data.Props.Title.c_str(), NULL, NULL);
     // bring back resize-ability

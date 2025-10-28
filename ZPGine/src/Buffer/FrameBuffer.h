@@ -23,7 +23,7 @@ public:
     void Bind();
     void Unbind();
 
-private:
+public:
     u32 m_RendererID;
 
     std::unordered_multimap<AttachmentType::Type, ref<Texture>> m_TextureAttachments;

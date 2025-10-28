@@ -1,11 +1,11 @@
 #include "Scene.h"
 #include "../assets/models/nemec/sphere.h"
 
-namespace HappyGhastScene {
+namespace RevolverScene {
 
-HappyGhastScene::HappyGhastScene() : m_Controller(GetCamera()), m_LocalRes() {}
+RevolverScene::RevolverScene() : m_Controller(GetCamera()), m_LocalRes() {}
 
-void HappyGhastScene::OnLazyAttach() {
+void RevolverScene::OnLazyAttach() {
     m_LocalRes.LoadModel("Seoul", "./assets/models/korth_nxr_revolver/scene.gltf");
 
     int grid_size = 2;
@@ -61,17 +61,17 @@ void HappyGhastScene::OnLazyAttach() {
     GetLightManager().AddLight(dir_light);
 }
 
-void HappyGhastScene::OnUpdate(Timestep &ts) {
+void RevolverScene::OnUpdate(Timestep &ts) {
     Scene::OnUpdate(ts);
     m_Controller.OnUpdate(ts);
 }
 
-void HappyGhastScene::OnEvent(Event &event) {
+void RevolverScene::OnEvent(Event &event) {
     Scene::OnEvent(event);
     m_Controller.OnEvent(event);
 }
 
-void HappyGhastScene::OnImGuiRender() {
+void RevolverScene::OnImGuiRender() {
     Scene::OnImGuiRender();
 
     ImGui::Begin("Shader program");

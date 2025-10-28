@@ -5,7 +5,7 @@
 
 namespace ZPG {
 
-scope<Window> Window::Create(const WindowProps& props) {
+scope<Window> Window::Create(WindowProps&& props) {
     return MakeScope<LinuxWindow>(props);
 }
 
