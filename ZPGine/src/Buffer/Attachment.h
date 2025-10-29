@@ -10,6 +10,9 @@ struct AttachmentType {
         Stencil,
     };
 
+    Type m_Type;
+    u32 m_Index;
+
     struct GLAttachmentMapping {
         GLenum Attachment;
     };
