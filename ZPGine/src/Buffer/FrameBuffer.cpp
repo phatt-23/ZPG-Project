@@ -10,27 +10,20 @@
 namespace ZPG {
 
 FrameBuffer::FrameBuffer(
-    std::unordered_multimap<AttachmentType::Type, ref<Texture>> textureAttachments,
-    std::unordered_multimap<AttachmentType::Type, ref<RenderBuffer>> rboAttachments
+    const std::unordered_map<Attachment, ref<Texture>>& textureAttachments,
+    const std::unordered_map<Attachment, ref<RenderBuffer>>& rboAttachments
 ) {
     ZPG_OPENGL_CALL(glGenFramebuffers(1, &m_RendererID));
     Bind();
 
-    for (auto& [attachType, texture] : textureAttachments) {
-        m_TextureAttachments.insert({attachType, texture});
+    for (auto& [attachment, texture] : textureAttachments) {
+        m_TextureAttachments[attachment] = texture;
 
-        if (attachType == AttachmentType::Color) {
-            texture->AttachToFrameBuffer(
-                m_RendererID, 
-                attachType, 
-                m_ColorTextureAttachments.size());
-        
-            m_ColorTextureAttachments.push_back(texture);
-        }
-        else {
-            texture->AttachToFrameBuffer(m_RendererID, attachType);
+        if (attachment.Type == Attachment::Color) {
+            m_ColorTextureAttachments[attachment] = texture;
         }
 
+        texture->AttachToFrameBuffer(m_RendererID, attachment);
     }
 
     std::vector<GLenum> drawBuffers;
@@ -42,10 +35,10 @@ FrameBuffer::FrameBuffer(
 
     glDrawBuffers(drawBuffers.size(), drawBuffers.data());
 
-    for (auto& [attachType, rbo] : rboAttachments) {
-        m_RBOAttachments.insert({attachType, rbo});
+    for (auto& [attachment, rbo] : rboAttachments) {
+        m_RBOAttachments[attachment] = rbo;
 
-        rbo->AttachToFrameBuffer(m_RendererID, attachType);
+        rbo->AttachToFrameBuffer(m_RendererID, attachment);
     }
 
     int status;
@@ -69,4 +62,21 @@ void FrameBuffer::Unbind() {
     ZPG_OPENGL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
+const FrameBuffer::AttachMap<std::shared_ptr<Texture>>& FrameBuffer::GetTextureAttachments() const {
+    return m_TextureAttachments;
+}
+
+const FrameBuffer::AttachMap<std::shared_ptr<Texture>>& FrameBuffer::GetColorTextureAttachments() const {
+    return m_ColorTextureAttachments;
+}
+
+const FrameBuffer::AttachMap<std::shared_ptr<RenderBuffer>>& FrameBuffer::GetRenderBufferAttachments() const {
+    return m_RBOAttachments;
+}
+
+void FrameBuffer::BindColorTextureAttachments() {
+    for (auto& [attachment, colorTex] : m_ColorTextureAttachments) {
+        colorTex->BindToSlot(attachment.Index);
+    }
+}
 }

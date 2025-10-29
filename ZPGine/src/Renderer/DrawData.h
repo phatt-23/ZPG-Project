@@ -9,6 +9,7 @@
 #include "Buffer/ShaderStorageBuffer.h"
 
 namespace ZPG {
+struct BufferDataFormat;
 struct LightStruct;
 
 struct DrawData {
@@ -82,7 +83,19 @@ struct DrawData {
      * Framebuffer used for rendering only the geometry of a scene.
      */
 
-    scope<FrameBuffer> GBuffer;
+    ref<FrameBuffer> GBuffer;
+    ref<ShaderProgram> GPassSP;
+    ref<ShaderProgram> LightingPassSP;
+
+    /**
+     * QuadVAO
+     */
+    ref<VertexArray> QuadVAO;
+
+private:
+    static std::vector<std::tuple<Attachment, std::string, BufferDataFormat>> s_TexAttachments;
+    static std::vector<std::tuple<std::string, std::string, u32>> s_TexAttachmentsBindings;
+    static std::vector<std::tuple<Attachment, std::string, BufferDataFormat>> s_RenderBufferAttachments;
 };
 
 }

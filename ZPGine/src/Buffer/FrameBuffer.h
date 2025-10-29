@@ -5,7 +5,7 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
 
-#include "AttachmentType.h"
+#include "Attachment.h"
 
 namespace ZPG {
 
@@ -13,23 +13,40 @@ class RenderBuffer;
 class Texture;
 
 class FrameBuffer {
+    template<typename T>
+    using AttachMap = std::unordered_map<Attachment, T>;
+
 public:
     FrameBuffer(
-        std::unordered_multimap<AttachmentType::Type, ref<Texture>> textureAttachments,
-        std::unordered_multimap<AttachmentType::Type, ref<RenderBuffer>> rboAttachments);
+        const AttachMap<ref<Texture>>& textureAttachments,
+        const AttachMap<ref<RenderBuffer>>& rboAttachments);
 
     ~FrameBuffer();
 
     void Bind();
+
+    /**
+     * Binds the default FBO (0).
+     */
     void Unbind();
 
-public:
+    const AttachMap<ref<Texture>>& GetTextureAttachments() const;
+    const AttachMap<ref<Texture>>& GetColorTextureAttachments() const;
+    const AttachMap<ref<RenderBuffer>>& GetRenderBufferAttachments() const;
+
+    /**
+     * Binds the textures attached as Color attachments
+     * to their corresponding texture index.
+     */
+    void BindColorTextureAttachments();
+
+private:
     u32 m_RendererID;
 
-    std::unordered_multimap<AttachmentType::Type, ref<Texture>> m_TextureAttachments;
-    std::vector<ref<Texture>> m_ColorTextureAttachments;
+    AttachMap<ref<Texture>> m_TextureAttachments;
+    AttachMap<ref<RenderBuffer>> m_RBOAttachments;
 
-    std::unordered_multimap<AttachmentType::Type, ref<RenderBuffer>> m_RBOAttachments;
+    AttachMap<ref<Texture>> m_ColorTextureAttachments;
 };
 
 }

@@ -16,6 +16,22 @@ mkdir build
 pushd build; cmake --build . --target=run -j10; popd
 ```
 
+# Deferred Shading notes
+
+- u_gPosMap seems to be working correctly
+- writing to u_gNormalMap values in range [-1,1] will map them into the range [0,1]
+
+```
+decode v :: 2.0 * v - 1.0
+encode v :: 0.5 * v - 0.5
+
+encode 1 == 0.5 * 1 - 0.5 == 0
+encode 0 = 0.5 * 0 - .5 == -0.5
+```
+
+
+
+
 # Known Problems
 
 ## The VRAM is not cleared between scene switches

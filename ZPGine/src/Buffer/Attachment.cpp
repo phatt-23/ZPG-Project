@@ -1,12 +1,12 @@
-#include "AttachmentType.h"
+#include "Attachment.h"
 
 #include "Debug/Asserter.h"
 
 namespace ZPG {
 
-using AT = AttachmentType;
+using AT = Attachment;
 
-AT::GLAttachmentMapping AT::ToGL(AT::Type attachmentType) {
+AT::GLAttachmentMapping AT::ToGL(AT::AttachmentType attachmentType) {
     switch (attachmentType) {
         case Color:         return { GL_COLOR_ATTACHMENT0 };
         case DepthStencil:  return { GL_DEPTH_STENCIL_ATTACHMENT };

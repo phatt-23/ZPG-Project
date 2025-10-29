@@ -62,13 +62,13 @@ void CameraController::OnUpdate(Timestep& ts) {
 
     float mouseSensitivity = m_MouseSensitivity * ts * 100;
 
-    if (Input::IsKeyPressed(ZPG_KEY_UP))
+    if (Input::IsKeyPressed(ZPG_KEY_UP) || Input::IsKeyPressed(ZPG_KEY_K))
         m_Pitch -= mouseSensitivity;
-    if (Input::IsKeyPressed(ZPG_KEY_DOWN))
+    if (Input::IsKeyPressed(ZPG_KEY_DOWN) || Input::IsKeyPressed(ZPG_KEY_J))
         m_Pitch += mouseSensitivity;
-    if (Input::IsKeyPressed(ZPG_KEY_LEFT))
+    if (Input::IsKeyPressed(ZPG_KEY_LEFT) || Input::IsKeyPressed(ZPG_KEY_H))
         m_Yaw -= mouseSensitivity;
-    if (Input::IsKeyPressed(ZPG_KEY_RIGHT))
+    if (Input::IsKeyPressed(ZPG_KEY_RIGHT) || Input::IsKeyPressed(ZPG_KEY_L))
         m_Yaw += mouseSensitivity;
 
     m_Yaw = wrap(m_Yaw, -180.f, 180.f);

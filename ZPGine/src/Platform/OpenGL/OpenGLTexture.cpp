@@ -74,13 +74,23 @@ void OpenGLTexture::LoadTexture(const std::string& path) {
 void OpenGLTexture::CreateEmptyTexture() {
     auto gl = BufferDataFormat::ToGL(m_DataFormat.Format);
 
-    ZPG_OPENGL_CALL(glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID));
-    ZPG_OPENGL_CALL(glTextureStorage2D(m_RendererID, 1, gl.InternalFormat, m_Width, m_Height));
+    // ZPG_OPENGL_CALL(glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID));
 
-    ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    ZPG_OPENGL_CALL(glGenTextures(1, &m_RendererID));
+
+    ZPG_OPENGL_CALL(glActiveTexture(GL_TEXTURE0));
+    ZPG_OPENGL_CALL(glBindTexture(GL_TEXTURE_2D, m_RendererID));
+    // GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels
+    
+    ZPG_OPENGL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, gl.InternalFormat, m_Width, m_Height, 0, gl.Format, gl.SampleType, NULL));
+
+    // ZPG_OPENGL_CALL(glTextureStorage2D(m_RendererID, 1, gl.InternalFormat, m_Width, m_Height));
+
+    ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
     ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-    ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT));
-    ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT));
+    ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
 
     ZPG_CORE_INFO("Image ({}) size in bytes: {} ({}x{}x{})", 
                     m_Name, 
@@ -141,10 +151,9 @@ void OpenGLTexture::SetData(const void *data, u32 size) {
 
 void OpenGLTexture::AttachToFrameBuffer(
     u32 frameBufferID, 
-    AttachmentType::Type attachmentType, 
-    u32 index
+    Attachment attachment
 ) {
-    auto gl = AttachmentType::ToGL(attachmentType);
+    auto gl = Attachment::ToGL(attachment.Type);
 
     // TODO: Maybe this doesn't need to bind, because its named attaching
     
@@ -152,11 +161,20 @@ void OpenGLTexture::AttachToFrameBuffer(
 
     glFramebufferTexture2D(
         GL_FRAMEBUFFER, 
-        gl.Attachment + index,
+        gl.Attachment + attachment.Index,
         GL_TEXTURE_2D, 
         m_RendererID,
         0);
 
+}
+
+void OpenGLTexture::Resize(u32 width, u32 height) {
+    Bind();
+
+    auto gl = BufferDataFormat::ToGL(m_DataFormat.Format);
+    m_Width = width;
+    m_Height = height;
+    ZPG_OPENGL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, gl.InternalFormat, m_Width, m_Height, 0, gl.Format, gl.SampleType, NULL));
 }
 
 }

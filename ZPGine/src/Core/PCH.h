@@ -21,6 +21,9 @@
 #include <map>
 #include <variant>
 #include <ranges>
+#include <queue>
+#include <list>
+#include <map>
 
 #include <boost/stacktrace.hpp>
 

@@ -8,13 +8,14 @@ RevolverScene::RevolverScene() : m_Controller(GetCamera()), m_LocalRes() {}
 void RevolverScene::OnLazyAttach() {
     m_LocalRes.LoadModel("Seoul", "./assets/models/korth_nxr_revolver/scene.gltf");
 
-    int grid_size = 2;
+    int grid_size = 4;
     float dist = 4;
 
     for (int i = -grid_size; i < grid_size; i++) {
         for (int j = -grid_size; j < grid_size; j++) {
             auto transform = TransformGroup::Build()
                 .Add<Scale>(0.1)
+                .Add<DynRotate>(0.0, 20.0)
                 // .Add<Rotate>(90.0, v3(1.0, 0.0, 0.0))
                 .Add<Translate>(dist*i, 0, dist*j)
                 .Compose();

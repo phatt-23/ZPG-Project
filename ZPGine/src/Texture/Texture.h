@@ -24,7 +24,9 @@ public:
 
     virtual void SetData(const void *data, u32 size) = 0;
 
-    virtual void AttachToFrameBuffer(u32 frameBufferID, AttachmentType::Type attachmentType, u32 index = 0) = 0;
+    virtual void AttachToFrameBuffer(u32 frameBufferID, Attachment attachment) = 0;
+
+    virtual void Resize(u32 width, u32 height) = 0;
 
     static ref<Texture> Create(
         const std::string& filepath, 

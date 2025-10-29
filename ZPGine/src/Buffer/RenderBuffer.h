@@ -1,7 +1,7 @@
 #pragma once
 
 #include "BufferDataFormat.h"
-#include "AttachmentType.h"
+#include "Attachment.h"
 
 namespace ZPG {
 
@@ -14,7 +14,7 @@ public:
     void Bind(); 
     void Unbind();
 
-    void AttachToFrameBuffer(u32 frameBufferID, AttachmentType::Type attachmentType);
+    void AttachToFrameBuffer(u32 frameBufferID, Attachment attachment);
 
     static ref<RenderBuffer> Create(u32 width, u32 height, BufferDataFormat dataFormat);
 

@@ -18,90 +18,26 @@ public:
 
     ResourceManager m_LocalResourceManager;
 
-    void LoadMaterials() {
-        m_ShaderProgram = GetResourceManager().GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT);
-
-        auto treeMaterial = MakeRef(new Material());
-        treeMaterial->SetAlbedo(v4(0.0, 1.0, 0.0, 1.0));
-        treeMaterial->SetShaderProgram(m_ShaderProgram);
-
-        auto bushMaterial = MakeRef(new Material());
-        bushMaterial->SetAlbedo(v4(0.0, 1.0, 0.0, 0.8));
-        bushMaterial->SetShaderProgram(m_ShaderProgram);
-
-        auto groundMaterial = MakeRef(new Material());
-        groundMaterial->SetAlbedo(v4(0.8, 0.5, 0.0, 1.0));
-        groundMaterial->SetShaderProgram(m_ShaderProgram);
-
-        auto fireflyMaterial = MakeRef(new Material());
-        fireflyMaterial->SetAlbedo(v4(1.0, 1.0, 0.4, 1.0));
-        fireflyMaterial->SetShaderProgram(
-            GetResourceManager().GetShaderProgram(CommonResources::SHADER_PROGRAM_CONSTANT));
-
-        m_LocalResourceManager.AddMaterial("Tree", treeMaterial);
-        m_LocalResourceManager.AddMaterial("Bush", bushMaterial);
-        m_LocalResourceManager.AddMaterial("Ground", groundMaterial);
-        m_LocalResourceManager.AddMaterial("Firefly", fireflyMaterial);
-    }
-
     void LoadModels() {
-        BufferLayout nemecLayout = {
-            {ShaderDataType::Float3, "a_Pos"},
-            {ShaderDataType::Float3, "a_Normal"},
-        };
-
-        auto treeModel = Model::Create({
-            Mesh::Create(
-                VertexArray::Create({
-                    VertexBuffer::Create(nemec::tree, sizeof(nemec::tree), nemecLayout)
-                }),
-                m_LocalResourceManager.GetMaterial("Tree")
-            )
-        });
-
-        auto bushModel = Model::Create({
-            Mesh::Create(
-                VertexArray::Create({
-                    VertexBuffer::Create(nemec::bushes, sizeof(nemec::bushes), nemecLayout)
-                }),
-                m_LocalResourceManager.GetMaterial("Bush")
-            )
-        });
-
-        auto fireflyModel = Model::Create({
-            Mesh::Create(
-                VertexArray::Create({
-                    VertexBuffer::Create(nemec::sphere, sizeof(nemec::sphere), nemecLayout)
-                }),
-                m_LocalResourceManager.GetMaterial("Firefly")
-            )
-        });
-
-
-        auto groundModel = Model::Create({
-            Mesh::Create(
-                VertexArray::Create({
-                    VertexBuffer::Create(nemec::plain, sizeof(nemec::plain), nemecLayout)
-                }),
-                m_LocalResourceManager.GetMaterial("Ground")
-            )
-        });
-
-        m_LocalResourceManager.AddModel("Firefly", fireflyModel);
-        m_LocalResourceManager.AddModel("Ground", groundModel);
-        m_LocalResourceManager.AddModel("Tree", treeModel);
-        m_LocalResourceManager.AddModel("Bush", bushModel);
+        m_LocalResourceManager.LoadModel("Firefly", "./assets/models/sphere/scene.gltf");
+        m_LocalResourceManager.LoadModel("Ground", "./assets/models/mud_material/scene.gltf");
+        m_LocalResourceManager.LoadModel("Bush", "./assets/models/small_bush/scene.gltf");
+        m_LocalResourceManager.LoadModel("Tree", "./assets/models/pine_tree/scene.gltf");
     }
 
     void OnAttach() override {
-        LoadMaterials();
         LoadModels();
+
+        m_Flashlight = MakeRef(new SpotLight(v4(1.0), v3(0.0), v3(0.0, 0.0, -1.0), 10.0, 0.5));
+        GetLightManager().AddLight(m_Flashlight);
 
         f32 groundSize = 20.0;
 
         // trees
         for (int i = 0; i < 50; i++) {
             auto transform = TransformGroup::Build()
+                .Add<Rotate>(90, v3(1, 0, 0))
+                .Add<Scale>(0.01)
                 .Add<Translate>(
                     groundSize * Utility::GetRandomFloat(),
                     0.0,
@@ -115,6 +51,7 @@ public:
         // bushes
         for (int i = 0; i < 100; i++) {
             auto transform = TransformGroup::Build()
+                .Add<Rotate>(-90, v3(1, 0, 0))
                 .Add<Translate>(
                     groundSize * Utility::GetRandomFloat(),
                     0.0,
@@ -128,45 +65,13 @@ public:
         }
 
         auto groundTransform = TransformGroup::Build()
-            .Add<Scale>(groundSize)
+            .Add<Rotate>(90, v3(1, 0, 0))
+            .Add<Scale>(0.1)
+            // .Add<Scale>(groundSize)
             .Compose();
 
-        // fireflies
-        for (int i = 0; i < 10; i++) {
-            auto pointLight = MakeRef<PointLight>(
-                v4(1.0, 1.0, 1.0, 0.2),
-                v3(0.0, 1.0, 0.0));
-
-            GetLightManager().AddLight(pointLight);
-
-            auto transform = TransformGroup::Build()
-                .Add<Scale>(0.05f)
-                .Add<Translate>(
-                    Utility::GetRandomFloat() * 5.0f,
-                    Utility::GetRandomFloat(0.0, 2.0),
-                    Utility::GetRandomFloat() * 5.0f)
-                .Add<DynRotate>(0.0f, 20.0f, v3(
-                    Utility::GetRandomFloat(0.0, 1.0),
-                    5.0,
-                    Utility::GetRandomFloat(0.0, 1.0)))
-                .Add<Translate>(
-                    groundSize * Utility::GetRandomFloat(),
-                    0.0,
-                    groundSize * Utility::GetRandomFloat())
-                .Compose();
-
-            auto lightEntity = new PointLightEntity(
-                pointLight,
-                m_LocalResourceManager.GetModel("Firefly"),
-                transform);
-
-            GetEntityManager().AddEntity(lightEntity);
-        }
-
         // ground
-        GetEntityManager().AddEntity(new Entity(
-            m_LocalResourceManager.GetModel("Ground"),
-            groundTransform));
+        GetEntityManager().AddEntity(new Entity(m_LocalResourceManager.GetModel("Ground"), groundTransform));
 
         // lights
         m_DirLight = new DirectionalLight(v4(0.1, 0.1, 1.0, 0.8), v3(-1.0));
@@ -200,7 +105,38 @@ public:
                 .Compose()));
 
         // fireflies
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
+            auto pointLight = MakeRef<PointLight>(
+                v4(1.0, 1.0, 1.0, 0.2),
+                v3(0.0, 1.0, 0.0));
+
+            GetLightManager().AddLight(pointLight);
+
+            auto transform = TransformGroup::Build()
+                .Add<Scale>(0.05f)
+                .Add<Translate>(
+                    Utility::GetRandomFloat() * 5.0f,
+                    Utility::GetRandomFloat(0.0, 2.0),
+                    Utility::GetRandomFloat() * 5.0f)
+                .Add<DynRotate>(0.0f, 20.0f, v3(
+                    Utility::GetRandomFloat(0.0, 1.0),
+                    5.0,
+                    Utility::GetRandomFloat(0.0, 1.0)))
+                .Add<Translate>(
+                    groundSize * Utility::GetRandomFloat(),
+                    0.0,
+                    groundSize * Utility::GetRandomFloat())
+                .Compose();
+
+            auto lightEntity = new PointLightEntity(
+                pointLight,
+                m_LocalResourceManager.GetModel("Firefly"),
+                transform);
+
+            GetEntityManager().AddEntity(lightEntity);
+        }
+        // fireflies
+        for (int i = 0; i < 0; i++) {
             auto spotLight = MakeRef<SpotLight>(
                 v4(1.0, 1.0, 1.0, 0.2),
                 v3(0.0, 1.0, 0.0),
@@ -243,41 +179,39 @@ public:
     void OnUpdate(Timestep& ts) override {
         m_CameraController.OnUpdate(ts);
         Scene::OnUpdate(ts);
+
+        m_Flashlight->m_Position.SetPosition(GetCamera().GetPosition());
     }
 
     void OnEvent(Event &event) override {
         m_CameraController.OnEvent(event);
         Scene::OnEvent(event);
+        m_Flashlight->m_Direction.SetDirection(GetCamera().GetFront());
+
+        EventDispatcher dispatcher(event);
+        dispatcher.Dispatch<KeyPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(ForestScene::OnKeyPressed));
     }
 
-    void SetShaderProgram(const std::string& shaderProgramResource) {
-        m_ShaderProgram = GetResourceManager().GetShaderProgram(shaderProgramResource);
-        m_LocalResourceManager.GetMaterial("Tree")->SetShaderProgram(m_ShaderProgram);
-        m_LocalResourceManager.GetMaterial("Bush")->SetShaderProgram(m_ShaderProgram);
-        m_LocalResourceManager.GetMaterial("Ground")->SetShaderProgram(m_ShaderProgram);
-        // m_LocalResourceManager.GetMaterial("Firefly")->SetShaderProgram(m_ShaderProgram);
+    ref<SpotLight> m_Flashlight;
+    bool m_FlashlightOn = true;
+
+    bool OnKeyPressed(KeyPressedEvent& event) {
+        if (event.GetKeyCode() == ZPG_KEY_F) {
+            m_FlashlightOn = !m_FlashlightOn;
+            
+            ZPG_CORE_DEBUG("Flashlight ON: {}", m_FlashlightOn);
+
+            if (m_FlashlightOn) {
+                m_Flashlight->m_Color.SetColor(v4(1.0));
+            } else {
+                m_Flashlight->m_Color.SetColor(v4(0.0));
+            }
+        }
+        return false; 
     }
 
     void OnImGuiRender() override {
         Scene::OnImGuiRender();
-
-        ImGui::Begin("Shader");
-        if (ImGui::Button("Constant")) {
-            SetShaderProgram(CommonResources::SHADER_PROGRAM_CONSTANT);
-        }
-        if (ImGui::Button("Lambert")) {
-            SetShaderProgram(CommonResources::SHADER_PROGRAM_LAMBERT);
-        }
-        if (ImGui::Button("Phong")) {
-            SetShaderProgram(CommonResources::SHADER_PROGRAM_PHONG);
-        }
-        if (ImGui::Button("Blinn-Phong")) {
-            SetShaderProgram(CommonResources::SHADER_PROGRAM_BLINN_PHONG);
-        }
-        if (ImGui::Button("PBR")) {
-            SetShaderProgram(CommonResources::SHADER_PROGRAM_PBR);
-        }
-        ImGui::End();
 
         ImGui::Begin("Lights");
         static v4 dirLightColor = m_DirLight->m_Color.GetColor();
@@ -314,7 +248,8 @@ public:
             m_SpotLight->m_BeamShape.SetBlend(spotlightBeamBlend);
         }
 
-
+        v3 f = GetCamera().GetFront();
+        ImGui::Text("Camera Front: %f, %f, %f", f.x, f.y, f.z);
 
         ImGui::End();
     }

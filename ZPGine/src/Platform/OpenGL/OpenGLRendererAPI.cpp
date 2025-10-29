@@ -8,8 +8,8 @@
 namespace ZPG {
 
 void OpenGLRendererAPI::Init() {
-    ZPG_OPENGL_CALL(glEnable(GL_BLEND));
-    ZPG_OPENGL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+    // ZPG_OPENGL_CALL(glEnable(GL_BLEND));
+    // ZPG_OPENGL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     ZPG_OPENGL_CALL(glEnable(GL_DEPTH_TEST));   // Enable depth testing / z-buffer is big as the color buffer.
     // If the fragment's depth value is less than the stored depth value the fragment's color passes.

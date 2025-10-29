@@ -14,6 +14,8 @@ public:
     KeyEvent(int keyCode) : m_KeyCode(keyCode) {
     }
 
+    int GetKeyCode() const { return m_KeyCode; }
+
     EVENT_CLASS_CATEGORY(EventCategoryInput | EventCategoryKeyBoard)
 private:
     int m_KeyCode;

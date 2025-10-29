@@ -10,7 +10,7 @@ public:
     DynRotate(
         f32 startingRotationDeg, 
         f32 rotationSpeedDeg, 
-        const v3& rotationAxis);
+        const v3& rotationAxis = v3(0.0, 1.0, 0.0));
 
     void Update(Timestep& ts) override;
     void ComputeMatrix() override;

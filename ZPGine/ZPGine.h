@@ -13,6 +13,7 @@
 #include "Core/Window.h"
 #include "Core/Timestep.h"
 #include "Core/Utility.h"
+#include "Core/KeyCodes.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/CommonResources.h"

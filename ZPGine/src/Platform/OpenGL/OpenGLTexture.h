@@ -16,11 +16,13 @@ public:
     void Unbind() override;
     void SetData(const void *data, u32 size) override;
 
-    void AttachToFrameBuffer(u32 frameBufferID, AttachmentType::Type attachmentType, u32 index) override;
+    void AttachToFrameBuffer(u32 frameBufferID, Attachment attachment) override;
 
     const std::string& GetName() const override;
     u32 GetWidth() const override;
     u32 GetHeight() const override;
+
+    void Resize(u32 width, u32 height) override;
 
 private:
     void LoadTexture(const std::string& path);

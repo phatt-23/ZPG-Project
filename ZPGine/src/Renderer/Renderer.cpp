@@ -126,7 +126,7 @@ void Renderer::Flush() {
         return;
     }
 
-    // Set up the SSBOs
+    // Set up the shared SSBOs
     {
         // Matrices SSBO
         s_DrawData->MatricesSSBO.Bind();
@@ -156,181 +156,175 @@ void Renderer::Flush() {
     }
 
 
-
-
     // Batch render
-    if (s_Instanced) // instanced way
-    {
-        // Use the GBuffer
-
-        // s_DrawData->GBuffer->Bind();
-
-        s_DrawData->Batch.BuildGroups();
-
-        const auto& shaderProgramGroups = s_DrawData->Batch.GetShaderProgramGroups();
-        const auto& materialGroups = s_DrawData->Batch.GetMaterialGroups();
-        const auto& vaoGroups = s_DrawData->Batch.GetVertexArrayGroups();
-
-        s_Stats->ShaderProgramGroupCount = shaderProgramGroups.size();
-        s_Stats->MaterialGroupCount = materialGroups.size();
-        s_Stats->VAOGroupCount = vaoGroups.size();
-
-        // cache currently bound states to skip redundant binds
-        ShaderProgram* curShaderProgram = nullptr;
-        Material* curMaterial = nullptr;
-        VertexArray* curVAO = nullptr;
-
-        const m4* batchTransforms = s_DrawData->Batch.GetTransforms().data();
-
-        for (const auto& shaderProgramGroup : shaderProgramGroups) {
-
-            ShaderProgram* shaderProgram = shaderProgramGroup.m_ShaderProgram;
-
-            if (curShaderProgram != shaderProgram) {
-                curShaderProgram = shaderProgram;
-
-                shaderProgram->Bind();
-
-                // these should be set only once somewhere else
-                shaderProgram->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
-                shaderProgram->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
-                shaderProgram->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
-                shaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
-                shaderProgram->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
-            }
-            
-            for (int materialIdx = shaderProgramGroup.m_MaterialStart;
-                materialIdx < shaderProgramGroup.m_MaterialStart + shaderProgramGroup.m_MaterialCount;
-                materialIdx++) 
-            {
-                const MaterialGroup& materialGroup = materialGroups[materialIdx];
-
-                Material* material = materialGroup.m_Material;
-
-                if (curMaterial != material) {
-                    curMaterial = material;
-
-                    material->GetAlbedoMap()->BindToSlot(0);
-                    material->GetMetalnessMap()->BindToSlot(1);
-                    material->GetRoughnessMap()->BindToSlot(2);
-                    material->GetNormalMap()->BindToSlot(3);
-                    material->GetEmissiveMap()->BindToSlot(4);
-
-                    s_DrawData->MaterialStorage.Albedo = material->GetAlbedo();
-                    s_DrawData->MaterialStorage.Emissive = material->GetEmissive();
-                    s_DrawData->MaterialStorage.Roughness = material->GetRoughness();
-                    s_DrawData->MaterialStorage.Metallic = material->GetMetallic();
-
-                    s_DrawData->MaterialSSBO.Bind();
-                    s_DrawData->MaterialSSBO.SetData(
-                        &s_DrawData->MaterialStorage,
-                        sizeof(s_DrawData->MaterialStorage));
-                }
-
-                for (int vaoIdx = materialGroup.m_VertexArrayStart;
-                    vaoIdx < materialGroup.m_VertexArrayStart + materialGroup.m_VertexArrayCount;
-                    vaoIdx++) 
-                {
-                    const auto& vaoGroup = vaoGroups[vaoIdx];
-
-                    VertexArray* vao = vaoGroup.m_VertexArray;
-
-                    if (curVAO != vao) {
-                        curVAO = vao;
-
-                         vao->Bind();
-                    }
-                   
-            #if 0
-                    void* modelsSSBOMap = s_DrawData->ModelsSSBO.Map();
-
-                    i32* modelCountPtr = (i32*)(modelsSSBOMap);
-                    m4* modelsMapPtr = (m4*)((char*)modelsSSBOMap + offsetof(DrawData::ModelsStorageBuffer, Models));
-
-                    *modelCountPtr = (i32)vaoGroup.m_Count;
-                    memcpy( modelsMapPtr, &batchTransforms[vaoGroup.m_Start], sizeof(m4) * vaoGroup.m_Count );
-
-                    s_DrawData->ModelsSSBO.Unmap();
-
-            #else
-
-                    memcpy( s_DrawData->ModelsStorage.Models, &batchTransforms[vaoGroup.m_Start], sizeof(m4) * vaoGroup.m_Count );
-                    
-                    s_DrawData->ModelsStorage.ModelCount = vaoGroup.m_Count;
-
-                    s_DrawData->ModelsSSBO.Bind();
-
-                    s_DrawData->ModelsSSBO.SetData(
-                        &s_DrawData->ModelsStorage.ModelCount,
-                        sizeof(i32),
-                        offsetof(DrawData::ModelsStorageBuffer, ModelCount));
-
-                    s_DrawData->ModelsSSBO.SetData(
-                        s_DrawData->ModelsStorage.Models,
-                        sizeof(m4) * vaoGroup.m_Count,
-                        offsetof(DrawData::ModelsStorageBuffer, Models));
-
-            #endif
-
-                    if (vaoGroup.m_VertexArray->HasIndexBuffer()) {
-                        RenderCommand::DrawIndexedInstanced(
-                            *vao,
-                            vao->GetIndexBuffer()->GetCount(),
-                            vaoGroup.m_Count);
-                    }
-                    else {
-                        RenderCommand::DrawArraysInstanced(*vao, vaoGroup.m_Count);
-                    }
-
-                    s_Stats->DrawCallCountPerFrame++;
-                }
-            }
-        }
-
-        
-        s_DrawData->Batch.Reset();
-
-
+    if (s_Instanced) {
+        InstancedRender(s_Deferred);
     }
-    else // non instanced way
-    {
-        s_DrawData->Batch.SortCommands();
-        const std::vector<m4>& transforms = s_DrawData->Batch.GetTransforms();
+    else {
+        NonInstancedRender(s_Deferred);
+    }
 
-        ShaderProgram* currentShaderProgram = nullptr;
-        Material* currentMaterial = nullptr;
-        VertexArray* currentVertexArray = nullptr;
 
-        for (const auto& command : s_DrawData->Batch.GetDrawCommands()) {
+    s_Stats->FlushCountPerFrame++;
+}
 
-            if (!currentShaderProgram || currentShaderProgram != command.m_ShaderProgram) {
-                currentShaderProgram = command.m_ShaderProgram;
-                // reset dependents
-                currentMaterial = nullptr;
-                currentVertexArray = nullptr;
+void Renderer::BeginDeferred() {
+    s_DrawData->GBuffer->Bind();
+    RenderCommand::Clear();
 
+    s_DrawData->Batch.BuildGroups();
+
+    s_DrawData->GPassSP->Bind();
+    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
+    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
+    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
+    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
+    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
+}
+
+void Renderer::EndDeferred() {
+    s_DrawData->GBuffer->Unbind();
+    RenderCommand::Clear();
+
+    s_DrawData->LightingPassSP->Bind();
+    s_DrawData->GBuffer->BindColorTextureAttachments();
+    s_DrawData->QuadVAO->Bind();
+    RenderCommand::DrawArrays(*s_DrawData->QuadVAO);
+}
+
+void Renderer::NonInstancedRender(bool deferred) {
+    ZPG_CORE_ASSERT(s_DrawData);
+
+    if (deferred) BeginDeferred();
+
+    s_DrawData->Batch.SortCommands();
+    const std::vector<m4>& transforms = s_DrawData->Batch.GetTransforms();
+
+    ShaderProgram* currentShaderProgram = nullptr;
+    Material* currentMaterial = nullptr;
+    VertexArray* currentVertexArray = nullptr;
+
+    for (const auto& command : s_DrawData->Batch.GetDrawCommands()) {
+
+        if (!currentShaderProgram || currentShaderProgram != command.m_ShaderProgram) {
+            currentShaderProgram = command.m_ShaderProgram;
+            // reset dependents
+            currentMaterial = nullptr;
+            currentVertexArray = nullptr;
+
+            if (!deferred) {
                 currentShaderProgram->Bind();
                 currentShaderProgram->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
                 currentShaderProgram->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
                 currentShaderProgram->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
                 currentShaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
+                currentShaderProgram->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
             }
+        }
 
-            if (!currentMaterial || currentMaterial != command.m_Material) {
-                currentMaterial = command.m_Material;
+        if (!currentMaterial || currentMaterial != command.m_Material) {
+            currentMaterial = command.m_Material;
 
-                // currentMaterial->Bind();  // don't, deprecated
-                currentMaterial->GetAlbedoMap()->BindToSlot(0);
-                currentMaterial->GetMetalnessMap()->BindToSlot(1);
-                currentMaterial->GetRoughnessMap()->BindToSlot(2);
-                currentMaterial->GetNormalMap()->BindToSlot(3);
+            // currentMaterial->Bind();  // don't, deprecated
+            currentMaterial->GetAlbedoMap()->BindToSlot(0);
+            currentMaterial->GetMetalnessMap()->BindToSlot(1);
+            currentMaterial->GetRoughnessMap()->BindToSlot(2);
+            currentMaterial->GetNormalMap()->BindToSlot(3);
 
-                // update material SSBO per material
+            // update material SSBO per material
 
-                s_DrawData->MaterialStorage.Albedo = currentMaterial->GetAlbedo();
-                s_DrawData->MaterialStorage.Emissive = currentMaterial->GetEmissive();
-                s_DrawData->MaterialStorage.Roughness = currentMaterial->GetRoughness();
-                s_DrawData->MaterialStorage.Metallic = currentMaterial->GetMetallic();
+            s_DrawData->MaterialStorage.Albedo = currentMaterial->GetAlbedo();
+            s_DrawData->MaterialStorage.Emissive = currentMaterial->GetEmissive();
+            s_DrawData->MaterialStorage.Roughness = currentMaterial->GetRoughness();
+            s_DrawData->MaterialStorage.Metallic = currentMaterial->GetMetallic();
+
+            s_DrawData->MaterialSSBO.Bind();
+            s_DrawData->MaterialSSBO.SetData(
+                &s_DrawData->MaterialStorage,
+                sizeof(s_DrawData->MaterialStorage));
+        }
+
+        if (!currentVertexArray || currentVertexArray != command.m_VAO) {
+            currentVertexArray = command.m_VAO;
+            currentVertexArray->Bind();
+        }
+
+        s_DrawData->ModelsStorage.Models[0] = transforms[command.m_TransformIndex];
+        s_DrawData->ModelsSSBO.Bind();
+        s_DrawData->ModelsSSBO.SetData(s_DrawData->ModelsStorage.Models, sizeof(m4), sizeof(v4));
+
+        if (command.m_VAO->HasIndexBuffer()) {
+            RenderCommand::DrawIndexed(*command.m_VAO, command.m_VAO->GetIndexBuffer()->GetCount());
+        } else {
+            RenderCommand::DrawArrays(*command.m_VAO);
+        }
+
+        s_Stats->DrawCallCountPerFrame++;
+    }
+
+    if (deferred) EndDeferred();
+}
+
+void Renderer::InstancedRender(bool deferred) {
+    ZPG_CORE_ASSERT(s_DrawData);
+
+    if (deferred) BeginDeferred();
+
+    s_DrawData->Batch.BuildGroups();
+
+    const auto& shaderProgramGroups = s_DrawData->Batch.GetShaderProgramGroups();
+    const auto& materialGroups = s_DrawData->Batch.GetMaterialGroups();
+    const auto& vaoGroups = s_DrawData->Batch.GetVertexArrayGroups();
+
+    s_Stats->ShaderProgramGroupCount = shaderProgramGroups.size();
+    s_Stats->MaterialGroupCount = materialGroups.size();
+    s_Stats->VAOGroupCount = vaoGroups.size();
+
+    // cache currently bound states to skip redundant binds
+    ShaderProgram* curShaderProgram = nullptr;
+    Material* curMaterial = nullptr;
+    VertexArray* curVAO = nullptr;
+
+    const m4* batchTransforms = s_DrawData->Batch.GetTransforms().data();
+
+    for (const auto& shaderProgramGroup : shaderProgramGroups) {
+
+        ShaderProgram* shaderProgram = shaderProgramGroup.m_ShaderProgram;
+
+        if (curShaderProgram != shaderProgram && !deferred) {
+            curShaderProgram = shaderProgram;
+
+            shaderProgram->Bind();
+
+            // these should be set only once somewhere else
+            shaderProgram->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
+            shaderProgram->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
+            shaderProgram->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
+            shaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
+            shaderProgram->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
+        }
+
+        for (int materialIdx = shaderProgramGroup.m_MaterialStart;
+            materialIdx < shaderProgramGroup.m_MaterialStart + shaderProgramGroup.m_MaterialCount;
+            materialIdx++)
+        {
+            const MaterialGroup& materialGroup = materialGroups[materialIdx];
+
+            Material* material = materialGroup.m_Material;
+
+            if (curMaterial != material) {
+                curMaterial = material;
+
+                material->GetAlbedoMap()->BindToSlot(0);
+                material->GetMetalnessMap()->BindToSlot(1);
+                material->GetRoughnessMap()->BindToSlot(2);
+                material->GetNormalMap()->BindToSlot(3);
+                material->GetEmissiveMap()->BindToSlot(4);
+
+                s_DrawData->MaterialStorage.Albedo = material->GetAlbedo();
+                s_DrawData->MaterialStorage.Emissive = material->GetEmissive();
+                s_DrawData->MaterialStorage.Roughness = material->GetRoughness();
+                s_DrawData->MaterialStorage.Metallic = material->GetMetallic();
 
                 s_DrawData->MaterialSSBO.Bind();
                 s_DrawData->MaterialSSBO.SetData(
@@ -338,33 +332,62 @@ void Renderer::Flush() {
                     sizeof(s_DrawData->MaterialStorage));
             }
 
-            if (!currentVertexArray || currentVertexArray != command.m_VAO) {
-                currentVertexArray = command.m_VAO;
-                currentVertexArray->Bind();
-            }
+            for (int vaoIdx = materialGroup.m_VertexArrayStart;
+                vaoIdx < materialGroup.m_VertexArrayStart + materialGroup.m_VertexArrayCount;
+                vaoIdx++)
+            {
+                const auto& vaoGroup = vaoGroups[vaoIdx];
 
-            s_DrawData->ModelsStorage.Models[0] = transforms[command.m_TransformIndex];
-            s_DrawData->ModelsSSBO.Bind();
-            s_DrawData->ModelsSSBO.SetData(s_DrawData->ModelsStorage.Models, sizeof(m4), sizeof(v4));
-            
-            if (command.m_VAO->HasIndexBuffer()) {
-                RenderCommand::DrawIndexed(*command.m_VAO, command.m_VAO->GetIndexBuffer()->GetCount());
-            } else {
-                RenderCommand::DrawArrays(*command.m_VAO);
-            }
+                VertexArray* vao = vaoGroup.m_VertexArray;
 
-            s_Stats->DrawCallCountPerFrame++;
+                if (curVAO != vao) {
+                    curVAO = vao;
+
+                     vao->Bind();
+                }
+
+                memcpy( s_DrawData->ModelsStorage.Models, &batchTransforms[vaoGroup.m_Start], sizeof(m4) * vaoGroup.m_Count );
+
+                s_DrawData->ModelsStorage.ModelCount = vaoGroup.m_Count;
+
+                s_DrawData->ModelsSSBO.Bind();
+
+                s_DrawData->ModelsSSBO.SetData(
+                    &s_DrawData->ModelsStorage.ModelCount,
+                    sizeof(i32),
+                    offsetof(DrawData::ModelsStorageBuffer, ModelCount));
+
+                s_DrawData->ModelsSSBO.SetData(
+                    s_DrawData->ModelsStorage.Models,
+                    sizeof(m4) * vaoGroup.m_Count,
+                    offsetof(DrawData::ModelsStorageBuffer, Models));
+
+                if (vaoGroup.m_VertexArray->HasIndexBuffer()) {
+                    RenderCommand::DrawIndexedInstanced(
+                        *vao,
+                        vao->GetIndexBuffer()->GetCount(),
+                        vaoGroup.m_Count);
+                }
+                else {
+                    RenderCommand::DrawArraysInstanced(*vao, vaoGroup.m_Count);
+                }
+
+                s_Stats->DrawCallCountPerFrame++;
+            }
         }
-
-        s_DrawData->Batch.Reset();
     }
 
-
-    s_Stats->FlushCountPerFrame++;
+    if (deferred) EndDeferred();
 }
 
 void Renderer::OnWindowResize(int width, int height) {
     RenderCommand::SetViewport(0, 0, width, height);
+
+    s_DrawData->GBuffer->Bind();
+    for (auto& [attachment, texture] : s_DrawData->GBuffer->GetTextureAttachments()) {
+        texture->Resize(width, height);
+    }
+    s_DrawData->GBuffer->Unbind();
 }
 
 RendererAPI::API Renderer::GetAPI() {

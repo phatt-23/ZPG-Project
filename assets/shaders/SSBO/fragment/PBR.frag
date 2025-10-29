@@ -66,6 +66,7 @@ void main() {
 
     float ao = 1.0;
 
+
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
 
@@ -77,6 +78,17 @@ void main() {
 
     vec3 Lo = vec3(0.0);
     vec3 La = vec3(0.0);
+
+
+
+
+    // f_FragColor = vec4(v_WorldPos, 1.0);
+    // f_FragColor = vec4(N, 1.0);
+    // f_FragColor = vec4(albedo, 1.0);
+    // return;
+
+
+
 
     // reflectance equation
 
@@ -182,7 +194,7 @@ void main() {
         }
     }
 
-    vec3 color = La + Lo + emissive;
+    vec3 color = La + Lo; // + emissive;
 
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));

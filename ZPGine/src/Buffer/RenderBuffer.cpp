@@ -38,9 +38,9 @@ void RenderBuffer::Unbind() {
 
 void RenderBuffer::AttachToFrameBuffer(
     u32 frameBufferID, 
-    AttachmentType::Type attachmentType
+    Attachment attachment
 ) {
-    auto gl = AttachmentType::ToGL(attachmentType);
+    auto gl = Attachment::ToGL(attachment.Type);
     
     Bind();
 
@@ -48,7 +48,7 @@ void RenderBuffer::AttachToFrameBuffer(
     ZPG_OPENGL_CALL(
         glFramebufferRenderbuffer(
             GL_FRAMEBUFFER, 
-            gl.Attachment, 
+            gl.Attachment + attachment.Index,
             GL_RENDERBUFFER, 
             m_RendererID));
 }

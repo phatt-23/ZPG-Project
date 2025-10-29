@@ -50,11 +50,22 @@ public:
     static void SetInstanced(bool enabled) { s_Instanced = enabled; }
     static bool IsInstanced() { return s_Instanced; }
 
+    static void SetDeferred(bool enabled) { s_Deferred = enabled; }
+    static bool IsDeferred() { return s_Deferred; }
+
     static RenderStatistics& GetStats() { return *s_Stats; }
+
+private:
+    static void InstancedRender(bool deferred);
+    static void NonInstancedRender(bool deferred);
+
+    static void BeginDeferred();
+    static void EndDeferred();
 
 private:
     inline static DrawData* s_DrawData = nullptr;
     inline static bool s_Instanced = true;
+    inline static bool s_Deferred = true;
 
     inline static RenderStatistics* s_Stats = nullptr;
 };

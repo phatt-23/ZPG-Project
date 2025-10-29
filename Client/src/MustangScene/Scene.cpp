@@ -8,7 +8,7 @@ MustangScene::MustangScene() : m_Controller(GetCamera()), m_LocalRes() {}
 void MustangScene::OnLazyAttach() {
     m_LocalRes.LoadModel("Mustang", "./assets/models/ford_mustang/scene.gltf");
 
-    int grid_size = 2;
+    int grid_size = 1;
 
     for (int i = -grid_size; i < grid_size; i++) {
         for (int j = -grid_size; j < grid_size; j++) {
