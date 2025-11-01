@@ -106,7 +106,7 @@ void SpheresScene::OnImGuiRender() {
                 v3 pos = transform[3];
 
                 if (ImGui::InputFloat3("Position", glm::value_ptr(pos))) {
-                    // transform.SetPosition(pos); // update actual transform
+                    // transform.Set(pos); // update actual transform
                 }
 
                 auto model = ent->GetModel();

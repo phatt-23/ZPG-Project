@@ -25,4 +25,9 @@ void DynRotate::ComputeMatrix() {
     m_Matrix = R;
 }
 
+f32 DynRotate::GetCurrentRotationDeg() const { return m_CurrentRotationDeg; }
+f32 DynRotate::GetRotationSpeedDeg() const { return m_RotationSpeedDeg; }
+const v3& DynRotate::GetRotationAxis() const { return m_RotationAxis; }
+const v3& DynRotate::GetOrigin() const { return m_Origin; }
+
 }

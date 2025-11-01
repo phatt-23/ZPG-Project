@@ -28,4 +28,13 @@ void Scale::ComputeMatrix() {
     m_Cached = true;
 }
 
+const v3& Scale::GetScale() const {
+    return m_ScaleVector;
+}
+
+void Scale::SetScale(const v3& scale) {
+    m_ScaleVector = scale;
+    ComputeMatrix();
+}
+
 }

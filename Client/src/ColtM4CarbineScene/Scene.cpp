@@ -99,16 +99,16 @@ void ColtM4CarbineScene::OnImGuiRender() {
     if (ImGui::SliderFloat4("firefly color", glm::value_ptr(firefly_color), 0.0, 1.0)) {
         firefly_material->SetEmissive(firefly_color);
         for (ref<PointLight> light : firefly_lights)
-            light->m_Color.SetColor(firefly_color);
+            light->Color.Set(firefly_color);
     }
 
-    static v4 dirLightColor = dir_light->m_Color.GetColor();
+    static v4 dirLightColor = dir_light->Color.Get();
     if (ImGui::SliderFloat4("DirLight Color", glm::value_ptr(dirLightColor), 0.0, 1.0)) {
-        dir_light->m_Color.SetColor(dirLightColor);
+        dir_light->Color.Set(dirLightColor);
     }
-    static v4 ambientLightColor = ambient_light->m_Color.GetColor();
+    static v4 ambientLightColor = ambient_light->Color.Get();
     if (ImGui::SliderFloat4("AmbientLight Color", glm::value_ptr(ambientLightColor), 0.0, 1.0)) {
-        ambient_light->m_Color.SetColor(ambientLightColor);
+        ambient_light->Color.Set(ambientLightColor);
     }
 
 

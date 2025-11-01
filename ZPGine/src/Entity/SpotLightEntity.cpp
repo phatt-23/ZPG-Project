@@ -23,8 +23,8 @@ SpotLightEntity::~SpotLightEntity() {
 
 void SpotLightEntity::Update(Timestep& ts) {
     Entity::Update(ts);
-    m_SpotLight->m_Position.SetPosition(GetTransformMatrix()[3]);
-    // m_SpotLight->m_Direction.SetDirection(GetTransformMatrix()[2]);
+    m_SpotLight->Position.Set(GetTransformMatrix()[3]);
+    // m_SpotLight->Direction.Set(GetTransformMatrix()[2]);
 }
 
 }

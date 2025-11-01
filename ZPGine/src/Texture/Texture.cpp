@@ -6,39 +6,30 @@
 
 namespace ZPG {
 
-ref<Texture> Texture::Create(
-    const std::string& filepath,
-    BufferDataFormat format
-) {
+ref<Texture> Texture::Create(const std::string& filepath, DataFormat dataFormat)
+{
     switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return MakeRef(new OpenGLTexture(filepath, format));
-    case RendererAPI::None:
-    default: ZPG_UNREACHABLE();
+        case RendererAPI::OpenGL: return MakeRef(new OpenGLTexture(filepath, dataFormat));
+        case RendererAPI::None:
+        default: ZPG_UNREACHABLE();
     }
 }
 
-ref<Texture> Texture::Create(
-    const std::string& name, 
-    const std::string& filepath,
-    BufferDataFormat format
-) {
+ref<Texture> Texture::Create(const std::string& name, const std::string& filepath, DataFormat dataFormat)
+{
     switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return MakeRef(new OpenGLTexture(name, filepath, format));
-    case RendererAPI::None:
-    default: ZPG_UNREACHABLE();
+        case RendererAPI::OpenGL: return MakeRef(new OpenGLTexture(name, filepath, dataFormat));
+        case RendererAPI::None:
+        default: ZPG_UNREACHABLE();
     }
 }
 
-ref<Texture> Texture::Create(
-    const std::string& name, 
-    u32 width, 
-    u32 height,
-    BufferDataFormat format
-) {
+ref<Texture> Texture::Create(const std::string& name, u32 width, u32 height, DataFormat dataFormat)
+{
     switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return MakeRef(new OpenGLTexture(name, width, height, format));
-    case RendererAPI::None:
-    default: ZPG_UNREACHABLE();
+        case RendererAPI::OpenGL: return MakeRef(new OpenGLTexture(name, width, height, dataFormat));
+        case RendererAPI::None:
+        default: ZPG_UNREACHABLE();
     }
 }
 

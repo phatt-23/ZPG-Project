@@ -10,10 +10,10 @@ PositionComponent::PositionComponent(const v3& position)
 : m_Position(position) {
 }
 
-void PositionComponent::SetPosition(const v3& position) {
+void PositionComponent::Set(const v3& position) {
     m_Position = position;
 }
-const v3& PositionComponent::GetPosition() const {
+const v3& PositionComponent::Get() const {
     return m_Position;
 }
 

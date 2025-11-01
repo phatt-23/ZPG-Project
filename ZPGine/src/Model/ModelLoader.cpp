@@ -5,6 +5,7 @@
 #include "Texture/Texture.h"
 #include "Material/Material.h"
 #include <assimp/postprocess.h>
+#include <assimp/types.h>
 
 #include "Mesh.h"
 #include "Model.h"
@@ -177,6 +178,21 @@ ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMateria
     }
 
 
+    // load opacity
+    // TODO: Get info about materials opacity.
+    // This material is then rendered in the forward shading pass.
+    f32 opacity = 1.0;
+    aiString alphaMode;
+    f32 transFactor = 1.0;
+
+    if (
+        material->Get(AI_MATKEY_BLEND_FUNC, alphaMode) == AI_SUCCESS && alphaMode == aiString("BLEND") ||
+        material->Get(AI_MATKEY_OPACITY, opacity) == AI_SUCCESS && opacity < 1.0 ||
+        material->Get(AI_MATKEY_TRANSPARENCYFACTOR, transFactor) == AI_SUCCESS
+    ) {
+        ZPG_CORE_INFO("Model {} is transparent", m_Path);
+        ZPG_CORE_INFO("Opacity (AI_MATKEY_OPACITY): {}, Transparency Factor: {}", opacity, transFactor);
+    }
 
     return myMaterial;
 }

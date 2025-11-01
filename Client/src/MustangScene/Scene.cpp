@@ -3,7 +3,7 @@
 
 namespace MustangScene {
 
-MustangScene::MustangScene() : m_Controller(GetCamera()), m_LocalRes() {}
+MustangScene::MustangScene() : m_LocalRes() {}
 
 void MustangScene::OnLazyAttach() {
     m_LocalRes.LoadModel("Mustang", "./assets/models/ford_mustang/scene.gltf");
@@ -59,16 +59,6 @@ void MustangScene::OnLazyAttach() {
     GetLightManager().AddLight(dir_light);
 }
 
-void MustangScene::OnUpdate(Timestep &ts) {
-    Scene::OnUpdate(ts);
-    m_Controller.OnUpdate(ts);
-}
-
-void MustangScene::OnEvent(Event &event) {
-    Scene::OnEvent(event);
-    m_Controller.OnEvent(event);
-}
-
 void MustangScene::OnImGuiRender() {
     Scene::OnImGuiRender();
 
@@ -99,16 +89,16 @@ void MustangScene::OnImGuiRender() {
     if (ImGui::SliderFloat4("firefly color", glm::value_ptr(firefly_color), 0.0, 1.0)) {
         firefly_material->SetEmissive(firefly_color);
         for (ref<PointLight> light : firefly_lights)
-            light->m_Color.SetColor(firefly_color);
+            light->Color.Set(firefly_color);
     }
 
-    static v4 dirLightColor = dir_light->m_Color.GetColor();
+    static v4 dirLightColor = dir_light->Color.Get();
     if (ImGui::SliderFloat4("DirLight Color", glm::value_ptr(dirLightColor), 0.0, 1.0)) {
-        dir_light->m_Color.SetColor(dirLightColor);
+        dir_light->Color.Set(dirLightColor);
     }
-    static v4 ambientLightColor = ambient_light->m_Color.GetColor();
+    static v4 ambientLightColor = ambient_light->Color.Get();
     if (ImGui::SliderFloat4("AmbientLight Color", glm::value_ptr(ambientLightColor), 0.0, 1.0)) {
-        ambient_light->m_Color.SetColor(ambientLightColor);
+        ambient_light->Color.Set(ambientLightColor);
     }
 
     ImGui::End();

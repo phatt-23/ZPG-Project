@@ -54,4 +54,9 @@ ref<TransformGroup> TransformGroup::Compose() {
     return MakeRef(this);
 }
 
+
+const std::vector<ref<Transform>>& TransformGroup::GetChildren() const {
+    return m_Transformations;
+}
+
 }

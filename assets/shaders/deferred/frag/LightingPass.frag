@@ -8,11 +8,12 @@ const uint LightTypeDirectional  = 1 << 2;
 const uint LightTypeSpotlight    = 1 << 3;
 
 struct Light {
+    vec3 Pos;
     int Type;
     vec4 Color;
-    vec3 Pos;
     vec3 Dir;
     float BeamSize;
+    vec3 Atten;
     float BeamBlend;
 };
 
@@ -29,10 +30,10 @@ layout (std430, binding = 2) buffer CameraStorageBuffer {
 
 in vec2 v_TexCoord;
 
-uniform sampler2D u_gPosMap;
-uniform sampler2D u_gNormalMap;
-uniform sampler2D u_gAlbedoMap;
-uniform sampler2D u_gEmissiveMap;
+uniform sampler2D ug_PosMap;
+uniform sampler2D ug_NormalMap;
+uniform sampler2D ug_AlbedoMetallicMap;
+uniform sampler2D ug_EmissiveRoughnessMap;
 
 out vec4 f_FragColor;
 
@@ -46,27 +47,19 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0);
 
 void main() {
     // extract material props from maps
-    vec3 worldPos = texture(u_gPosMap, v_TexCoord).rgb;
-    vec3 worldNormal = texture(u_gNormalMap, v_TexCoord).rgb;
+    vec3 worldPos = texture(ug_PosMap, v_TexCoord).rgb;
+    vec3 worldNormal = texture(ug_NormalMap, v_TexCoord).rgb;
 
-    vec3 albedo = texture(u_gAlbedoMap, v_TexCoord).rgb;
-    vec3 emissive = texture(u_gEmissiveMap, v_TexCoord).rgb;
+    vec3 albedo = texture(ug_AlbedoMetallicMap, v_TexCoord).rgb;
+    vec3 emissive = texture(ug_EmissiveRoughnessMap, v_TexCoord).rgb;
 
-    float metallic = texture(u_gAlbedoMap, v_TexCoord).a;
-    float roughness = texture(u_gEmissiveMap, v_TexCoord).a;
+    float metallic = texture(ug_AlbedoMetallicMap, v_TexCoord).a;
+    float roughness = texture(ug_EmissiveRoughnessMap, v_TexCoord).a;
 
     // albedo          = pow(albedo, vec3(2.2));
     emissive        = emissive;
     metallic        = clamp(metallic, 0.0, 1.0);
     roughness       = clamp(roughness, 0.0, 10);
-
-
-
-    vec3    diffuseColor    = albedo * clamp(1.0 - metallic, 0.01, 1.0);
-    float   shininess       = max(pow(1.0 - roughness, 4.0) * 512.0, 16.0);
-    vec3    baseSpecColor   = mix(vec3(0.04), albedo, metallic);
-    float   specIntensity   = mix(0.5, 2.0, metallic) * mix(0.2, 1.0, pow(1.0 - roughness + 0.001, 2.0));
-    vec3    specularColor   = baseSpecColor * specIntensity;
 
 
     // f_FragColor = vec4(texture(u_gPosMap, v_TexCoord));
@@ -89,38 +82,68 @@ void main() {
 
     // reflectance equation
 
-    for (int i = 0; i < ssb_Lights.LightCount; i++) {
+    for(int i = 0; i < ssb_Lights.LightCount; i++) {
+
         Light light = ssb_Lights.Lights[i];
-        vec3 lightColor = light.Color.rgb * light.Color.a;
+
         int lightType = light.Type;
-        vec3 lightPos = light.Pos;
-        vec3 lightDir = light.Dir;
+        vec3 lightColor = light.Color.rgb * light.Color.a;
+        vec3 lightPos = light.Pos.xyz;
+        vec3 lightDir = light.Dir.xyz;
+        vec3 lightAtten = light.Atten;
 
         if (lightType == LightTypePoint) {
+            // calculate per-light radiance
             vec3 L = normalize(lightPos - worldPos);
-            vec3 R = reflect(-L, N);
-            float dist = length(lightPos - worldPos);
-            float atten = 1.0 / (1.0 + 0.1 * dist + 0.1 * dist * dist); 
+            vec3 H = normalize(V + L);
+            float distance    = length(lightPos - worldPos);
+            float attenuation = 1.0 / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z);
+            vec3 radiance     = lightColor * attenuation;
 
-            vec3 diffuse = max(dot(N, L), 0.0) * diffuseColor;
-            vec3 specular = pow(max(dot(V, R), 0.0), shininess) * specularColor;
+            // cook-torrance brdf
+            float NDF = DistributionGGX(N, H, roughness);
+            float G   = GeometrySmith(N, V, L, roughness);
+            vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-            Lo += (diffuse + specular) * lightColor * atten;
+            vec3 kS = F;
+            vec3 kD = vec3(1.0) - kS;
+            kD *= 1.0 - metallic;
+
+            vec3 numerator    = NDF * G * F;
+            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+            vec3 specular     = numerator / denominator;
+
+            // add to outgoing radiance Lo
+            float NdotL = max(dot(N, L), 0.0);
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
         else if (lightType == LightTypeDirectional) {
+            // calculate per-light radiance
             vec3 L = normalize(-lightDir);
-            vec3 R = reflect(-L, N);
+            vec3 H = normalize(V + L);
+            vec3 radiance     = lightColor;
 
-            vec3 diffuse = max(dot(N, L), 0.0) * diffuseColor;
-            vec3 specular = pow(max(dot(V, R), 0.0), shininess) * specularColor;
+            // cook-torrance brdf
+            float NDF = DistributionGGX(N, H, roughness);
+            float G   = GeometrySmith(N, V, L, roughness);
+            vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-            Lo += (diffuse + specular) * lightColor;
+            vec3 kS = F;
+            vec3 kD = vec3(1.0) - kS;
+            kD *= 1.0 - metallic;
+
+            vec3 numerator    = NDF * G * F;
+            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+            vec3 specular     = numerator / denominator;
+
+            // add to outgoing radiance Lo
+            float NdotL = max(dot(N, L), 0.0);
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
         else if (lightType == LightTypeSpotlight) {
+            // calculate per-light radiance
             vec3 L = normalize(lightPos - worldPos);
-            vec3 R = reflect(-L, N);
-            float dist = length(light.Pos - worldPos);
-            float atten = 1.0 / (1.0 + 0.1 * dist + 0.1 * dist * dist); 
+            vec3 H = normalize(V + L);
 
             float lightBeamSize = light.BeamSize;
             float lightBeamBlend = light.BeamBlend;
@@ -128,20 +151,37 @@ void main() {
             float beamSizeCos = cos(radians(lightBeamSize));
             float beamBlendCos = cos(radians(lightBeamSize * (1.0 - lightBeamBlend)));
 
-            if (beamBlendCos <= beamSizeCos) continue;
+            if (beamBlendCos <= beamSizeCos)
+                continue;
 
             float alpha = dot(normalize(light.Dir), -L);
             float beamNumerator = alpha - beamSizeCos;
             float beamDenominator = beamBlendCos - beamSizeCos;
             float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
 
-            vec3 diffuse = max(dot(N, L), 0.0) * diffuseColor;
-            vec3 specular = pow(max(dot(V, R), 0.0), shininess) * specularColor;
+            float distance    = length(lightPos - worldPos);
+            float attenuation = 1.0 / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z);
+            vec3 radiance     = lightColor * attenuation * beamContrib;
 
-            Lo += (diffuse + specular) * lightColor * beamContrib * atten;
+            // cook-torrance brdf
+            float NDF = DistributionGGX(N, H, roughness);
+            float G   = GeometrySmith(N, V, L, roughness);
+            vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+            vec3 kS = F;
+            vec3 kD = vec3(1.0) - kS;
+            kD *= 1.0 - metallic;
+
+            vec3 numerator    = NDF * G * F;
+            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+            vec3 specular     = numerator / denominator;
+
+            // add to outgoing radiance Lo
+            float NdotL = max(dot(N, L), 0.0);
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
         else if (lightType == LightTypeAmbient) {
-            La += albedo * lightColor;
+            La += albedo * lightColor * ao;
         }
     }
     
@@ -191,4 +231,5 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
+
 

@@ -97,7 +97,7 @@ public:
         ImGui::Begin("Point Light");
         static v4 color = v4(1.0f);
         if (ImGui::DragFloat4("Color", glm::value_ptr(color), 0.01f, 0.0f, 1.0f)) {
-            m_PointLight->m_Color.SetColor(color);
+            m_PointLight->Color.Set(color);
         }
         ImGui::End();
     }

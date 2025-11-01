@@ -29,6 +29,9 @@ public:
 
     Camera& GetCamera() { return m_Camera; }
     const Camera& GetCamera() const { return m_Camera; }
+
+    void OnResize(u32 width, u32 height);
+
 private:
     bool OnWindowFocus(WindowFocusEvent& e);
     bool OnWindowLostFocus(WindowLostFocusEvent& e);

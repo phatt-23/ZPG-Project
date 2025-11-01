@@ -17,12 +17,17 @@ public:
     virtual void Update(Timestep& ts) override;
 
     void ComputeMatrix() override;
+
+    const v3& GetCurrentScale() const;
+    const v3& GetGrowth() const;
+    const v3& GetMinScale() const;
+    const v3& GetMaxScale() const;
     
 protected:
-    glm::vec3 m_CurrentScale;
-    glm::vec3 m_Growth; 
-    glm::vec3 m_MinScale; 
-    glm::vec3 m_MaxScale;
+    v3 m_CurrentScale;
+    v3 m_Growth; 
+    v3 m_MinScale; 
+    v3 m_MaxScale;
 };
 
 }

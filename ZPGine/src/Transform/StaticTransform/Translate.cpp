@@ -23,4 +23,14 @@ void Translate::ComputeMatrix() {
     m_Cached = true;
 }
 
+
+const v3& Translate::GetTranslation() const {
+    return m_TranslationVector;
+}
+
+void Translate::SetTranslation(const v3& translation) {
+    m_TranslationVector = translation;
+    ComputeMatrix();
+}
+
 }

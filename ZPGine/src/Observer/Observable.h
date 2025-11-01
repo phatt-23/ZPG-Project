@@ -12,7 +12,7 @@ public:
     virtual void AttachObserver(Observer* observer);
     virtual void DetachObserver(Observer* observer);
 protected:
-    void NotifyWith(Payload& payload);
+    void NotifyWith(Payload& payload) const;
 private:
     std::vector<Observer*> m_Observers;
 };

@@ -3,7 +3,8 @@
 
 namespace HyenaScene {
 
-HyenaScene::HyenaScene() : m_Controller(GetCamera()), m_LocalRes() {}
+HyenaScene::HyenaScene() {
+}
 
 void HyenaScene::OnAttach() {
     m_LocalRes.LoadModel("Hyena", "./assets/models/hyena/hyena_demo_free_download/scene.gltf");
@@ -25,15 +26,15 @@ void HyenaScene::OnAttach() {
     }
 
 
-    firefly_material = MakeRef(new Material());
-    firefly_material->SetEmissive(v4(firefly_color));
+    fireflyMaterial = MakeRef(new Material());
+    fireflyMaterial->SetEmissive(v4(fireflyColor));
 
     auto firefly_model = Model::Create({
         Mesh::Create(VertexArray::Create({
                 VertexBuffer::Create(nemec::sphere, sizeof(nemec::sphere), 
                                      {{ShaderDataType::Float3}, {ShaderDataType::Float3}})
             }),
-            firefly_material)
+            fireflyMaterial)
     });
 
     m_LocalRes.AddModel("Firefly", firefly_model);
@@ -41,7 +42,7 @@ void HyenaScene::OnAttach() {
     for (int i = -grid_size; i < grid_size; i++) {
         auto firefly_light = MakeRef(new PointLight(v4(1.0), v3(0.0)));
         GetLightManager().AddLight(firefly_light);
-        firefly_lights.push_back(firefly_light);
+        fireflyLights.push_back(firefly_light);
 
         PointLightEntity *pointLightEntity = new PointLightEntity(
             firefly_light, firefly_model,
@@ -49,16 +50,6 @@ void HyenaScene::OnAttach() {
 
         GetEntityManager().AddEntity(pointLightEntity);
     }
-}
-
-void HyenaScene::OnUpdate(Timestep &ts) {
-    Scene::OnUpdate(ts);
-    m_Controller.OnUpdate(ts);
-}
-
-void HyenaScene::OnEvent(Event &event) {
-    Scene::OnEvent(event);
-    m_Controller.OnEvent(event);
 }
 
 void HyenaScene::OnImGuiRender() {
@@ -88,10 +79,10 @@ void HyenaScene::OnImGuiRender() {
         }
     }
 
-    if (ImGui::SliderFloat4("firefly color", glm::value_ptr(firefly_color), 0.0, 1.0)) {
-        firefly_material->SetEmissive(firefly_color);
-        for (ref<PointLight> light : firefly_lights)
-            light->m_Color.SetColor(firefly_color);
+    if (ImGui::SliderFloat4("firefly color", glm::value_ptr(fireflyColor), 0.0, 1.0)) {
+        fireflyMaterial->SetEmissive(fireflyColor);
+        for (ref<PointLight> light : fireflyLights)
+            light->Color.Set(fireflyColor);
     }
 
     ImGui::End();

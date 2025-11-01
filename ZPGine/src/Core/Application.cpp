@@ -14,6 +14,8 @@
 #include "imgui.h"
 #include "ImGui/ImGuiManager.h"
 #include "Timestep.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
+#include "Renderer/DrawData.h"
 #include "Scene/Scene.h"
 
 namespace ZPG { 
@@ -48,13 +50,15 @@ void Application::Run() {
         m_LastTime = currentTime;
         
         m_SceneManager.GetActiveScene()->OnUpdate(m_Delta);
+
+
         m_SceneManager.GetActiveScene()->OnRender(m_Delta);
-        
+
         ImGuiManager::BeginFrame();
             m_SceneManager.GetActiveScene()->OnImGuiRender();
             this->OnImGuiRender();
         ImGuiManager::EndFrame();
-        
+
         m_Window->OnUpdate();
     }
 }

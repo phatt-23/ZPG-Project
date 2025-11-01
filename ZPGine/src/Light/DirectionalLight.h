@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AttenComponent.h"
 #include "Light/ColorComponent.h"
 #include "Light/DirectionComponent.h"
 #include "Light/Light.h"
@@ -14,12 +15,15 @@ public:
         v4 const& color,
         v3 const& direction);
 
+    DirectionalLight(
+        const ColorComponent& color,
+        const DirectionComponent& direction);
+
     void SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) override;
     LightStruct MapToLightStruct() override;
 public:
-    ColorComponent m_Color;
-    DirectionComponent m_Direction;
-
+    ColorComponent Color;
+    DirectionComponent Direction;
 };
 
 }

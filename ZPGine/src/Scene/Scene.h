@@ -12,6 +12,7 @@
 #include "Resource/ResourceManager.h"
 
 namespace ZPG {
+class CameraController;
 
 class ResourceManager;
 class Timestep;
@@ -34,13 +35,13 @@ public:
 
     /**
      * Main methods.
-     * By default the scene assumes the Layering workflow.
+     * By default, the scene assumes the Layering workflow.
      */
 
-    virtual void OnUpdate(Timestep& ts) { UpdateEachLayer(ts); UpdateEntities(ts); }
-    virtual void OnRender(Timestep& ts) { RenderEachLayer(ts); RenderEntities(ts); }
-    virtual void OnEvent(Event& event) { PropagateEventDownLayers(event); }
-    virtual void OnImGuiRender() { ImGuiRenderEachLayer(); ImGuiRenderDebug(); }
+    virtual void OnUpdate(Timestep& ts);
+    virtual void OnRender(Timestep& ts);
+    virtual void OnEvent(Event& event);
+    virtual void OnImGuiRender();
 
     /**
      * Layering workflow.
@@ -82,11 +83,20 @@ public:
 
     Camera& GetCamera() { return m_Camera; }
 
+    const ref<CameraController>& GetCameraController() const;
+    void SetCameraController(const ref<CameraController>& cameraController);
+
+
 private:
     LayerStack m_LayerStack;
     Camera m_Camera;
     LightManager m_LightManager;
     EntityManager m_EntityManager;
+
+    /**
+     * Basic camera controller. Can be replaced.
+     */
+    ref<CameraController> m_CameraController;
 
     /**
      * Either its own resource manager or 
@@ -102,17 +112,13 @@ protected:
      * Layering workflow helper methods
      */
 
-    void UpdateEachLayer(Timestep& ts);
-    void RenderEachLayer(Timestep& ts);
-    void PropagateEventDownLayers(Event& event); 
+    void PropagateEventDownLayers(Event& event);
     void ImGuiRenderEachLayer();
 
     /**
      * Entities helper methods. Scene centric.
      */
 
-    void UpdateEntities(Timestep& ts);
-    void RenderEntities(Timestep& ts);
     void ImGuiRenderDebug();
 };
 

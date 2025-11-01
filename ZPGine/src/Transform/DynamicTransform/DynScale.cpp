@@ -27,5 +27,9 @@ void DynScale::ComputeMatrix() {
     m_Matrix = glm::scale(glm::mat4(1.0f), m_CurrentScale);
 }
 
+const v3& DynScale::GetCurrentScale() const { return m_CurrentScale; }
+const v3& DynScale::GetGrowth() const { return m_Growth; }
+const v3& DynScale::GetMinScale() const { return m_MinScale; }
+const v3& DynScale::GetMaxScale() const { return m_MaxScale; }
 
 }

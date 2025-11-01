@@ -9,7 +9,8 @@
 #include "Buffer/ShaderStorageBuffer.h"
 
 namespace ZPG {
-struct BufferDataFormat;
+class Skybox;
+struct BufferSpecification;
 struct LightStruct;
 
 struct DrawData {
@@ -79,23 +80,29 @@ struct DrawData {
     ShaderStorageBuffer MaterialSSBO;
     ShaderStorageBuffer ModelsSSBO;
 
+
+    /**
+     * Main FBO used instead of the default one.
+     */
+    ref<FrameBuffer> MainFBO;
+
     /**
      * Framebuffer used for rendering only the geometry of a scene.
      */
 
     ref<FrameBuffer> GBuffer;
     ref<ShaderProgram> GPassSP;
-    ref<ShaderProgram> LightingPassSP;
+    ref<ShaderProgram> LightingPassShaderProgram;
 
     /**
      * QuadVAO
      */
     ref<VertexArray> QuadVAO;
 
-private:
-    static std::vector<std::tuple<Attachment, std::string, BufferDataFormat>> s_TexAttachments;
-    static std::vector<std::tuple<std::string, std::string, u32>> s_TexAttachmentsBindings;
-    static std::vector<std::tuple<Attachment, std::string, BufferDataFormat>> s_RenderBufferAttachments;
+    /**
+     * Current Skybox in use.
+     */
+    ref<Skybox> CurrentSkybox = nullptr;
 };
 
 }

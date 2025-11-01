@@ -6,10 +6,10 @@
 namespace ZPG {
 
 DynTranslate::DynTranslate(
-        crVEC3 startingTranslation, 
-        crVEC3 translationIncrement, 
-        crVEC3 minTranslation, 
-        crVEC3 maxTranslation)
+    const v3& startingTranslation, 
+    const v3& translationIncrement, 
+    const v3& minTranslation, 
+    const v3& maxTranslation)
 : m_CurrentTranslation(startingTranslation)
 , m_TranslationIncrement(translationIncrement)
 , m_MinTranslation(minTranslation)
@@ -26,5 +26,10 @@ void DynTranslate::Update(Timestep& ts) {
 void DynTranslate::ComputeMatrix() {
     m_Matrix = glm::translate(m4(1.0f), m_CurrentTranslation);
 }
+
+const v3& DynTranslate::GetCurrentTranslation() const { return m_CurrentTranslation; }
+const v3& DynTranslate::GetTranslationIncrement() const { return m_TranslationIncrement; }
+const v3& DynTranslate::GetMinTranslation() const { return m_MinTranslation; }
+const v3& DynTranslate::GetMaxTranslation() const { return m_MaxTranslation; }
 
 }

@@ -35,6 +35,8 @@ public:
     Self Include(const ref<Transform>& transformation);
     Self WithParent(ref<Transform> parent);
 
+    const std::vector<ref<Transform>>& GetChildren() const;
+
 
     static Self Build();
     ref<TransformGroup> Compose();

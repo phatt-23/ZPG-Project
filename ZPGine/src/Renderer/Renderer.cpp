@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "DrawData.h"
+#include "imgui_internal.h"
 #include "RenderCommand.h"
 #include "Model/Model.h"
 #include "Material/Material.h"
@@ -22,10 +23,13 @@
 #include "RenderGroups.h"
 #include "Texture/Texture.h"
 #include "RenderStatistics.h"
-#include "Core/Application.h"
-#include "Core/Window.h"
+#include "Skybox/Skybox.h"
 
 namespace ZPG {
+
+RendererAPI::API Renderer::GetAPI() {
+    return RendererAPI::GetAPI();
+}
 
 void Renderer::Init() {
     ZPG_CORE_ASSERT(s_DrawData == nullptr, "Renderer already initialized.");
@@ -45,6 +49,16 @@ void Renderer::Shutdown() {
 }
 
 void Renderer::BeginDraw(const Camera& camera) {
+    if (s_Deferred) {
+        BeginDeferred();
+    }
+    else {
+        s_DrawData->MainFBO->Bind();
+    }
+
+    RenderCommand::SetClearColor({0.0, 0.0, 0.0, 1.0});
+    RenderCommand::Clear();
+
     s_DrawData->MatricesStorage.View = camera.GetViewMatrix();
     s_DrawData->MatricesStorage.Proj = camera.GetProjMatrix();
     s_DrawData->MatricesStorage.ViewProj = camera.GetViewProjMatrix();
@@ -56,66 +70,32 @@ void Renderer::BeginDraw(const Camera& camera) {
 }
 
 void Renderer::EndDraw() {
+    ZPG_CORE_ASSERT(s_DrawData);
+
     Flush();
-}
 
-void Renderer::SetLights(const std::vector<ref<Light>>& lights) {
-    s_DrawData->LightsStorage.LightCount = std::min((u32)lights.size(), LightManager::s_LightCapacity);
-
-    for (int i = 0; i < s_DrawData->LightsStorage.LightCount; i++) {
-        ref<Light> light = lights[i];
-
-        LightStruct lightStruct;
-
-        if (light->GetLightType() == LightType::Directional) {
-            lightStruct = ((DirectionalLight*)light.get())->MapToLightStruct();
-        }
-        else if (light->GetLightType() == LightType::Ambient) {
-            lightStruct = ((AmbientLight*)light.get())->MapToLightStruct();
-        }
-        else if (light->GetLightType() == LightType::Point) {
-            lightStruct = ((PointLight*)light.get())->MapToLightStruct();
-        }
-        else if (light->GetLightType() == LightType::Spotlight) {
-            lightStruct = ((SpotLight*)light.get())->MapToLightStruct();
-        }
-
-        s_DrawData->LightsStorage.Lights[i] = lightStruct;
-    }
-}
-
-void Renderer::RenderScene(const Scene& scene) {
-    ZPG_NOT_IMPL();
-}
-
-void Renderer::SubmitEntity(const Entity* entity, const glm::mat4& transform) {
-    glm::mat4 entityTransform = transform * entity->GetTransformMatrix();
-    const ref<Model>& model = entity->GetModel();
-    SubmitModel(model.get(), entityTransform);
-}
-
-void Renderer::SubmitModel(const Model* model, const m4& transform) {
-    const std::vector<ref<Mesh>>& meshes = model->GetMeshes();
-
-    for (auto& mesh : meshes) {
-        const ref<Material>& material = mesh->GetMaterial();
-        SubmitMesh(mesh.get(), transform);
-    }
-}
-
-void Renderer::SubmitMesh(const Mesh* mesh, const glm::mat4& transform) {
-    // query everything out of the mesh object
-    ShaderProgram*  shaderProgram   = mesh->GetMaterial()->GetShaderProgram().get();
-    Material*       material        = mesh->GetMaterial().get();
-    VertexArray*    vertexArray     = mesh->GetVertexArray().get();
-    m4              worldMat        = transform * mesh->GetLocalTransform();
-
-    if (s_DrawData->Batch.GetBatchSize() >= s_DrawData->Batch.GetBatchCapacity()) {
-        Flush();
+    if (s_Deferred) {
+        EndDeferred();
     }
 
-    DrawCommand command(shaderProgram, material, vertexArray);
-    s_DrawData->Batch.AddCommand(command, worldMat);
+    s_DrawData->MainFBO->Bind();
+
+    if (const ref<Skybox>& skybox = s_DrawData->CurrentSkybox) {
+        glDepthFunc(GL_LEQUAL);
+        glDepthMask(GL_FALSE);
+
+        const ref<VertexArray>& skyboxVAO = skybox->GetVAO();
+
+        skybox->Bind();
+        RenderCommand::DrawIndexed(*skyboxVAO, skyboxVAO->GetIndexBuffer()->GetCount());
+        skybox->Unbind();
+
+        // restore
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
+    }
+
+    s_DrawData->MainFBO->Unbind();
 }
 
 void Renderer::Flush() {
@@ -155,47 +135,197 @@ void Renderer::Flush() {
             sizeof(DrawData::CameraStorage));
     }
 
-
     // Batch render
     if (s_Instanced) {
-        InstancedRender(s_Deferred);
+        InstancedRender();
     }
     else {
-        NonInstancedRender(s_Deferred);
+        NonInstancedRender();
     }
-
 
     s_Stats->FlushCountPerFrame++;
 }
 
-void Renderer::BeginDeferred() {
-    s_DrawData->GBuffer->Bind();
-    RenderCommand::Clear();
+void Renderer::SetLights(const std::vector<ref<Light>>& lights) {
+    s_DrawData->LightsStorage.LightCount = std::min((u32)lights.size(), LightManager::s_LightCapacity);
+
+    for (int i = 0; i < s_DrawData->LightsStorage.LightCount; i++) {
+        ref<Light> light = lights[i];
+
+        LightStruct lightStruct;
+
+        if (light->GetLightType() == LightType::Directional) {
+            lightStruct = ((DirectionalLight*)light.get())->MapToLightStruct();
+        }
+        else if (light->GetLightType() == LightType::Ambient) {
+            lightStruct = ((AmbientLight*)light.get())->MapToLightStruct();
+        }
+        else if (light->GetLightType() == LightType::Point) {
+            lightStruct = ((PointLight*)light.get())->MapToLightStruct();
+        }
+        else if (light->GetLightType() == LightType::Spotlight) {
+            lightStruct = ((SpotLight*)light.get())->MapToLightStruct();
+        }
+
+        s_DrawData->LightsStorage.Lights[i] = lightStruct;
+    }
+}
+
+void Renderer::SetSkybox(const ref<Skybox>& skybox) {
+    s_DrawData->CurrentSkybox = skybox;
+}
+
+void Renderer::SubmitEntity(const Entity* entity, const glm::mat4& transform) {
+    glm::mat4 entityTransform = transform * entity->GetTransformMatrix();
+    const ref<Model>& model = entity->GetModel();
+    SubmitModel(model.get(), entityTransform);
+}
+
+void Renderer::SubmitModel(const Model* model, const m4& transform) {
+    const std::vector<ref<Mesh>>& meshes = model->GetMeshes();
+
+    for (auto& mesh : meshes) {
+        const ref<Material>& material = mesh->GetMaterial();
+        SubmitMesh(mesh.get(), transform);
+    }
+}
+
+void Renderer::SubmitMesh(const Mesh* mesh, const m4& transform) {
+    // query everything out of the mesh object
+    ShaderProgram* shaderProgram = mesh->GetMaterial()->GetShaderProgram().get();
+    Material* material = mesh->GetMaterial().get();
+    VertexArray* vertexArray = mesh->GetVertexArray().get();
+    const m4& worldMat = transform * mesh->GetLocalTransform();
+
+    if (s_DrawData->Batch.GetBatchSize() >= s_DrawData->Batch.GetBatchCapacity()) {
+        Flush();
+    }
+
+    DrawCommand command(shaderProgram, material, vertexArray);
+    s_DrawData->Batch.AddCommand(command, worldMat);
+}
+
+void Renderer::OnWindowResize(int width, int height) {
+}
+
+void Renderer::OnViewportResize(int width, int height) {
+    s_DrawData->GBuffer->Resize(width, height);
+    s_DrawData->MainFBO->Resize(width, height);
+}
+
+void Renderer::InstancedRender() {
+    ZPG_CORE_ASSERT(s_DrawData);
 
     s_DrawData->Batch.BuildGroups();
 
-    s_DrawData->GPassSP->Bind();
-    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
-    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
-    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
-    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
-    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
+    const auto& shaderProgramGroups = s_DrawData->Batch.GetShaderProgramGroups();
+    const auto& materialGroups = s_DrawData->Batch.GetMaterialGroups();
+    const auto& vaoGroups = s_DrawData->Batch.GetVertexArrayGroups();
+
+    s_Stats->ShaderProgramGroupCount = shaderProgramGroups.size();
+    s_Stats->MaterialGroupCount = materialGroups.size();
+    s_Stats->VAOGroupCount = vaoGroups.size();
+
+    // cache currently bound states to skip redundant binds
+    ShaderProgram* curShaderProgram = nullptr;
+    Material* curMaterial = nullptr;
+    VertexArray* curVAO = nullptr;
+
+
+    for (const auto& shaderProgramGroup : shaderProgramGroups) {
+
+        ShaderProgram* shaderProgram = shaderProgramGroup.m_ShaderProgram;
+
+        if (curShaderProgram != shaderProgram && !s_Deferred) {
+            curShaderProgram = shaderProgram;
+
+            shaderProgram->Bind();
+
+            // these should be set only once somewhere else
+            shaderProgram->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
+            shaderProgram->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
+            shaderProgram->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
+            shaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
+            shaderProgram->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
+        }
+
+        for (int materialIdx = shaderProgramGroup.m_MaterialStart;
+             materialIdx < shaderProgramGroup.m_MaterialStart + shaderProgramGroup.m_MaterialCount;
+             materialIdx++)
+        {
+            const MaterialGroup& materialGroup = materialGroups[materialIdx];
+
+            Material* material = materialGroup.m_Material;
+
+            if (curMaterial != material) {
+                curMaterial = material;
+
+                material->GetAlbedoMap()->BindToSlot(0);
+                material->GetMetalnessMap()->BindToSlot(1);
+                material->GetRoughnessMap()->BindToSlot(2);
+                material->GetNormalMap()->BindToSlot(3);
+                material->GetEmissiveMap()->BindToSlot(4);
+
+                s_DrawData->MaterialStorage.Albedo = material->GetAlbedo();
+                s_DrawData->MaterialStorage.Emissive = material->GetEmissive();
+                s_DrawData->MaterialStorage.Roughness = material->GetRoughness();
+                s_DrawData->MaterialStorage.Metallic = material->GetMetallic();
+
+                s_DrawData->MaterialSSBO.Bind();
+                s_DrawData->MaterialSSBO.SetData(
+                    &s_DrawData->MaterialStorage,
+                    sizeof(s_DrawData->MaterialStorage));
+            }
+
+            for (int vaoIdx = materialGroup.m_VertexArrayStart;
+                 vaoIdx < materialGroup.m_VertexArrayStart + materialGroup.m_VertexArrayCount;
+                 vaoIdx++)
+            {
+                const auto& vaoGroup = vaoGroups[vaoIdx];
+
+                VertexArray* vao = vaoGroup.m_VertexArray;
+
+                if (curVAO != vao) {
+                    curVAO = vao;
+
+                    vao->Bind();
+                }
+
+                const m4* batchTransforms = s_DrawData->Batch.GetTransforms().data();
+                memcpy(s_DrawData->ModelsStorage.Models, &batchTransforms[vaoGroup.m_Start], sizeof(m4) * vaoGroup.m_Count);
+
+                s_DrawData->ModelsStorage.ModelCount = vaoGroup.m_Count;
+
+                s_DrawData->ModelsSSBO.Bind();
+
+                s_DrawData->ModelsSSBO.SetData(
+                    &s_DrawData->ModelsStorage.ModelCount,
+                    sizeof(i32),
+                    offsetof(DrawData::ModelsStorageBuffer, ModelCount));
+
+                s_DrawData->ModelsSSBO.SetData(
+                    s_DrawData->ModelsStorage.Models,
+                    sizeof(m4) * vaoGroup.m_Count,
+                    offsetof(DrawData::ModelsStorageBuffer, Models));
+
+                if (vaoGroup.m_VertexArray->HasIndexBuffer()) {
+                    RenderCommand::DrawIndexedInstanced(
+                        *vao,
+                        vao->GetIndexBuffer()->GetCount(),
+                        vaoGroup.m_Count);
+                }
+                else {
+                    RenderCommand::DrawArraysInstanced(*vao, vaoGroup.m_Count);
+                }
+
+                s_Stats->DrawCallCountPerFrame++;
+            }
+        }
+    }
 }
 
-void Renderer::EndDeferred() {
-    s_DrawData->GBuffer->Unbind();
-    RenderCommand::Clear();
-
-    s_DrawData->LightingPassSP->Bind();
-    s_DrawData->GBuffer->BindColorTextureAttachments();
-    s_DrawData->QuadVAO->Bind();
-    RenderCommand::DrawArrays(*s_DrawData->QuadVAO);
-}
-
-void Renderer::NonInstancedRender(bool deferred) {
+void Renderer::NonInstancedRender() {
     ZPG_CORE_ASSERT(s_DrawData);
-
-    if (deferred) BeginDeferred();
 
     s_DrawData->Batch.SortCommands();
     const std::vector<m4>& transforms = s_DrawData->Batch.GetTransforms();
@@ -212,7 +342,7 @@ void Renderer::NonInstancedRender(bool deferred) {
             currentMaterial = nullptr;
             currentVertexArray = nullptr;
 
-            if (!deferred) {
+            if (!s_Deferred) {
                 currentShaderProgram->Bind();
                 currentShaderProgram->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
                 currentShaderProgram->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
@@ -261,137 +391,50 @@ void Renderer::NonInstancedRender(bool deferred) {
 
         s_Stats->DrawCallCountPerFrame++;
     }
-
-    if (deferred) EndDeferred();
 }
 
-void Renderer::InstancedRender(bool deferred) {
-    ZPG_CORE_ASSERT(s_DrawData);
-
-    if (deferred) BeginDeferred();
+void Renderer::BeginDeferred() {
+    // bind the g-buffer so the consequent draw calls will draw into it
+    s_DrawData->GBuffer->Bind();
+    RenderCommand::Clear();
 
     s_DrawData->Batch.BuildGroups();
 
-    const auto& shaderProgramGroups = s_DrawData->Batch.GetShaderProgramGroups();
-    const auto& materialGroups = s_DrawData->Batch.GetMaterialGroups();
-    const auto& vaoGroups = s_DrawData->Batch.GetVertexArrayGroups();
-
-    s_Stats->ShaderProgramGroupCount = shaderProgramGroups.size();
-    s_Stats->MaterialGroupCount = materialGroups.size();
-    s_Stats->VAOGroupCount = vaoGroups.size();
-
-    // cache currently bound states to skip redundant binds
-    ShaderProgram* curShaderProgram = nullptr;
-    Material* curMaterial = nullptr;
-    VertexArray* curVAO = nullptr;
-
-    const m4* batchTransforms = s_DrawData->Batch.GetTransforms().data();
-
-    for (const auto& shaderProgramGroup : shaderProgramGroups) {
-
-        ShaderProgram* shaderProgram = shaderProgramGroup.m_ShaderProgram;
-
-        if (curShaderProgram != shaderProgram && !deferred) {
-            curShaderProgram = shaderProgram;
-
-            shaderProgram->Bind();
-
-            // these should be set only once somewhere else
-            shaderProgram->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
-            shaderProgram->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
-            shaderProgram->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
-            shaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
-            shaderProgram->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
-        }
-
-        for (int materialIdx = shaderProgramGroup.m_MaterialStart;
-            materialIdx < shaderProgramGroup.m_MaterialStart + shaderProgramGroup.m_MaterialCount;
-            materialIdx++)
-        {
-            const MaterialGroup& materialGroup = materialGroups[materialIdx];
-
-            Material* material = materialGroup.m_Material;
-
-            if (curMaterial != material) {
-                curMaterial = material;
-
-                material->GetAlbedoMap()->BindToSlot(0);
-                material->GetMetalnessMap()->BindToSlot(1);
-                material->GetRoughnessMap()->BindToSlot(2);
-                material->GetNormalMap()->BindToSlot(3);
-                material->GetEmissiveMap()->BindToSlot(4);
-
-                s_DrawData->MaterialStorage.Albedo = material->GetAlbedo();
-                s_DrawData->MaterialStorage.Emissive = material->GetEmissive();
-                s_DrawData->MaterialStorage.Roughness = material->GetRoughness();
-                s_DrawData->MaterialStorage.Metallic = material->GetMetallic();
-
-                s_DrawData->MaterialSSBO.Bind();
-                s_DrawData->MaterialSSBO.SetData(
-                    &s_DrawData->MaterialStorage,
-                    sizeof(s_DrawData->MaterialStorage));
-            }
-
-            for (int vaoIdx = materialGroup.m_VertexArrayStart;
-                vaoIdx < materialGroup.m_VertexArrayStart + materialGroup.m_VertexArrayCount;
-                vaoIdx++)
-            {
-                const auto& vaoGroup = vaoGroups[vaoIdx];
-
-                VertexArray* vao = vaoGroup.m_VertexArray;
-
-                if (curVAO != vao) {
-                    curVAO = vao;
-
-                     vao->Bind();
-                }
-
-                memcpy( s_DrawData->ModelsStorage.Models, &batchTransforms[vaoGroup.m_Start], sizeof(m4) * vaoGroup.m_Count );
-
-                s_DrawData->ModelsStorage.ModelCount = vaoGroup.m_Count;
-
-                s_DrawData->ModelsSSBO.Bind();
-
-                s_DrawData->ModelsSSBO.SetData(
-                    &s_DrawData->ModelsStorage.ModelCount,
-                    sizeof(i32),
-                    offsetof(DrawData::ModelsStorageBuffer, ModelCount));
-
-                s_DrawData->ModelsSSBO.SetData(
-                    s_DrawData->ModelsStorage.Models,
-                    sizeof(m4) * vaoGroup.m_Count,
-                    offsetof(DrawData::ModelsStorageBuffer, Models));
-
-                if (vaoGroup.m_VertexArray->HasIndexBuffer()) {
-                    RenderCommand::DrawIndexedInstanced(
-                        *vao,
-                        vao->GetIndexBuffer()->GetCount(),
-                        vaoGroup.m_Count);
-                }
-                else {
-                    RenderCommand::DrawArraysInstanced(*vao, vaoGroup.m_Count);
-                }
-
-                s_Stats->DrawCallCountPerFrame++;
-            }
-        }
-    }
-
-    if (deferred) EndDeferred();
+    // bind the gpass shader program and set the sampler slots
+    s_DrawData->GPassSP->Bind();
+    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
+    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
+    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
+    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
+    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
 }
 
-void Renderer::OnWindowResize(int width, int height) {
-    RenderCommand::SetViewport(0, 0, width, height);
+void Renderer::EndDeferred() {
 
-    s_DrawData->GBuffer->Bind();
-    for (auto& [attachment, texture] : s_DrawData->GBuffer->GetTextureAttachments()) {
-        texture->Resize(width, height);
-    }
+    // end of the g-buffer usage
     s_DrawData->GBuffer->Unbind();
-}
 
-RendererAPI::API Renderer::GetAPI() {
-    return RendererAPI::GetAPI();
+    // bind the lighting pass shader program
+    s_DrawData->LightingPassShaderProgram->Bind();
+
+    // bind the g-buffer's color texture attachments
+    // with the collected geometry information
+    s_DrawData->GBuffer->BindColorTextureAttachments();
+
+    // bind the uv quad that fills up the NDC
+    s_DrawData->QuadVAO->Bind();
+
+    // Instead of drawing the lighting pass into the default FBO, I want to draw into my own FBO.
+    // Bind the main FBO (my FBO), clear it and run the lighting pass with the g-buffer's data.
+    s_DrawData->MainFBO->Bind();
+
+    RenderCommand::Clear();
+    RenderCommand::DrawArrays(*s_DrawData->QuadVAO);
+
+    // // Copy the G-Buffer's depth buffer into the main FBO's depth buffer
+    s_DrawData->MainFBO->CopyAttachment(s_DrawData->GBuffer, AttachmentType::Depth);
+
+    s_DrawData->MainFBO->Unbind();
 }
 
 }

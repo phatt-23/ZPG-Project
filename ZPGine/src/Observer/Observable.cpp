@@ -17,7 +17,7 @@ void Observable::DetachObserver(Observer* observer) {
         m_Observers.erase(it);
     }
 }
-void Observable::NotifyWith(Payload& payload) {
+void Observable::NotifyWith(Payload& payload) const {
     for (Observer* observer : m_Observers) {
         observer->OnNotify(payload);
     }

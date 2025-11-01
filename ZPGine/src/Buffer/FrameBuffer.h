@@ -5,49 +5,41 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
 
-#include "Attachment.h"
+#include "RenderAttachment.h"
 
 namespace ZPG {
 
-class RenderBuffer;
-class Texture;
+    class Texture;
 
-class FrameBuffer {
-    template<typename T>
-    using AttachMap = std::unordered_map<Attachment, T>;
+    struct FrameBufferSpecification {
+        u32 Width;
+        u32 Height;
 
-public:
-    FrameBuffer(
-        const AttachMap<ref<Texture>>& textureAttachments,
-        const AttachMap<ref<RenderBuffer>>& rboAttachments);
+        std::unordered_map<std::string, RenderAttachment> Attachments;
+    };
 
-    ~FrameBuffer();
+    class FrameBuffer {
+    public:
+        virtual ~FrameBuffer() = default;
 
-    void Bind();
+        virtual void Bind() = 0;
+        virtual void Unbind() = 0;
 
-    /**
-     * Binds the default FBO (0).
-     */
-    void Unbind();
+        virtual void Invalidate() = 0;
+        virtual void Resize(u32 width, u32 height) = 0;
+        virtual void BindColorTextureAttachments() = 0;
 
-    const AttachMap<ref<Texture>>& GetTextureAttachments() const;
-    const AttachMap<ref<Texture>>& GetColorTextureAttachments() const;
-    const AttachMap<ref<RenderBuffer>>& GetRenderBufferAttachments() const;
+        virtual const FrameBufferSpecification& GetSpecification() const = 0;
+        virtual const std::unordered_map<RenderAttachment, ref<Texture>>& GetTextureAttachments() const = 0;
+        virtual const std::unordered_map<RenderAttachment, ref<Texture>>& GetColorTextureAttachments() const = 0;
 
-    /**
-     * Binds the textures attached as Color attachments
-     * to their corresponding texture index.
-     */
-    void BindColorTextureAttachments();
+        virtual u32 GetRendererID() const = 0;
 
-private:
-    u32 m_RendererID;
+        virtual void CopyAttachment(const ref<FrameBuffer>& srcFramebuffer, AttachmentType attachmentType) = 0;
+        virtual void WriteAttachment(u32 destFramebufferRendererID, u32 width, u32 height, AttachmentType attachmentType) = 0;
 
-    AttachMap<ref<Texture>> m_TextureAttachments;
-    AttachMap<ref<RenderBuffer>> m_RBOAttachments;
-
-    AttachMap<ref<Texture>> m_ColorTextureAttachments;
-};
+        static ref<FrameBuffer> Create(const FrameBufferSpecification& spec);
+    };
 
 }
 

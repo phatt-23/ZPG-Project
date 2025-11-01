@@ -7,11 +7,12 @@ const uint LightTypeDirectional  = 1 << 2;
 const uint LightTypeSpotlight    = 1 << 3;
 
 struct Light {
+    vec3 Pos;
     int Type;
     vec4 Color;
-    vec3 Pos;
     vec3 Dir;
     float BeamSize;
+    vec3 Atten;
     float BeamBlend;
 };
 
@@ -123,7 +124,7 @@ void main() {
             Lo += (diffuse) * lightColor * beamContrib * atten;
         }
         else if (lightType == LightTypeAmbient) {
-            La += diffuseColor * lightColor;
+            La += albedo * lightColor;
         }
     }
 

@@ -8,12 +8,13 @@ const uint LightTypeDirectional  = 1 << 2;
 const uint LightTypeSpotlight    = 1 << 3;
 
 struct Light {
-    int Type;        // x = Type
-    vec4 Color;       // rgba
-    vec3 Pos;         // xyz used
-    vec3 Dir;         // xyz used
-    float BeamSize;  // x = BeamSize, y = BeamBlend
+    int Type;
+    vec3 Pos;
+    vec4 Color;
+    vec3 Dir;
+    float BeamSize;
     float BeamBlend;
+    vec3 Atten;
 };
 
 layout (std430, binding = 1) buffer LightsStorageBuffer {
@@ -194,7 +195,7 @@ void main() {
         }
     }
 
-    vec3 color = La + Lo; // + emissive;
+    vec3 color = La + Lo + emissive;
 
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));

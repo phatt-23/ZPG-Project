@@ -3,16 +3,24 @@
 
 namespace RevolverScene {
 
-RevolverScene::RevolverScene() : m_Controller(GetCamera()), m_LocalRes() {}
+RevolverScene::RevolverScene() : m_LocalRes() {
+
+
+
+
+}
 
 void RevolverScene::OnLazyAttach() {
+    // m_LocalRes.LoadModel("Revolver", "./assets/models/revolver/scene.gltf");
+    // m_LocalRes.LoadModel("SpecialRevolver", "./assets/models/38_special_revolver/scene.gltf");
+    m_LocalRes.LoadModel("ColtPython", "./assets/models/gameready_colt_python_revolver/scene.gltf");
     m_LocalRes.LoadModel("Seoul", "./assets/models/korth_nxr_revolver/scene.gltf");
 
-    int grid_size = 4;
+    int gridSize = 3;
     float dist = 4;
 
-    for (int i = -grid_size; i < grid_size; i++) {
-        for (int j = -grid_size; j < grid_size; j++) {
+    for (int i = -gridSize; i < gridSize; i++) {
+        for (int j = -gridSize; j < gridSize; j++) {
             auto transform = TransformGroup::Build()
                 .Add<Scale>(0.1)
                 .Add<DynRotate>(0.0, 20.0)
@@ -22,6 +30,20 @@ void RevolverScene::OnLazyAttach() {
 
             GetEntityManager().AddEntity(
                 new Entity(m_LocalRes.GetModel("Seoul"), transform));
+        }
+    }
+
+    for (int i = -gridSize; i < gridSize; i++) {
+        for (int j = -gridSize; j < gridSize; j++) {
+            auto transform = TransformGroup::Build()
+                .Add<Scale>(10)
+                .Add<DynRotate>(0.0, 20.0)
+                // .Add<Rotate>(90.0, v3(1.0, 0.0, 0.0))
+                .Add<Translate>(dist*i, 0.0, dist*j)
+                .Compose();
+
+            GetEntityManager().AddEntity(
+                new Entity(m_LocalRes.GetModel("ColtPython"), transform));
         }
     }
 
@@ -39,7 +61,7 @@ void RevolverScene::OnLazyAttach() {
 
     m_LocalRes.AddModel("Firefly", firefly_model);
 
-    for (int i = -grid_size; i < grid_size; i++) {
+    for (int i = -gridSize; i < gridSize; i++) {
         auto firefly_light = MakeRef(new PointLight(v4(1.0), v3(0.0)));
 
         GetLightManager().AddLight(firefly_light);
@@ -60,16 +82,6 @@ void RevolverScene::OnLazyAttach() {
 
     dir_light = new DirectionalLight(v4(1.0, 1.0, 1.0, 0.8), v3(-1.0));
     GetLightManager().AddLight(dir_light);
-}
-
-void RevolverScene::OnUpdate(Timestep &ts) {
-    Scene::OnUpdate(ts);
-    m_Controller.OnUpdate(ts);
-}
-
-void RevolverScene::OnEvent(Event &event) {
-    Scene::OnEvent(event);
-    m_Controller.OnEvent(event);
 }
 
 void RevolverScene::OnImGuiRender() {
@@ -102,16 +114,16 @@ void RevolverScene::OnImGuiRender() {
     if (ImGui::SliderFloat4("firefly color", glm::value_ptr(firefly_color), 0.0, 1.0)) {
         firefly_material->SetEmissive(firefly_color);
         for (ref<PointLight> light : firefly_lights)
-            light->m_Color.SetColor(firefly_color);
+            light->Color.Set(firefly_color);
     }
 
-    static v4 dirLightColor = dir_light->m_Color.GetColor();
+    static v4 dirLightColor = dir_light->Color.Get();
     if (ImGui::SliderFloat4("DirLight Color", glm::value_ptr(dirLightColor), 0.0, 1.0)) {
-        dir_light->m_Color.SetColor(dirLightColor);
+        dir_light->Color.Set(dirLightColor);
     }
-    static v4 ambientLightColor = ambient_light->m_Color.GetColor();
+    static v4 ambientLightColor = ambient_light->Color.Get();
     if (ImGui::SliderFloat4("AmbientLight Color", glm::value_ptr(ambientLightColor), 0.0, 1.0)) {
-        ambient_light->m_Color.SetColor(ambientLightColor);
+        ambient_light->Color.Set(ambientLightColor);
     }
 
     ImGui::End();

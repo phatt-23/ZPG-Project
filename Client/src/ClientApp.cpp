@@ -7,15 +7,14 @@
 #include <imgui.h>
 #include <ranges>
 
-#include "PBRSpheresScene/SpheresScene.h"
-#include "CV6/ForestScene.h"
-#include "CV6/SolarSystemScene.h"
-#include "CV6/SpheresScene.h"
+#include "CV7/ForestScene.h"
 #include "HyenaScene/Scene.h"
 #include "MustangScene/Scene.h"
 #include "ColtM4CarbineScene/Scene.h"
 #include "RevolverScene/Scene.h"
 #include "implot/implot.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
+#include "spdlog/fmt/bundled/color.h"
 
 using namespace ZPG;
 
@@ -26,14 +25,9 @@ public:
     }
 
     void AttachScenes() {
-        m_SceneManager.AddScene("Spheres Scene",        new PBRSpheresSceneNS::SpheresScene());
-        m_SceneManager.AddScene("CV6 - Forest",         new CV6::ForestScene());
-        m_SceneManager.AddScene("CV6 - Solar System",   new CV6::SolarSystemScene());
-        m_SceneManager.AddScene("CV6 - Spheres",        new CV6::SpheresScene());
-        m_SceneManager.AddScene("Hyena Model",          new HyenaScene::HyenaScene());
-        m_SceneManager.AddScene("Mustang Model",        new MustangScene::MustangScene());
-        m_SceneManager.AddScene("Colt Model",           new ColtM4CarbineScene::ColtM4CarbineScene());
-        m_SceneManager.AddScene("Revolver Model",       new RevolverScene::RevolverScene());
+        m_SceneManager.AddScene("Revolver Model", []{ return new RevolverScene::RevolverScene(); }, SceneLifetime::Transient);
+        m_SceneManager.AddScene("Hyena Model", []{ return new HyenaScene::HyenaScene(); }, SceneLifetime::Transient);
+        m_SceneManager.AddScene("CV7 - Forest", []{ return new CV7::ForestScene(); }, SceneLifetime::Persistent);
                                
         m_SceneManager.SetActiveScene("Revolver Model");
     }
@@ -61,6 +55,7 @@ public:
             ImGui::Text("Material Groups      : %d", Renderer::GetStats().MaterialGroupCount);
             ImGui::Text("VAO Groups           : %d", Renderer::GetStats().VAOGroupCount);
         ImGui::End();
+
 
         ImGui::Begin("Scene Switcher");
             for (const auto& sceneName : m_SceneManager | std::views::keys) {
@@ -95,6 +90,85 @@ public:
         }
         ImGui::End();
 
+
+        ImGui::Begin("G-Buffer");
+        {
+            v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
+
+            auto colorTexAttachments = Renderer::GetDrawData().GBuffer->GetTextureAttachments();
+
+            ImGui::Text("Color RenderAttachment Count (TEX): %ld", colorTexAttachments.size());
+
+            for (auto& [attachment, texture] : colorTexAttachments)
+            {
+                f32 aspect = (f32)texture->GetWidth() / (f32)texture->GetHeight();
+                f32 aspectI = 1.0f / aspect;
+
+                auto* glTexture = (OpenGLTexture*)texture.get();
+
+                ImGui::Text("%s", texture->GetName().c_str());
+
+                ImGui::Image(
+                    glTexture->m_RendererID,
+                    // if width is larger than height
+                    ImVec2(size.x, size.x * aspectI),
+                    ImVec2(0, 1),
+                    ImVec2(1, 0)
+                );
+
+            }
+        }
+        ImGui::End();
+
+        ImGui::Begin("Main Framebuffer");
+        {
+            v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
+
+            auto colorTexAttachments = Renderer::GetDrawData().MainFBO->GetTextureAttachments();
+
+            ImGui::Text("Color RenderAttachment Count (TEX): %ld", colorTexAttachments.size());
+
+            for (auto& [attachment, texture] : colorTexAttachments)
+            {
+                f32 aspect = (f32)texture->GetWidth() / (f32)texture->GetHeight();
+                f32 aspectI = 1.0f / aspect;
+
+                auto* glTexture = (OpenGLTexture*)texture.get();
+
+                ImGui::Text("%s", texture->GetName().c_str());
+
+                ImGui::Image(
+                    glTexture->m_RendererID,
+                    // if width is larger than height
+                    ImVec2(size.x, size.x * aspectI),
+                    ImVec2(0, 1),
+                    ImVec2(1, 0)
+                );
+
+            }
+        }
+        ImGui::End();
+
+        ImGui::Begin("Scene Viewport");
+        {
+            const ref<FrameBuffer>& mainFBO = Renderer::GetDrawData().MainFBO;
+            ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+
+            v2 size(viewportPanelSize.x, viewportPanelSize.y);
+
+            if (size != m_ViewportSize) {
+                Renderer::OnViewportResize(size.x, size.y);
+                m_ViewportSize = size;
+
+                m_SceneManager.GetActiveScene()->GetCameraController()->OnResize(size.x, size.y);
+            }
+
+            const std::unordered_map<RenderAttachment, ref<Texture>>& colorTextures = mainFBO->GetColorTextureAttachments();
+            const ref<Texture>& colorTexture = colorTextures.begin()->second;
+
+            ImGui::Image(colorTexture->GetRendererID(), ImVec2(size.x, size.y), ImVec2(0, 1), ImVec2(1, 0));
+        }
+        ImGui::End();
     }
 
 private:
@@ -102,6 +176,7 @@ private:
     std::vector<float> fpsDataX;
     const size_t maxSamples = 1000; // number of frames visible in plot
     float time = 0.0f;
+    v2 m_ViewportSize = { 0.0, 0.0 };
 
 };
 

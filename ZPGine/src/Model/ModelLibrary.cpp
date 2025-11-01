@@ -2,6 +2,7 @@
 
 #include "ModelLoader.h"
 #include "Debug/Asserter.h"
+#include "Model.h"
 
 namespace ZPG {
 
@@ -19,6 +20,7 @@ const ref<Model>& ModelLibrary::LoadModel(const std::string& name, const std::st
     ZPG_CORE_ASSERT(!Exists(name), "Model with this name already in the library: {}, path: {}", name, path);
     ModelLoader loader = ModelLoader(path);
     ref<Model> model = loader.Load();
+    model->SetName(name);
     m_ModelMap[name] = std::move(model);
     return m_ModelMap[name];
 }

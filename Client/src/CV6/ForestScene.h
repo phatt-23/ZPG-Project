@@ -180,13 +180,13 @@ public:
         m_CameraController.OnUpdate(ts);
         Scene::OnUpdate(ts);
 
-        m_Flashlight->m_Position.SetPosition(GetCamera().GetPosition());
+        m_Flashlight->Position.Set(GetCamera().GetPosition());
     }
 
     void OnEvent(Event &event) override {
         m_CameraController.OnEvent(event);
         Scene::OnEvent(event);
-        m_Flashlight->m_Direction.SetDirection(GetCamera().GetFront());
+        m_Flashlight->Direction.Set(GetCamera().GetFront());
 
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<KeyPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(ForestScene::OnKeyPressed));
@@ -202,9 +202,9 @@ public:
             ZPG_CORE_DEBUG("Flashlight ON: {}", m_FlashlightOn);
 
             if (m_FlashlightOn) {
-                m_Flashlight->m_Color.SetColor(v4(1.0));
+                m_Flashlight->Color.Set(v4(1.0));
             } else {
-                m_Flashlight->m_Color.SetColor(v4(0.0));
+                m_Flashlight->Color.Set(v4(0.0));
             }
         }
         return false; 
@@ -214,38 +214,38 @@ public:
         Scene::OnImGuiRender();
 
         ImGui::Begin("Lights");
-        static v4 dirLightColor = m_DirLight->m_Color.GetColor();
+        static v4 dirLightColor = m_DirLight->Color.Get();
         if (ImGui::SliderFloat4("DirLight Color", glm::value_ptr(dirLightColor), 0.0, 1.0)) {
-            m_DirLight->m_Color.SetColor(dirLightColor);
+            m_DirLight->Color.Set(dirLightColor);
         }
-        static v4 ambientLightColor = m_AmbientLight->m_Color.GetColor();
+        static v4 ambientLightColor = m_AmbientLight->Color.Get();
         if (ImGui::SliderFloat4("AmbientLight Color", glm::value_ptr(ambientLightColor), 0.0, 1.0)) {
-            m_AmbientLight->m_Color.SetColor(ambientLightColor);
+            m_AmbientLight->Color.Set(ambientLightColor);
         }
 
-        static v4 spotLightColor = m_SpotLight->m_Color.GetColor();
+        static v4 spotLightColor = m_SpotLight->Color.Get();
         if (ImGui::SliderFloat4("SpotLight Color", glm::value_ptr(spotLightColor), 0.0, 1.0)) {
-            m_SpotLight->m_Color.SetColor(spotLightColor);
+            m_SpotLight->Color.Set(spotLightColor);
         }
 
-        static v3 spotlightDir = m_SpotLight->m_Direction.GetDirection();
+        static v3 spotlightDir = m_SpotLight->Direction.Get();
         if (ImGui::SliderFloat3("SpotLight Direction", glm::value_ptr(spotlightDir), -1.0, 1.0)) {
-            m_SpotLight->m_Direction.SetDirection(spotlightDir);
+            m_SpotLight->Direction.Set(spotlightDir);
         }
 
-        static v3 spotlightPos = m_SpotLight->m_Position.GetPosition();
+        static v3 spotlightPos = m_SpotLight->Position.Get();
         if (ImGui::SliderFloat3("SpotLight Position", glm::value_ptr(spotlightPos), -1.0, 1.0)) {
-            m_SpotLight->m_Position.SetPosition(spotlightPos);
+            m_SpotLight->Position.Set(spotlightPos);
         }
 
-        static float spotlightBeamSize = m_SpotLight->m_BeamShape.GetSize();
+        static float spotlightBeamSize = m_SpotLight->BeamShape.GetSize();
         if (ImGui::SliderFloat("SpotLight Beam Size", &spotlightBeamSize, 0.0, 180.0)) {
-            m_SpotLight->m_BeamShape.SetSize(spotlightBeamSize);
+            m_SpotLight->BeamShape.SetSize(spotlightBeamSize);
         }
 
-        static float spotlightBeamBlend = m_SpotLight->m_BeamShape.GetBlend();
+        static float spotlightBeamBlend = m_SpotLight->BeamShape.GetBlend();
         if (ImGui::SliderFloat("SpotLight Beam Blend", &spotlightBeamBlend, 0.0, 1.0)) {
-            m_SpotLight->m_BeamShape.SetBlend(spotlightBeamBlend);
+            m_SpotLight->BeamShape.SetBlend(spotlightBeamBlend);
         }
 
         v3 f = GetCamera().GetFront();

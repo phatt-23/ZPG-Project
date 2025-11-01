@@ -11,14 +11,23 @@ class Texture;
 class VertexArray;
 class ShaderProgram;
 
+struct SkyboxSpecification {
+    std::string Directory;
+    std::array<std::string, 6> Filenames = {
+        "right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg"
+    };
+};
+
 class Skybox {
 public:
-    Skybox(const std::string& texturesDir);
+    virtual ~Skybox() = default;
 
-public:
-    ref<ShaderProgram> m_ShaderProgram;
-	ref<VertexArray> m_VAO;
-	ref<Texture> m_Texture;
+    virtual void Bind() = 0;
+    virtual void Unbind() = 0;
+
+    virtual const ref<VertexArray>& GetVAO() const = 0;
+
+    static ref<Skybox> Create(const SkyboxSpecification& spec);
 };
 
 } // ZPG

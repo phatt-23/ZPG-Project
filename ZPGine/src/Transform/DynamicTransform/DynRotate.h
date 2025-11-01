@@ -14,6 +14,11 @@ public:
 
     void Update(Timestep& ts) override;
     void ComputeMatrix() override;
+
+    f32 GetCurrentRotationDeg() const;
+    f32 GetRotationSpeedDeg() const;
+    const v3& GetRotationAxis() const;
+    const v3& GetOrigin() const;
 private:
     f32 m_CurrentRotationDeg;
     f32 m_RotationSpeedDeg;  // angle per second

@@ -1,5 +1,6 @@
 #include "Scene.h"
 
+#include "Platform/OpenGL/OpenGLTexture.h"
 #include "SceneContext.h"
 #include "Renderer/RenderCommand.h"
 #include "Core/Application.h"
@@ -15,16 +16,26 @@
 #include "Light/Light.h"
 
 #include "Entity/Entity.h"
+#include "Transform/StaticTransform/Rotate.h"
+#include "Transform/StaticTransform/Scale.h"
+#include "Transform/StaticTransform/Translate.h"
 #include "Transform/TransformGroup.h"
 #include "Model/Model.h"
 #include "Model/Mesh.h"
 #include "Material/Material.h"
+#include "imgui.h"
+#include "Camera/CameraController.h"
+#include "Light/AmbientLight.h"
+#include "Light/DirectionalLight.h"
+#include "Light/PointLight.h"
+#include "Light/SpotLight.h"
+#include "Texture/Texture.h"
 
 namespace ZPG {
 
 Scene::Scene(const ref<ResourceManager>& resourceManager)
 : m_ResourceManager(resourceManager) {
-
+    m_CameraController = MakeRef(new CameraController(m_Camera));
 }
 
 Scene::~Scene() {
@@ -45,18 +56,66 @@ void Scene::OnAttach() {
 }
 
 void Scene::OnResume() {
-    // Sending event because the scene must adapt to the current window size 
-    const Window& window = Application::Get().GetWindow(); 
-    WindowResizeEvent event(window.GetWidth(), window.GetHeight());
-    this->OnEvent(event);
 }
 
 void Scene::OnPause() {
 }
 
+void Scene::OnUpdate(Timestep& ts) {
+    SceneContext ctx = {
+        .Ts = ts,
+        .AddLight = [this](const Light& light) {
+            ZPG_CORE_DEBUG("Layer wants to add light.");
+            return;
+        },
+    };
+
+    for (auto& layer : m_LayerStack) {
+        layer->OnUpdate(ctx);
+    }
+
+    for (auto& entity : m_EntityManager.GetEntities()) {
+        entity->Update(ts);
+    }
+
+    m_CameraController->OnUpdate(ts);
+}
+
+void Scene::OnRender(Timestep& ts) {
+    RenderContext context = {
+        .Ts = ts,
+        .Cam = m_Camera,
+        .Lights = m_LightManager.GetLights(),
+    };
+
+    Renderer::BeginDraw(m_Camera);
+    Renderer::SetLights(m_LightManager.GetLights());
+    {
+        for (auto& layer : m_LayerStack) {
+            layer->OnRender(context);
+        }
+
+        for (const auto& entity : m_EntityManager.GetEntities()) {
+            Renderer::SubmitEntity(entity.get());
+        }
+    }
+    Renderer::EndDraw();
+}
+
+void Scene::OnEvent(Event& event) {
+    PropagateEventDownLayers(event);
+    m_CameraController->OnEvent(event);
+}
+
+void Scene::OnImGuiRender() {
+    ImGuiRenderEachLayer();
+    ImGuiRenderDebug();
+}
+
 /**
  * Layering.
  */
+
 
 void Scene::PushLayer(Layer* layer) {
     layer->SetScene(this);
@@ -88,8 +147,20 @@ void Scene::AddEntity(Entity* entity) {
     m_EntityManager.AddEntity(MakeRef(entity));
 }
 
+void Scene::AddEntity(const ref<Entity>& entity) {
+    m_EntityManager.AddEntity(entity);
+}
+
 void Scene::RemoveEntity(Entity* entity) {
     ZPG_NOT_IMPL();
+}
+
+const ref<CameraController>& Scene::GetCameraController() const {
+    return m_CameraController;
+}
+
+void Scene::SetCameraController(const ref<CameraController>& cameraController) {
+    m_CameraController = cameraController;
 }
 
 /**
@@ -112,104 +183,229 @@ void Scene::ImGuiRenderEachLayer() {
     }
 }
 
-void Scene::UpdateEachLayer(Timestep& ts) {
-    RenderCommand::SetClearColor({0.0, 0.0, 0.0, 1.0});
-    RenderCommand::Clear();
-
-    SceneContext ctx;
-    ctx.Ts = ts;
-    ctx.AddLight = [this](const Light& light) {
-        ZPG_CORE_DEBUG("Layer wants to add light.");
-        return;  
-    };
-
-    for (auto& layer : m_LayerStack) {
-        layer->OnUpdate(ctx);
-    }
-}
-
-void Scene::RenderEachLayer(Timestep& ts) {
-    RenderContext ctx = {
-        .Ts = ts,
-        .Cam = m_Camera,
-        .Lights = m_LightManager.GetLights(),
-    };
-
-    Renderer::BeginDraw(m_Camera);
-    Renderer::SetLights(m_LightManager.GetLights());
-    for (auto& layer : m_LayerStack) {
-        layer->OnRender(ctx);
-    }
-    Renderer::EndDraw();
-}
-
 
 /**
  * Entities helper methods.
  */
 
-void Scene::RenderEntities(Timestep& ts) {
-    Renderer::BeginDraw(m_Camera);
-    Renderer::SetLights(m_LightManager.GetLights());
-    for (const auto& entity : m_EntityManager.GetEntities()) {
-        Renderer::SubmitEntity(entity.get());
+
+void TransformImGuiTreeNode(Transform* transform) {
+    ImGui::PushID(transform);
+
+    if (typeid(*transform) == typeid(TransformGroup)) {
+        auto* group = (TransformGroup*)transform;
+        auto& children = group->GetChildren();
+
+        if (ImGui::TreeNodeEx("TransformGroup")) {
+            for (int i = 0; i < children.size(); i++) {
+                TransformImGuiTreeNode(children[i].get());
+            }
+            ImGui::TreePop();
+        }
     }
-    Renderer::EndDraw();
+    else if (typeid(*transform) == typeid(Translate)) {
+        auto* translate = (Translate*)transform;
+        v3 translation = translate->GetTranslation();
+
+        ImGui::Text("Translate");
+        if (ImGui::InputFloat3("Translation", glm::value_ptr(translation))) {
+            translate->SetTranslation(translation);
+        }
+    }
+    else if (typeid(*transform) == typeid(Rotate)) {
+        auto* rotate = (Rotate*)transform;
+        qtr rotation = rotate->GetRotation();
+
+        ImGui::Text("Rotate");
+        if (ImGui::InputFloat3("RotationQuat", glm::value_ptr(rotation))) {
+            rotate->SetRotation(rotation);
+        }
+    }
+    else if (typeid(*transform) == typeid(Scale)) {
+        auto* scale = (Scale*)transform;
+        v3 scaleVec = scale->GetScale();
+
+        ImGui::Text("Scale");
+        if (ImGui::InputFloat3("Scale", glm::value_ptr(scaleVec))) {
+            scale->SetScale(scaleVec);
+        }
+    }
+
+    ImGui::PopID();
 }
 
-void Scene::UpdateEntities(Timestep& ts) {
-    for (auto& entity : m_EntityManager.GetEntities()) {
-        entity->Update(ts);
+void TextureImGuiImage(Texture* texture) {
+    ImGui::PushID(texture);
+    if (ImGui::TreeNodeEx(texture->GetName().c_str())) {
+        ImVec2 imageSize(200, 200);
+        auto* glTexture = (OpenGLTexture*)texture;
+        ImGui::Image(glTexture->m_RendererID, imageSize);
+
+        ImGui::TreePop();
     }
+    ImGui::PopID();
+}
+
+void ModelImGuiTreeNode(Model* model) {
+    ImGui::PushID(model);
+    
+    ImGui::Text("Model");
+
+    auto& meshes = model->GetMeshes();
+    for (int i = 0; i < meshes.size(); i++) {
+        auto& mesh = meshes[i];
+        ImGui::PushID(mesh.get());
+        if (ImGui::TreeNodeEx("Mesh")) {
+
+            auto& material = mesh->GetMaterial();
+
+            ImGui::Text("Material");
+
+            v4 albedo = material->GetAlbedo();
+            if (ImGui::ColorPicker4("Albedo", glm::value_ptr(albedo))) {
+                material->SetAlbedo(albedo);
+            }
+
+            v4 emissive = material->GetEmissive();
+            if (ImGui::ColorPicker4("Emissive", glm::value_ptr(emissive))) {
+                material->SetEmissive(emissive);
+            }
+
+            f32 metallic = material->GetMetallic();
+            if (ImGui::SliderFloat("Metallic", &metallic, 0.0, 1.0)) {
+                material->SetMetallic(metallic);
+            }
+
+            f32 roughness = material->GetRoughness();
+            if (ImGui::SliderFloat("Roughness", &roughness, 0.0, 1.0)) {
+                material->SetRoughness(roughness);
+            }
+
+            TextureImGuiImage(material->GetAlbedoMap().get());
+            TextureImGuiImage(material->GetNormalMap().get());
+            TextureImGuiImage(material->GetMetalnessMap().get());
+            TextureImGuiImage(material->GetRoughnessMap().get());
+            TextureImGuiImage(material->GetEmissiveMap().get());
+
+            ImGui::TreePop();
+        }
+        ImGui::PopID();
+    }
+
+    ImGui::PopID();
 }
 
 void Scene::ImGuiRenderDebug() {
     ImGui::Begin("Entities");
 
-    for (auto& ent : m_EntityManager.GetEntities()) {
+    auto entities = m_EntityManager.GetEntities();
+
+    for (int i = 0; i < entities.size(); i++) {
+        ref<Entity> ent = entities[i];
         ImGui::PushID(ent.get());
 
-        if (ImGui::CollapsingHeader("##Entity")) {
+        if(ImGui::TreeNodeEx(ent->GetModel()->GetName().c_str())) {
+            auto& transform = ent->GetTransform();
+            auto& model = ent->GetModel();
 
-            // Model
-            const ref<Model>& model = ent->GetModel();
+            TransformImGuiTreeNode(transform.get());
 
-            ImGui::Text("model name: %s", model->GetName().c_str());
+            ModelImGuiTreeNode(model.get());
 
-            ImGui::Text("Transform");
+            ImGui::TreePop(); 
+        }
 
-            // Meshes
-            for (auto& mesh : model->GetMeshes()) {
-                ImGui::PushID(mesh.get());
-                ImGui::BeginChild("Mesh");
+        ImGui::PopID();
+    }
+    ImGui::End();
 
-                // Material
-                const ref<Material>& material = mesh->GetMaterial();
+    ImGui::Begin("Lights");
+    auto lights = m_LightManager.GetLights();
+    for (auto& i : lights) {
+        Light* lightPtr = i.get();
+        LightType lightType = lightPtr->GetLightType();
 
-                v4 albedo = material->GetAlbedo();
-                f32 metallic = material->GetMetallic();
-                f32 roughness = material->GetRoughness();
+        ImGui::PushID(lightPtr);
+        if (lightType == LightType::Ambient && ImGui::TreeNodeEx("AmbientLight")) {
+            auto light = (AmbientLight*)lightPtr;
 
-                ImGui::Text("Name: %s", material->GetName().c_str());
-
-                if (ImGui::ColorEdit4("Abledo", glm::value_ptr(albedo))) {
-                    material->SetAlbedo(albedo);
-                }
-
-                if (ImGui::SliderFloat("Metallic", &metallic, 0.0, 1.0)) {
-                    material->SetMetallic(metallic);
-                }
-
-                if (ImGui::SliderFloat("Roughness", &roughness, 0.0, 1.0)) {
-                    material->SetRoughness(roughness);
-                }
-
-                ImGui::EndChild();
-                ImGui::PopID();
+            v4 color = light->Color.Get();
+            if (ImGui::ColorPicker4("Color", glm::value_ptr(color))) {
+                light->Color.Set(color);
             }
 
+            ImGui::TreePop();
         }
-        
+        else if (lightType == LightType::Directional && ImGui::TreeNodeEx("DirectionalLight")) {
+            auto light = (DirectionalLight*)lightPtr;
+
+            v4 color = light->Color.Get();
+            if (ImGui::ColorPicker4("Color", glm::value_ptr(color))) {
+                light->Color.Set(color);
+            }
+
+            v3 dir = light->Direction.Get();
+            if (ImGui::InputFloat3("Direction", glm::value_ptr(dir))) {
+                light->Direction.Set(dir);
+            }
+
+            ImGui::TreePop();
+        }
+        else if (lightType == LightType::Point && ImGui::TreeNodeEx("PointLight")) {
+            auto light = (PointLight*)lightPtr;
+
+            v4 color = light->Color.Get();
+            if (ImGui::ColorPicker4("Color", glm::value_ptr(color))) {
+                light->Color.Set(color);
+            }
+
+            v3 pos = light->Position.Get();
+            if (ImGui::InputFloat3("Position", glm::value_ptr(pos))) {
+                light->Position.Set(pos);
+            }
+
+            v3 atten = light->Atten.GetAttenuation();
+            if (ImGui::InputFloat3("Attenuation", glm::value_ptr(atten))) {
+                light->Atten.SetAttenuation(atten);
+            }
+
+            ImGui::TreePop();
+        }
+        else if (lightType == LightType::Spotlight && ImGui::TreeNodeEx("SpotLight")) {
+            auto light = (SpotLight*)lightPtr;
+
+            v4 color = light->Color.Get();
+            if (ImGui::ColorPicker4("Color", glm::value_ptr(color))) {
+                light->Color.Set(color);
+            }
+
+            v3 pos = light->Position.Get();
+            if (ImGui::InputFloat3("Position", glm::value_ptr(pos))) {
+                light->Position.Set(pos);
+            }
+
+            v3 dir = light->Direction.Get();
+            if (ImGui::InputFloat3("Direction", glm::value_ptr(dir))) {
+                light->Direction.Set(dir);
+            }
+
+            v3 atten = light->Atten.GetAttenuation();
+            if (ImGui::DragFloat3("Attenuation", glm::value_ptr(atten), 0.01)) {
+                light->Atten.SetAttenuation(atten);
+            }
+
+            f32 beamSize = light->BeamShape.GetSize();
+            if (ImGui::SliderFloat("BeamSize", &beamSize, 0.0, 180.0)) {
+                light->BeamShape.SetSize(beamSize);
+            }
+
+            f32 beamBlend = light->BeamShape.GetBlend();
+            if (ImGui::SliderFloat("BeamBlend", &beamBlend, 0.0, 1.0)) {
+                light->BeamShape.SetBlend(beamBlend);
+            }
+
+            ImGui::TreePop();
+        }
         ImGui::PopID();
     }
     ImGui::End();

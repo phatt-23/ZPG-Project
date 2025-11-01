@@ -62,13 +62,13 @@ void CameraController::OnUpdate(Timestep& ts) {
 
     float mouseSensitivity = m_MouseSensitivity * ts * 100;
 
-    if (Input::IsKeyPressed(ZPG_KEY_UP) || Input::IsKeyPressed(ZPG_KEY_K))
+    if (Input::IsKeyPressed(ZPG_KEY_K))
         m_Pitch -= mouseSensitivity;
-    if (Input::IsKeyPressed(ZPG_KEY_DOWN) || Input::IsKeyPressed(ZPG_KEY_J))
+    if (Input::IsKeyPressed(ZPG_KEY_J))
         m_Pitch += mouseSensitivity;
-    if (Input::IsKeyPressed(ZPG_KEY_LEFT) || Input::IsKeyPressed(ZPG_KEY_H))
+    if (Input::IsKeyPressed(ZPG_KEY_H))
         m_Yaw -= mouseSensitivity;
-    if (Input::IsKeyPressed(ZPG_KEY_RIGHT) || Input::IsKeyPressed(ZPG_KEY_L))
+    if (Input::IsKeyPressed(ZPG_KEY_L))
         m_Yaw += mouseSensitivity;
 
     m_Yaw = wrap(m_Yaw, -180.f, 180.f);
@@ -84,13 +84,20 @@ void CameraController::OnUpdate(Timestep& ts) {
 void CameraController::OnEvent(Event& event) {
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseScrolledEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnMouseScrolled));
-    dispatcher.Dispatch<WindowResizeEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowResized));
+    // dispatcher.Dispatch<WindowResizeEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowResized));
     dispatcher.Dispatch<MouseMovedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnMouseMoved));
     dispatcher.Dispatch<MouseButtonPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnMouseButtonPressed));
     dispatcher.Dispatch<KeyPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnKeyPressed));
     dispatcher.Dispatch<WindowLostFocusEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowLostFocus));
     dispatcher.Dispatch<WindowFocusEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowFocus));
 }
+
+void CameraController::OnResize(u32 width, u32 height) {
+    Input::ShowCursor();
+    f32 aspectRatio = width / (float)height;
+    m_Camera.SetPerspectiveProjection(m_Camera.GetFOV(), aspectRatio, m_Camera.GetZNear(), m_Camera.GetZFar());
+}
+
 bool CameraController::OnWindowFocus(WindowFocusEvent& e) {
     return false;
 }

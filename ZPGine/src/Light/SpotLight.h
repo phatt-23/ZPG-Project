@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AttenComponent.h"
 #include "Light/ColorComponent.h"
 #include "Light/BeamShapeComponent.h"
 #include "Light/DirectionComponent.h"
@@ -17,16 +18,25 @@ public:
         v3 const& position,
         v3 const& direction,
         f32 beamSize,
-        f32 beamBlend);
+        f32 beamBlend,
+        const AttenComponent& atten = AttenComponent());
+
+    SpotLight(
+        const ColorComponent& color,
+        const PositionComponent& position,
+        const DirectionComponent& direction,
+        const BeamShapeComponent& beamShape,
+        const AttenComponent& atten = AttenComponent());
 
     void SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) override;
     LightStruct MapToLightStruct() override;
 
 public:
-    ColorComponent m_Color;
-    PositionComponent m_Position;
-    DirectionComponent m_Direction;
-    BeamShapeComponent m_BeamShape;
+    ColorComponent Color;
+    PositionComponent Position;
+    DirectionComponent Direction;
+    BeamShapeComponent BeamShape;
+    AttenComponent Atten;
 };
 
 }

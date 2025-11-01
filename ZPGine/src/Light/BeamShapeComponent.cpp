@@ -15,7 +15,7 @@ f32 BeamShapeComponent::GetSize() const {
 f32 BeamShapeComponent::GetBlend() const { 
     return m_Blend; 
 }
-void BeamShapeComponent::SetSize(f32 size) { 
+void BeamShapeComponent::SetSize(f32 size) {
     m_Size = size;
     m_SizeCos = glm::cos(glm::radians(m_Size));
 }

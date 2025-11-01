@@ -28,8 +28,8 @@ uniform sampler2D u_EmissiveMap;
 void main() {
     vec3    texAlbedo       = texture(u_AlbedoMap, v_TexCoord).rgb;
     vec3    texEmissive     = texture(u_EmissiveMap, v_TexCoord).rgb;
-    float   texMetallic     = texture(u_MetalnessMap, v_TexCoord).r;
-    float   texRoughness    = texture(u_RoughnessMap, v_TexCoord).r;
+    float   texMetallic     = texture(u_MetalnessMap, v_TexCoord).b;
+    float   texRoughness    = texture(u_RoughnessMap, v_TexCoord).g;
     vec3    texNormal       = texture(u_NormalMap, v_TexCoord).rgb;
 
     vec3    albedo          = pow(texAlbedo, vec3(2.2)) * ssb_Material.Albedo.rgb;

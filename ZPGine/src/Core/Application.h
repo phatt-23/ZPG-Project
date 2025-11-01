@@ -37,6 +37,8 @@ protected:
     bool m_Running = true;
     float m_LastTime = 0;
     Timestep m_Delta = 0;
+
+    v2 m_ViewportSize = {0, 0};
 private:
     static inline Application* s_Instance = nullptr;
 };

@@ -9,10 +9,10 @@ ColorComponent::ColorComponent(const v4& color)
 : m_Color(color) {
 }
 
-void ColorComponent::SetColor(const v4& color) {
+void ColorComponent::Set(const v4& color) {
     m_Color = color;
 }
-const v4& ColorComponent::GetColor() const {
+const v4& ColorComponent::Get() const {
     return m_Color;
 }
 

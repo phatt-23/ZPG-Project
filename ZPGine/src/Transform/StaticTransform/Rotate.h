@@ -9,6 +9,9 @@ public:
     Rotate(const qtr& rotation);
     Rotate(f32 rotationAngleDeg, const v3& rotationAxis = v3(0.0, 1.0, 0.0));
     void ComputeMatrix() override;
+
+    const qtr& GetRotation() const;
+    void SetRotation(const qtr& rotation);
 private:
     qtr m_RotationQuaternion;
 };

@@ -33,6 +33,7 @@
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/RenderStatistics.h"
+#include "Renderer/DrawData.h"
 
 
 #include "Buffer/VertexArray.h"

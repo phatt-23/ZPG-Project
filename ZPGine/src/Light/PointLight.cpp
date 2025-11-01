@@ -4,26 +4,44 @@
 
 namespace ZPG {
 
-PointLight::PointLight(const glm::vec4& color, const glm::vec3& position) 
+PointLight::PointLight(
+    const glm::vec4& color,
+    const glm::vec3& position,
+    const AttenComponent atten
+)
 : Light(LightType::Point)
-, m_Color(ColorComponent(color))
-, m_Position(PositionComponent(position)) {
+, Color(ColorComponent(color))
+, Position(PositionComponent(position))
+, Atten(atten) {
+
+}
+
+PointLight::PointLight(
+    const ColorComponent& color,
+    const PositionComponent& position,
+    const AttenComponent& atten)
+: Light(LightType::Point)
+, Color(color)
+, Position(position)
+, Atten(atten) {
+
 }
 
 void PointLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
     using un = CommonShaderUniforms::LightArray;
 
     shaderProgram.SetInt(un::Type(index), (i32)GetLightType());
-    shaderProgram.SetFloat4(un::Color(index), m_Color.GetColor());
-    shaderProgram.SetFloat3(un::Position(index), m_Position.GetPosition());
+    shaderProgram.SetFloat4(un::Color(index), Color.Get());
+    shaderProgram.SetFloat3(un::Position(index), Position.Get());
 }
 
 LightStruct PointLight::MapToLightStruct() {
-    LightStruct lightStruct;
-    lightStruct.Type = i32(GetLightType());
-    lightStruct.Color = m_Color.GetColor();
-    lightStruct.Pos = m_Position.GetPosition();
-    return std::move(lightStruct);
+    LightStruct lightStruct{};
+    lightStruct.Type = static_cast<i32>(GetLightType());
+    lightStruct.Color = Color.Get();
+    lightStruct.Pos = Position.Get();
+    lightStruct.Atten = Atten.GetAttenuation();
+    return lightStruct;
 }
 
 }
