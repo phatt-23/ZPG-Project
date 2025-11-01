@@ -22,6 +22,11 @@ public:
     const v3& GetGrowth() const;
     const v3& GetMinScale() const;
     const v3& GetMaxScale() const;
+
+    void SetScale(const v3& scale);
+    void SetGrowth(const v3& growth);
+    void SetMinScale(const v3& minScale);
+    void SetMaxScale(const v3& maxScale);
     
 protected:
     v3 m_CurrentScale;

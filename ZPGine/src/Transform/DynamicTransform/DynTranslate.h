@@ -21,6 +21,11 @@ public:
     const v3& GetTranslationIncrement() const;
     const v3& GetMinTranslation() const;
     const v3& GetMaxTranslation() const;
+
+    void SetTranslation(const v3& translation);
+    void SetTranslationIncrement(const v3& translationIncrement);
+    void SetMinTranslation(const v3& minTranslation);
+    void SetMaxTranslation(const v3& maxTranslation);
 private:
     v3 m_CurrentTranslation;
     v3 m_TranslationIncrement;

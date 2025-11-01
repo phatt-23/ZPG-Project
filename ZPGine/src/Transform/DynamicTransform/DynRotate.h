@@ -18,12 +18,15 @@ public:
     f32 GetCurrentRotationDeg() const;
     f32 GetRotationSpeedDeg() const;
     const v3& GetRotationAxis() const;
-    const v3& GetOrigin() const;
+
+    void SetRotationSpeedDeg(f32 rotationSpeedDeg);
+    void SetRotationAxis(const v3& rotationAxis);
+    void SetRotationAxis(f32 x, f32 y, f32 z);
+
 private:
     f32 m_CurrentRotationDeg;
     f32 m_RotationSpeedDeg;  // angle per second
     v3 m_RotationAxis;
-    v3 m_Origin;
 };
 
 }

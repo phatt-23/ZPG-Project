@@ -114,7 +114,6 @@ void Renderer::Flush() {
             &s_DrawData->MatricesStorage,
             sizeof(DrawData::MatricesStorage));
 
-
         // Light SSBO
         s_DrawData->LightsSSBO.Bind();
 
@@ -126,7 +125,6 @@ void Renderer::Flush() {
             s_DrawData->LightsStorage.Lights,
             sizeof(LightStruct) * s_DrawData->LightsStorage.LightCount,
             offsetof(DrawData::LightsStorageBuffer, Lights));
-
 
         // Camera SSBO
         s_DrawData->CameraSSBO.Bind();

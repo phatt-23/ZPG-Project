@@ -32,4 +32,21 @@ const v3& DynTranslate::GetTranslationIncrement() const { return m_TranslationIn
 const v3& DynTranslate::GetMinTranslation() const { return m_MinTranslation; }
 const v3& DynTranslate::GetMaxTranslation() const { return m_MaxTranslation; }
 
+void DynTranslate::SetTranslation(const v3& translation) {
+    m_CurrentTranslation = translation;
+    ComputeMatrix();
+}
+
+void DynTranslate::SetTranslationIncrement(const v3& translationIncrement) {
+    m_TranslationIncrement = translationIncrement;
+}
+
+void DynTranslate::SetMinTranslation(const v3& minTranslation) {
+    m_MinTranslation = minTranslation;
+}
+
+void DynTranslate::SetMaxTranslation(const v3& maxTranslation) {
+    m_MaxTranslation = maxTranslation;
+}
+
 }

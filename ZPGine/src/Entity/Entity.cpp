@@ -7,13 +7,22 @@
 
 namespace ZPG {
 
+/**
+ * Counter of how many times the entity's constructor has been called.
+ */
+static u32 s_EntityCount = 0;
+
 Entity::Entity(const ref<Model>& model, const ref<Transform>& transform)
-: m_Model(model)
-, m_Transform(transform) {
+: m_EntityID(s_EntityCount++)
+, m_Model(model)
+, m_Transform(transform)
+{
     m_Transform->ComputeMatrix();
 }
 
-Entity::~Entity() {}
+Entity::~Entity() {
+
+}
 
 void Entity::Update(Timestep& ts) {
     m_Transform->Update(ts);
@@ -29,6 +38,10 @@ const ref<Transform>& Entity::GetTransform() const {
 
 const ref<Model>& Entity::GetModel() const {
     return m_Model;
+}
+
+u32 Entity::GetEntityID() const {
+    return m_EntityID;
 }
 
 }

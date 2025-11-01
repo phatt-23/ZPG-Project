@@ -17,7 +17,11 @@ public:
     const ref<Transform>& GetTransform() const;
     const ref<Model>& GetModel() const;
 
+    u32 GetEntityID() const;
+
 private:
+    u32 m_EntityID = -1;
+
     ref<Model> m_Model;
     ref<Transform> m_Transform;
 };

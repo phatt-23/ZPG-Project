@@ -32,4 +32,21 @@ const v3& DynScale::GetGrowth() const { return m_Growth; }
 const v3& DynScale::GetMinScale() const { return m_MinScale; }
 const v3& DynScale::GetMaxScale() const { return m_MaxScale; }
 
+void DynScale::SetScale(const v3& scale) {
+    m_CurrentScale = scale;
+    ComputeMatrix();
+}
+
+void DynScale::SetGrowth(const v3& growth) {
+    m_Growth = growth;
+}
+
+void DynScale::SetMinScale(const v3& minScale) {
+    m_MinScale = minScale;
+}
+
+void DynScale::SetMaxScale(const v3& maxScale) {
+    m_MaxScale = maxScale;
+}
+
 }

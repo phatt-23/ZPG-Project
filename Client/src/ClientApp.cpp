@@ -27,7 +27,7 @@ public:
     void AttachScenes() {
         m_SceneManager.AddScene("Revolver Model", []{ return new RevolverScene::RevolverScene(); }, SceneLifetime::Transient);
         m_SceneManager.AddScene("Hyena Model", []{ return new HyenaScene::HyenaScene(); }, SceneLifetime::Transient);
-        m_SceneManager.AddScene("CV7 - Forest", []{ return new CV7::ForestScene(); }, SceneLifetime::Persistent);
+        m_SceneManager.AddScene("CV7 - Forest", new CV7::ForestScene());
                                
         m_SceneManager.SetActiveScene("Revolver Model");
     }
@@ -56,7 +56,6 @@ public:
             ImGui::Text("VAO Groups           : %d", Renderer::GetStats().VAOGroupCount);
         ImGui::End();
 
-
         ImGui::Begin("Scene Switcher");
             for (const auto& sceneName : m_SceneManager | std::views::keys) {
                 if (ImGui::Button(sceneName.c_str())) {
@@ -64,7 +63,6 @@ public:
                 }
             }
         ImGui::End();
-
 
         // Append new sample
         fpsDataY.push_back(fps);
@@ -89,7 +87,6 @@ public:
             ImPlot::EndPlot();
         }
         ImGui::End();
-
 
         ImGui::Begin("G-Buffer");
         {

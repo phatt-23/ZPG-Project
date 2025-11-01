@@ -30,6 +30,9 @@
 #include "Light/PointLight.h"
 #include "Light/SpotLight.h"
 #include "Texture/Texture.h"
+#include "Transform/DynamicTransform/DynRotate.h"
+#include "Transform/DynamicTransform/DynScale.h"
+#include "Transform/DynamicTransform/DynTranslate.h"
 
 namespace ZPG {
 
@@ -185,9 +188,8 @@ void Scene::ImGuiRenderEachLayer() {
 
 
 /**
- * Entities helper methods.
+ * User interface
  */
-
 
 void TransformImGuiTreeNode(Transform* transform) {
     ImGui::PushID(transform);
@@ -208,7 +210,7 @@ void TransformImGuiTreeNode(Transform* transform) {
         v3 translation = translate->GetTranslation();
 
         ImGui::Text("Translate");
-        if (ImGui::InputFloat3("Translation", glm::value_ptr(translation))) {
+        if (ImGui::DragFloat3("Translation", glm::value_ptr(translation), 0.01f)) {
             translate->SetTranslation(translation);
         }
     }
@@ -217,7 +219,7 @@ void TransformImGuiTreeNode(Transform* transform) {
         qtr rotation = rotate->GetRotation();
 
         ImGui::Text("Rotate");
-        if (ImGui::InputFloat3("RotationQuat", glm::value_ptr(rotation))) {
+        if (ImGui::DragFloat4("RotationQuat", glm::value_ptr(rotation), 0.01f, -1.0, 1.0)) {
             rotate->SetRotation(rotation);
         }
     }
@@ -226,13 +228,71 @@ void TransformImGuiTreeNode(Transform* transform) {
         v3 scaleVec = scale->GetScale();
 
         ImGui::Text("Scale");
-        if (ImGui::InputFloat3("Scale", glm::value_ptr(scaleVec))) {
+        if (ImGui::DragFloat3("Scale", glm::value_ptr(scaleVec), 0.01f)) {
             scale->SetScale(scaleVec);
+        }
+    }
+    else if (typeid(*transform) == typeid(DynRotate)) {
+        auto* dynRotate = (DynRotate*)transform;
+
+        v3 rotationAxis = dynRotate->GetRotationAxis();
+        f32 currentRotation = dynRotate->GetCurrentRotationDeg();
+        f32 rotationSpeed = dynRotate->GetRotationSpeedDeg();
+
+        ImGui::Text("DynRotate");
+        ImGui::Text("Current Rotation: %f", currentRotation);
+
+        if (ImGui::DragFloat3("Rotation Axis", glm::value_ptr(rotationAxis), 0.01f, 0.0, 1.0)) {
+            dynRotate->SetRotationAxis(rotationAxis);
+        }
+
+        if (ImGui::DragFloat("Rotation Speed", &rotationSpeed, 0.01f, 0.0, 100.0)) {
+            dynRotate->SetRotationSpeedDeg(rotationSpeed);
+        }
+    }
+    else if (typeid(*transform) == typeid(DynScale)) {
+        auto* dynScale = (DynScale*)transform;
+
+        v3 growth = dynScale->GetGrowth();
+        v3 min = dynScale->GetMinScale();
+        v3 max = dynScale->GetMaxScale();
+        v3 current = dynScale->GetCurrentScale();
+
+        ImGui::Text("DynScale");
+        ImGui::Text("Current Scale: %f", current.x);
+        if (ImGui::DragFloat3("Growth", glm::value_ptr(growth), 0.01f, 0.0, 100.0)) {
+            dynScale->SetGrowth(growth);
+        }
+        if (ImGui::DragFloat3("Min Scale", glm::value_ptr(min), 0.01f, 0.0, 100.0)) {
+            dynScale->SetMinScale(min);
+        }
+        if (ImGui::DragFloat3("Max Scale", glm::value_ptr(max), 0.01f, 0.0, 100.0)) {
+            dynScale->SetMaxScale(max);
+        }
+    }
+    else if (typeid(*transform) == typeid(DynTranslate)) {
+        auto* dynTranslate = (DynTranslate*)transform;
+        v3 current = dynTranslate->GetCurrentTranslation();
+        v3 inc = dynTranslate->GetTranslationIncrement();
+        v3 max = dynTranslate->GetMaxTranslation();
+        v3 min = dynTranslate->GetMinTranslation();
+
+        ImGui::Text("DynTranslate");
+        ImGui::Text("Current Translation: %f", current.x);
+        if (ImGui::DragFloat3("Translation Increment", glm::value_ptr(inc), 0.01f, 0.0, 100.0)) {
+            dynTranslate->SetTranslationIncrement(inc);
+        }
+        if (ImGui::DragFloat3("Max Translation", glm::value_ptr(max), 0.01f, 0.0, 100.0)) {
+            dynTranslate->SetMaxTranslation(max);
+        }
+        if (ImGui::DragFloat3("Min Translation", glm::value_ptr(min), 0.01f, 0.0, 100.0)) {
+            dynTranslate->SetMinTranslation(min);
         }
     }
 
     ImGui::PopID();
 }
+
 
 void TextureImGuiImage(Texture* texture) {
     ImGui::PushID(texture);
@@ -304,7 +364,9 @@ void Scene::ImGuiRenderDebug() {
         ref<Entity> ent = entities[i];
         ImGui::PushID(ent.get());
 
-        if(ImGui::TreeNodeEx(ent->GetModel()->GetName().c_str())) {
+        std::string label = ent->GetModel()->GetName() + " #" + std::to_string(ent->GetEntityID());
+
+        if(ImGui::TreeNodeEx(label.c_str())) {
             auto& transform = ent->GetTransform();
             auto& model = ent->GetModel();
 
@@ -345,7 +407,7 @@ void Scene::ImGuiRenderDebug() {
             }
 
             v3 dir = light->Direction.Get();
-            if (ImGui::InputFloat3("Direction", glm::value_ptr(dir))) {
+            if (ImGui::DragFloat3("Direction", glm::value_ptr(dir), 0.01, -1.0, 1.0)) {
                 light->Direction.Set(dir);
             }
 
@@ -365,7 +427,7 @@ void Scene::ImGuiRenderDebug() {
             }
 
             v3 atten = light->Atten.GetAttenuation();
-            if (ImGui::InputFloat3("Attenuation", glm::value_ptr(atten))) {
+            if (ImGui::DragFloat3("Attenuation", glm::value_ptr(atten), 0.01, 0.0, 1.0)) {
                 light->Atten.SetAttenuation(atten);
             }
 
@@ -385,12 +447,12 @@ void Scene::ImGuiRenderDebug() {
             }
 
             v3 dir = light->Direction.Get();
-            if (ImGui::InputFloat3("Direction", glm::value_ptr(dir))) {
+            if (ImGui::DragFloat3("Direction", glm::value_ptr(dir), 0.01, -1.0, 1.0)) {
                 light->Direction.Set(dir);
             }
 
             v3 atten = light->Atten.GetAttenuation();
-            if (ImGui::DragFloat3("Attenuation", glm::value_ptr(atten), 0.01)) {
+            if (ImGui::DragFloat3("Attenuation", glm::value_ptr(atten), 0.01, 0.0, 1.0)) {
                 light->Atten.SetAttenuation(atten);
             }
 
