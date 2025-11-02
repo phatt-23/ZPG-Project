@@ -19,8 +19,14 @@ struct DrawCommand {
     Material* m_Material;
     VertexArray* m_VAO;
 
-    // m4 m_Transform;
-    u32 m_TransformIndex;
+    u32 m_DrawIndex;
+
+    /**
+     * These are not stored here directly, rather they are accessed by the m_DrawIndex in the RenderBatch.
+     *      m4 m_Transform;
+     *      i32 m_EntityID;
+     */
+
 
 
     struct DrawCommandComparator {

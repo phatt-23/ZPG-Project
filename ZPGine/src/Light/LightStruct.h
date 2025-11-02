@@ -14,16 +14,16 @@ namespace ZPG {
 // Structure mirroring the light struct in used in shader programs.
 
 struct alignas(16) LightStruct {
-    v3 Pos;
-    i32 Type;
+    v3 Pos;  // 12
+    i32 Type;  // 4
 
-    v4 Color;
+    v4 Color;  // 16
 
-    v3 Dir;
-    f32 BeamSize;
+    v3 Dir;  // 12
+    f32 BeamSize; // 4
 
-    v3 Atten;
-    f32 BeamBlend;
+    v3 Atten;  // 12
+    f32 BeamBlend;  // 4
 };
 
 static_assert(sizeof(LightStruct) == 64);

@@ -33,9 +33,9 @@ public:
     f32 GetZNear() const { return m_zNear; }
     f32 GetZFar() const { return m_zFar; }
 
-    void SetFOV(f32 fov) { m_FOV = fov; }
-    void SetZNear(f32 zNear) { m_zNear = zNear; }
-    void SetZFar(f32 zFar) { m_zFar = zFar; }
+    void SetFOV(f32 fov) { m_FOV = fov; Recalculate(); }
+    void SetZNear(f32 zNear) { m_zNear = zNear; Recalculate(); }
+    void SetZFar(f32 zFar) { m_zFar = zFar; Recalculate(); }
 
     const v3& GetFront() const { return m_Front; }
     const v3& GetForward() const { return m_Forward; }

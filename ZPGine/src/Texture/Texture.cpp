@@ -6,7 +6,7 @@
 
 namespace ZPG {
 
-ref<Texture> Texture::Create(const std::string& filepath, DataFormat dataFormat)
+ref<Texture> Texture::Create(const std::string& filepath, TextureDataFormat dataFormat)
 {
     switch (Renderer::GetAPI()) {
         case RendererAPI::OpenGL: return MakeRef(new OpenGLTexture(filepath, dataFormat));
@@ -15,7 +15,7 @@ ref<Texture> Texture::Create(const std::string& filepath, DataFormat dataFormat)
     }
 }
 
-ref<Texture> Texture::Create(const std::string& name, const std::string& filepath, DataFormat dataFormat)
+ref<Texture> Texture::Create(const std::string& name, const std::string& filepath, TextureDataFormat dataFormat)
 {
     switch (Renderer::GetAPI()) {
         case RendererAPI::OpenGL: return MakeRef(new OpenGLTexture(name, filepath, dataFormat));
@@ -24,7 +24,7 @@ ref<Texture> Texture::Create(const std::string& name, const std::string& filepat
     }
 }
 
-ref<Texture> Texture::Create(const std::string& name, u32 width, u32 height, DataFormat dataFormat)
+ref<Texture> Texture::Create(const std::string& name, u32 width, u32 height, TextureDataFormat dataFormat)
 {
     switch (Renderer::GetAPI()) {
         case RendererAPI::OpenGL: return MakeRef(new OpenGLTexture(name, width, height, dataFormat));

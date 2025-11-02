@@ -33,13 +33,10 @@ public:
     void OnResize(u32 width, u32 height);
 
 private:
-    bool OnWindowFocus(WindowFocusEvent& e);
-    bool OnWindowLostFocus(WindowLostFocusEvent& e);
     bool OnWindowResized(WindowResizeEvent& e);
     bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
     bool OnMouseMoved(MouseMovedEvent& e);
     bool OnMouseScrolled(MouseScrolledEvent& e);
-    bool OnKeyPressed(KeyPressedEvent& e);
 protected:
     Camera& m_Camera;
 

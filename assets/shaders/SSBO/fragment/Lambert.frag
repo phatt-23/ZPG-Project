@@ -81,12 +81,13 @@ void main() {
         int lightType = light.Type;
         vec3 lightPos = light.Pos;
         vec3 lightDir = light.Dir;
+        vec3 lightAtten = light.Atten;
 
         if (lightType == LightTypePoint) {
             vec3 L = normalize(lightPos - v_WorldPos);
             vec3 R = reflect(-L, N);
             float dist = length(lightPos - v_WorldPos);
-            float atten = 1.0 / (1.0 + 0.22 * dist + 0.20 * dist * dist);
+            float atten = min(1.0 / (lightAtten.x * dist * dist + lightAtten.y * dist + lightAtten.z), 1.0);
 
             vec3 diffuse = max(dot(N, L), 0.0) * diffuseColor;
 
@@ -104,7 +105,7 @@ void main() {
             vec3 L = normalize(lightPos - v_WorldPos);
             vec3 R = reflect(-L, N);
             float dist = length(light.Pos - v_WorldPos);
-            float atten = 1.0 / (1.0 + 0.22 * dist + 0.20 * dist * dist);
+            float atten = min(1.0 / (lightAtten.x * dist * dist + lightAtten.y * dist + lightAtten.z), 1.0);
 
             float lightBeamSize = light.BeamSize;
             float lightBeamBlend = light.BeamBlend;

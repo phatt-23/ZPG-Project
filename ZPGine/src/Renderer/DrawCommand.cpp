@@ -11,7 +11,7 @@ DrawCommand::DrawCommand(ShaderProgram* shaderProgram, Material* material, Verte
     : m_ShaderProgram(shaderProgram)
     , m_Material(material)
     , m_VAO(vao) 
-    , m_TransformIndex(-1) {
+    , m_DrawIndex(-1) {
 }
 
 bool DrawCommand::DrawCommandComparator::operator()(const DrawCommand& a, const DrawCommand& b) const {

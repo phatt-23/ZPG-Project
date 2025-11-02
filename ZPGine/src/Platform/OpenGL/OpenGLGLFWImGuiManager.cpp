@@ -89,4 +89,8 @@ void OpenGLGLFWImGuiManager::EndFrameImpl() {
     }
 }
 
+void OpenGLGLFWImGuiManager::BlockEventsImpl(bool block) {
+    m_BlockedEvents = block;
+}
+
 }

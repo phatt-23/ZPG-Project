@@ -4,6 +4,7 @@
 
 #ifndef SCENE_MANAGER_H
 #define SCENE_MANAGER_H
+#include "Observer/Observable.h"
 
 namespace ZPG {
 
@@ -15,7 +16,7 @@ enum class SceneLifetime {
     Persistent,
 };
 
-class SceneManager {
+class SceneManager : public Observable {
 public:
     struct SceneEntry {
         std::function<Scene*(void)> m_SceneFactory = nullptr;
@@ -25,7 +26,7 @@ public:
 
 public:
     SceneManager();
-    ~SceneManager();
+    ~SceneManager() override;
 
     // By adding a scene ptr, the scene manager takes responsibility for it.
     // No other subject should ever free the scene object.

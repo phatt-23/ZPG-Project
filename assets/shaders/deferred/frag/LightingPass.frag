@@ -26,16 +26,17 @@ layout (std430, binding = 2) buffer CameraStorageBuffer {
     vec3 CameraPos;
 } ssb_Camera;
 
-
-
 in vec2 v_TexCoord;
 
-uniform sampler2D ug_PosMap;
-uniform sampler2D ug_NormalMap;
-uniform sampler2D ug_AlbedoMetallicMap;
-uniform sampler2D ug_EmissiveRoughnessMap;
+uniform samplerCube u_SkyboxMap;
+uniform sampler2D g_Color0; // pos
+uniform sampler2D g_Color1; // normal
+uniform sampler2D g_Color2; // albedo and metallic
+uniform sampler2D g_Color3; // emissive and roughness
+uniform isampler2D g_Color4; // entityID
 
-out vec4 f_FragColor;
+layout(location = 0) out vec4 f_Color0;
+layout(location = 1) out int f_Color1;
 
 // stolen from learnopengl 
 const float PI = 3.14159265359;
@@ -44,30 +45,17 @@ float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 
-
-void main() {
+void main()
+{
     // extract material props from maps
-    vec3 worldPos = texture(ug_PosMap, v_TexCoord).rgb;
-    vec3 worldNormal = texture(ug_NormalMap, v_TexCoord).rgb;
+    vec3 worldPos = texture(g_Color0, v_TexCoord).rgb;
+    vec3 worldNormal = texture(g_Color1, v_TexCoord).rgb;
 
-    vec3 albedo = texture(ug_AlbedoMetallicMap, v_TexCoord).rgb;
-    vec3 emissive = texture(ug_EmissiveRoughnessMap, v_TexCoord).rgb;
+    vec3 albedo = texture(g_Color2, v_TexCoord).rgb;
+    float metallic = texture(g_Color2, v_TexCoord).a;
 
-    float metallic = texture(ug_AlbedoMetallicMap, v_TexCoord).a;
-    float roughness = texture(ug_EmissiveRoughnessMap, v_TexCoord).a;
-
-    // albedo          = pow(albedo, vec3(2.2));
-    emissive        = emissive;
-    metallic        = clamp(metallic, 0.0, 1.0);
-    roughness       = clamp(roughness, 0.0, 10);
-
-
-    // f_FragColor = vec4(texture(u_gPosMap, v_TexCoord));
-    // f_FragColor = vec4(texture(u_gNormalMap, v_TexCoord));
-    // f_FragColor = vec4(texture(u_gAlbedoMap, v_TexCoord));
-    // f_FragColor = vec4(texture(u_gEmissiveMap, v_TexCoord));
-    // return;
-
+    vec3 emissive = texture(g_Color3, v_TexCoord).rgb;
+    float roughness = texture(g_Color3, v_TexCoord).a;
 
     float ao = 1.0;
 
@@ -97,7 +85,7 @@ void main() {
             vec3 L = normalize(lightPos - worldPos);
             vec3 H = normalize(V + L);
             float distance    = length(lightPos - worldPos);
-            float attenuation = 1.0 / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z);
+            float attenuation = min(1.0 / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z), 1.0);
             vec3 radiance     = lightColor * attenuation;
 
             // cook-torrance brdf
@@ -160,7 +148,7 @@ void main() {
             float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
 
             float distance    = length(lightPos - worldPos);
-            float attenuation = 1.0 / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z);
+            float attenuation = min(1.0 / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z), 1.0);
             vec3 radiance     = lightColor * attenuation * beamContrib;
 
             // cook-torrance brdf
@@ -187,10 +175,22 @@ void main() {
     
     vec3 color = Lo + La + emissive;
 
-    color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0 / 2.2));
+    vec3 R = reflect(-V, N);
+    vec3 envColor = texture(u_SkyboxMap, R).rgb; // sample environment reflection
 
-    f_FragColor = vec4(color, 1.0);
+    vec3 F = fresnelSchlick(max(dot(N, V), 0.0), F0); // Fresnel term — stronger near grazing angles
+
+    float reflectionStrength = (1.0 - roughness);
+    vec3 reflection = envColor * F * reflectionStrength; // Attenuate reflection by smoothness (1 - roughness)
+
+    vec3 finalColor = color + reflection; // Combine lighting with reflection
+
+    // Tone mapping + gamma correction
+    finalColor = finalColor / (finalColor + vec3(1.0));
+    finalColor = pow(finalColor, vec3(1.0 / 2.2));
+
+    f_Color0 = vec4(finalColor, 1.0);
+    f_Color1 = texture(g_Color4, v_TexCoord).r; // should be read as an int
 }
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)

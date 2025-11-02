@@ -9,8 +9,9 @@
 #include "Buffer/ShaderStorageBuffer.h"
 
 namespace ZPG {
+
 class Skybox;
-struct BufferSpecification;
+struct FrameBufferAttachment;
 struct LightStruct;
 
 struct DrawData {
@@ -54,6 +55,12 @@ struct DrawData {
         m4* Models;
     };
 
+    struct alignas(sizeof(v4)) EntitiesStorageBuffer {
+        int EntityCount;
+        f32 _pad0[3];
+        glm::i32vec4* EntityIDs;  // im gonna use only r component
+    };
+
     /**
      *  Batch of some fixed size.
      */
@@ -69,6 +76,7 @@ struct DrawData {
     CameraStorageBuffer CameraStorage;
     MaterialStorageBuffer MaterialStorage;
     ModelsStorageBuffer ModelsStorage;
+    EntitiesStorageBuffer EntitiesStorage;
 
     /**
      * Actual Shader Storage Buffers (on GPU).
@@ -79,6 +87,7 @@ struct DrawData {
     ShaderStorageBuffer CameraSSBO;
     ShaderStorageBuffer MaterialSSBO;
     ShaderStorageBuffer ModelsSSBO;
+    ShaderStorageBuffer EntitiesSSBO;
 
 
     /**

@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "Buffer/BufferSpecification.h"
+#include "Buffer/FrameBufferAttachment.h"
 
 namespace ZPG {
 
@@ -22,8 +22,8 @@ namespace ZPG {
             GLenum SampleTypeSize;
         };
 
-        static OpenGLAttachmentMapping ToGL(const AttachmentType& bufferType);
-        static OpenGLFormatMapping ToGL(const DataFormat& format);
+        static OpenGLAttachmentMapping ToGL(const FrameBufferAttachmentType& bufferType);
+        static OpenGLFormatMapping ToGL(const TextureDataFormat& format);
     };
 
 }

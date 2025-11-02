@@ -1,4 +1,7 @@
+#pragma once
+
 #include "ZPGine.h"
+#include "Camera/FlashlightCameraController.h"
 
 namespace RevolverScene {
 
@@ -20,6 +23,7 @@ private:
     std::vector<ref<PointLight>> firefly_lights;
     AmbientLight* ambient_light = nullptr;
     DirectionalLight* dir_light = nullptr;
+    ZPG::ref<ZPG::FlashlightCameraController> m_CameraController;
 };
 
 }

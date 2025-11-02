@@ -6,9 +6,9 @@ namespace ZPG {
 
 class OpenGLTexture : public Texture {
 public:
-    OpenGLTexture(const std::string& filepath, DataFormat dataFormat);
-    OpenGLTexture(const std::string& name, const std::string& filepath, DataFormat dataFormat);
-    OpenGLTexture(const std::string& name, u32 width, u32 height, DataFormat dataFormat);
+    OpenGLTexture(const std::string& filepath, TextureDataFormat dataFormat);
+    OpenGLTexture(const std::string& name, const std::string& filepath, TextureDataFormat dataFormat);
+    OpenGLTexture(const std::string& name, u32 width, u32 height, TextureDataFormat dataFormat);
     ~OpenGLTexture() override;
 
     void Bind() override;
@@ -16,7 +16,7 @@ public:
     void Unbind() override;
     void SetData(const void *data, u32 size) override;
 
-    void AttachToFrameBuffer(u32 frameBufferID, RenderAttachment attachment) override;
+    void AttachToFrameBuffer(u32 frameBufferID, FrameBufferAttachment frameBufferAttachment) override;
 
     const std::string& GetName() const override;
     u32 GetWidth() const override;
@@ -36,7 +36,7 @@ public:
     u32 m_Width;
     u32 m_Height;
     u32 m_SampleSize; // number of bytes per pixel in the texture
-    DataFormat m_DataFormat;
+    TextureDataFormat m_DataFormat;
 };
 
 }

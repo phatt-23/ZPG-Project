@@ -14,7 +14,12 @@ class ShaderProgram;
 struct SkyboxSpecification {
     std::string Directory;
     std::array<std::string, 6> Filenames = {
-        "right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg"
+        "right.jpg",    // px
+        "left.jpg",     // nx
+        "top.jpg",      // py
+        "bottom.jpg",   // ny
+        "front.jpg",    // pz
+        "back.jpg"      // nz
     };
 };
 
@@ -25,7 +30,10 @@ public:
     virtual void Bind() = 0;
     virtual void Unbind() = 0;
 
-    virtual const ref<VertexArray>& GetVAO() const = 0;
+    virtual const ref<VertexArray>& GetVertexArray() const = 0;
+
+    virtual void BindCubemapToSlot(int slot) const = 0;
+    virtual void UnbindCubemap() const = 0;
 
     static ref<Skybox> Create(const SkyboxSpecification& spec);
 };

@@ -31,6 +31,11 @@ public:
     MouseScrolledEvent(float xOffset, float yOffset) : m_XOffset(xOffset), m_YOffset(yOffset) {}
     EVENT_CLASS_CATEGORY(EventCategoryMouse)
     EVENT_CLASS_TYPE(EventType::MouseScrolled)
+
+    f32 GetXOffset() const { return m_XOffset; }
+    f32 GetYOffset() const { return m_YOffset; }
+    std::pair<f32,f32> GetOffset() const { return {m_XOffset, m_YOffset}; }
+
 private:
     float m_XOffset;
     float m_YOffset;

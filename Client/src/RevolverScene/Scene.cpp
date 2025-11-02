@@ -3,11 +3,22 @@
 
 namespace RevolverScene {
 
-RevolverScene::RevolverScene() : m_LocalRes() {
+RevolverScene::RevolverScene()
+: m_LocalRes()
+{
+    ref<SpotLight> light = MakeRef<SpotLight>(
+        ColorComponent(v4(1.0)),
+        PositionComponent(v3(0.0)),
+        DirectionComponent(v3(0.0, 0.0, -1.0)),
+        BeamShapeComponent(20.0, 0.5),
+        AttenComponent(0.0001, 0.0001, 0.1)
+    );
 
+    GetLightManager().AddLight(light);
 
+    m_CameraController = MakeRef<FlashlightCameraController>(light, GetCamera());
 
-
+    SetCameraController(m_CameraController);
 }
 
 void RevolverScene::OnLazyAttach() {

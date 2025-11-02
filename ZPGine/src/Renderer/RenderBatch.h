@@ -28,7 +28,7 @@ public:
     RenderBatch(u32 batchCapacity);
     ~RenderBatch();
 
-    void AddCommand(DrawCommand& command, const m4& transform);
+    void AddCommand(DrawCommand& command, const m4& transform, i32 entityID = -1);
     void SortCommands();
     void Reset();
 
@@ -43,14 +43,17 @@ public:
     const std::vector<MaterialGroup>& GetMaterialGroups() const;
     const std::vector<VertexArrayGroup>& GetVertexArrayGroups() const;
     
-    const m4& GetTransform(u32 transformIndex) const;
     const std::vector<m4>& GetTransforms() const;
+    const m4& GetTransform(u32 transformIndex) const;
+
+    const std::vector<glm::i32vec4>& GetEntityIDs() const;
 
 private:
     u32 m_BatchCapacity;
 
     std::vector<DrawCommand> m_DrawCommands;
     std::vector<m4> m_Transforms;
+    std::vector<glm::i32vec4> m_EntityIDs;
 
     // indexers
     std::vector<ShaderProgramGroup> m_ShaderProgramGroups;

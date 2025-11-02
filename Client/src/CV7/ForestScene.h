@@ -1,6 +1,7 @@
 #include "Entity/PointLightEntity.h"
 #include "Resource/CommonResources.h"
 #include "ZPGine.h"
+#include "Skybox/Skybox.h"
 
 using namespace ZPG;
 
@@ -19,11 +20,11 @@ public:
 
     void OnNotify(Payload& payload) override {
 
-        if (payload.Type == CameraPositionChanged) {
+        if (payload.Type == PayloadType::CameraPositionChanged) {
             v3 pos = *(v3*)payload.Value;
             Position.Set(pos);
         }
-        else if (payload.Type == CameraOrientationChanged) {
+        else if (payload.Type == PayloadType::CameraOrientationChanged) {
             v3 orientation = *(v3*)payload.Value;
             Direction.Set(orientation);
         }
@@ -44,12 +45,15 @@ public:
 
     void OnLazyAttach() override {
         m_LocalRes.LoadModel("Tree", "./assets/models/pine_tree/scene.gltf");
+        // m_LocalRes.LoadModel("Tree", "./assets/models/nemec-assets/square.obj");
         m_LocalRes.LoadModel("Bush", "./assets/models/bush/scene.gltf");
         m_LocalRes.LoadModel("Bush2", "./assets/models/small_bush/scene.gltf");
         m_LocalRes.LoadModel("Firefly", "./assets/models/sphere/scene.gltf");
         m_LocalRes.LoadModel("GrassBlock", "./assets/models/minecraft_grass_block/scene.gltf");
 
-
+        for (auto& ffMesh : m_LocalRes.GetModel("Firefly")->GetMeshes()) {
+            ffMesh->GetMaterial()->SetEmissive(v4(1.0));
+        }
 
         m_FlashLight = MakeRef(
             new FlashLight(
@@ -101,16 +105,22 @@ public:
         // Add fireflies
         for (int i = 0; i < 50; i++) {
             f32 x = planeSize * Utility::GetRandomFloat(-1, 1);
-            f32 y = planeSize * Utility::GetRandomFloat(0, 2);
+            f32 y = planeSize * Utility::GetRandomFloat(0.01, 0.3);
             f32 z = planeSize * Utility::GetRandomFloat(-1, 1);
             
             auto transform = TransformGroup::Build()
                 .Add<Scale>(0.1)
-                .Add<Translate>(x, y, z)
+                .Add<Translate>(1.0f/planeSize * v3(x, y, z))
                 .Add<DynRotate>(0, 20.0)
+                .Add<Translate>(x, y, z)
+                .Add<DynRotate>(0, 20.0, v3(x, 4 * planeSize, z))
                 .Compose();
 
-            auto pointLight = MakeRef(new PointLight(v4(1.0), v3(0.0)));
+            auto pointLight = MakeRef(new PointLight(
+                v4(1.0),
+                v3(0.0),
+                AttenComponent(0.2, 0.4)
+                ));
             GetLightManager().AddLight(pointLight);
 
             GetEntityManager().AddEntity(

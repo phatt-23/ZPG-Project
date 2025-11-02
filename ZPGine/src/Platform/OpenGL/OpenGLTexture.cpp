@@ -7,11 +7,11 @@
 
 #include "OpenGLMapper.h"
 #include "OpenGLCore.h"
-#include "Buffer/BufferSpecification.h"
+#include "Buffer/FrameBufferAttachment.h"
 
 namespace ZPG {
 
-OpenGLTexture::OpenGLTexture(const std::string& filepath, DataFormat dataFormat)
+OpenGLTexture::OpenGLTexture(const std::string& filepath, TextureDataFormat dataFormat)
 : m_DataFormat(dataFormat) {
     m_Name = filepath.substr(
         filepath.find_last_of("/\\") + 1, 
@@ -20,13 +20,13 @@ OpenGLTexture::OpenGLTexture(const std::string& filepath, DataFormat dataFormat)
     LoadTexture(filepath);
 }
 
-OpenGLTexture::OpenGLTexture(const std::string& name, const std::string& filepath, DataFormat dataFormat)
+OpenGLTexture::OpenGLTexture(const std::string& name, const std::string& filepath, TextureDataFormat dataFormat)
 : m_Name(name)
 , m_DataFormat(dataFormat) {
     LoadTexture(filepath);
 }
 
-OpenGLTexture::OpenGLTexture(const std::string& name, u32 width, u32 height, DataFormat dataFormat)
+OpenGLTexture::OpenGLTexture(const std::string& name, u32 width, u32 height, TextureDataFormat dataFormat)
 : m_Name(name) 
 , m_Width(width)
 , m_Height(height) 
@@ -57,13 +57,13 @@ void OpenGLTexture::LoadTexture(const std::string& path) {
 
     m_DataFormat = [channels, path]{
         switch (channels) {
-            case 1: return DataFormat::R8;
-            case 2: return DataFormat::RG8;
-            case 3: return DataFormat::RGB8;
-            case 4: return DataFormat::RGBA8;
+            case 1: return TextureDataFormat::R8;
+            case 2: return TextureDataFormat::RG8;
+            case 3: return TextureDataFormat::RGB8;
+            case 4: return TextureDataFormat::RGBA8;
             default: 
                 ZPG_UNREACHABLE("Unknown texture format (number of channels) for image '{}'!", path.c_str()); 
-                return DataFormat::RGBA8;
+                return TextureDataFormat::RGBA8;
         }
     }();
 
@@ -79,8 +79,8 @@ void OpenGLTexture::CreateEmptyTexture() {
     ZPG_OPENGL_CALL(glGenTextures(1, &m_RendererID));
     ZPG_OPENGL_CALL(glBindTexture(GL_TEXTURE_2D, m_RendererID));
 
-    ZPG_OPENGL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, gl.InternalFormat, m_Width, m_Height, 0, gl.Format, gl.SampleType, NULL));
-    // ZPG_OPENGL_CALL(glTextureStorage2D(m_RendererID, 1, gl.InternalFormat, m_Width, m_Height));
+    // ZPG_OPENGL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, gl.InternalFormat, m_Width, m_Height, 0, gl.Format, gl.SampleType, NULL));
+    ZPG_OPENGL_CALL(glTextureStorage2D(m_RendererID, 1, gl.InternalFormat, m_Width, m_Height));
 
     ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
     ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
@@ -145,16 +145,17 @@ void OpenGLTexture::SetData(const void *data, u32 size) {
 
 void OpenGLTexture::AttachToFrameBuffer(
     u32 frameBufferID, 
-    RenderAttachment attachment
+    FrameBufferAttachment frameBufferAttachment
 ) {
-    OpenGLMapper::OpenGLAttachmentMapping gl = OpenGLMapper::ToGL(attachment.BufferSpec.Type);
+    OpenGLMapper::OpenGLAttachmentMapping gl = OpenGLMapper::ToGL(frameBufferAttachment.AttachmentType);
 
     Bind();
-    ZPG_OPENGL_CALL(glFramebufferTexture2D( GL_FRAMEBUFFER, gl.Attachment + attachment.BindingPoint, GL_TEXTURE_2D, m_RendererID, 0));
+    ZPG_OPENGL_CALL(glFramebufferTexture2D( GL_FRAMEBUFFER, gl.Attachment + frameBufferAttachment.Index, GL_TEXTURE_2D, m_RendererID, 0));
     Unbind();
 }
 
 void OpenGLTexture::Resize(u32 width, u32 height) {
+    ZPG_UNREACHABLE("This method is wrong. When resizing the texture should be discarded and a new texture should be created.");
     Bind();
 
     OpenGLMapper::OpenGLFormatMapping gl = OpenGLMapper::ToGL(m_DataFormat);

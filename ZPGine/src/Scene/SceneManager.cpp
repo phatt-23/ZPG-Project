@@ -1,6 +1,7 @@
 #include "SceneManager.h"
 #include "Debug/Asserter.h"
 #include "Scene.h"
+#include "Observer/Payload.h"
 
 namespace ZPG {
 
@@ -94,17 +95,22 @@ void SceneManager::SetActiveScene(const std::string& name) {
     m_ActiveSceneName = name;
     SceneEntry& activeEntry = m_SceneEntries[m_ActiveSceneName];
 
+    // if it doesn't exist, create it
     if (activeEntry.m_Scene == nullptr) {
         activeEntry.m_Scene = activeEntry.m_SceneFactory();
         activeEntry.m_Scene->OnAttach();
     }
 
+    // if it wasn't yet lazy loaded, lazy load it
     if (!activeEntry.m_Scene->WasLazyLoaded()) {
         activeEntry.m_Scene->OnLazyAttach();
         activeEntry.m_Scene->MarkAsLazyLoaded();
     }
 
     m_SceneEntries[m_ActiveSceneName].m_Scene->OnResume();
+
+    Payload notice(PayloadType::SceneChanged, &m_ActiveSceneName);
+    NotifyWith(notice);
 }
 
 Scene* SceneManager::GetActiveScene() {

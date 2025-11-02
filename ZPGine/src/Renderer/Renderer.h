@@ -36,8 +36,8 @@ public:
     static void SetSkybox(const ref<Skybox>& skybox);
 
     static void SubmitEntity(const Entity* entity, const m4& transform = m4(1.0f));
-    static void SubmitModel(const Model* model, const m4& transform = m4(1.0f));
-    static void SubmitMesh(const Mesh* mesh, const m4& transform = m4(1.0f));
+    static void SubmitModel(const Model* model, const m4& transform = m4(1.0f), int entityID = -1);
+    static void SubmitMesh(const Mesh* mesh, const m4& transform = m4(1.0f), int entityID = -1);
 
     static void SetInstanced(bool enabled) { s_Instanced = enabled; }
     static bool IsInstanced() { return s_Instanced; }

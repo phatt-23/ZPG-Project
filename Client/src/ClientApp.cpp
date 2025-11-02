@@ -9,12 +9,9 @@
 
 #include "CV7/ForestScene.h"
 #include "HyenaScene/Scene.h"
-#include "MustangScene/Scene.h"
-#include "ColtM4CarbineScene/Scene.h"
 #include "RevolverScene/Scene.h"
 #include "implot/implot.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
-#include "spdlog/fmt/bundled/color.h"
 
 using namespace ZPG;
 
@@ -22,14 +19,20 @@ class ClientApp : public Application {
 public:
     ClientApp() {
         AttachScenes();
+
+        m_SceneManager.AttachCallback([&](Payload& payload) {
+            if (payload.Type == PayloadType::SceneChanged) {
+                m_SceneManager.GetActiveScene()->GetCameraController()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
+            }
+        });
     }
 
     void AttachScenes() {
+        m_SceneManager.AddScene("CV7 - Forest", new CV7::ForestScene());
         m_SceneManager.AddScene("Revolver Model", []{ return new RevolverScene::RevolverScene(); }, SceneLifetime::Transient);
         m_SceneManager.AddScene("Hyena Model", []{ return new HyenaScene::HyenaScene(); }, SceneLifetime::Transient);
-        m_SceneManager.AddScene("CV7 - Forest", new CV7::ForestScene());
-                               
-        m_SceneManager.SetActiveScene("Revolver Model");
+
+        m_SceneManager.SetActiveScene("CV7 - Forest");
     }
 
     void OnImGuiRender() override {
@@ -146,10 +149,49 @@ public:
         }
         ImGui::End();
 
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Scene Viewport");
         {
+            auto viewportOffset = ImGui::GetCursorPos();
+            m_ViewportFocused = ImGui::IsWindowFocused();
+            m_ViewportHovered = ImGui::IsWindowHovered();
+
+            ImVec2 windowSize = ImGui::GetWindowSize();
+            ImVec2 minBounds = ImGui::GetWindowPos() + viewportOffset;
+            ImVec2 maxBounds = minBounds + windowSize;
+            m_ViewportBounds[0] = { minBounds.x, minBounds.y };
+            m_ViewportBounds[1] = { maxBounds.x, maxBounds.y };
+
             const ref<FrameBuffer>& mainFBO = Renderer::GetDrawData().MainFBO;
             ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+
+            auto [mouseX, mouseY] = ImGui::GetMousePos();
+            mouseX -= m_ViewportBounds[0].x;
+            mouseY -= m_ViewportBounds[0].y;
+            mouseY = viewportPanelSize.y - mouseY;
+            v2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+
+            // X = 0, Y = 0 is the bottom left corner in OpenGL
+
+            if (mouseX >= 0 && mouseY >= 0 && mouseX < viewportSize.x && mouseY < viewportSize.y) {
+                mainFBO->Bind();
+
+                glm::u8vec4 pixelColor = mainFBO->ReadPixelByte4(mouseX, mouseY, FrameBufferAttachmentType::Color, 0);
+                i32 entityID = mainFBO->ReadPixelInt(mouseX, mouseY, FrameBufferAttachmentType::Color, 1);
+
+                ImGui::Begin("Read pixel data");
+                ImGui::Text("mouse: %f %f", mouseX, mouseY);
+                ImGui::Text("Pixel Data (Int): %d", entityID);
+                ImGui::Text("Pixel Data (Float4): %d %d %d %d", pixelColor.x, pixelColor.y, pixelColor.z, pixelColor.w);
+                ImGui::End();
+
+                if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+                    m_SceneManager.GetActiveScene()->GetEntityManager().RemoveEntity(entityID);
+                }
+
+                mainFBO->Unbind();
+            }
+
 
             v2 size(viewportPanelSize.x, viewportPanelSize.y);
 
@@ -160,12 +202,16 @@ public:
                 m_SceneManager.GetActiveScene()->GetCameraController()->OnResize(size.x, size.y);
             }
 
-            const std::unordered_map<RenderAttachment, ref<Texture>>& colorTextures = mainFBO->GetColorTextureAttachments();
-            const ref<Texture>& colorTexture = colorTextures.begin()->second;
+            auto it = std::ranges::find_if(mainFBO->GetColorTextureAttachments(),
+                [&](const std::pair<FrameBufferAttachment, ref<Texture>>& pair) {
+                    return pair.first.AttachmentType == FrameBufferAttachmentType::Color && pair.first.Index == 0; });
 
-            ImGui::Image(colorTexture->GetRendererID(), ImVec2(size.x, size.y), ImVec2(0, 1), ImVec2(1, 0));
+            auto& colorAttachment = it->second;
+            ImGui::Image(colorAttachment->GetRendererID(), ImVec2(size.x, size.y), ImVec2(0, 1), ImVec2(1, 0));
+
         }
         ImGui::End();
+        ImGui::PopStyleVar();
     }
 
 private:
@@ -173,8 +219,11 @@ private:
     std::vector<float> fpsDataX;
     const size_t maxSamples = 1000; // number of frames visible in plot
     float time = 0.0f;
-    v2 m_ViewportSize = { 0.0, 0.0 };
 
+    v2 m_ViewportSize = { 0.0, 0.0 };
+    bool m_ViewportFocused = false;
+    bool m_ViewportHovered = false;
+    v2 m_ViewportBounds[2] = { v2(0.0), v2(0.0) };
 };
 
 ZPG::Application* ZPG::CreateApplication() {

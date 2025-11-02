@@ -50,8 +50,6 @@ void Application::Run() {
         m_LastTime = currentTime;
         
         m_SceneManager.GetActiveScene()->OnUpdate(m_Delta);
-
-
         m_SceneManager.GetActiveScene()->OnRender(m_Delta);
 
         ImGuiManager::BeginFrame();

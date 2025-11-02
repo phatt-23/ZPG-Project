@@ -13,6 +13,8 @@ public:
     void AddEntity(const ref<Entity>& entity);
     const std::vector<ref<Entity>>& GetEntities() const;
 
+    void RemoveEntity(int entityID);
+
 private:
     std::vector<ref<Entity>> m_Entities;
 };

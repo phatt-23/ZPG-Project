@@ -87,26 +87,12 @@ void CameraController::OnEvent(Event& event) {
     // dispatcher.Dispatch<WindowResizeEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowResized));
     dispatcher.Dispatch<MouseMovedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnMouseMoved));
     dispatcher.Dispatch<MouseButtonPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnMouseButtonPressed));
-    dispatcher.Dispatch<KeyPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnKeyPressed));
-    dispatcher.Dispatch<WindowLostFocusEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowLostFocus));
-    dispatcher.Dispatch<WindowFocusEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowFocus));
 }
 
 void CameraController::OnResize(u32 width, u32 height) {
     Input::ShowCursor();
     f32 aspectRatio = width / (float)height;
     m_Camera.SetPerspectiveProjection(m_Camera.GetFOV(), aspectRatio, m_Camera.GetZNear(), m_Camera.GetZFar());
-}
-
-bool CameraController::OnWindowFocus(WindowFocusEvent& e) {
-    return false;
-}
-bool CameraController::OnWindowLostFocus(WindowLostFocusEvent& e) {
-    Input::ShowCursor();
-    return false;
-}
-bool CameraController::OnKeyPressed(KeyPressedEvent& e) {
-    return false;
 }
 bool CameraController::OnMouseMoved(MouseMovedEvent& e) {
     if (Input::IsCursorGrabbed()) {
@@ -144,6 +130,13 @@ bool CameraController::OnMouseButtonPressed(MouseButtonPressedEvent& e) {
 }
 bool CameraController::OnMouseScrolled(MouseScrolledEvent& e) {
     ZPG_CORE_DEBUG("{}: On mouse scroll", __PRETTY_FUNCTION__);
+
+    constexpr f32 sensitivity = 0.25f;
+
+    f32 fov = m_Camera.GetFOV() + sensitivity * e.GetYOffset();
+
+    m_Camera.SetFOV(fov);
+
     return false;
 }
 bool CameraController::OnWindowResized(WindowResizeEvent& e) {

@@ -10,7 +10,7 @@ namespace ZPG {
 /**
  * Counter of how many times the entity's constructor has been called.
  */
-static u32 s_EntityCount = 0;
+static u32 s_EntityCount = 1;
 
 Entity::Entity(const ref<Model>& model, const ref<Transform>& transform)
 : m_EntityID(s_EntityCount++)

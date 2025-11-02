@@ -1,0 +1,28 @@
+- `Nahodny` pohyb jsem vyresil kompozici nekolika rotacnich a translacnich transformaci.
+
+        f32 x = planeSize * Utility::GetRandomFloat(-1, 1);
+        f32 y = planeSize * Utility::GetRandomFloat(0.01, 0.3);
+        f32 z = planeSize * Utility::GetRandomFloat(-1, 1);
+
+        ref<Transform> transform = TransformGroup::Build()
+            .Add<Scale>(0.1)
+            .Add<Translate>(1.0f/planeSize * v3(x, y, z))
+            .Add<DynRotate>(0, 20.0)
+            .Add<Translate>(x, y, z)
+            .Add<DynRotate>(0, 20.0, v3(x, 4 * planeSize, z))
+            .Compose();
+
+
+- Nastavil jsem jim `emissive` materialni vlastnost na rgba = (1,1,1,1). 
+- Tuto barvu vyzaruji konstantne a nezalezi na tom zda je ve scene dostatek svetla.
+
+- Pro utlum jsem zvolil:
+
+        PointLight(
+            v4(1.0),
+            v3(0.0),
+            AttenComponent(quadratic = 0.2, linear = 0.4, constant = 1.0)
+        );
+
+- Dosel jsem k tomu experimentaci, chtel jsem aby svetlusky byly dostatecne svetle na to, 
+  abych byl schopen videt reflektovane spekularni svetlo na ground plain.

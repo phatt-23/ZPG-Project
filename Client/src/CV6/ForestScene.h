@@ -22,7 +22,8 @@ public:
         m_LocalResourceManager.LoadModel("Firefly", "./assets/models/sphere/scene.gltf");
         m_LocalResourceManager.LoadModel("Ground", "./assets/models/mud_material/scene.gltf");
         m_LocalResourceManager.LoadModel("Bush", "./assets/models/small_bush/scene.gltf");
-        m_LocalResourceManager.LoadModel("Tree", "./assets/models/pine_tree/scene.gltf");
+        // m_LocalResourceManager.LoadModel("Tree", "./assets/models/pine_tree/scene.gltf");
+        m_LocalResourceManager.LoadModel("Tree", "./assets/models/nemec-assets/formula1.obj");
     }
 
     void OnAttach() override {

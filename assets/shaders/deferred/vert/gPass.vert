@@ -10,6 +10,7 @@ out vec3 v_WorldPos;
 out vec3 v_WorldNormal;
 out vec2 v_TexCoord;
 out mat3 v_TBN;
+out flat int v_EntityID;
 
 layout (std430, binding = 0) buffer MatricesStorageBuffer {
     mat4 View;
@@ -22,11 +23,19 @@ layout (std430, binding = 4) buffer ModelStorageBuffer {
     mat4 Models[];
 } ssbo_Models;
 
+layout (std430, binding = 5) buffer EntityStorageBuffer {
+    int EntityCount;
+    ivec4 EntityIDs[];
+} ssbo_Entities;
+
 uniform mat4 u_Model;
 
 void main() {
     mat4 model = ssbo_Models.Models[gl_InstanceID];
+
     vec4 worldPos = model * vec4(a_Pos, 1.f);
+
+    v_EntityID = ssbo_Entities.EntityIDs[gl_InstanceID].r;
 
     mat3 normalMat = transpose(inverse(mat3(model)));
 

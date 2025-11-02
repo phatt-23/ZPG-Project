@@ -9,6 +9,14 @@ class Texture;
  * Can either be texture based or single factor based.
  */
 
+/**
+ * Pouzivam PBR materialy. 
+ *
+ * Na internetu je tezke najit modely se phong-workflow materialy.
+ *
+ * Pri vypoctu phongova osvetleni prevadim PBR koeficienty na phong koeficienty.
+ */
+
 class Material {
 public:
     using UniformName = std::string;

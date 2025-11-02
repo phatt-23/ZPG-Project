@@ -101,13 +101,14 @@ void main() {
         vec3 lightColor = light.Color.rgb * light.Color.a;
         vec3 lightPos = light.Pos.xyz;
         vec3 lightDir = light.Dir.xyz;
+        vec3 lightAtten = light.Atten;
 
         if (lightType == LightTypePoint) {
             // calculate per-light radiance
             vec3 L = normalize(lightPos - v_WorldPos);
             vec3 H = normalize(V + L);
             float distance    = length(lightPos - v_WorldPos);
-            float attenuation = 1.0 / (distance * distance);
+            float attenuation = min(1.0 / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z), 1.0);
             vec3 radiance     = lightColor * attenuation;
 
             // cook-torrance brdf
@@ -170,7 +171,7 @@ void main() {
             float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
 
             float distance    = length(lightPos - v_WorldPos);
-            float attenuation = 1.0 / (distance * distance);
+            float attenuation = min(1.0 / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z), 1.0);
             vec3 radiance     = lightColor * attenuation * beamContrib;
 
             // cook-torrance brdf

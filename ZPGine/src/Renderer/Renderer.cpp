@@ -71,7 +71,6 @@ void Renderer::BeginDraw(const Camera& camera) {
 
 void Renderer::EndDraw() {
     ZPG_CORE_ASSERT(s_DrawData);
-
     Flush();
 
     if (s_Deferred) {
@@ -80,15 +79,15 @@ void Renderer::EndDraw() {
 
     s_DrawData->MainFBO->Bind();
 
-    if (const ref<Skybox>& skybox = s_DrawData->CurrentSkybox) {
+    if (s_DrawData->CurrentSkybox) {
         glDepthFunc(GL_LEQUAL);
         glDepthMask(GL_FALSE);
 
-        const ref<VertexArray>& skyboxVAO = skybox->GetVAO();
+        const ref<VertexArray>& skyboxVAO = s_DrawData->CurrentSkybox->GetVertexArray();
 
-        skybox->Bind();
+        s_DrawData->CurrentSkybox->Bind();
         RenderCommand::DrawIndexed(*skyboxVAO, skyboxVAO->GetIndexBuffer()->GetCount());
-        skybox->Unbind();
+        s_DrawData->CurrentSkybox->Unbind();
 
         // restore
         glDepthMask(GL_TRUE);
@@ -176,19 +175,18 @@ void Renderer::SetSkybox(const ref<Skybox>& skybox) {
 void Renderer::SubmitEntity(const Entity* entity, const glm::mat4& transform) {
     glm::mat4 entityTransform = transform * entity->GetTransformMatrix();
     const ref<Model>& model = entity->GetModel();
-    SubmitModel(model.get(), entityTransform);
+    SubmitModel(model.get(), entityTransform, entity->GetEntityID());
 }
 
-void Renderer::SubmitModel(const Model* model, const m4& transform) {
+void Renderer::SubmitModel(const Model* model, const m4& transform, int entityID) {
     const std::vector<ref<Mesh>>& meshes = model->GetMeshes();
 
     for (auto& mesh : meshes) {
-        const ref<Material>& material = mesh->GetMaterial();
-        SubmitMesh(mesh.get(), transform);
+        SubmitMesh(mesh.get(), transform, entityID);
     }
 }
 
-void Renderer::SubmitMesh(const Mesh* mesh, const m4& transform) {
+void Renderer::SubmitMesh(const Mesh* mesh, const m4& transform, int entityID) {
     // query everything out of the mesh object
     ShaderProgram* shaderProgram = mesh->GetMaterial()->GetShaderProgram().get();
     Material* material = mesh->GetMaterial().get();
@@ -200,7 +198,7 @@ void Renderer::SubmitMesh(const Mesh* mesh, const m4& transform) {
     }
 
     DrawCommand command(shaderProgram, material, vertexArray);
-    s_DrawData->Batch.AddCommand(command, worldMat);
+    s_DrawData->Batch.AddCommand(command, worldMat, entityID);
 }
 
 void Renderer::OnWindowResize(int width, int height) {
@@ -289,22 +287,46 @@ void Renderer::InstancedRender() {
                     vao->Bind();
                 }
 
-                const m4* batchTransforms = s_DrawData->Batch.GetTransforms().data();
-                memcpy(s_DrawData->ModelsStorage.Models, &batchTransforms[vaoGroup.m_Start], sizeof(m4) * vaoGroup.m_Count);
+                // ModelsSSBO
+                {
+                    const m4* batchTransforms = s_DrawData->Batch.GetTransforms().data();
+                    memcpy(s_DrawData->ModelsStorage.Models, &batchTransforms[vaoGroup.m_Start], sizeof(m4) * vaoGroup.m_Count);
 
-                s_DrawData->ModelsStorage.ModelCount = vaoGroup.m_Count;
+                    s_DrawData->ModelsStorage.ModelCount = vaoGroup.m_Count;
 
-                s_DrawData->ModelsSSBO.Bind();
+                    s_DrawData->ModelsSSBO.Bind();
 
-                s_DrawData->ModelsSSBO.SetData(
-                    &s_DrawData->ModelsStorage.ModelCount,
-                    sizeof(i32),
-                    offsetof(DrawData::ModelsStorageBuffer, ModelCount));
+                    s_DrawData->ModelsSSBO.SetData(
+                        &s_DrawData->ModelsStorage.ModelCount,
+                        sizeof(i32),
+                        offsetof(DrawData::ModelsStorageBuffer, ModelCount));
 
-                s_DrawData->ModelsSSBO.SetData(
-                    s_DrawData->ModelsStorage.Models,
-                    sizeof(m4) * vaoGroup.m_Count,
-                    offsetof(DrawData::ModelsStorageBuffer, Models));
+                    s_DrawData->ModelsSSBO.SetData(
+                        s_DrawData->ModelsStorage.Models,
+                        sizeof(m4) * vaoGroup.m_Count,
+                        offsetof(DrawData::ModelsStorageBuffer, Models));
+                }
+
+                // EntitiesSSBO
+                {
+                    const glm::i32vec4* entityIDs = s_DrawData->Batch.GetEntityIDs().data();
+
+                    memcpy(s_DrawData->EntitiesStorage.EntityIDs, &entityIDs[vaoGroup.m_Start], sizeof(glm::i32vec4) * vaoGroup.m_Count);
+
+                    s_DrawData->EntitiesStorage.EntityCount = vaoGroup.m_Count;
+
+                    s_DrawData->EntitiesSSBO.Bind();
+
+                    s_DrawData->EntitiesSSBO.SetData(
+                        &s_DrawData->EntitiesStorage.EntityCount,
+                        sizeof(i32),
+                        offsetof(DrawData::EntitiesStorageBuffer, EntityCount));
+
+                    s_DrawData->EntitiesSSBO.SetData(
+                        s_DrawData->EntitiesStorage.EntityIDs,
+                        sizeof(glm::i32vec4) * vaoGroup.m_Count,
+                        offsetof(DrawData::EntitiesStorageBuffer, EntityIDs));
+                }
 
                 if (vaoGroup.m_VertexArray->HasIndexBuffer()) {
                     RenderCommand::DrawIndexedInstanced(
@@ -377,7 +399,7 @@ void Renderer::NonInstancedRender() {
             currentVertexArray->Bind();
         }
 
-        s_DrawData->ModelsStorage.Models[0] = transforms[command.m_TransformIndex];
+        s_DrawData->ModelsStorage.Models[0] = transforms[command.m_DrawIndex];
         s_DrawData->ModelsSSBO.Bind();
         s_DrawData->ModelsSSBO.SetData(s_DrawData->ModelsStorage.Models, sizeof(m4), sizeof(v4));
 
@@ -412,25 +434,43 @@ void Renderer::EndDeferred() {
     // end of the g-buffer usage
     s_DrawData->GBuffer->Unbind();
 
+    // Instead of drawing the lighting pass into the default FBO, I want to draw into my own FBO.
+    // Bind the main FBO (my FBO), clear it and run the lighting pass with the g-buffer's data.
+    s_DrawData->MainFBO->Bind();
+    RenderCommand::Clear();
+
+    // TODO: Optimization
+
+    /**
+     * Render into main fbo using g-buffer geometry maps, but only calculate directional and ambient light.
+     * We do directional and ambient lighting because they don't have an influence radius. They influence every fragment.
+     * Don't do lighting calculations for point lights and spotlights as they do have an influence radius.
+     *
+     * Foreach light in {light in lights | light is pointlight or spotlight}:
+     *    Render a unit sphere scaled by the influence radius of the light
+     *    and do the lighting calculations.
+     *    The lighting equations will then only run for those fragments where the sphere is render at.
+     */
+
     // bind the lighting pass shader program
     s_DrawData->LightingPassShaderProgram->Bind();
+
+    s_DrawData->CurrentSkybox->BindCubemapToSlot(10);
+    s_DrawData->LightingPassShaderProgram->SetInt("u_SkyboxMap", 10);
 
     // bind the g-buffer's color texture attachments
     // with the collected geometry information
     s_DrawData->GBuffer->BindColorTextureAttachments();
 
-    // bind the uv quad that fills up the NDC
-    s_DrawData->QuadVAO->Bind();
-
-    // Instead of drawing the lighting pass into the default FBO, I want to draw into my own FBO.
-    // Bind the main FBO (my FBO), clear it and run the lighting pass with the g-buffer's data.
-    s_DrawData->MainFBO->Bind();
-
-    RenderCommand::Clear();
+    s_DrawData->QuadVAO->Bind(); // bind the uv quad that fills up the NDC
     RenderCommand::DrawArrays(*s_DrawData->QuadVAO);
+    s_DrawData->QuadVAO->Unbind();
+
+    // bind the lighting pass shader program
+    s_DrawData->LightingPassShaderProgram->Unbind();
 
     // // Copy the G-Buffer's depth buffer into the main FBO's depth buffer
-    s_DrawData->MainFBO->CopyAttachment(s_DrawData->GBuffer, AttachmentType::Depth);
+    s_DrawData->MainFBO->CopyAttachment(s_DrawData->GBuffer, FrameBufferAttachmentType::Depth);
 
     s_DrawData->MainFBO->Unbind();
 }

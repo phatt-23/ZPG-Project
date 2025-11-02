@@ -16,7 +16,9 @@ public:
     void Bind() override;
     void Unbind() override;
 
-    const ref<VertexArray>& GetVAO() const override;
+    const ref<VertexArray>& GetVertexArray() const override;
+    void BindCubemapToSlot(int slot) const override;
+    void UnbindCubemap() const override;
 
 private:
     SkyboxSpecification m_Specification;

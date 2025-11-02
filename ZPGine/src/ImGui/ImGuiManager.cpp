@@ -23,5 +23,4 @@ void ImGuiManager::Shutdown() {
     free(s_Instance);
 }
 
-
 }

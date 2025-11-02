@@ -4,14 +4,15 @@ namespace ZPG {
 
 // I choose to keep the events and payloads separate.
 // The idea is that payloads are opaque and events are fully defined.
-// Payloads are faster and easier to write than Events when the information being transmitted some singular data.
+// Payloads are faster and easier to write than Events when the information being transmitted is some singular data.
 // The downside is, it isn't type-safe.
 
-enum PayloadType {
+enum class PayloadType : u32 {
     NotSpecified = 0,
     // some others...
     CameraPositionChanged,
     CameraOrientationChanged,
+    SceneChanged,
 };
 
 class Payload {

@@ -10,6 +10,7 @@
 #include "Buffer/VertexArray.h"
 #include "Buffer/VertexBuffer.h"
 #include "Debug/Asserter.h"
+#include "Shader/CommonShaderUniforms.h"
 #include "Shader/Shader.h"
 #include "Shader/ShaderDataType.h"
 #include "Shader/ShaderProgram.h"
@@ -83,7 +84,7 @@ OpenGLSkybox::OpenGLSkybox(const SkyboxSpecification& spec)
     std::filesystem::path directory(m_Specification.Directory + (m_Specification.Directory.ends_with('/') ? "" : "/"));
 
     for (u32 i = 0; i < m_Specification.Filenames.size(); i++) {
-        ZPG_CORE_INFO("Loading cube-map textures - directory: %s, file: %s\n", directory.c_str(), m_Specification.Filenames[i].c_str());
+        ZPG_CORE_INFO("Loading cube-map textures - directory: {}, file: {}", directory.c_str(), m_Specification.Filenames[i].c_str());
 
         int width, height, nrChannels;
         unsigned char* data = stbi_load((directory / m_Specification.Filenames[i]).c_str(), &width, &height, &nrChannels, 0);
@@ -132,20 +133,31 @@ OpenGLSkybox::~OpenGLSkybox() {
 }
 
 void OpenGLSkybox::Bind() {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureRendererID);
     m_ShaderProgram->Bind();
+    m_ShaderProgram->SetInt("u_SkyboxMap", 0);
+    BindCubemapToSlot(0);
     m_VAO->Bind();
 }
 
 void OpenGLSkybox::Unbind() {
+    UnbindCubemap();
     m_VAO->Unbind();
     m_ShaderProgram->Unbind();
+}
+
+const ref<VertexArray>& OpenGLSkybox::GetVertexArray() const {
+    return m_VAO;
+}
+
+void OpenGLSkybox::BindCubemapToSlot(int slot) const {
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureRendererID);
+    glActiveTexture(GL_TEXTURE0);
+}
+
+void OpenGLSkybox::UnbindCubemap() const {
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
-const ref<VertexArray>& OpenGLSkybox::GetVAO() const {
-    return m_VAO;
-}
 
 } // ZPG

@@ -5,12 +5,13 @@ in vec3 v_WorldPos;
 in vec3 v_WorldNormal;
 in vec2 v_TexCoord;
 in mat3 v_TBN;
+in flat int v_EntityID;
 
-layout (location = 0) out vec4 g_Pos;
-layout (location = 1) out vec4 g_Normal;
-layout (location = 2) out vec4 g_Albedo;
-layout (location = 3) out vec4 g_Emissive;
-layout (location = 4) out vec4 g_MetallicRougness;
+layout (location = 0) out vec4 g_Color0;
+layout (location = 1) out vec4 g_Color1;
+layout (location = 2) out vec4 g_Color2;
+layout (location = 3) out vec4 g_Color3;
+layout (location = 4) out int g_Color4;
 
 layout (std430, binding = 3) buffer MaterialStorageBuffer {
     vec4 Albedo;
@@ -40,39 +41,31 @@ void main() {
     vec3 tangentNormal = texture(u_NormalMap, v_TexCoord).rgb * 2.0 - 1.0;
     vec3 N = normalize(v_TBN * tangentNormal);
 
-    g_Pos.rgb = v_WorldPos;
-    g_Pos.a = 1.0;
+    g_Color0.rgb = v_WorldPos;
+    g_Color0.a = 1.0;
 
-    // rgba
-    g_Normal.rgb = N;
-    g_Normal.a = 1.0;
+    g_Color1.rgb = N;
+    g_Color1.a = 1.0;
 
-    g_Albedo.rgb = albedo;
-    g_Albedo.a = metallic;
+    g_Color2.rgb = albedo;
+    g_Color2.a = metallic;
 
-    // g_AlbedoMetallic.a      = metallic;
-    g_Emissive.rgb = emissive;
-    g_Emissive.a = roughness;
+    g_Color3.rgb = emissive;
+    g_Color3.a = roughness;
+
+    g_Color4.r = v_EntityID;
 
     /**
-    The alpha chanell is still active, even in the deferred pass.
-    Normally what happends is that gl_FragColor is written into.
-    gl_FragColor = vec4(r,g,b,a)
+        The alpha chanell is still active, even in the deferred pass.
+        Normally what happends is that gl_FragColor is written into.
+        gl_FragColor = vec4(r,g,b,a)
 
-    This will automatically multiply the alpha component with the rgb components.
+        This will automatically multiply the alpha component with the rgb components.
 
-    (r,g,b) * a
+        (r,g,b) * a
 
-    Thus the r,g and b components are manipulate with implicitly.
+        Thus the r,g and b components are manipulate with implicitly.
 
-    If I want to just store the data, the alpha has to be disabled.
-
+        If I want to just store the data, the alpha has to be disabled.
     */
-
-    // g_EmissiveRoughness.a   = roughness;
-
-//    g_Pos               = vec4(v_WorldPos,      1.0);
-//    g_Normal            = vec4(v_WorldNormal,   1.0);
-//    g_AlbedoMetallic    = vec4(albedo,          metallic);
-//    g_EmissiveRoughness = vec4(emissive,        roughness);
 }
