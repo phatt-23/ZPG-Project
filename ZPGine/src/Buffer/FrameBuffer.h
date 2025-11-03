@@ -14,7 +14,7 @@ namespace ZPG {
     struct FrameBufferSpecification {
         u32 Width;
         u32 Height;
-
+        bool Resizable = true;
         std::vector<FrameBufferAttachment> Attachments;
     };
 

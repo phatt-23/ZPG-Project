@@ -55,10 +55,10 @@ struct DrawData {
         m4* Models;
     };
 
-    struct alignas(sizeof(v4)) EntitiesStorageBuffer {
-        int EntityCount;
+    struct EntitiesStorageBuffer {
+        i32 EntityCount;
         f32 _pad0[3];
-        glm::i32vec4* EntityIDs;  // im gonna use only r component
+        glm::i32vec4* EntityIDs;
     };
 
     /**

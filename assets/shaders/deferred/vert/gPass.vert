@@ -25,6 +25,7 @@ layout (std430, binding = 4) buffer ModelStorageBuffer {
 
 layout (std430, binding = 5) buffer EntityStorageBuffer {
     int EntityCount;
+    float _pad0[3];
     ivec4 EntityIDs[];
 } ssbo_Entities;
 

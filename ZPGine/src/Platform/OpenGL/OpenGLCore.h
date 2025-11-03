@@ -11,7 +11,7 @@ const char* OpenGLErrorTypeToString(GLenum glError);
 #ifdef ZPG_OPENGL_CALL_ERROR_CHECK
     #ifdef ZPG_OPENGL_CALL_CRASH_ON_ERROR
         #define ZPG_OPENGL_CALL(_CALL) \
-            while (glGetError() != GL_NO_ERROR); \
+            while (glGetError() != GL_NO_ERROR) {}; \
             _CALL; \
             if (GLenum glErr = glGetError(); glErr != 0) { \
                 auto loc = std::source_location::current(); \
