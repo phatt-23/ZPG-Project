@@ -28,7 +28,7 @@ RenderBatch::~RenderBatch() {
 
 void RenderBatch::AddCommand(DrawCommand& command, const m4& transform, i32 entityID) {
     m_Transforms.push_back(transform);
-    m_EntityIDs.push_back(glm::i32vec4(entityID, 1.0, 1.0, 1.0));
+    m_EntityIDs.push_back(entityID);
 
     command.m_DrawIndex = m_Transforms.size() - 1;
 
@@ -53,7 +53,7 @@ void RenderBatch::SortCommands() {
 
     // after sorting, reorder transforms to match
     std::vector<m4> sortedTransforms(m_DrawCommands.size());
-    std::vector<glm::i32vec4> sortedEntityIDs(m_DrawCommands.size());
+    std::vector<i32> sortedEntityIDs(m_DrawCommands.size());
 
     for (size_t i = 0; i < m_DrawCommands.size(); i++)
     {
@@ -218,7 +218,7 @@ const std::vector<m4>& RenderBatch::GetTransforms() const {
     return m_Transforms;
 }
 
-const std::vector<glm::i32vec4>& RenderBatch::GetEntityIDs() const {
+const std::vector<i32>& RenderBatch::GetEntityIDs() const {
     return m_EntityIDs;
 }
 

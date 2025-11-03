@@ -26,7 +26,7 @@ layout (std430, binding = 4) buffer ModelStorageBuffer {
 layout (std430, binding = 5) buffer EntityStorageBuffer {
     int EntityCount;
     float _pad0[3];
-    ivec4 EntityIDs[];
+    int EntityIDs[];
 } ssbo_Entities;
 
 uniform mat4 u_Model;
@@ -36,7 +36,7 @@ void main() {
 
     vec4 worldPos = model * vec4(a_Pos, 1.f);
 
-    v_EntityID = ssbo_Entities.EntityIDs[gl_InstanceID].r;
+    v_EntityID = ssbo_Entities.EntityIDs[gl_InstanceID];
 
     mat3 normalMat = transpose(inverse(mat3(model)));
 

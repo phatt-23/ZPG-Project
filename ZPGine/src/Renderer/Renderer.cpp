@@ -309,9 +309,9 @@ void Renderer::InstancedRender() {
 
                 // EntitiesSSBO
                 {
-                    const glm::i32vec4* entityIDs = s_DrawData->Batch.GetEntityIDs().data();
+                    const i32* entityIDs = s_DrawData->Batch.GetEntityIDs().data();
 
-                    memcpy(s_DrawData->EntitiesStorage.EntityIDs, &entityIDs[vaoGroup.m_Start], sizeof(glm::i32vec4) * vaoGroup.m_Count);
+                    memcpy(s_DrawData->EntitiesStorage.EntityIDs, &entityIDs[vaoGroup.m_Start], sizeof(i32) * vaoGroup.m_Count);
 
                     s_DrawData->EntitiesStorage.EntityCount = vaoGroup.m_Count;
 
@@ -324,7 +324,7 @@ void Renderer::InstancedRender() {
 
                     s_DrawData->EntitiesSSBO.SetData(
                         s_DrawData->EntitiesStorage.EntityIDs,
-                        sizeof(glm::i32vec4) * vaoGroup.m_Count,
+                        sizeof(i32) * vaoGroup.m_Count,
                         offsetof(DrawData::EntitiesStorageBuffer, EntityIDs));
                 }
 

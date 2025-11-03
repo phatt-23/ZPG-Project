@@ -56,7 +56,7 @@ private:
     f32 m_FOV = 45.0f; // expressed in angles
     f32 m_AspectRatio = 0.5f;
     f32 m_zNear = 0.1f;  // if 0 then behaves weird, clipping
-    f32 m_zFar = 100.0f;
+    f32 m_zFar = 200.0f;
     // ortho
     f32 m_OrthoLeft = -1.f;
     f32 m_OrthoRight = 1.0f;

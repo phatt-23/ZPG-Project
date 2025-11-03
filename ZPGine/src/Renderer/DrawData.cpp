@@ -84,7 +84,7 @@ DrawData::DrawData()
         // model matrices
         ModelsStorage.Models = new m4[s_BatchSize];
 
-        EntitiesStorage.EntityIDs = new glm::i32vec4[s_BatchSize];
+        EntitiesStorage.EntityIDs = new i32[s_BatchSize];
     }
 
     const Window& window = Application::Get().GetWindow();

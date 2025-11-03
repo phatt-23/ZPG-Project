@@ -58,7 +58,7 @@ struct DrawData {
     struct EntitiesStorageBuffer {
         i32 EntityCount;
         f32 _pad0[3];
-        glm::i32vec4* EntityIDs;
+        i32* EntityIDs;
     };
 
     /**
