@@ -5,72 +5,14 @@
 #include "OpenGLSkybox.h"
 
 #include "OpenGLCore.h"
-#include "Buffer/BufferLayout.h"
-#include "Buffer/IndexBuffer.h"
 #include "Buffer/VertexArray.h"
-#include "Buffer/VertexBuffer.h"
 #include "Debug/Asserter.h"
-#include "Shader/CommonShaderUniforms.h"
-#include "Shader/Shader.h"
-#include "Shader/ShaderDataType.h"
+#include "Resource/ResourceManager.h"
 #include "Shader/ShaderProgram.h"
 #include "stb_image/stb_image.h"
+#include "Resource/CommonResources.h"
 
 namespace ZPG {
-
-constexpr static f32 skyboxVertices[] = {
-    // position
-    -1.0f, -1.0f,  1.0f,
-    -1.0f, -1.0f, -1.0f,
-     1.0f, -1.0f, -1.0f,
-     1.0f, -1.0f,  1.0f,
-    -1.0f,  1.0f,  1.0f,
-    -1.0f,  1.0f, -1.0f,
-     1.0f,  1.0f, -1.0f,
-     1.0f,  1.0f,  1.0f,
-};
-
-constexpr static u32 skyboxIndices[] = {
-    0, 1, 2,   0, 2, 3, // Front face
-    0, 4, 7,   0, 7, 3, // Left face
-    3, 7, 6,   3, 6, 2, // Right face
-    2, 6, 5,   2, 5, 1, // Back face
-    1, 5, 4,   1, 4, 0, // Bottom face
-    4, 5, 6,   4, 6, 7, // Top face
-};
-
-const char* skyboxVertexSource = R"(
-    #version 440 core
-
-    layout(location = 0) in vec3 a_Pos;
-
-    layout(std430, binding = 0) buffer MatricesStorageBuffer {
-        mat4 View;
-        mat4 Proj;
-        mat4 ViewProj;
-    } ssbo_Matrices;
-
-    out vec3 v_TexCoords;
-
-    void main() {
-        v_TexCoords = a_Pos;
-        mat4 viewNoTrans = mat4(mat3(ssbo_Matrices.View));
-        vec4 pos = ssbo_Matrices.Proj * viewNoTrans * vec4(a_Pos, 1.0);
-        gl_Position = pos.xyww;
-    })";
-
-const char* skyboxFragmentSource = R"(
-    #version 440 core
-
-    in vec3 v_TexCoords;
-    uniform samplerCube u_SkyboxMap;
-    out vec4 f_FragColor;
-
-    void main() {
-        vec3 col = texture(u_SkyboxMap, v_TexCoords).rgb;
-        f_FragColor = vec4(col, 1.0); // ensure alpha or packed metalness as needed
-    })";
-
 
 OpenGLSkybox::OpenGLSkybox(const SkyboxSpecification& spec)
     : m_Specification(spec)
@@ -91,6 +33,7 @@ OpenGLSkybox::OpenGLSkybox(const SkyboxSpecification& spec)
 
         ZPG_CORE_ASSERT(data, "Cube map texture failed to load: {}", directory.c_str());
 
+        ZPG_OPENGL_CALL(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
         ZPG_OPENGL_CALL(glTexImage2D(
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
             0, GL_RGB, width, height,
@@ -107,10 +50,11 @@ OpenGLSkybox::OpenGLSkybox(const SkyboxSpecification& spec)
 
     // Shader program
     {
-        m_ShaderProgram = ShaderProgram::Create("SkyboxSP", {
-            Shader::CreateFromCode("SkyboxSP.vert", Shader::Vertex, skyboxVertexSource),
-            Shader::CreateFromCode("SkyboxSP.frag", Shader::Fragment, skyboxFragmentSource),
-        });
+        // m_ShaderProgram = ShaderProgram::Create("SkyboxSP", {
+        //     Shader::CreateFromCode("SkyboxSP.vert", Shader::Vertex, skyboxVertexSource),
+        //     Shader::CreateFromCode("SkyboxSP.frag", Shader::Fragment, skyboxFragmentSource),
+        // });
+        m_ShaderProgram = ResourceManager::GetGlobal().GetShaderProgram(CommonResources::SHADER_PROGRAM_SKYBOX);
 
         m_ShaderProgram->Bind();
         m_ShaderProgram->SetInt("u_SkyboxMap", 0);
@@ -119,11 +63,7 @@ OpenGLSkybox::OpenGLSkybox(const SkyboxSpecification& spec)
 
     // Skybox VAO
     {
-        ref<VertexBuffer> skyboxVBO = VertexBuffer::Create(skyboxVertices, sizeof(skyboxVertices), { {ShaderDataType::Float3, "a_Pos"} });
-
-        ref<IndexBuffer> skyboxIBO = IndexBuffer::Create(skyboxIndices, sizeof(skyboxIndices));
-
-        m_VAO = VertexArray::Create({ skyboxVBO }, skyboxIBO);
+        m_VAO = ResourceManager::GetGlobal().GetVAO(CommonResources::VAO_SKYBOX);
     }
 
 }
@@ -132,15 +72,14 @@ OpenGLSkybox::~OpenGLSkybox() {
     glDeleteTextures(1, &m_TextureRendererID);
 }
 
-void OpenGLSkybox::Bind() {
+void OpenGLSkybox::Bind() const {
     m_ShaderProgram->Bind();
     m_ShaderProgram->SetInt("u_SkyboxMap", 0);
-    BindCubemapToSlot(0);
+    BindTextureToSlot(0);
     m_VAO->Bind();
 }
 
-void OpenGLSkybox::Unbind() {
-    UnbindCubemap();
+void OpenGLSkybox::Unbind() const {
     m_VAO->Unbind();
     m_ShaderProgram->Unbind();
 }
@@ -149,14 +88,10 @@ const ref<VertexArray>& OpenGLSkybox::GetVertexArray() const {
     return m_VAO;
 }
 
-void OpenGLSkybox::BindCubemapToSlot(int slot) const {
+void OpenGLSkybox::BindTextureToSlot(int slot) const {
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureRendererID);
     glActiveTexture(GL_TEXTURE0);
-}
-
-void OpenGLSkybox::UnbindCubemap() const {
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 

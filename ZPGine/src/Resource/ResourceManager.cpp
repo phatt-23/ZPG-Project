@@ -12,9 +12,31 @@
 #include "Model/ModelLoader.h"
 #include "Shader/ShaderDataType.h"
 #include "Shader/Shader.h"
+#include "Texture/CubemapTexture.h"
 #include "Texture/Texture.h"
 
 namespace ZPG {
+
+constexpr static f32 skyboxVertices[] = {
+    // position
+    -1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f,  1.0f,
+};
+
+constexpr static u32 skyboxIndices[] = {
+    0, 1, 2,   0, 2, 3, // Front face
+    0, 4, 7,   0, 7, 3, // Left face
+    3, 7, 6,   3, 6, 2, // Right face
+    2, 6, 5,   2, 5, 1, // Back face
+    1, 5, 4,   1, 4, 0, // Bottom face
+    4, 5, 6,   4, 6, 7, // Top face
+};
 
 ResourceManager::ResourceManager()
 : m_ModelLib(), m_ShaderProgramLib() {
@@ -50,18 +72,22 @@ void ResourceManager::Init() {
 
 void ResourceManager::InitDefaultModels() {
     ref<Model> sphereModel = ModelLoader("./assets/models/sphere/scene.gltf").Load();
-    ref<Mesh> sphereMesh = sphereModel->GetMeshes().front();
-    ref<VertexArray> sphereVAO = sphereMesh->GetVertexArray();
-
     s_Instance->AddModel(CommonResources::MODEL_SPHERE, sphereModel);
-    s_Instance->AddMesh(CommonResources::MESH_SPHERE, sphereMesh);
-    s_Instance->AddVAO(CommonResources::VAO_SPHERE, sphereVAO);
+    s_Instance->AddMesh(CommonResources::MESH_SPHERE, sphereModel->GetMeshes().front());
+    s_Instance->AddVAO(CommonResources::VAO_SPHERE, sphereModel->GetMeshes().front()->GetVertexArray());
 
-    ref<Model> boxModel = Model::Create({
-        s_Instance->GetMesh(CommonResources::MESH_BOX),
-    });
-
+    ref<Model> boxModel = Model::Create({ s_Instance->GetMesh(CommonResources::MESH_BOX) });
     s_Instance->AddModel(CommonResources::MODEL_BOX, boxModel);
+
+    ref<Model> skydomeModel = ModelLoader("./assets/models/skydome/skydome.obj").Load();
+    s_Instance->AddModel(CommonResources::MODEL_SKYDOME, skydomeModel);
+    s_Instance->AddMesh(CommonResources::MESH_SKYDOME, skydomeModel->GetMeshes().front());
+    s_Instance->AddVAO(CommonResources::VAO_SKYDOME, skydomeModel->GetMeshes().front()->GetVertexArray());
+
+    ref<Model> skyboxModel = ModelLoader("./assets/models/skybox/skybox.obj").Load();
+    s_Instance->AddModel(CommonResources::MODEL_SKYBOX, skyboxModel);
+    s_Instance->AddMesh(CommonResources::MESH_SKYBOX, skyboxModel->GetMeshes().front());
+    s_Instance->AddVAO(CommonResources::VAO_SKYBOX, skyboxModel->GetMeshes().front()->GetVertexArray());
 }
 
 void ResourceManager::InitDefaultShaderPrograms() {
@@ -77,8 +103,11 @@ void ResourceManager::InitDefaultShaderPrograms() {
         {CommonResources::SHADER_PROGRAM_LAMBERT,       Stages{ "vertex/General.vert", "fragment/Lambert.frag"     }},
         {CommonResources::SHADER_PROGRAM_PHONG,         Stages{ "vertex/General.vert", "fragment/Phong.frag"       }},
         {CommonResources::SHADER_PROGRAM_BLINN_PHONG,   Stages{ "vertex/General.vert", "fragment/Blinn-Phong.frag" }},
+        {CommonResources::SHADER_PROGRAM_SKYBOX,        Stages{ "vertex/Skybox.vert", "fragment/Skybox.frag" }},
+        {CommonResources::SHADER_PROGRAM_SKYDOME,       Stages{ "vertex/Skydome.vert", "fragment/Skydome.frag" }},
         {CommonResources::SHADER_PROGRAM_DEFAULT,       Route(CommonResources::SHADER_PROGRAM_BLINN_PHONG) },
     };
+
 
     for (auto& [name, entry] : shaderProgramConfig) {
         // Load shaders from files
@@ -108,15 +137,26 @@ void ResourceManager::InitDefaultTextures() {
         {CommonResources::NULL_METALNESS_MAP, { 255, 255, 255, 255 }},
         {CommonResources::NULL_ROUGHNESS_MAP, { 255, 255, 255, 255 }},
         {CommonResources::NULL_EMISSIVE_MAP, { 255, 255, 255, 255 }},
+        {CommonResources::NULL_SKYDOME_MAP, { 0, 0, 0, 0 }},
     };
 
     for (auto& [name, bytes] : nullMapData) {
-        auto nullMap = Texture::Create(name, 1, 1);
+        auto nullMap = Texture::Create(name, 1, 1, TextureDataFormat::RGBA8);
 
         nullMap->SetData(bytes.data(), sizeof(u8) * bytes.size());
 
         s_Instance->AddTexture(nullMap->GetName(), nullMap);
     }
+
+    ref<CubemapTexture> cubemapTexture = CubemapTexture::Create(CommonResources::NULL_CUBEMAP, 1, 1, TextureDataFormat::RGBA8);
+
+    for (int i = 0; i < 6; i++)
+    {
+        u8 nullCubemapData[] = { 0, 0, 0, 0 };
+        cubemapTexture->SetFaceData((CubemapFace)i, nullCubemapData, sizeof(nullCubemapData));
+    }
+
+    s_Instance->AddTexture(CommonResources::NULL_CUBEMAP, cubemapTexture);
 }
 
 void ResourceManager::InitDefaultMaterials() {
@@ -153,6 +193,15 @@ void ResourceManager::Shutdown() {
     // s_Instance = nullptr;
 }
 
+ResourceManager& ResourceManager::GetGlobal() {
+    ZPG_CORE_ASSERT(s_Instance != nullptr, "The resource manager that wasn't initialized");
+    return *s_Instance;
+}
+
+ref<ResourceManager> ResourceManager::GetGlobalRef() {
+    ZPG_CORE_ASSERT(s_Instance != nullptr, "The resource manager that wasn't initialized");
+    return s_Instance;
+}
 
 
 void ResourceManager::LoadModel(const std::string& name, const std::string& path) {

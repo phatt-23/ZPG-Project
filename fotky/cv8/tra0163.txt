@@ -1,0 +1,61 @@
+Projektivni prostor se v PG pouziva hlavne proto, 
+ze umoznuje reprezentaci vice transformaci pomoci jedne jedine matice 4x4.
+(+ muzeme pocitat s nekonecnem, napr. v(1, 2, 3, 0) reprezentuje bod v nekonecnu)
+
+Mejme tyto transformace T - translace, R - rotace, S - scale.
+
+V kartezskem souradnem prostoru by obecne slozena transformace vypadala nejak takto:
+    
+    An * ... * (A2 * (A1 * (A0 * v + T0) + T1) + T2) + ... + Tn
+
+kde:
+    - v je vektor je transformovan (techto je m pro kazdy objekt)
+    - Ai je Si * Ri
+    - S a R jsou matice 3x3 
+    - T je 3-prvkovy vektor.
+
+V PG resime vykresleni vice objektu s vlastnimi transformacemi, ktere mohou byt slozene z vice dilcich transformaci.
+Jinak by bylo vyhodnejsi vyuzivat kartezsky souradny system. 
+Predpokladejme tedy, ze n >= 2.
+
+Abychom transformovali kazdy vektor v, musime do GPU poslat:
+    - A1, A2, ..., An - 3x3 matice (rotace a scale)
+    - T1, T2, ..., Tn - translacni vektory
+
+a program na GPU musi pro m vektoru v vypocitat cely retezec transformaci, kterych je n.
+
+O(n) pro kazde vlakno
+S(m + n)
+
+Proc?
+Tyto transformace nelze "kompresnout" do jedne matice 3x3 a 3-prkoveho vektoru.
+
+    An * ... * (A2 * (A1 * (A0 * v + T0) + T1) + T2) + ... + Tn 
+
+    neni
+
+    (An * ... * A2 * A1 * A0) * v + (T0 + T1 + T2 + ... + Tn) = A * v + T
+
+To znamena, ze pro kazdy objekt musime poslat n matic a n vektoru => neprakticke, VRAM by se rychle preplnil.
+
+Projektivni prostor tento problem resi.
+Translacni komponentu uchovava ve ctvrtem sloupci matice 4x4.
+
+    A = [ a1, a2, a3, a4 ]
+        [ b1, b2, b3, b4 ]
+        [ c1, c2, c3, c4 ]
+        [ d1, d2, d3, d4 ]
+
+Komponenty translacniho vektoru x,y,z jsou uchovany v a4,b4,c4.
+Rotace a scale jsou uchovany v 3x3 horni leve podmatici matice A.
+
+Obecnou slozenou transformaci v projektivnim prostoru zapiseme jako:
+    
+    M = An * ... * A2 * A1 * A0
+
+Tim, ze jde pouze o nasobeni matic (zadne scitani matic s vektory), muzeme tento vyraz predpocitat.
+
+Na GPU posleme jednu jedinou matici M.
+
+Program na GPU - O(1) pro kazde vlakno a S(1 + m).
+

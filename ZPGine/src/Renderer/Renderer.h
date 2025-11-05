@@ -8,6 +8,7 @@
 #include "RendererAPI.h"
 
 namespace ZPG {
+class Skydome;
 class Skybox;
 
 struct DrawData;
@@ -34,34 +35,22 @@ public:
 
     static void SetLights(const std::vector<ref<Light>>& lights);
     static void SetSkybox(const ref<Skybox>& skybox);
+    static void SetSkydome(const ref<Skydome>& skydome);
 
     static void SubmitEntity(const Entity* entity, const m4& transform = m4(1.0f));
     static void SubmitModel(const Model* model, const m4& transform = m4(1.0f), int entityID = -1);
     static void SubmitMesh(const Mesh* mesh, const m4& transform = m4(1.0f), int entityID = -1);
 
-    static void SetInstanced(bool enabled) { s_Instanced = enabled; }
-    static bool IsInstanced() { return s_Instanced; }
-
-    static void SetDeferred(bool enabled) { s_Deferred = enabled; }
-    static bool IsDeferred() { return s_Deferred; }
-
     static RenderStatistics& GetStats() { return *s_Stats; }
-    static DrawData& GetDrawData() { return *s_DrawData; }
+    static DrawData& GetDrawData() { return *s_Draw; }
 
-    static void OnWindowResize(int width, int height);
     static void OnViewportResize(int width, int height);
 
 private:
     static void InstancedRender();
-    static void NonInstancedRender();
-
-    static void BeginDeferred();
-    static void EndDeferred();
 
 private:
-    inline static DrawData* s_DrawData = nullptr;
-    inline static bool s_Instanced = true;
-    inline static bool s_Deferred = true;
+    inline static DrawData* s_Draw = nullptr;
 
     inline static RenderStatistics* s_Stats = nullptr;
 };

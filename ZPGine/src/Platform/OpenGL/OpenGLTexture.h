@@ -26,6 +26,8 @@ public:
 
     u32 GetRendererID() const override;
 
+    void Invalidate() override;
+
 private:
     void LoadTexture(const std::string& path);
     void CreateEmptyTexture();

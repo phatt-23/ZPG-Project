@@ -9,6 +9,7 @@
 #include "Buffer/ShaderStorageBuffer.h"
 
 namespace ZPG {
+class Sky;
 
 class Skybox;
 struct FrameBufferAttachment;
@@ -111,7 +112,7 @@ struct DrawData {
     /**
      * Current Skybox in use.
      */
-    ref<Skybox> CurrentSkybox = nullptr;
+    ref<Sky> CurrentSky = nullptr;
 };
 
 }

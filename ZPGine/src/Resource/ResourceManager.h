@@ -37,8 +37,8 @@ public:
     static void Init();
     static void Shutdown();
 
-    static ResourceManager& GetGlobal() { return *s_Instance; }
-    static ref<ResourceManager> GetGlobalRef() { return s_Instance; }
+    static ResourceManager& GetGlobal();
+    static ref<ResourceManager> GetGlobalRef();
 
     /**
      * High-level: 

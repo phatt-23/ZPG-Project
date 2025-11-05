@@ -1,0 +1,49 @@
+#include "OpenGLSkydome.h"
+
+#include "Buffer/VertexArray.h"
+#include "Resource/CommonResources.h"
+#include "Resource/ResourceManager.h"
+#include "Shader/ShaderProgram.h"
+#include "Texture/Texture.h"
+
+namespace ZPG 
+{
+
+OpenGLSkydome::OpenGLSkydome(const SkydomeSpecification& spec)
+    : m_Spec(spec)
+{
+    m_VertexArray = ResourceManager::GetGlobal().GetMesh(CommonResources::MESH_SKYDOME)->GetVertexArray();
+    m_ShaderProgram = ResourceManager::GetGlobal().GetShaderProgram(CommonResources::SHADER_PROGRAM_SKYDOME);
+
+    m_Texture = Texture::Create(m_Spec.TexturePath);
+}
+
+OpenGLSkydome::~OpenGLSkydome()
+{
+}
+
+const ref<VertexArray>& OpenGLSkydome::GetVertexArray() const
+{
+    return m_VertexArray;
+}
+
+void OpenGLSkydome::BindTextureToSlot(int slot) const
+{
+    m_Texture->BindToSlot(slot);
+}
+
+void OpenGLSkydome::Bind() const
+{
+    m_ShaderProgram->Bind();
+    m_ShaderProgram->SetInt("u_SkydomeMap", 0);
+    BindTextureToSlot(0);
+    m_VertexArray->Bind();
+}
+
+void OpenGLSkydome::Unbind() const
+{
+    m_VertexArray->Unbind();
+    m_ShaderProgram->Unbind();
+}
+
+}

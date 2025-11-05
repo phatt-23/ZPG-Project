@@ -30,10 +30,10 @@ Application::Application() {
     m_Window->SetVSync(false);
 
     // initialize subsystems
-    Renderer::Init();
     Input::Init();
     ImGuiManager::Init(m_Window);
     ResourceManager::Init();
+    Renderer::Init();
 }
 
 Application::~Application() {
@@ -80,7 +80,7 @@ bool Application::OnWindowClose(WindowCloseEvent& event) {
 }
 
 bool Application::OnWindowResize(WindowResizeEvent& event) {
-    Renderer::OnWindowResize(event.GetWidth(), event.GetHeight());
+    // Renderer::OnWindowResize(event.GetWidth(), event.GetHeight());
     return false;
 }
 

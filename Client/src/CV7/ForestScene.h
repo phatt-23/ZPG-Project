@@ -1,7 +1,7 @@
 #include "Entity/PointLightEntity.h"
 #include "Resource/CommonResources.h"
 #include "ZPGine.h"
-#include "Skybox/Skybox.h"
+#include "Sky/Skybox.h"
 
 using namespace ZPG;
 

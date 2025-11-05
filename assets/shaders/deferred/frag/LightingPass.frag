@@ -1,39 +1,48 @@
 #type fragment
 #version 440 core
 
-// enum of light types
 const uint LightTypeAmbient      = 1 << 0;
 const uint LightTypePoint        = 1 << 1;
 const uint LightTypeDirectional  = 1 << 2;
 const uint LightTypeSpotlight    = 1 << 3;
 
-struct Light {
-    vec3 Pos;
-    int Type;
-    vec4 Color;
-    vec3 Dir;
-    float BeamSize;
-    vec3 Atten;
-    float BeamBlend;
+struct Light 
+{
+    vec3    Pos;
+    int     Type;      // 16
+    vec4    Color;     // 16  (rgb - color [0..1], a - intesity [0..x])
+    vec3    Dir;
+    float   BeamSize;  // 16
+    vec3    Atten;     
+    float   BeamBlend; // 16
 };
 
-layout (std430, binding = 1) buffer LightsStorageBuffer {
+layout(std430, binding = 1) buffer LightsStorageBuffer 
+{
     int LightCount;
     Light Lights[];
 } ssb_Lights;
 
-layout (std430, binding = 2) buffer CameraStorageBuffer {
+layout(std430, binding = 2) buffer CameraStorageBuffer 
+{
     vec3 CameraPos;
 } ssb_Camera;
 
 in vec2 v_TexCoord;
 
+const uint SkyTypeNone = 0;
+const uint SkyTypeSkybox = 1 << 0;
+const uint SkyTypeSkydome = 1 << 1;
+
+uniform int u_SkyType;
+uniform sampler2D u_SkydomeMap;
 uniform samplerCube u_SkyboxMap;
-uniform sampler2D g_Color0; // pos
-uniform sampler2D g_Color1; // normal
-uniform sampler2D g_Color2; // albedo and metallic
-uniform sampler2D g_Color3; // emissive and roughness
-uniform isampler2D g_Color4; // entityID
+
+uniform sampler2D   g_Color0; // pos
+uniform sampler2D   g_Color1; // normal
+uniform sampler2D   g_Color2; // albedo and metallic
+uniform sampler2D   g_Color3; // emissive and roughness
+uniform isampler2D  g_Color4; // entityID
 
 layout(location = 0) out vec4 f_Color0;
 layout(location = 1) out int f_Color1;
@@ -59,8 +68,7 @@ void main()
 
     float ao = 1.0;
 
-    vec3 F0 = vec3(0.04);
-    F0 = mix(F0, albedo, metallic);
+    vec3 F0 = mix(vec3(0.04), albedo, metallic);
 
     vec3 N = normalize(worldNormal);
     vec3 V = normalize(ssb_Camera.CameraPos - worldPos);
@@ -70,22 +78,23 @@ void main()
 
     // reflectance equation
 
-    for(int i = 0; i < ssb_Lights.LightCount; i++) {
-
+    for(int i = 0; i < ssb_Lights.LightCount; i++) 
+    {
         Light light = ssb_Lights.Lights[i];
 
         int lightType = light.Type;
-        vec3 lightColor = light.Color.rgb * light.Color.a;
+        vec3 lightColor = light.Color.rgb;
         vec3 lightPos = light.Pos.xyz;
         vec3 lightDir = light.Dir.xyz;
         vec3 lightAtten = light.Atten;
 
-        if (lightType == LightTypePoint) {
+        if (lightType == LightTypePoint) 
+        {
             // calculate per-light radiance
             vec3 L = normalize(lightPos - worldPos);
             vec3 H = normalize(V + L);
             float distance    = length(lightPos - worldPos);
-            float attenuation = min(1.0 / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z), 1.0);
+            float attenuation = min(light.Color.a / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z), 1.0);
             vec3 radiance     = lightColor * attenuation;
 
             // cook-torrance brdf
@@ -105,7 +114,8 @@ void main()
             float NdotL = max(dot(N, L), 0.0);
             Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
-        else if (lightType == LightTypeDirectional) {
+        else if (lightType == LightTypeDirectional) 
+        {
             // calculate per-light radiance
             vec3 L = normalize(-lightDir);
             vec3 H = normalize(V + L);
@@ -128,7 +138,8 @@ void main()
             float NdotL = max(dot(N, L), 0.0);
             Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
-        else if (lightType == LightTypeSpotlight) {
+        else if (lightType == LightTypeSpotlight) 
+        {
             // calculate per-light radiance
             vec3 L = normalize(lightPos - worldPos);
             vec3 H = normalize(V + L);
@@ -148,7 +159,7 @@ void main()
             float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
 
             float distance    = length(lightPos - worldPos);
-            float attenuation = min(1.0 / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z), 1.0);
+            float attenuation = min(light.Color.a / (lightAtten.x * distance * distance + lightAtten.y * distance + lightAtten.z), 1.0);
             vec3 radiance     = lightColor * attenuation * beamContrib;
 
             // cook-torrance brdf
@@ -168,22 +179,48 @@ void main()
             float NdotL = max(dot(N, L), 0.0);
             Lo += (kD * albedo / PI + specular) * radiance * NdotL;
         }
-        else if (lightType == LightTypeAmbient) {
+        else if (lightType == LightTypeAmbient) 
+        {
             La += albedo * lightColor * ao;
         }
     }
-    
+
     vec3 color = Lo + La + emissive;
+    vec3 finalColor = color;
 
-    vec3 R = reflect(-V, N);
-    vec3 envColor = texture(u_SkyboxMap, R).rgb; // sample environment reflection
+    if (u_SkyType == SkyTypeSkybox) 
+    {
+        vec3 R = reflect(-V, N);
+        vec3 envColor = texture(u_SkyboxMap, R).rgb; // sample environment reflection
 
-    vec3 F = fresnelSchlick(max(dot(N, V), 0.0), F0); // Fresnel term — stronger near grazing angles
+        vec3 F = fresnelSchlick(max(dot(N, V), 0.0), F0); // Fresnel term — stronger near grazing angles
 
-    float reflectionStrength = (1.0 - roughness);
-    vec3 reflection = envColor * F * reflectionStrength; // Attenuate reflection by smoothness (1 - roughness)
+        float reflectionStrength = (1.0 - roughness);
+        vec3 reflection = envColor * F * reflectionStrength; // Attenuate reflection by smoothness (1 - roughness)
 
-    vec3 finalColor = color + reflection; // Combine lighting with reflection
+        finalColor = color + reflection; // Combine lighting with reflection
+    }
+    else if (u_SkyType == SkyTypeSkydome)
+    {
+        vec3 R = reflect(-V, N);
+
+        vec3 dir = normalize(R);
+        float theta = acos(clamp(dir.y, 0.0, 1.0)); // only upper hemisphere
+        float phi = atan(dir.z, dir.x);
+        float r = theta / (0.5 * PI);
+        float u = 0.5 + 0.5 * r * cos(phi);
+        float v = 0.5 + 0.5 * r * sin(phi);
+        vec2 uv = vec2(u, v);
+
+        vec3 envColor = texture(u_SkydomeMap, uv).rgb; // sample environment reflection
+
+        vec3 F = fresnelSchlick(max(dot(N, V), 0.0), F0); // Fresnel term — stronger near grazing angles
+
+        float reflectionStrength = (1.0 - roughness);
+        vec3 reflection = envColor * F * reflectionStrength; // Attenuate reflection by smoothness (1 - roughness)
+
+        finalColor = color + reflection; // Combine lighting with reflection
+    }
 
     // Tone mapping + gamma correction
     finalColor = finalColor / (finalColor + vec3(1.0));

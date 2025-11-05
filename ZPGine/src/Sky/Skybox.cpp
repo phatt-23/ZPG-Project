@@ -14,6 +14,12 @@
 #include "stb_image/stb_image.h"
 
 namespace ZPG {
+Skybox::~Skybox() {
+}
+
+SkyType Skybox::GetSkyType() const {
+    return SkyType::Skybox;
+}
 
 ref<Skybox> Skybox::Create(const SkyboxSpecification& spec)
 {

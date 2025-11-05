@@ -29,6 +29,8 @@ public:
 
     virtual void Resize(u32 width, u32 height) = 0;
 
+    virtual void Invalidate() = 0;
+
     virtual u32 GetRendererID() const = 0;
 
     static ref<Texture> Create(
@@ -38,7 +40,7 @@ public:
     static ref<Texture> Create(
         const std::string& name, 
         const std::string& filepath, 
-        TextureDataFormat dataFormat = TextureDataFormat::RGBA8);
+        TextureDataFormat dataFormat = TextureDataFormat::RGBA8);                                                           /* There is no need for this dataFormat, it should be deduced from the loaded texture */
 
     static ref<Texture> Create(
         const std::string& name, 

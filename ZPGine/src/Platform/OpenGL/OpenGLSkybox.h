@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Skybox/Skybox.h"
+#include "Sky/Skybox.h"
 
 namespace ZPG {
 
@@ -13,14 +13,14 @@ public:
     OpenGLSkybox(const SkyboxSpecification& spec);
     ~OpenGLSkybox() override;
 
-    void Bind() override;
-    void Unbind() override;
+    void Bind() const override;
+    void Unbind() const override;
 
     const ref<VertexArray>& GetVertexArray() const override;
-    void BindCubemapToSlot(int slot) const override;
-    void UnbindCubemap() const override;
+    void BindTextureToSlot(int slot) const override;
 
 private:
+
     SkyboxSpecification m_Specification;
     u32 m_TextureRendererID = 0;
 

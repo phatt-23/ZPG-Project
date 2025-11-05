@@ -15,7 +15,7 @@
 #include "Shader/ShaderProgram.h"
 #include "Buffer/BufferLayout.h"
 #include "Core/Window.h"
-#include "Skybox/Skybox.h"
+#include "Sky/Skybox.h"
 
 namespace ZPG {
 
@@ -147,7 +147,7 @@ DrawData::DrawData()
 
     // Default skybox
     {
-        CurrentSkybox = Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" });
+        CurrentSky = Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" });
     }
 }
 

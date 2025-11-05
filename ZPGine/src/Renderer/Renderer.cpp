@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "DrawData.h"
+#include "Renderer/RenderBindingPoints.h"
 #include "imgui_internal.h"
 #include "RenderCommand.h"
 #include "Model/Model.h"
@@ -23,200 +24,272 @@
 #include "RenderGroups.h"
 #include "Texture/Texture.h"
 #include "RenderStatistics.h"
-#include "Skybox/Skybox.h"
+#include "Resource/CommonResources.h"
+#include "Sky/Skybox.h"
+#include "Sky/Skydome.h"
 
 namespace ZPG {
 
-RendererAPI::API Renderer::GetAPI() {
+RendererAPI::API Renderer::GetAPI() 
+{
     return RendererAPI::GetAPI();
 }
 
-void Renderer::Init() {
-    ZPG_CORE_ASSERT(s_DrawData == nullptr, "Renderer already initialized.");
+void Renderer::Init() 
+{
+    ZPG_CORE_ASSERT(s_Draw == nullptr, "Renderer already initialized.");
 
     RenderCommand::Init();
-    s_DrawData = new DrawData();
+    s_Draw = new DrawData();
     s_Stats = new RenderStatistics();
 
 }
 
-void Renderer::Shutdown() {
-    ZPG_CORE_ASSERT(s_DrawData != nullptr, "Renderer isn't initialized.");
+void Renderer::Shutdown() 
+{
+    ZPG_CORE_ASSERT(s_Draw != nullptr, "Renderer isn't initialized.");
 
     RenderCommand::Shutdown();
-    delete s_DrawData;
+    delete s_Draw;
     delete s_Stats;
 }
 
-void Renderer::BeginDraw(const Camera& camera) {
-    if (s_Deferred) {
-        BeginDeferred();
-    }
-    else {
-        s_DrawData->MainFBO->Bind();
-    }
-
-    RenderCommand::SetClearColor({0.0, 0.0, 0.0, 1.0});
+void Renderer::BeginDraw(const Camera& camera) 
+{
+    // bind the g-buffer so the consequent draw calls will draw into it
+    s_Draw->GBuffer->Bind();
     RenderCommand::Clear();
 
-    s_DrawData->MatricesStorage.View = camera.GetViewMatrix();
-    s_DrawData->MatricesStorage.Proj = camera.GetProjMatrix();
-    s_DrawData->MatricesStorage.ViewProj = camera.GetViewProjMatrix();
-    s_DrawData->CameraStorage.CameraPos = camera.GetPosition();
+    // bind the gpass shader program and set the sampler slots
+    s_Draw->GPassSP->Bind();
+    s_Draw->GPassSP->SetInt(CommonShaderUniforms::ALBEDO_MAP,       RenderBindingPoints::ALBEDO_MAP);
+    s_Draw->GPassSP->SetInt(CommonShaderUniforms::METALNESS_MAP,    RenderBindingPoints::METALNESS_MAP);
+    s_Draw->GPassSP->SetInt(CommonShaderUniforms::ROUGHNESS_MAP,    RenderBindingPoints::ROUGHNESS_MAP);
+    s_Draw->GPassSP->SetInt(CommonShaderUniforms::NORMAL_MAP,       RenderBindingPoints::NORMAL_MAP);
+    s_Draw->GPassSP->SetInt(CommonShaderUniforms::EMISSIVE_MAP,     RenderBindingPoints::EMISSIVE_MAP);
 
-    s_DrawData->Batch.Reset();
+    s_Draw->MatricesStorage.View = camera.GetViewMatrix();
+    s_Draw->MatricesStorage.Proj = camera.GetProjMatrix();
+    s_Draw->MatricesStorage.ViewProj = camera.GetViewProjMatrix();
+    s_Draw->CameraStorage.CameraPos = camera.GetPosition();
+
+    s_Draw->Batch.Reset();
     s_Stats->Reset();
-    s_DrawData->LightsStorage.LightCount = 0;
+    s_Draw->LightsStorage.LightCount = 0;
 }
 
-void Renderer::EndDraw() {
-    ZPG_CORE_ASSERT(s_DrawData);
+void Renderer::EndDraw() 
+{
+    ZPG_CORE_ASSERT(s_Draw);
     Flush();
 
-    if (s_Deferred) {
-        EndDeferred();
+    // end of the g-buffer usage
+    s_Draw->GBuffer->Unbind();
+
+    // Instead of drawing the lighting pass into the default FBO, I want to draw into my own FBO.
+    // Bind the main FBO (my FBO), clear it and run the lighting pass with the g-buffer's data.
+    s_Draw->MainFBO->Bind();
+    RenderCommand::Clear();
+
+    // bind the lighting pass shader program
+    s_Draw->LightingPassShaderProgram->Bind();
+
+
+    // bind dummy skybox map texture
+    ResourceManager::GetGlobal().GetTexture(CommonResources::NULL_CUBEMAP)->BindToSlot(RenderBindingPoints::SKYBOX_TEXTURE_SLOT);
+    s_Draw->LightingPassShaderProgram->SetInt(CommonShaderUniforms::SKYBOX_CUBEMAP, RenderBindingPoints::SKYBOX_TEXTURE_SLOT);
+
+    // bind dummy skydome map texture
+    ResourceManager::GetGlobal().GetTexture(CommonResources::NULL_SKYDOME_MAP)->BindToSlot(RenderBindingPoints::SKYDOME_TEXTURE_SLOT);
+    s_Draw->LightingPassShaderProgram->SetInt(CommonShaderUniforms::SKYDOME_MAP, RenderBindingPoints::SKYDOME_TEXTURE_SLOT);
+
+
+    switch (s_Draw->CurrentSky->GetSkyType()) 
+    {
+        case SkyType::Skybox:
+            s_Draw->LightingPassShaderProgram->SetInt(CommonShaderUniforms::SKYTYPE, (i32)SkyType::Skybox);
+            s_Draw->CurrentSky->BindTextureToSlot(RenderBindingPoints::SKYBOX_TEXTURE_SLOT); // this must come first
+            s_Draw->LightingPassShaderProgram->SetInt(CommonShaderUniforms::SKYBOX_CUBEMAP, RenderBindingPoints::SKYBOX_TEXTURE_SLOT);
+            break;
+
+        case SkyType::Skydome: 
+            s_Draw->LightingPassShaderProgram->SetInt(CommonShaderUniforms::SKYTYPE, (i32)SkyType::Skydome);
+            s_Draw->CurrentSky->BindTextureToSlot(RenderBindingPoints::SKYDOME_TEXTURE_SLOT); // this must come first
+            s_Draw->LightingPassShaderProgram->SetInt(CommonShaderUniforms::SKYDOME_MAP, RenderBindingPoints::SKYDOME_TEXTURE_SLOT);
+            break;
+
+        case SkyType::None:
+            ZPG_UNREACHABLE("SkyType::None not supported")
     }
 
-    s_DrawData->MainFBO->Bind();
+    // bind the g-buffer's color texture attachments
+    // with the collected geometry information
+    s_Draw->GBuffer->BindColorTextureAttachments();
 
-    if (s_DrawData->CurrentSkybox) {
+    s_Draw->QuadVAO->Bind(); // bind the uv quad that fills up the NDC
+    RenderCommand::DrawArrays(*s_Draw->QuadVAO);
+    s_Draw->QuadVAO->Unbind();
+
+    // bind the lighting pass shader program
+    s_Draw->LightingPassShaderProgram->Unbind();
+
+    // // Copy the G-Buffer's depth buffer into the main FBO's depth buffer
+    s_Draw->MainFBO->CopyAttachment(s_Draw->GBuffer, FrameBufferAttachmentType::Depth);
+
+    s_Draw->MainFBO->Unbind();
+
+    s_Draw->MainFBO->Bind();
+
+    if (s_Draw->CurrentSky) 
+    {
+        const ref<VertexArray>& skyVertexArray = s_Draw->CurrentSky->GetVertexArray();
+
         glDepthFunc(GL_LEQUAL);
         glDepthMask(GL_FALSE);
 
-        const ref<VertexArray>& skyboxVAO = s_DrawData->CurrentSkybox->GetVertexArray();
-
-        s_DrawData->CurrentSkybox->Bind();
-        RenderCommand::DrawIndexed(*skyboxVAO, skyboxVAO->GetIndexBuffer()->GetCount());
-        s_DrawData->CurrentSkybox->Unbind();
-
-        // restore
-        glDepthMask(GL_TRUE);
+        s_Draw->CurrentSky->Bind();
+        RenderCommand::DrawIndexed(*skyVertexArray, skyVertexArray->GetIndexBuffer()->GetCount());
+        s_Draw->CurrentSky->Unbind();
+        
+        glDepthMask(GL_TRUE); // restore
         glDepthFunc(GL_LESS);
     }
 
-    s_DrawData->MainFBO->Unbind();
+    s_Draw->MainFBO->Unbind();
 }
 
 void Renderer::Flush() {
-    ZPG_CORE_ASSERT(s_DrawData);
+    ZPG_CORE_ASSERT(s_Draw);
 
     // nothing to do
-    if (s_DrawData->Batch.GetBatchSize() == 0) {
+    if (s_Draw->Batch.GetBatchSize() == 0) {
         return;
     }
 
     // Set up the shared SSBOs
     {
         // Matrices SSBO
-        s_DrawData->MatricesSSBO.Bind();
-        s_DrawData->MatricesSSBO.SetData(
-            &s_DrawData->MatricesStorage,
+        s_Draw->MatricesSSBO.Bind();
+        s_Draw->MatricesSSBO.SetData(
+            &s_Draw->MatricesStorage,
             sizeof(DrawData::MatricesStorage));
 
         // Light SSBO
-        s_DrawData->LightsSSBO.Bind();
+        s_Draw->LightsSSBO.Bind();
 
-        s_DrawData->LightsSSBO.SetData(
-            &s_DrawData->LightsStorage.LightCount,
+        s_Draw->LightsSSBO.SetData(
+            &s_Draw->LightsStorage.LightCount,
             sizeof(i32));
 
-        s_DrawData->LightsSSBO.SetData(
-            s_DrawData->LightsStorage.Lights,
-            sizeof(LightStruct) * s_DrawData->LightsStorage.LightCount,
+        s_Draw->LightsSSBO.SetData(
+            s_Draw->LightsStorage.Lights,
+            sizeof(LightStruct) * s_Draw->LightsStorage.LightCount,
             offsetof(DrawData::LightsStorageBuffer, Lights));
 
         // Camera SSBO
-        s_DrawData->CameraSSBO.Bind();
-        s_DrawData->CameraSSBO.SetData(
-            &s_DrawData->CameraStorage,
+        s_Draw->CameraSSBO.Bind();
+        s_Draw->CameraSSBO.SetData(
+            &s_Draw->CameraStorage,
             sizeof(DrawData::CameraStorage));
     }
 
     // Batch render
-    if (s_Instanced) {
-        InstancedRender();
-    }
-    else {
-        NonInstancedRender();
-    }
+    InstancedRender();
 
     s_Stats->FlushCountPerFrame++;
 }
 
-void Renderer::SetLights(const std::vector<ref<Light>>& lights) {
-    s_DrawData->LightsStorage.LightCount = std::min((u32)lights.size(), LightManager::s_LightCapacity);
+void Renderer::SetLights(const std::vector<ref<Light>>& lights) 
+{
+    s_Draw->LightsStorage.LightCount = std::min((u32)lights.size(), LightManager::s_LightCapacity);
 
-    for (int i = 0; i < s_DrawData->LightsStorage.LightCount; i++) {
+    for (int i = 0; i < s_Draw->LightsStorage.LightCount; i++) {
         ref<Light> light = lights[i];
 
         LightStruct lightStruct;
 
-        if (light->GetLightType() == LightType::Directional) {
-            lightStruct = ((DirectionalLight*)light.get())->MapToLightStruct();
-        }
-        else if (light->GetLightType() == LightType::Ambient) {
-            lightStruct = ((AmbientLight*)light.get())->MapToLightStruct();
-        }
-        else if (light->GetLightType() == LightType::Point) {
-            lightStruct = ((PointLight*)light.get())->MapToLightStruct();
-        }
-        else if (light->GetLightType() == LightType::Spotlight) {
-            lightStruct = ((SpotLight*)light.get())->MapToLightStruct();
+        switch (light->GetLightType()) 
+        {
+            case LightType::None: 
+                ZPG_UNREACHABLE("LightType::None not supported"); 
+                break;
+            case LightType::Directional:
+                lightStruct = ((DirectionalLight*)light.get())->MapToLightStruct();
+                break;
+            case LightType::Ambient:
+                lightStruct = ((AmbientLight*)light.get())->MapToLightStruct();
+                break;
+            case LightType::Point:
+                lightStruct = ((PointLight*)light.get())->MapToLightStruct();
+                break;
+            case LightType::Spotlight:
+                lightStruct = ((SpotLight*)light.get())->MapToLightStruct();
+                break;
         }
 
-        s_DrawData->LightsStorage.Lights[i] = lightStruct;
+        s_Draw->LightsStorage.Lights[i] = lightStruct;
     }
 }
 
-void Renderer::SetSkybox(const ref<Skybox>& skybox) {
-    s_DrawData->CurrentSkybox = skybox;
+void Renderer::SetSkybox(const ref<Skybox>& skybox) 
+{
+    s_Draw->CurrentSky = skybox;
 }
 
-void Renderer::SubmitEntity(const Entity* entity, const glm::mat4& transform) {
-    glm::mat4 entityTransform = transform * entity->GetTransformMatrix();
+void Renderer::SetSkydome(const ref<Skydome>& skydome) 
+{
+    s_Draw->CurrentSky = skydome;
+}
+
+void Renderer::SubmitEntity(const Entity* entity, const glm::mat4& transform) 
+{
+    const glm::mat4& entityTransform = transform * entity->GetTransformMatrix();
     const ref<Model>& model = entity->GetModel();
     SubmitModel(model.get(), entityTransform, entity->GetEntityID());
 }
 
-void Renderer::SubmitModel(const Model* model, const m4& transform, int entityID) {
+void Renderer::SubmitModel(const Model* model, const m4& transform, int entityID) 
+{
     const std::vector<ref<Mesh>>& meshes = model->GetMeshes();
 
-    for (auto& mesh : meshes) {
+    for (auto& mesh : meshes) 
+    {
         SubmitMesh(mesh.get(), transform, entityID);
     }
 }
 
-void Renderer::SubmitMesh(const Mesh* mesh, const m4& transform, int entityID) {
+void Renderer::SubmitMesh(const Mesh* mesh, const m4& transform, int entityID) 
+{
     // query everything out of the mesh object
     ShaderProgram* shaderProgram = mesh->GetMaterial()->GetShaderProgram().get();
     Material* material = mesh->GetMaterial().get();
     VertexArray* vertexArray = mesh->GetVertexArray().get();
     const m4& worldMat = transform * mesh->GetLocalTransform();
 
-    if (s_DrawData->Batch.GetBatchSize() >= s_DrawData->Batch.GetBatchCapacity()) {
+    if (s_Draw->Batch.GetBatchSize() >= s_Draw->Batch.GetBatchCapacity()) 
+    {
         Flush();
     }
 
     DrawCommand command(shaderProgram, material, vertexArray);
-    s_DrawData->Batch.AddCommand(command, worldMat, entityID);
+    s_Draw->Batch.AddCommand(command, worldMat, entityID);
 }
 
-void Renderer::OnWindowResize(int width, int height) {
+void Renderer::OnViewportResize(int width, int height) 
+{
+    s_Draw->GBuffer->Resize(width, height);
+    s_Draw->MainFBO->Resize(width, height);
 }
 
-void Renderer::OnViewportResize(int width, int height) {
-    s_DrawData->GBuffer->Resize(width, height);
-    s_DrawData->MainFBO->Resize(width, height);
-}
+void Renderer::InstancedRender() 
+{
+    ZPG_CORE_ASSERT(s_Draw);
 
-void Renderer::InstancedRender() {
-    ZPG_CORE_ASSERT(s_DrawData);
+    s_Draw->Batch.BuildGroups();
 
-    s_DrawData->Batch.BuildGroups();
-
-    const auto& shaderProgramGroups = s_DrawData->Batch.GetShaderProgramGroups();
-    const auto& materialGroups = s_DrawData->Batch.GetMaterialGroups();
-    const auto& vaoGroups = s_DrawData->Batch.GetVertexArrayGroups();
+    const auto& shaderProgramGroups = s_Draw->Batch.GetShaderProgramGroups();
+    const auto& materialGroups = s_Draw->Batch.GetMaterialGroups();
+    const auto& vaoGroups = s_Draw->Batch.GetVertexArrayGroups();
 
     s_Stats->ShaderProgramGroupCount = shaderProgramGroups.size();
     s_Stats->MaterialGroupCount = materialGroups.size();
@@ -228,11 +301,14 @@ void Renderer::InstancedRender() {
     VertexArray* curVAO = nullptr;
 
 
-    for (const auto& shaderProgramGroup : shaderProgramGroups) {
+    for (const auto& shaderProgramGroup : shaderProgramGroups) 
+    {
 
         ShaderProgram* shaderProgram = shaderProgramGroup.m_ShaderProgram;
 
-        if (curShaderProgram != shaderProgram && !s_Deferred) {
+        /*
+        if (curShaderProgram != shaderProgram && !s_Deferred) 
+        {
             curShaderProgram = shaderProgram;
 
             shaderProgram->Bind();
@@ -244,6 +320,7 @@ void Renderer::InstancedRender() {
             shaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
             shaderProgram->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
         }
+         */
 
         for (int materialIdx = shaderProgramGroup.m_MaterialStart;
              materialIdx < shaderProgramGroup.m_MaterialStart + shaderProgramGroup.m_MaterialCount;
@@ -253,7 +330,8 @@ void Renderer::InstancedRender() {
 
             Material* material = materialGroup.m_Material;
 
-            if (curMaterial != material) {
+            if (curMaterial != material) 
+            {
                 curMaterial = material;
 
                 material->GetAlbedoMap()->BindToSlot(0);
@@ -262,15 +340,15 @@ void Renderer::InstancedRender() {
                 material->GetNormalMap()->BindToSlot(3);
                 material->GetEmissiveMap()->BindToSlot(4);
 
-                s_DrawData->MaterialStorage.Albedo = material->GetAlbedo();
-                s_DrawData->MaterialStorage.Emissive = material->GetEmissive();
-                s_DrawData->MaterialStorage.Roughness = material->GetRoughness();
-                s_DrawData->MaterialStorage.Metallic = material->GetMetallic();
+                s_Draw->MaterialStorage.Albedo = material->GetAlbedo();
+                s_Draw->MaterialStorage.Emissive = material->GetEmissive();
+                s_Draw->MaterialStorage.Roughness = material->GetRoughness();
+                s_Draw->MaterialStorage.Metallic = material->GetMetallic();
 
-                s_DrawData->MaterialSSBO.Bind();
-                s_DrawData->MaterialSSBO.SetData(
-                    &s_DrawData->MaterialStorage,
-                    sizeof(s_DrawData->MaterialStorage));
+                s_Draw->MaterialSSBO.Bind();
+                s_Draw->MaterialSSBO.SetData(
+                    &s_Draw->MaterialStorage,
+                    sizeof(s_Draw->MaterialStorage));
             }
 
             for (int vaoIdx = materialGroup.m_VertexArrayStart;
@@ -281,60 +359,62 @@ void Renderer::InstancedRender() {
 
                 VertexArray* vao = vaoGroup.m_VertexArray;
 
-                if (curVAO != vao) {
+                if (curVAO != vao) 
+                {
                     curVAO = vao;
-
                     vao->Bind();
                 }
 
                 // ModelsSSBO
                 {
-                    const m4* batchTransforms = s_DrawData->Batch.GetTransforms().data();
-                    memcpy(s_DrawData->ModelsStorage.Models, &batchTransforms[vaoGroup.m_Start], sizeof(m4) * vaoGroup.m_Count);
+                    const m4* batchTransforms = s_Draw->Batch.GetTransforms().data();
+                    memcpy(s_Draw->ModelsStorage.Models, &batchTransforms[vaoGroup.m_Start], sizeof(m4) * vaoGroup.m_Count);
 
-                    s_DrawData->ModelsStorage.ModelCount = vaoGroup.m_Count;
+                    s_Draw->ModelsStorage.ModelCount = vaoGroup.m_Count;
 
-                    s_DrawData->ModelsSSBO.Bind();
+                    s_Draw->ModelsSSBO.Bind();
 
-                    s_DrawData->ModelsSSBO.SetData(
-                        &s_DrawData->ModelsStorage.ModelCount,
+                    s_Draw->ModelsSSBO.SetData(
+                        &s_Draw->ModelsStorage.ModelCount,
                         sizeof(i32),
                         offsetof(DrawData::ModelsStorageBuffer, ModelCount));
 
-                    s_DrawData->ModelsSSBO.SetData(
-                        s_DrawData->ModelsStorage.Models,
+                    s_Draw->ModelsSSBO.SetData(
+                        s_Draw->ModelsStorage.Models,
                         sizeof(m4) * vaoGroup.m_Count,
                         offsetof(DrawData::ModelsStorageBuffer, Models));
                 }
 
                 // EntitiesSSBO
                 {
-                    const i32* entityIDs = s_DrawData->Batch.GetEntityIDs().data();
+                    const i32* entityIDs = s_Draw->Batch.GetEntityIDs().data();
 
-                    memcpy(s_DrawData->EntitiesStorage.EntityIDs, &entityIDs[vaoGroup.m_Start], sizeof(i32) * vaoGroup.m_Count);
+                    memcpy(s_Draw->EntitiesStorage.EntityIDs, &entityIDs[vaoGroup.m_Start], sizeof(i32) * vaoGroup.m_Count);
 
-                    s_DrawData->EntitiesStorage.EntityCount = vaoGroup.m_Count;
+                    s_Draw->EntitiesStorage.EntityCount = vaoGroup.m_Count;
 
-                    s_DrawData->EntitiesSSBO.Bind();
+                    s_Draw->EntitiesSSBO.Bind();
 
-                    s_DrawData->EntitiesSSBO.SetData(
-                        &s_DrawData->EntitiesStorage.EntityCount,
+                    s_Draw->EntitiesSSBO.SetData(
+                        &s_Draw->EntitiesStorage.EntityCount,
                         sizeof(i32),
                         offsetof(DrawData::EntitiesStorageBuffer, EntityCount));
 
-                    s_DrawData->EntitiesSSBO.SetData(
-                        s_DrawData->EntitiesStorage.EntityIDs,
+                    s_Draw->EntitiesSSBO.SetData(
+                        s_Draw->EntitiesStorage.EntityIDs,
                         sizeof(i32) * vaoGroup.m_Count,
                         offsetof(DrawData::EntitiesStorageBuffer, EntityIDs));
                 }
 
-                if (vaoGroup.m_VertexArray->HasIndexBuffer()) {
+                if (vaoGroup.m_VertexArray->HasIndexBuffer()) 
+                {
                     RenderCommand::DrawIndexedInstanced(
                         *vao,
                         vao->GetIndexBuffer()->GetCount(),
                         vaoGroup.m_Count);
                 }
-                else {
+                else 
+                {
                     RenderCommand::DrawArraysInstanced(*vao, vaoGroup.m_Count);
                 }
 
@@ -344,135 +424,5 @@ void Renderer::InstancedRender() {
     }
 }
 
-void Renderer::NonInstancedRender() {
-    ZPG_CORE_ASSERT(s_DrawData);
-
-    s_DrawData->Batch.SortCommands();
-    const std::vector<m4>& transforms = s_DrawData->Batch.GetTransforms();
-
-    ShaderProgram* currentShaderProgram = nullptr;
-    Material* currentMaterial = nullptr;
-    VertexArray* currentVertexArray = nullptr;
-
-    for (const auto& command : s_DrawData->Batch.GetDrawCommands()) {
-
-        if (!currentShaderProgram || currentShaderProgram != command.m_ShaderProgram) {
-            currentShaderProgram = command.m_ShaderProgram;
-            // reset dependents
-            currentMaterial = nullptr;
-            currentVertexArray = nullptr;
-
-            if (!s_Deferred) {
-                currentShaderProgram->Bind();
-                currentShaderProgram->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
-                currentShaderProgram->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
-                currentShaderProgram->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
-                currentShaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
-                currentShaderProgram->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
-            }
-        }
-
-        if (!currentMaterial || currentMaterial != command.m_Material) {
-            currentMaterial = command.m_Material;
-
-            // currentMaterial->Bind();  // don't, deprecated
-            currentMaterial->GetAlbedoMap()->BindToSlot(0);
-            currentMaterial->GetMetalnessMap()->BindToSlot(1);
-            currentMaterial->GetRoughnessMap()->BindToSlot(2);
-            currentMaterial->GetNormalMap()->BindToSlot(3);
-
-            // update material SSBO per material
-
-            s_DrawData->MaterialStorage.Albedo = currentMaterial->GetAlbedo();
-            s_DrawData->MaterialStorage.Emissive = currentMaterial->GetEmissive();
-            s_DrawData->MaterialStorage.Roughness = currentMaterial->GetRoughness();
-            s_DrawData->MaterialStorage.Metallic = currentMaterial->GetMetallic();
-
-            s_DrawData->MaterialSSBO.Bind();
-            s_DrawData->MaterialSSBO.SetData(
-                &s_DrawData->MaterialStorage,
-                sizeof(s_DrawData->MaterialStorage));
-        }
-
-        if (!currentVertexArray || currentVertexArray != command.m_VAO) {
-            currentVertexArray = command.m_VAO;
-            currentVertexArray->Bind();
-        }
-
-        s_DrawData->ModelsStorage.Models[0] = transforms[command.m_DrawIndex];
-        s_DrawData->ModelsSSBO.Bind();
-        s_DrawData->ModelsSSBO.SetData(s_DrawData->ModelsStorage.Models, sizeof(m4), sizeof(v4));
-
-        if (command.m_VAO->HasIndexBuffer()) {
-            RenderCommand::DrawIndexed(*command.m_VAO, command.m_VAO->GetIndexBuffer()->GetCount());
-        } else {
-            RenderCommand::DrawArrays(*command.m_VAO);
-        }
-
-        s_Stats->DrawCallCountPerFrame++;
-    }
-}
-
-void Renderer::BeginDeferred() {
-    // bind the g-buffer so the consequent draw calls will draw into it
-    s_DrawData->GBuffer->Bind();
-    RenderCommand::Clear();
-
-    s_DrawData->Batch.BuildGroups();
-
-    // bind the gpass shader program and set the sampler slots
-    s_DrawData->GPassSP->Bind();
-    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::ALBEDO_MAP, 0);
-    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::METALNESS_MAP, 1);
-    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::ROUGHNESS_MAP, 2);
-    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::NORMAL_MAP, 3);
-    s_DrawData->GPassSP->SetInt(CommonShaderUniforms::EMISSIVE_MAP, 4);
-}
-
-void Renderer::EndDeferred() {
-
-    // end of the g-buffer usage
-    s_DrawData->GBuffer->Unbind();
-
-    // Instead of drawing the lighting pass into the default FBO, I want to draw into my own FBO.
-    // Bind the main FBO (my FBO), clear it and run the lighting pass with the g-buffer's data.
-    s_DrawData->MainFBO->Bind();
-    RenderCommand::Clear();
-
-    // TODO: Optimization
-
-    /**
-     * Render into main fbo using g-buffer geometry maps, but only calculate directional and ambient light.
-     * We do directional and ambient lighting because they don't have an influence radius. They influence every fragment.
-     * Don't do lighting calculations for point lights and spotlights as they do have an influence radius.
-     *
-     * Foreach light in {light in lights | light is pointlight or spotlight}:
-     *    Render a unit sphere scaled by the influence radius of the light
-     *    and do the lighting calculations.
-     *    The lighting equations will then only run for those fragments where the sphere is render at.
-     */
-
-    // bind the lighting pass shader program
-    s_DrawData->LightingPassShaderProgram->Bind();
-
-    s_DrawData->CurrentSkybox->BindCubemapToSlot(10);
-    s_DrawData->LightingPassShaderProgram->SetInt("u_SkyboxMap", 10);
-
-    // bind the g-buffer's color texture attachments
-    // with the collected geometry information
-    s_DrawData->GBuffer->BindColorTextureAttachments();
-
-    s_DrawData->QuadVAO->Bind(); // bind the uv quad that fills up the NDC
-    RenderCommand::DrawArrays(*s_DrawData->QuadVAO);
-    s_DrawData->QuadVAO->Unbind();
-
-    // bind the lighting pass shader program
-    s_DrawData->LightingPassShaderProgram->Unbind();
-
-    // // Copy the G-Buffer's depth buffer into the main FBO's depth buffer
-    s_DrawData->MainFBO->CopyAttachment(s_DrawData->GBuffer, FrameBufferAttachmentType::Depth);
-
-    s_DrawData->MainFBO->Unbind();
-}
 
 }

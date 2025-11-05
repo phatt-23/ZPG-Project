@@ -8,6 +8,8 @@
 #include <ranges>
 
 #include "CV7/ForestScene.h"
+#include "CV8/ForestScene.h"
+#include "CV8/SkydomeScene.h"
 #include "HyenaScene/Scene.h"
 #include "RevolverScene/Scene.h"
 #include "implot/implot.h"
@@ -17,54 +19,54 @@ using namespace ZPG;
 
 class ClientApp : public Application {
 public:
-    ClientApp() {
+    ClientApp() 
+    {
         AttachScenes();
 
-        m_SceneManager.AttachCallback([&](Payload& payload) {
-            if (payload.Type == PayloadType::SceneChanged) {
+        m_SceneManager.AttachCallback([&](Payload& payload) 
+        {
+            if (payload.Type == PayloadType::SceneChanged) 
+            {
                 m_SceneManager.GetActiveScene()->GetCameraController()->OnResize(m_ViewportSize.x, m_ViewportSize.y);
             }
         });
     }
 
-    void AttachScenes() {
+    void AttachScenes() 
+    {
         m_SceneManager.AddScene("CV7 - Forest", new CV7::ForestScene());
         m_SceneManager.AddScene("Revolver Model", []{ return new RevolverScene::RevolverScene(); }, SceneLifetime::Transient);
         m_SceneManager.AddScene("Hyena Model", []{ return new HyenaScene::HyenaScene(); }, SceneLifetime::Transient);
+        m_SceneManager.AddScene("CV8 - Skydome", []{ return new CV8::SkydomeScene(); }, SceneLifetime::Transient);
+        m_SceneManager.AddScene("CV8 - Forest", []{ return new CV8::ForestScene(); }, SceneLifetime::Transient);
 
         m_SceneManager.SetActiveScene("CV7 - Forest");
     }
 
-    void OnImGuiRender() override {
+    void OnImGuiRender() override 
+    {
         float fps = 1.0f / m_Delta.AsSeconds();
         time += m_Delta.AsSeconds();
 
         ImGui::Begin("Stats");
+        {   
             ImGui::Text("FPS: %f\n", fps);
-
-            static bool instancedEnabled = Renderer::IsInstanced();
-            if (ImGui::Checkbox("Renderer is Instanced", &instancedEnabled)) {
-                Renderer::SetInstanced(instancedEnabled);
-            }
-
-            static bool deferredEnabled = Renderer::IsDeferred();
-            if (ImGui::Checkbox("Renderer is Deferred", &deferredEnabled)) {
-                Renderer::SetDeferred(deferredEnabled);
-            }
-
             ImGui::Text("Flush Per Frame      : %d", Renderer::GetStats().FlushCountPerFrame);
             ImGui::Text("Draw Calls Per Frame : %d", Renderer::GetStats().DrawCallCountPerFrame);
             ImGui::Text("Shader Groups        : %d", Renderer::GetStats().ShaderProgramGroupCount);
             ImGui::Text("Material Groups      : %d", Renderer::GetStats().MaterialGroupCount);
             ImGui::Text("VAO Groups           : %d", Renderer::GetStats().VAOGroupCount);
+        }
         ImGui::End();
 
         ImGui::Begin("Scene Switcher");
+        {
             for (const auto& sceneName : m_SceneManager | std::views::keys) {
                 if (ImGui::Button(sceneName.c_str())) {
                     m_SceneManager.SetActiveScene(sceneName);
                 }
             }
+        }
         ImGui::End();
 
         // Append new sample
@@ -191,7 +193,6 @@ public:
 
                 mainFBO->Unbind();
             }
-
 
             v2 size(viewportPanelSize.x, viewportPanelSize.y);
 

@@ -49,6 +49,10 @@ public:
     constexpr static NameType BLOCK_MATRICES {"ub_Matrices", T::Int};
     constexpr static NameType BLOCK_LIGHTS {"ub_Lights", T::Int};
 
+    constexpr static NameType SKYTYPE {"u_SkyType", T::Int};
+    constexpr static NameType SKYBOX_CUBEMAP {"u_SkyboxMap", T::Int};
+    constexpr static NameType SKYDOME_MAP {"u_SkydomeMap", T::Int};
+
 
     // helper to map correct uniform names regarding the light array in fragment shaders
     class LightArray {

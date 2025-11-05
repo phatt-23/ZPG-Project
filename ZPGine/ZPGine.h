@@ -45,6 +45,7 @@
 #include "Camera/Camera.h"
 #include "Camera/ObservableCameraController.h"
 #include "Camera/CameraController.h"
+#include "Camera/FlashlightCameraController.h"
 
 #include "Texture/Texture.h"
 #include "Texture/TextureLibrary.h"
@@ -86,5 +87,8 @@
 
 #include "Material/Material.h"
 #include "Material/MaterialLibrary.h"
+
+#include "Sky/Skybox.h"
+#include "Sky/Skydome.h"
 
 #endif ///ZPG_ENGINE_H

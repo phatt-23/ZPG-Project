@@ -169,4 +169,9 @@ u32 OpenGLTexture::GetRendererID() const {
     return m_RendererID;
 }
 
+void OpenGLTexture::Invalidate()
+{
+    ZPG_NOT_IMPL();
+}
+
 }
