@@ -5,6 +5,7 @@
 #include "RenderBatch.h"
 #include "Debug/Asserter.h"
 #include "RenderGroups.h"
+#include "Model/Mesh.h"
 
 namespace ZPG {
 
@@ -27,6 +28,8 @@ RenderBatch::~RenderBatch() {
 }
 
 void RenderBatch::AddCommand(DrawCommand& command, const m4& transform, i32 entityID) {
+    ZPG_CORE_ASSERT(m_DrawCommands.size() <= m_BatchCapacity, "Batch cannot exceed its capacity.");
+
     m_Transforms.push_back(transform);
     m_EntityIDs.push_back(entityID);
 
@@ -34,6 +37,16 @@ void RenderBatch::AddCommand(DrawCommand& command, const m4& transform, i32 enti
 
     m_DrawCommands.push_back(command);
     m_NeedsSorting = true;  // mark dirty
+}
+
+void RenderBatch::SubmitMesh(const Mesh& mesh, const m4& transform, i32 entityID) {
+    auto& vao = mesh.GetVertexArray();
+    auto& material = mesh.GetMaterial();
+    auto& local = mesh.GetLocalTransform();
+
+    DrawCommand command(material.get(), vao.get());
+
+    AddCommand(command, transform * local, entityID);
 }
 
 void RenderBatch::Reset() {
@@ -81,6 +94,10 @@ u32 RenderBatch::GetBatchSize() const {
 
 u32 RenderBatch::GetBatchCapacity() const {
     return m_BatchCapacity;
+}
+
+bool RenderBatch::IsFull() const {
+    return m_DrawCommands.size() >= m_BatchCapacity;
 }
 
 void RenderBatch::BuildGroups() {

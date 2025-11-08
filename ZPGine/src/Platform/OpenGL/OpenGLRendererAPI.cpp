@@ -16,7 +16,10 @@ void OpenGLRendererAPI::Init() {
     // By default, this is set to GL_LESS.
     ZPG_OPENGL_CALL(glDepthFunc(GL_LESS));
 
-    ZPG_OPENGL_CALL(glCullFace(GL_BACK));
+    // ZPG_OPENGL_CALL(glCullFace(GL_BACK));
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_BACK); // default, culls back faces
+    // glCullFace(GL_FRONT); // culls
 }
 
 void OpenGLRendererAPI::Shutdown() {

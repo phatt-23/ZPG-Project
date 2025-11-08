@@ -13,7 +13,7 @@ namespace ZPG {
 void RenderCommand::Init() {
     ZPG_CORE_ASSERT(!s_RenderCommandInitialised, "RenderCommand was already initialized.");
 
-    switch (Renderer::GetAPI()) {
+    switch (RendererAPI::GetAPI()) {
     case RendererAPI::OpenGL: s_RendererAPI = new OpenGLRendererAPI(); break;
     case RendererAPI::None:
     default:

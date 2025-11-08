@@ -14,6 +14,7 @@
 #include "stb_image/stb_image.h"
 
 namespace ZPG {
+
 Skybox::~Skybox() {
 }
 
@@ -23,10 +24,12 @@ SkyType Skybox::GetSkyType() const {
 
 ref<Skybox> Skybox::Create(const SkyboxSpecification& spec)
 {
-    switch (Renderer::GetAPI()) {
+    switch (RendererAPI::GetAPI())
+    {
         case RendererAPI::None: ZPG_UNREACHABLE("RendererAPI::None is not supported"); break;
         case RendererAPI::OpenGL: return MakeRef(new OpenGLSkybox(spec));
     }
+
     ZPG_UNREACHABLE();
 }
 

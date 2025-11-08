@@ -14,6 +14,7 @@ class Transform;
 
 struct DrawCommand {
     DrawCommand(ShaderProgram* shaderProgram, Material* material, VertexArray* vao);
+    DrawCommand(Material* material, VertexArray* vao);
 
     ShaderProgram* m_ShaderProgram;
     Material* m_Material;

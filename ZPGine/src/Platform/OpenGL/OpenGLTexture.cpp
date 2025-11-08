@@ -88,6 +88,19 @@ void OpenGLTexture::CreateEmptyTexture() {
     ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
     ZPG_OPENGL_CALL(glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
 
+
+    if (m_DataFormat == TextureDataFormat::Depth32F || m_DataFormat == TextureDataFormat::R8 || m_DataFormat == TextureDataFormat::RedInteger)
+    {
+        // Texture must be bound first
+        GLint swizzle[4] = {
+            GL_RED,   // Shader Red   channel source = Texture Red
+            GL_RED,   // Shader Green channel source = Texture Red
+            GL_RED,   // Shader Blue  channel source = Texture Red
+            GL_ONE    // Shader Alpha channel source = One
+        };
+        ZPG_OPENGL_CALL(glTextureParameteriv(m_RendererID, GL_TEXTURE_SWIZZLE_RGBA, swizzle));
+    }
+
     ZPG_CORE_INFO("Image ({}) size in bytes: {} ({}x{}x{})", 
                     m_Name, 
                     m_Width * m_Height * m_SampleSize, 

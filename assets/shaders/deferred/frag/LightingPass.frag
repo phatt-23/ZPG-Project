@@ -38,11 +38,11 @@ uniform int u_SkyType;
 uniform sampler2D u_SkydomeMap;
 uniform samplerCube u_SkyboxMap;
 
-uniform sampler2D   g_Color0; // pos
-uniform sampler2D   g_Color1; // normal
-uniform sampler2D   g_Color2; // albedo and metallic
-uniform sampler2D   g_Color3; // emissive and roughness
-uniform isampler2D  g_Color4; // entityID
+uniform sampler2D g_Color0; // pos
+uniform sampler2D g_Color1; // normal
+uniform sampler2D g_Color2; // albedo and metallic
+uniform sampler2D g_Color3; // emissive and roughness
+uniform isampler2D g_Color4; // entityID
 
 layout(location = 0) out vec4 f_Color0;
 layout(location = 1) out int f_Color1;

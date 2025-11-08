@@ -10,10 +10,12 @@
 #include "CV7/ForestScene.h"
 #include "CV8/ForestScene.h"
 #include "CV8/SkydomeScene.h"
+#include "CV8/ShadowScene.h"
 #include "HyenaScene/Scene.h"
 #include "RevolverScene/Scene.h"
 #include "implot/implot.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
+#include "Renderer/MultipassRenderer.h"
 
 using namespace ZPG;
 
@@ -39,11 +41,12 @@ public:
         m_SceneManager.AddScene("Hyena Model", []{ return new HyenaScene::HyenaScene(); }, SceneLifetime::Transient);
         m_SceneManager.AddScene("CV8 - Skydome", []{ return new CV8::SkydomeScene(); }, SceneLifetime::Transient);
         m_SceneManager.AddScene("CV8 - Forest", []{ return new CV8::ForestScene(); }, SceneLifetime::Transient);
+        m_SceneManager.AddScene("CV8 - Shadow", []{ return new CV8::ShadowScene(); }, SceneLifetime::Transient);
 
-        m_SceneManager.SetActiveScene("CV7 - Forest");
+        m_SceneManager.SetActiveScene("CV8 - Shadow");
     }
 
-    void OnImGuiRender() override 
+    void OnImGuiRender() override
     {
         float fps = 1.0f / m_Delta.AsSeconds();
         time += m_Delta.AsSeconds();
@@ -51,11 +54,11 @@ public:
         ImGui::Begin("Stats");
         {   
             ImGui::Text("FPS: %f\n", fps);
-            ImGui::Text("Flush Per Frame      : %d", Renderer::GetStats().FlushCountPerFrame);
-            ImGui::Text("Draw Calls Per Frame : %d", Renderer::GetStats().DrawCallCountPerFrame);
-            ImGui::Text("Shader Groups        : %d", Renderer::GetStats().ShaderProgramGroupCount);
-            ImGui::Text("Material Groups      : %d", Renderer::GetStats().MaterialGroupCount);
-            ImGui::Text("VAO Groups           : %d", Renderer::GetStats().VAOGroupCount);
+            ImGui::Text("Flush Per Frame      : %d", MultipassRenderer::GetStats().FlushCountPerFrame);
+            ImGui::Text("Draw Calls Per Frame : %d", MultipassRenderer::GetStats().DrawCallCountPerFrame);
+            ImGui::Text("Shader Groups        : %d", MultipassRenderer::GetStats().ShaderProgramGroupCount);
+            ImGui::Text("Material Groups      : %d", MultipassRenderer::GetStats().MaterialGroupCount);
+            ImGui::Text("VAO Groups           : %d", MultipassRenderer::GetStats().VAOGroupCount);
         }
         ImGui::End();
 
@@ -97,21 +100,19 @@ public:
         {
             v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
 
-            auto colorTexAttachments = Renderer::GetDrawData().GBuffer->GetTextureAttachments();
+            auto& renderContext = MultipassRenderer::GetRenderContext();
+            auto& colorTexAttachments = renderContext.GeometryPassFramebuffer->GetTextureAttachments();
 
             ImGui::Text("Color RenderAttachment Count (TEX): %ld", colorTexAttachments.size());
 
-            for (auto& [attachment, texture] : colorTexAttachments)
+            for (const auto& texture : colorTexAttachments | std::views::values)
             {
                 f32 aspect = (f32)texture->GetWidth() / (f32)texture->GetHeight();
                 f32 aspectI = 1.0f / aspect;
 
-                auto* glTexture = (OpenGLTexture*)texture.get();
-
                 ImGui::Text("%s", texture->GetName().c_str());
 
-                ImGui::Image(
-                    glTexture->m_RendererID,
+                ImGui::Image(texture->GetRendererID(),
                     // if width is larger than height
                     ImVec2(size.x, size.x * aspectI),
                     ImVec2(0, 1),
@@ -126,21 +127,46 @@ public:
         {
             v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
 
-            auto colorTexAttachments = Renderer::GetDrawData().MainFBO->GetTextureAttachments();
+            auto colorTexAttachments = MultipassRenderer::GetRenderContext().MainFramebuffer->GetTextureAttachments();
 
-            ImGui::Text("Color RenderAttachment Count (TEX): %ld", colorTexAttachments.size());
+            ImGui::Text("Texture Count (TEX): %ld", colorTexAttachments.size());
 
-            for (auto& [attachment, texture] : colorTexAttachments)
+            for (auto& texture : colorTexAttachments | std::views::values)
             {
                 f32 aspect = (f32)texture->GetWidth() / (f32)texture->GetHeight();
                 f32 aspectI = 1.0f / aspect;
 
-                auto* glTexture = (OpenGLTexture*)texture.get();
+                ImGui::Text("%s", texture->GetName().c_str());
+
+                ImGui::Image(
+                    texture->GetRendererID(),
+                    // if width is larger than height
+                    ImVec2(size.x, size.x * aspectI),
+                    ImVec2(0, 1),
+                    ImVec2(1, 0)
+                );
+
+            }
+        }
+        ImGui::End();
+
+        ImGui::Begin("Directional Light Framebuffer");
+        {
+            v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
+
+            auto colorTexAttachments = MultipassRenderer::GetRenderContext().DirectionalLightShadowFramebuffer->GetTextureAttachments();
+
+            ImGui::Text("Color RenderAttachment Count (TEX): %ld", colorTexAttachments.size());
+
+            for (auto& texture : colorTexAttachments | std::views::values)
+            {
+                f32 aspect = (f32)texture->GetWidth() / (f32)texture->GetHeight();
+                f32 aspectI = 1.0f / aspect;
 
                 ImGui::Text("%s", texture->GetName().c_str());
 
                 ImGui::Image(
-                    glTexture->m_RendererID,
+                    texture->GetRendererID(),
                     // if width is larger than height
                     ImVec2(size.x, size.x * aspectI),
                     ImVec2(0, 1),
@@ -164,40 +190,63 @@ public:
             m_ViewportBounds[0] = { minBounds.x, minBounds.y };
             m_ViewportBounds[1] = { maxBounds.x, maxBounds.y };
 
-            const ref<FrameBuffer>& mainFBO = Renderer::GetDrawData().MainFBO;
             ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 
             auto [mouseX, mouseY] = ImGui::GetMousePos();
             mouseX -= m_ViewportBounds[0].x;
             mouseY -= m_ViewportBounds[0].y;
             mouseY = viewportPanelSize.y - mouseY;
-            v2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+            v2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0]; // X = 0, Y = 0 is the bottom left corner in OpenGL
 
-            // X = 0, Y = 0 is the bottom left corner in OpenGL
+            const ref<FrameBuffer>& mainFBO = MultipassRenderer::GetRenderContext().MainFramebuffer;
+            const ref<FrameBuffer>& geometryPassFramebuffer = MultipassRenderer::GetRenderContext().GeometryPassFramebuffer;
+            const ref<FrameBuffer>& directionalShadowFramebuffer = MultipassRenderer::GetRenderContext().DirectionalLightShadowFramebuffer;
 
             if (mouseX >= 0 && mouseY >= 0 && mouseX < viewportSize.x && mouseY < viewportSize.y) {
-                mainFBO->Bind();
 
+                mainFBO->Bind();
                 glm::u8vec4 pixelColor = mainFBO->ReadPixelByte4(mouseX, mouseY, FrameBufferAttachmentType::Color, 0);
                 i32 entityID = mainFBO->ReadPixelInt(mouseX, mouseY, FrameBufferAttachmentType::Color, 1);
+                glm::u8vec4 entityColor = mainFBO->ReadPixelByte4(mouseX, mouseY, FrameBufferAttachmentType::Color, 2);
+                mainFBO->Unbind();
+
+                geometryPassFramebuffer->Bind();
+                v4 pixel0 = geometryPassFramebuffer->ReadPixelFloat4(mouseX, mouseY, FrameBufferAttachmentType::Color, 0);
+                v4 pixel1 = geometryPassFramebuffer->ReadPixelFloat4(mouseX, mouseY, FrameBufferAttachmentType::Color, 1);
+                v4 pixel2 = geometryPassFramebuffer->ReadPixelFloat4(mouseX, mouseY, FrameBufferAttachmentType::Color, 2);
+                v4 pixel3 = geometryPassFramebuffer->ReadPixelFloat4(mouseX, mouseY, FrameBufferAttachmentType::Color, 3);
+                geometryPassFramebuffer->Unbind();
+
+                directionalShadowFramebuffer->Bind();
+                v4 dirShadowPixel = directionalShadowFramebuffer->ReadPixelFloat4(mouseX, mouseY, FrameBufferAttachmentType::Color, 0);
+                directionalShadowFramebuffer->Unbind();
 
                 ImGui::Begin("Read pixel data");
+
                 ImGui::Text("mouse: %f %f", mouseX, mouseY);
-                ImGui::Text("Pixel Data (Int): %d", entityID);
-                ImGui::Text("Pixel Data (Float4): %d %d %d %d", pixelColor.x, pixelColor.y, pixelColor.z, pixelColor.w);
+                ImGui::Text("Pixel Data (Float4) (main 0): %d %d %d %d", pixelColor.x, pixelColor.y, pixelColor.z, pixelColor.w);
+                ImGui::Text("Pixel Data (Int)    (main 1): %d", entityID);
+                ImGui::Text("Pixel Data (Float4) (main 2): %d %d %d %d", entityColor.x, entityColor.y, entityColor.z, entityColor.w);
+
+                ImGui::Text("Pixel Data (Float4) (g-buffer 0): %f %f %f %f", pixel0.x, pixel0.y, pixel0.z, pixel0.w);
+                ImGui::Text("Pixel Data (Float4) (g-buffer 1): %f %f %f %f", pixel1.x, pixel1.y, pixel1.z, pixel1.w);
+                ImGui::Text("Pixel Data (Float4) (g-buffer 2): %f %f %f %f", pixel2.x, pixel2.y, pixel2.z, pixel2.w);
+                ImGui::Text("Pixel Data (Float4) (g-buffer 3): %f %f %f %f", pixel3.x, pixel3.y, pixel3.z, pixel3.w);
+
+                ImGui::Text("Directional Shadow Pixel Data (Float4): %f %f %f %f", dirShadowPixel.x, dirShadowPixel.y, dirShadowPixel.z, dirShadowPixel.w);
+
                 ImGui::End();
 
                 if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
                     m_SceneManager.GetActiveScene()->GetEntityManager().RemoveEntity(entityID);
                 }
 
-                mainFBO->Unbind();
             }
 
             v2 size(viewportPanelSize.x, viewportPanelSize.y);
 
             if (size != m_ViewportSize) {
-                Renderer::OnViewportResize(size.x, size.y);
+                MultipassRenderer::OnResize(size.x, size.y);
                 m_ViewportSize = size;
 
                 m_SceneManager.GetActiveScene()->GetCameraController()->OnResize(size.x, size.y);
@@ -213,6 +262,7 @@ public:
         }
         ImGui::End();
         ImGui::PopStyleVar();
+
     }
 
 private:

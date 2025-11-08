@@ -5,24 +5,32 @@
 
 namespace ZPG {
 
-ref<ShaderProgram> ShaderProgram::Create(const std::string& filePath) {
-    switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(filePath);
-    case RendererAPI::None: break;
+ref<ShaderProgram> ShaderProgram::Create(const std::string& filePath)
+{
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(filePath);
+        case RendererAPI::None: break;
     }
     ZPG_UNREACHABLE();
 }
-ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::string& filePath) {
-    switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(name, filePath);
-    case RendererAPI::None: break;
+
+ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::string& filePath)
+{
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(name, filePath);
+        case RendererAPI::None: break;
     }
     ZPG_UNREACHABLE();
 }
-ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::vector<ref<Shader>>& shaders) {
+
+ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::vector<ref<Shader>>& shaders)
+{
     u32 shaderBits = 0b0;
 
-    for (auto shader : shaders) {
+    for (auto shader : shaders)
+    {
         Shader::ShaderType shaderType = shader->GetShaderType();
         
         ZPG_CORE_ASSERT((u32)shaderType != Shader::None, "Shader type must not be None!");
@@ -33,9 +41,10 @@ ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::vec
         shaderBits |= (u32)shaderType;
     }
 
-    switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(name, shaders);
-    case RendererAPI::None: break;
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(name, shaders);
+        case RendererAPI::None: break;
     }
     ZPG_UNREACHABLE();
 }

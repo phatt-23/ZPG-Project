@@ -7,18 +7,23 @@
 
 namespace ZPG {
 
-void ImGuiManager::Init(const scope<Window>& window) {
+void ImGuiManager::Init(const scope<Window>& window)
+{
     ZPG_CORE_ASSERT(s_Instance == nullptr, "ImGuiManager already initialized.");
 
-    switch (Renderer::GetAPI()) {
-    case RendererAPI::OpenGL: 
-        s_Instance = new OpenGLGLFWImGuiManager(window.get());
-        return;
-    case RendererAPI::None: break;
+    switch (RendererAPI::GetAPI())
+    {
+        case RendererAPI::OpenGL:
+            s_Instance = new OpenGLGLFWImGuiManager(window.get());
+            return;
+        case RendererAPI::None: break;
     }
+
     ZPG_UNREACHABLE();
 }
-void ImGuiManager::Shutdown() {
+
+void ImGuiManager::Shutdown()
+{
     ZPG_CORE_ASSERT(s_Instance != nullptr, "ImGuiManager isn't initialized.");
     free(s_Instance);
 }

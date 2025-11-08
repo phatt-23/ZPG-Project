@@ -18,27 +18,27 @@ std::string Shader::ShaderTypeToString(ShaderType type) {
 Shader::ShaderType Shader::ShaderTypeFromString(const std::string& type) {
     if (type == "vertex") 
         return Shader::ShaderType::Vertex;
-    else if (type == "geometry") 
+    if (type == "geometry")
         return Shader::ShaderType::Geometry;
-    else if (type == "fragment" || type == "pixel") 
+    if (type == "fragment" || type == "pixel")
         return Shader::ShaderType::Fragment;
     ZPG_UNREACHABLE("Cannot convert string to ShaderType from provided string: {}", type);
 }
 
 ref<Shader> Shader::Create(const std::string& filepath) {
-    switch (Renderer::GetAPI()) {
+    switch (RendererAPI::GetAPI()) {
     case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(filepath);
     default: ZPG_UNREACHABLE();
     }
 }
 ref<Shader> Shader::Create(const std::string& name, const std::string& filepath) {
-    switch (Renderer::GetAPI()) {
+    switch (RendererAPI::GetAPI()) {
     case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(name, filepath);
     default: ZPG_UNREACHABLE();
     }
 }
 ref<Shader> Shader::CreateFromCode(const std::string& name, ShaderType type, const std::string& sourceCode) {
-    switch (Renderer::GetAPI()) {
+    switch (RendererAPI::GetAPI()) {
     case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(name, type, sourceCode);
     default: ZPG_UNREACHABLE();
     }

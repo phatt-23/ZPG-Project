@@ -12,7 +12,7 @@ namespace ZPG {
 
     ref<FrameBuffer> FrameBuffer::Create(const FrameBufferSpecification &spec)
     {
-        switch (Renderer::GetAPI()) {
+        switch (RendererAPI::GetAPI()) {
             case RendererAPI::None: ZPG_UNREACHABLE("RendererAPI::None is not supported"); return nullptr;
             case RendererAPI::OpenGL: return MakeRef(new OpenGLFrameBuffer(spec));
         }

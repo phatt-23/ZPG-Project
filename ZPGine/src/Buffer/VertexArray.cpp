@@ -6,7 +6,7 @@
 namespace ZPG {
 
 ref<VertexArray> VertexArray::Create() {
-    switch (Renderer::GetAPI()) {
+    switch (RendererAPI::GetAPI()) {
         case RendererAPI::OpenGL: 
             return MakeRef<OpenGLVertexArray>();
         case RendererAPI::None: break;
@@ -14,7 +14,7 @@ ref<VertexArray> VertexArray::Create() {
     ZPG_UNREACHABLE();
 }
 ref<VertexArray> VertexArray::Create(const std::vector<ref<VertexBuffer>>& vertexBuffers) {
-    switch (Renderer::GetAPI()) {
+    switch (RendererAPI::GetAPI()) {
         case RendererAPI::OpenGL: {
             OpenGLVertexArray* VAO = new OpenGLVertexArray();
             for (auto& VBO : vertexBuffers) {
@@ -28,7 +28,7 @@ ref<VertexArray> VertexArray::Create(const std::vector<ref<VertexBuffer>>& verte
     ZPG_UNREACHABLE();
 }
 ref<VertexArray> VertexArray::Create(const std::vector<ref<VertexBuffer>>& vertexBuffers, const ref<IndexBuffer>& indexBuffer) {
-    switch (Renderer::GetAPI()) {
+    switch (RendererAPI::GetAPI()) {
         case RendererAPI::OpenGL: {
             OpenGLVertexArray* VAO = new OpenGLVertexArray();
             for (auto& VBO : vertexBuffers) {

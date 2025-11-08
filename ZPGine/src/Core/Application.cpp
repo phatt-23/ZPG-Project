@@ -17,6 +17,9 @@
 #include "Platform/OpenGL/OpenGLTexture.h"
 #include "Renderer/DrawData.h"
 #include "Scene/Scene.h"
+#include "Renderer/MultipassRenderer.h"
+#include "Renderer/RenderCommand.h"
+#include "Renderer/RendererAPI.h"
 
 namespace ZPG { 
 
@@ -33,14 +36,16 @@ Application::Application() {
     Input::Init();
     ImGuiManager::Init(m_Window);
     ResourceManager::Init();
-    Renderer::Init();
+    RenderCommand::Init();
+    MultipassRenderer::Init();
 }
 
 Application::~Application() {
     ResourceManager::Shutdown();
     ImGuiManager::Shutdown();
     Input::Shutdown();
-    Renderer::Shutdown();
+    RenderCommand::Shutdown();
+    MultipassRenderer::Shutdown();
 }
 
 void Application::Run() {
@@ -50,7 +55,7 @@ void Application::Run() {
         m_LastTime = currentTime;
         
         m_SceneManager.GetActiveScene()->OnUpdate(m_Delta);
-        m_SceneManager.GetActiveScene()->OnRender(m_Delta);
+        MultipassRenderer::RenderScene(*m_SceneManager.GetActiveScene());
 
         ImGuiManager::BeginFrame();
             m_SceneManager.GetActiveScene()->OnImGuiRender();

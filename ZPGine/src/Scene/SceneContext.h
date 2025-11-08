@@ -11,11 +11,13 @@ class Light;
 // these are not needed if I set the layer's parent scene
 
 // readonly stuff needed for rendering
+/*
 struct RenderContext {
     Timestep Ts = 0.f;
     const Camera& Cam;
     const std::vector<ref<Light>>& Lights;
 };
+*/
 
 // APIs for modifying the world
 struct SceneContext {

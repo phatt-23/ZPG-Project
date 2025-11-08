@@ -21,7 +21,7 @@ public:
     virtual void OnDetach() {}
     virtual void OnUpdate([[maybe_unused]] SceneContext& ctx) {}
     virtual void OnEvent([[maybe_unused]] Event& event) {}
-    virtual void OnRender([[maybe_unused]] const RenderContext& ctx) {}
+    // virtual void OnRender([[maybe_unused]] const RenderContext& ctx) {}
     virtual void OnImGuiRender() {}
 
     void SetScene(Scene* scene) { 

@@ -1,5 +1,6 @@
 #include "Scene.h"
 
+#include "Renderer/MultipassRenderer.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 #include "SceneContext.h"
 #include "Renderer/RenderCommand.h"
@@ -84,26 +85,28 @@ void Scene::OnUpdate(Timestep& ts) {
     m_CameraController->OnUpdate(ts);
 }
 
-void Scene::OnRender(Timestep& ts) {
-    RenderContext context = {
-        .Ts = ts,
-        .Cam = m_Camera,
-        .Lights = m_LightManager.GetLights(),
-    };
+#if 0
+    void Scene::OnRender(Timestep& ts) {
+        RenderContext context = {
+            .Ts = ts,
+            .Cam = m_Camera,
+            .Lights = m_LightManager.GetLights(),
+        };
 
-    Renderer::BeginDraw(m_Camera);
-    Renderer::SetLights(m_LightManager.GetLights());
-    {
-        for (auto& layer : m_LayerStack) {
-            layer->OnRender(context);
-        }
+        Renderer::BeginDraw(m_Camera);
+        Renderer::SetLights(m_LightManager.GetLights());
+        {
+            for (auto& layer : m_LayerStack) {
+                layer->OnRender(context);
+            }
 
-        for (const auto& entity : m_EntityManager.GetEntities()) {
-            Renderer::SubmitEntity(entity.get());
+            for (const auto& entity : m_EntityManager.GetEntities()) {
+                Renderer::SubmitEntity(entity.get());
+            }
         }
+        Renderer::EndDraw();
     }
-    Renderer::EndDraw();
-}
+#endif
 
 void Scene::OnEvent(Event& event) {
     PropagateEventDownLayers(event);
@@ -164,6 +167,14 @@ const ref<CameraController>& Scene::GetCameraController() const {
 
 void Scene::SetCameraController(const ref<CameraController>& cameraController) {
     m_CameraController = cameraController;
+}
+
+void Scene::SetSky(const ref<Sky>& sky) {
+    m_Sky = sky;
+}
+
+const ref<Sky>& Scene::GetSky() const {
+    return m_Sky;
 }
 
 /**

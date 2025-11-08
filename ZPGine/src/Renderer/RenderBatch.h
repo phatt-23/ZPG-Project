@@ -7,6 +7,7 @@
 #include "DrawCommand.h"
 
 namespace ZPG {
+class Mesh;
 struct VertexArrayGroup;
 struct MaterialGroup;
 struct ShaderProgramGroup;
@@ -29,6 +30,8 @@ public:
     ~RenderBatch();
 
     void AddCommand(DrawCommand& command, const m4& transform, i32 entityID = -1);
+    void SubmitMesh(const Mesh& mesh, const m4& transform, i32 entityID = -1);
+
     void SortCommands();
     void Reset();
 
@@ -36,6 +39,7 @@ public:
 
     u32 GetBatchSize() const;
     u32 GetBatchCapacity() const;
+    bool IsFull() const;
 
     void BuildGroups();
 

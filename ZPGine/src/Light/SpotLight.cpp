@@ -10,13 +10,15 @@ SpotLight::SpotLight(
     v3 const& direction,
     f32 beamSize,
     f32 beamBlend,
-    const AttenComponent& atten)
-: Light (LightType::Spotlight)
-, Color (ColorComponent(color))
-, Position (PositionComponent(position))
-, Direction (DirectionComponent(direction))
-, BeamShape (BeamShapeComponent(beamSize, beamBlend)) {
-
+    const AttenComponent& atten
+)
+    : Light (LightType::Spotlight)
+    , Color (ColorComponent(color))
+    , Position (PositionComponent(position))
+    , Direction (DirectionComponent(direction))
+    , BeamShape (BeamShapeComponent(beamSize, beamBlend))
+    , Atten(atten)
+{
 }
 
 SpotLight::SpotLight(
@@ -31,7 +33,8 @@ SpotLight::SpotLight(
 , Position(position)
 , Direction(direction)
 , BeamShape(beamShape)
-, Atten(atten) {
+, Atten(atten)
+{
 
 }
 

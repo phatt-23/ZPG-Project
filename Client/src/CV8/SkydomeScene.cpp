@@ -1,5 +1,7 @@
 #include "SkydomeScene.h"
 
+#include "Renderer/MultipassRenderer.h"
+
 using namespace ZPG;
 
 namespace CV8
@@ -18,7 +20,7 @@ namespace CV8
         skySpec.TexturePath = "./assets/textures/skydome/fulldome3.jpg";
 
         ref<Skydome> skydome = Skydome::Create(skySpec);
-        Renderer::SetSkydome(skydome);
+        SetSky(skydome);
 
         GetLightManager().AddLight(new AmbientLight(ColorComponent(v4(1.0))));
 

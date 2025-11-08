@@ -39,17 +39,16 @@ void Renderer::Init()
 {
     ZPG_CORE_ASSERT(s_Draw == nullptr, "Renderer already initialized.");
 
-    RenderCommand::Init();
+    // RenderCommand::Init();
     s_Draw = new DrawData();
     s_Stats = new RenderStatistics();
-
 }
 
 void Renderer::Shutdown() 
 {
     ZPG_CORE_ASSERT(s_Draw != nullptr, "Renderer isn't initialized.");
 
-    RenderCommand::Shutdown();
+    // RenderCommand::Shutdown();
     delete s_Draw;
     delete s_Stats;
 }

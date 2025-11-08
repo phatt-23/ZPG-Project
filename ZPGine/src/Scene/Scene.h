@@ -12,6 +12,7 @@
 #include "Resource/ResourceManager.h"
 
 namespace ZPG {
+class Sky;
 class CameraController;
 
 class ResourceManager;
@@ -39,7 +40,7 @@ public:
      */
 
     virtual void OnUpdate(Timestep& ts);
-    virtual void OnRender(Timestep& ts);
+    // virtual void OnRender(Timestep& ts);
     virtual void OnEvent(Event& event);
     virtual void OnImGuiRender();
 
@@ -69,6 +70,10 @@ public:
     ResourceManager& GetResourceManager() { return *m_ResourceManager; }
     EntityManager& GetEntityManager() { return m_EntityManager; }
     LightManager& GetLightManager() { return m_LightManager; }
+    
+    const ResourceManager& GetResourceManager() const { return *m_ResourceManager; }
+    const EntityManager& GetEntityManager() const { return m_EntityManager; }
+    const LightManager& GetLightManager() const { return m_LightManager; }
 
     /**
      * Lazy load.
@@ -82,12 +87,18 @@ public:
      */
 
     Camera& GetCamera() { return m_Camera; }
+    const Camera& GetCamera() const { return m_Camera; }
 
     const ref<CameraController>& GetCameraController() const;
     void SetCameraController(const ref<CameraController>& cameraController);
 
+    /**
+    *Sky
+    */
+    void SetSky(const ref<Sky>& sky);
+    const ref<Sky>& GetSky() const;
 
-private:
+   private:
     LayerStack m_LayerStack;
     Camera m_Camera;
     LightManager m_LightManager;
@@ -104,6 +115,8 @@ private:
      */
 
     ref<ResourceManager> m_ResourceManager = nullptr;
+
+    ref<Sky> m_Sky = nullptr;
 
     bool m_AlreadyLazyLoaded = false;  // has it already been lazy loaded?
 

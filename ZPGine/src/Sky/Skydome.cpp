@@ -17,7 +17,7 @@ namespace ZPG
 
     ref<Skydome> Skydome::Create(const SkydomeSpecification& spec)
     {
-        switch (Renderer::GetAPI()) {
+        switch (RendererAPI::GetAPI()) {
             case RendererAPI::None: ZPG_UNREACHABLE("RendererAPI::None is not supported"); return nullptr;
             case RendererAPI::OpenGL: return MakeRef(new OpenGLSkydome(spec));
         }

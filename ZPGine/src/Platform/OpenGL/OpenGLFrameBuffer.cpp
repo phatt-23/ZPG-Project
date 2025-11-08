@@ -73,7 +73,13 @@ namespace ZPG
         }
         std::ranges::sort(drawBuffers);
 
-        ZPG_OPENGL_CALL(glDrawBuffers((GLsizei)drawBuffers.size(), drawBuffers.data()));
+        if (drawBuffers.empty()) {
+            ZPG_OPENGL_CALL(glDrawBuffer(GL_NONE));
+            ZPG_OPENGL_CALL(glReadBuffer(GL_NONE));
+        }
+        else {
+            ZPG_OPENGL_CALL(glDrawBuffers((GLsizei)drawBuffers.size(), drawBuffers.data()));
+        }
 
         int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         ZPG_CORE_ASSERT(status == GL_FRAMEBUFFER_COMPLETE, "Framebuffer isn't complete - OpenGL status code: %d", status);
@@ -145,8 +151,8 @@ namespace ZPG
         ZPG_CORE_ASSERT(glDataFormat.SampleType == GL_INT);
 
         i32 pixelData = 0;
-        glReadBuffer(glAttachment.Attachment + index);
-        glReadPixels(x, y, 1, 1, glDataFormat.Format, glDataFormat.SampleType, &pixelData);
+        ZPG_OPENGL_CALL(glReadBuffer(glAttachment.Attachment + index));
+        ZPG_OPENGL_CALL(glReadPixels(x, y, 1, 1, glDataFormat.Format, glDataFormat.SampleType, &pixelData));
 
         return pixelData;
     }
@@ -165,8 +171,8 @@ namespace ZPG
         ZPG_CORE_ASSERT(glDataFormat.SampleType == GL_FLOAT);
 
         v4 pixelData{0};
-        glReadBuffer(glAttachment.Attachment + index);
-        glReadPixels(x, y, 1, 1, glDataFormat.Format, glDataFormat.SampleType, &pixelData);
+        ZPG_OPENGL_CALL(glReadBuffer(glAttachment.Attachment + index));
+        ZPG_OPENGL_CALL(glReadPixels(x, y, 1, 1, glDataFormat.Format, glDataFormat.SampleType, &pixelData));
 
         return pixelData;
     }
@@ -185,8 +191,8 @@ namespace ZPG
         ZPG_CORE_ASSERT(glDataFormat.SampleType == GL_UNSIGNED_BYTE);
 
         glm::u8vec4 pixelData{0};
-        glReadBuffer(glAttachment.Attachment + index);
-        glReadPixels(x, y, 1, 1, glDataFormat.Format, glDataFormat.SampleType, &pixelData);
+        ZPG_OPENGL_CALL(glReadBuffer(glAttachment.Attachment + index));
+        ZPG_OPENGL_CALL(glReadPixels(x, y, 1, 1, glDataFormat.Format, glDataFormat.SampleType, &pixelData));
 
         return pixelData;
     }

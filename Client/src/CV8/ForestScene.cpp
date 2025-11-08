@@ -27,7 +27,6 @@ namespace CV8
 
     void ForestScene::OnLazyAttach() {
         m_LocalRes.LoadModel("Tree", "./assets/models/pine_tree/scene.gltf");
-        // m_LocalRes.LoadModel("Tree", "./assets/models/nemec-assets/square.obj");
         m_LocalRes.LoadModel("Bush", "./assets/models/bush/scene.gltf");
         m_LocalRes.LoadModel("Bush2", "./assets/models/small_bush/scene.gltf");
         m_LocalRes.LoadModel("Firefly", "./assets/models/sphere/scene.gltf");
@@ -42,8 +41,8 @@ namespace CV8
 
 
         // Add lights
-        GetLightManager().AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.03)));
-        GetLightManager().AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.05), v3(-1, -1, -1)));
+        GetLightManager().AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.1)));
+        GetLightManager().AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.5), v3(-1, -1, -1)));
 
         f32 planeSize = 40;
 
