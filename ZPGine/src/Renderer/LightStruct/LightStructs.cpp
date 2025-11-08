@@ -1,4 +1,6 @@
 #include "LightStructs.h"
+
+#include "Camera/Camera.h"
 #include "Light/SpotLight.h"
 #include "Light/PointLight.h"
 #include "Light/AmbientLight.h"
@@ -31,15 +33,111 @@ namespace ZPG
 
     }
 
-    DirectionalLightStruct::DirectionalLightStruct(const DirectionalLight& directionalLight, const v3& cameraPosition, const v3& cameraFront)
+    /**
+     * Creates the direction light structure used in shaders.
+     *
+     * It calculates the light's view projection matrix (light space matrix) using the camera's viewing frustum.
+     *
+     * source: https://gamedev.stackexchange.com/questions/193929/how-to-move-the-shadow-map-with-the-camera
+     */
+    DirectionalLightStruct::DirectionalLightStruct(const DirectionalLight& directionalLight, const Camera& camera)
         : Color(directionalLight.Color.Get())
         , Direction(directionalLight.Direction.Get())
     {
-        f32 nearPlane = -100.0f;
-        f32 farPlane = 100.0f;
-        f32 size = 10.f;
-        m4 proj = glm::ortho(-size, size, -size, size, nearPlane, farPlane);
-        m4 view = glm::lookAt(-Direction, v3(0.0), v3(0, 1, 0));
+        using namespace glm;
+
+        float ar = camera.GetAspectRatio();
+        float fov = glm::radians(camera.GetFOV());
+        float nearDist = 0.01f;
+        float farDist = 100.0f;
+        float Hnear = 2* tan(fov/2) * nearDist;
+        float Wnear = Hnear * ar;
+        float Hfar = 2* tan(fov/2) * farDist;
+        float Wfar = Hfar * ar;
+        vec3 centerFar = camera.GetPosition() + camera.GetFront() * farDist;
+
+        vec3 topLeftFar = centerFar + (camera.GetWorldUp() * Hfar/2.0f) - (camera.GetRight() * Wfar/2.f);
+        vec3 topRightFar = centerFar + (camera.GetWorldUp() * Hfar/2.0f) + (camera.GetRight() * Wfar/2.f);
+        vec3 bottomLeftFar = centerFar - (camera.GetWorldUp()  * Hfar/2.0f) - (camera.GetRight() * Wfar/2.f);
+        vec3 bottomRightFar = centerFar - (camera.GetWorldUp() * Hfar/2.0f) + (camera.GetRight() * Wfar/2.f);
+
+        vec3 centerNear = camera.GetPosition() + camera.GetFront() * nearDist;
+
+        vec3 topLeftNear = centerNear + (camera.GetWorldUp() * Hnear/2.f) - (camera.GetRight() * Wnear/2.f);
+        vec3 topRightNear = centerNear + (camera.GetWorldUp() * Hnear/2.f) + (camera.GetRight() * Wnear/2.f);
+        vec3 bottomLeftNear = centerNear - (camera.GetWorldUp() * Hnear/2.f) - (camera.GetRight() * Wnear/2.f);
+        vec3 bottomRightNear = centerNear - (camera.GetWorldUp() * Hnear/2.f) + (camera.GetRight() * Wnear/2.f);
+
+        vec3 frustumCenter = vec3(0.0f);
+        for (const vec3& corner : { topLeftFar, topRightFar, bottomLeftFar, bottomRightFar,
+                                     topLeftNear, topRightNear, bottomLeftNear, bottomRightNear }) {
+            frustumCenter += corner;
+        }
+        frustumCenter /= 8.0f;
+
+        vec3 lightDir = normalize(Direction); // e.g., vec3(-0.2f, -1.0f, -0.3f)
+        vec3 lightPos = frustumCenter - lightDir * 50.0f; // move light back along its direction
+
+        mat4 lightView = glm::lookAt(lightPos, frustumCenter, vec3(0.0f, 1.0f, 0.0f));
+
+        std::array frustumToLightView = {
+            vec3(lightView * vec4(bottomRightNear, 1.0f)),
+            vec3(lightView * vec4(topRightNear, 1.0f)),
+            vec3(lightView * vec4(bottomLeftNear, 1.0f)),
+            vec3(lightView * vec4(topLeftNear, 1.0f)),
+            vec3(lightView * vec4(bottomRightFar, 1.0f)),
+            vec3(lightView * vec4(topRightFar, 1.0f)),
+            vec3(lightView * vec4(bottomLeftFar, 1.0f)),
+            vec3(lightView * vec4(topLeftFar, 1.0f))
+        };
+
+        // find max and min points to define a ortho matrix around
+        vec3 min(FLT_MAX), max(-FLT_MAX);
+        for (const vec3& v : frustumToLightView) {
+            min = glm::min(min, v);
+            max = glm::max(max, v);
+        }
+
+        float zMult = 10.0f;
+        min.z -= zMult;
+        max.z += zMult;
+
+        // finally, set our ortho projection
+        // and create the light space view-projection matrix
+        mat4 lightProjection = glm::ortho(min.x, max.x, min.y, max.y, -max.z, -min.z);
+
+        ViewProj = lightProjection * lightView;
+    }
+
+
+#if 0
+    DirectionalLightStruct::DirectionalLightStruct(const DirectionalLight& directionalLight, const Camera& camera)
+        : Color(directionalLight.Color.Get())
+        , Direction(directionalLight.Direction.Get())
+    {
+        const float nearPlane = 0.1f;
+        const float farPlane  = 300.0f;
+
+        const v3 camPos = camera.GetPosition();
+        const v3 camFront = camera.GetFront();
+
+        const float camNear = camera.GetZNear();
+        const float camFar = camera.GetZFar();
+        const float camFov = glm::radians(camera.GetFOV());
+        const float camAspect = camera.GetAspectRatio();
+
+        const float halfHeight = tan(camFov * 0.5f) * camFar;
+        const float halfWidth = halfHeight * camAspect;
+        const float size = std::max(halfWidth, halfHeight);
+
+        const v3 lightDir = glm::normalize(Direction);
+        const v3 target = camPos + camFront * (camFar * 0.5f);
+        const v3 lightPos = target - lightDir * (camFar * 0.75f);
+
+        const m4 view = glm::lookAt(lightPos, target, v3(0, 1, 0));
+        const m4 proj = glm::ortho(-size, size, -size, size, nearPlane, farPlane);
+
         ViewProj = proj * view;
     }
+#endif
 }

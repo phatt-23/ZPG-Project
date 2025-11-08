@@ -1,5 +1,7 @@
 #include "EnvironmentLightShaderStorageBuffer.h"
 
+#include "Camera/Camera.h"
+
 namespace ZPG
 {
     EnvironmentLightShaderStorageBuffer::EnvironmentLightShaderStorageBuffer(u32 bindingPoint)
@@ -13,9 +15,9 @@ namespace ZPG
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(glm::value_ptr(color), InternalLayout, AmbientColor);
     }
 
-    void EnvironmentLightShaderStorageBuffer::SetDirectionalLight(const DirectionalLight &directionalLight, v3 cameraPosition, v3 cameraFront)
+    void EnvironmentLightShaderStorageBuffer::SetDirectionalLight(const DirectionalLight &directionalLight, const Camera& camera)
     {
-        DirectionalLightStruct directionalLightStruct(directionalLight, cameraPosition, cameraFront);
+        DirectionalLightStruct directionalLightStruct(directionalLight, camera);
 
         SetData(glm::value_ptr(directionalLightStruct.Color),
             sizeof(DirectionalLightStruct::Color),

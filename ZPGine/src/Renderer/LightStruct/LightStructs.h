@@ -2,7 +2,8 @@
 
 namespace ZPG
 {
-    class SpotLight;
+class Camera;
+class SpotLight;
     class PointLight;
     class DirectionalLight;
     class AmbientLight;
@@ -16,7 +17,7 @@ namespace ZPG
 
     public:
         DirectionalLightStruct() = default;
-        DirectionalLightStruct(const DirectionalLight& directionalLight, const v3& cameraPosition, const v3& cameraFront);
+        DirectionalLightStruct(const DirectionalLight& directionalLight, const Camera& camera);
     };
 
 

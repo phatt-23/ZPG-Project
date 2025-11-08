@@ -9,6 +9,7 @@
 #include "Entity/Entity.h"
 #include "Model/Model.h"
 #include "Model/Mesh.h"
+#include "Profiling/Instrumentor.h"
 #include "Scene/Scene.h"
 
 
@@ -16,6 +17,8 @@ namespace ZPG
 {
     void MultipassRenderer::Init()
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_CORE_ASSERT(s_Instance == nullptr, "MultipassRenderer already initialized.");
        
         RenderContextSpecification renderContextSpec;
@@ -34,6 +37,8 @@ namespace ZPG
 
     void MultipassRenderer::Shutdown()
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_CORE_ASSERT(s_Instance != nullptr, "MultipassRenderer wasn't initialized.");
 
         delete s_Instance;
@@ -41,30 +46,40 @@ namespace ZPG
 
     void MultipassRenderer::PushRenderPass(RenderPass* renderPass)
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_CORE_ASSERT(s_Instance);
         s_Instance->PushRenderPassImpl(renderPass);
     }
 
     void MultipassRenderer::RenderScene(const Scene& scene)
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_CORE_ASSERT(s_Instance);
         s_Instance->RenderSceneImpl(scene);
     }
 
     void MultipassRenderer::OnResize(u32 width, u32 height)
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_CORE_ASSERT(s_Instance);
         s_Instance->OnResizeImpl(width, height);
     }
 
     const RenderContext& MultipassRenderer::GetRenderContext()
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_CORE_ASSERT(s_Instance);
         return s_Instance->m_RenderContext;
     }
 
     const RenderStatistics& MultipassRenderer::GetStats()
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_CORE_ASSERT(s_Instance);
         return s_Instance->m_RenderContext.Statistics;
     }
@@ -80,6 +95,8 @@ namespace ZPG
 
     void MultipassRenderer::RenderSceneImpl(const Scene& scene)
     {
+        ZPG_PROFILE_FUNCTION();
+
         m_RenderContext.Statistics.Reset();
         SetCameraImpl(scene.GetCamera());
         SetLightsImpl(scene.GetLightManager().GetLights());
@@ -94,12 +111,16 @@ namespace ZPG
 
     void MultipassRenderer::PushRenderPassImpl(RenderPass* renderPass)
     {
+        ZPG_PROFILE_FUNCTION();
+
         renderPass->Init(m_RenderContext);
         m_RenderPasses.push_back(renderPass);
     }
 
     void MultipassRenderer::OnResizeImpl(u32 width, u32 height)
     {
+        ZPG_PROFILE_FUNCTION();
+
         for (auto& renderPass : m_RenderPasses)
         {
             renderPass->OnResize(width, height);
@@ -114,12 +135,16 @@ namespace ZPG
 
     void MultipassRenderer::SetCameraImpl(const Camera& camera)
     {
+        ZPG_PROFILE_FUNCTION();
+
         m_RenderContext.ActiveCamera = (Camera*)&camera;
         m_RenderContext.CameraSSBO.SetLayout(camera);
     }
 
     void MultipassRenderer::SetLightsImpl(const std::vector<ref<Light>>& lights)
     {
+        ZPG_PROFILE_FUNCTION();
+
         m_RenderContext.AmbientLight = nullptr;
         m_RenderContext.DirectionalLight = nullptr;
         m_RenderContext.PointLights.clear();
@@ -134,8 +159,8 @@ namespace ZPG
                     m_RenderContext.EnvironmentLightSSBO.SetAmbient(*(AmbientLight*)light.get());
                     break;
                 case LightType::Directional:
-                    m_RenderContext.DirectionalLight = new DirectionalLightStruct(*(DirectionalLight*)light.get(), m_RenderContext.ActiveCamera->GetPosition(), m_RenderContext.ActiveCamera->GetFront());
-                    m_RenderContext.EnvironmentLightSSBO.SetDirectionalLight(*(DirectionalLight*)light.get(), m_RenderContext.ActiveCamera->GetPosition(), m_RenderContext.ActiveCamera->GetFront());
+                    m_RenderContext.DirectionalLight = new DirectionalLightStruct(*(DirectionalLight*)light.get(), *m_RenderContext.ActiveCamera);
+                    m_RenderContext.EnvironmentLightSSBO.SetDirectionalLight(*(DirectionalLight*)light.get(), *m_RenderContext.ActiveCamera);
                     break;
                 case LightType::Point: 
                     if (m_RenderContext.PointLights.size() < m_RenderContext.PointLights.capacity())

@@ -32,6 +32,7 @@ public:
     f32 GetFOV() const { return m_FOV; }
     f32 GetZNear() const { return m_zNear; }
     f32 GetZFar() const { return m_zFar; }
+    f32 GetAspectRatio() const { return m_AspectRatio; }
 
     void SetFOV(f32 fov) { m_FOV = fov; Recalculate(); }
     void SetZNear(f32 zNear) { m_zNear = zNear; Recalculate(); }

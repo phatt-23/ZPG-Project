@@ -46,8 +46,7 @@ public:
         m_SceneManager.SetActiveScene("CV8 - Shadow");
     }
 
-    void OnImGuiRender() override
-    {
+    void OnImGuiRender() override {
         float fps = 1.0f / m_Delta.AsSeconds();
         time += m_Delta.AsSeconds();
 
@@ -263,6 +262,18 @@ public:
         ImGui::End();
         ImGui::PopStyleVar();
 
+        ImGui::Begin("Camera");
+        {
+            auto& camera = m_SceneManager.GetActiveScene()->GetCamera();
+
+            f32 fov = camera.GetFOV();
+            if (ImGui::DragFloat("CameraFOV", &fov, 0.5, 0.0, 180.0)) {
+                camera.SetFOV(fov);
+                camera.CalcPerspectiveProjection();
+            }
+
+        }
+        ImGui::End();
     }
 
 private:

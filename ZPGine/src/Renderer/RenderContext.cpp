@@ -18,8 +18,8 @@ namespace ZPG
         PointLights.reserve(spec.PointLightCapacity);
 
         FrameBufferSpecification directionalLightFramebufferSpec;
-        directionalLightFramebufferSpec.Width = 1024;
-        directionalLightFramebufferSpec.Height = 1024;
+        directionalLightFramebufferSpec.Width = 4 * 1024;
+        directionalLightFramebufferSpec.Height = 4 * 1024;
         directionalLightFramebufferSpec.Resizable = false;
         directionalLightFramebufferSpec.Attachments = {
             {TextureDataFormat::Depth32F, 0},
