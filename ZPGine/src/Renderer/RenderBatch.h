@@ -64,6 +64,11 @@ private:
     std::vector<MaterialGroup> m_MaterialGroups;
     std::vector<VertexArrayGroup> m_VertexArrayGroups;
 
+
+    // cache
+    std::vector<m4> m_SortedTransforms;
+    std::vector<i32> m_SortedEntityIDs;
+
     bool m_NeedsSorting;
 };
 

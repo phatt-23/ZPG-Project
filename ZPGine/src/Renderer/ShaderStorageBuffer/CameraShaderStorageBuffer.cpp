@@ -1,5 +1,6 @@
 #include "CameraShaderStorageBuffer.h"
 #include "Camera/Camera.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG
 {
@@ -11,6 +12,8 @@ namespace ZPG
 
     void CameraShaderStorageBuffer::SetLayout(const Camera& camera) 
     {
+        ZPG_PROFILE_FUNCTION();
+
         m4 view = camera.GetViewMatrix();
         m4 proj = camera.GetProjMatrix();
         m4 viewProj = camera.GetViewProjMatrix();

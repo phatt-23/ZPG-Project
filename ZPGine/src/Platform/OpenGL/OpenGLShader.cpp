@@ -3,47 +3,57 @@
 #include "Core/Utility.h"
 #include <glad/glad.h>
 
+#include "Profiling/Instrumentor.h"
+
 namespace ZPG {
 
 OpenGLShader::OpenGLShader(const std::string& filepath) {
+    ZPG_PROFILE_FUNCTION();
     m_Name = Utility::GetNameFromPath(filepath);
     auto [shaderType, sourceCode] = EatAndSetShaderTypeDirective(Utility::ReadFile(filepath));
     m_ShaderType = shaderType;
     m_RendererID = CompileShader(shaderType, sourceCode);
 }
 OpenGLShader::OpenGLShader(const std::string& name, const std::string& filepath) {
+    ZPG_PROFILE_FUNCTION();
     m_Name = name;
     auto [shaderType, sourceCode] = EatAndSetShaderTypeDirective(Utility::ReadFile(filepath));
     m_ShaderType = shaderType;
     m_RendererID = CompileShader(shaderType, sourceCode);
 }
 OpenGLShader::OpenGLShader(const std::string& name, ShaderType shaderType, const std::string& sourceCode) {
+    ZPG_PROFILE_FUNCTION();
     m_Name = name;
     m_ShaderType = shaderType;
     m_RendererID = CompileShader(shaderType, sourceCode);
 }
 OpenGLShader::~OpenGLShader() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glDeleteShader(m_RendererID));
 }
 Shader::ShaderType OpenGLShader::GetShaderType() const {
+    ZPG_PROFILE_FUNCTION();
     return m_ShaderType;
 }
 void OpenGLShader::AttachTo(u32 shaderProgramID) const {
-    glAttachShader(shaderProgramID, m_RendererID);
+    ZPG_PROFILE_FUNCTION();
+    ZPG_OPENGL_CALL(glAttachShader(shaderProgramID, m_RendererID));
 }
 void OpenGLShader::DetachFrom(u32 shaderProgramID) const {
     ZPG_OPENGL_CALL(glDetachShader(shaderProgramID, m_RendererID));
 }
 GLenum OpenGLShader::MapShaderTypeToOpenGLenum(Shader::ShaderType type) {
+    ZPG_PROFILE_FUNCTION();
     switch (type) {
-    case ShaderType::Vertex: return GL_VERTEX_SHADER;
-    case ShaderType::Fragment: return GL_FRAGMENT_SHADER;
-    case ShaderType::Geometry: return GL_GEOMETRY_SHADER;
-    default:
-        ZPG_UNREACHABLE("Unknown shader type");
+        case ShaderType::Vertex: return GL_VERTEX_SHADER;
+        case ShaderType::Fragment: return GL_FRAGMENT_SHADER;
+        case ShaderType::Geometry: return GL_GEOMETRY_SHADER;
+        default:
+            ZPG_UNREACHABLE("Unknown shader type");
     }
 }
 std::pair<Shader::ShaderType, std::string> OpenGLShader::EatAndSetShaderTypeDirective(const std::string& source) {
+    ZPG_PROFILE_FUNCTION();
     const char* typeDirectiveTok = "#type";
    
     size_t p = 0;
@@ -65,6 +75,7 @@ std::pair<Shader::ShaderType, std::string> OpenGLShader::EatAndSetShaderTypeDire
     return { shaderType, std::move(tail) };
 }
 u32 OpenGLShader::CompileShader(ShaderType shaderType, const std::string& source) {
+    ZPG_PROFILE_FUNCTION();
     const char* sourcePtr = source.c_str();
     u32 shaderID;
     ZPG_OPENGL_CALL( shaderID = glCreateShader(MapShaderTypeToOpenGLenum(shaderType)) );

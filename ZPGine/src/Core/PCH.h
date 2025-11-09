@@ -24,6 +24,7 @@
 #include <queue>
 #include <list>
 #include <map>
+#include <numeric>
 
 #include <boost/stacktrace.hpp>
 

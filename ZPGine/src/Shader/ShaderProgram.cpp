@@ -2,11 +2,13 @@
 #include "Debug/Asserter.h"
 #include "Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLShaderProgram.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
 ref<ShaderProgram> ShaderProgram::Create(const std::string& filePath)
 {
+    ZPG_PROFILE_FUNCTION();
     switch (RendererAPI::GetAPI())
     {
         case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(filePath);
@@ -17,6 +19,7 @@ ref<ShaderProgram> ShaderProgram::Create(const std::string& filePath)
 
 ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::string& filePath)
 {
+    ZPG_PROFILE_FUNCTION();
     switch (RendererAPI::GetAPI())
     {
         case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(name, filePath);
@@ -27,6 +30,7 @@ ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::str
 
 ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::vector<ref<Shader>>& shaders)
 {
+    ZPG_PROFILE_FUNCTION();
     u32 shaderBits = 0b0;
 
     for (auto shader : shaders)

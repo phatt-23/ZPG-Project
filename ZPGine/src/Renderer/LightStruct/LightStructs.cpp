@@ -5,6 +5,7 @@
 #include "Light/PointLight.h"
 #include "Light/AmbientLight.h"
 #include "Light/DirectionalLight.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG
 {
@@ -16,7 +17,16 @@ namespace ZPG
         , Attenuation(spotlight.Atten.GetAttenuation())
         , BeamBlend(spotlight.BeamShape.GetBlend())
     {
-        
+        f32 near = 0.1f;
+        f32 far = 100.0f;
+        f32 fov = glm::radians(2 * BeamSize);
+
+        glm::vec3 up = (fabs(Direction.y) > 0.99f) ? glm::vec3(0, 0, 1) : glm::vec3(0, 1, 0);
+
+        m4 view = glm::lookAt(Position, Position + Direction, up);
+        m4 proj = glm::perspective(fov, 1.0f, near, far);
+
+        ViewProj = proj * view;
     }
 
     PointLightStruct::PointLightStruct(const PointLight& pointLight)
@@ -44,6 +54,16 @@ namespace ZPG
         : Color(directionalLight.Color.Get())
         , Direction(directionalLight.Direction.Get())
     {
+        ZPG_PROFILE_FUNCTION();
+
+        f32 size = 20.0f;
+        // finally, set our ortho projection // and create the light space view-projection matrix
+        m4 lightView = glm::lookAt(-Direction, v3(0.0), v3(0, 1, 0));
+        m4 lightProjection = glm::ortho(-size, size, -size, size, -size, size);
+
+        ViewProj = lightProjection * lightView;
+#if 0
+
         using namespace glm;
 
         float ar = camera.GetAspectRatio();
@@ -98,7 +118,7 @@ namespace ZPG
             max = glm::max(max, v);
         }
 
-        float zMult = 10.0f;
+        float zMult = 20.0f;
         min.z -= zMult;
         max.z += zMult;
 
@@ -107,6 +127,7 @@ namespace ZPG
         mat4 lightProjection = glm::ortho(min.x, max.x, min.y, max.y, -max.z, -min.z);
 
         ViewProj = lightProjection * lightView;
+#endif
     }
 
 

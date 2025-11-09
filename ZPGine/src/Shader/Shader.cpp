@@ -3,19 +3,23 @@
 #include "Debug/Asserter.h"
 #include "Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
 std::string Shader::ShaderTypeToString(ShaderType type) {
+    ZPG_PROFILE_FUNCTION();
     switch (type) {
-    case Vertex: return "vertex";
-    case Fragment: return "fragment";
-    case Geometry: return "geometry";
-    default:
-        ZPG_UNREACHABLE("Unknown ShaderType.");
+        case Vertex: return "vertex";
+        case Fragment: return "fragment";
+        case Geometry: return "geometry";
+        default:
+            ZPG_UNREACHABLE("Unknown ShaderType.");
     }
 }
+
 Shader::ShaderType Shader::ShaderTypeFromString(const std::string& type) {
+    ZPG_PROFILE_FUNCTION();
     if (type == "vertex") 
         return Shader::ShaderType::Vertex;
     if (type == "geometry")
@@ -26,21 +30,24 @@ Shader::ShaderType Shader::ShaderTypeFromString(const std::string& type) {
 }
 
 ref<Shader> Shader::Create(const std::string& filepath) {
+    ZPG_PROFILE_FUNCTION();
     switch (RendererAPI::GetAPI()) {
-    case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(filepath);
-    default: ZPG_UNREACHABLE();
+        case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(filepath);
+        default: ZPG_UNREACHABLE();
     }
 }
 ref<Shader> Shader::Create(const std::string& name, const std::string& filepath) {
+    ZPG_PROFILE_FUNCTION();
     switch (RendererAPI::GetAPI()) {
-    case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(name, filepath);
-    default: ZPG_UNREACHABLE();
+        case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(name, filepath);
+        default: ZPG_UNREACHABLE();
     }
 }
 ref<Shader> Shader::CreateFromCode(const std::string& name, ShaderType type, const std::string& sourceCode) {
+    ZPG_PROFILE_FUNCTION();
     switch (RendererAPI::GetAPI()) {
-    case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(name, type, sourceCode);
-    default: ZPG_UNREACHABLE();
+        case RendererAPI::OpenGL: return MakeRef<OpenGLShader>(name, type, sourceCode);
+        default: ZPG_UNREACHABLE();
     }
 }
 

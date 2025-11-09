@@ -6,6 +6,7 @@
 
 #include "Debug/Asserter.h"
 #include "Platform/OpenGL/OpenGLCore.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -13,6 +14,8 @@ ShaderStorageBuffer::ShaderStorageBuffer(u32 bindingPoint, u32 size)
     : m_BindingPoint(bindingPoint)
     , m_Size(size)
 {
+    ZPG_PROFILE_FUNCTION();
+
     ZPG_OPENGL_CALL(glGenBuffers(1, &m_RendererId));
     Bind();
     {
@@ -37,15 +40,18 @@ ShaderStorageBuffer::ShaderStorageBuffer(u32 bindingPoint, u32 size)
 }
 
 ShaderStorageBuffer::~ShaderStorageBuffer() {
+    ZPG_PROFILE_FUNCTION();
     Unbind();
     ZPG_OPENGL_CALL(glDeleteBuffers(1, &m_RendererId));
 }
 
 void ShaderStorageBuffer::Bind() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererId));
 }
 
 void ShaderStorageBuffer::Unbind() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
 }
 
@@ -69,6 +75,7 @@ void ShaderStorageBuffer::Unmap() {
 #endif
 
 void ShaderStorageBuffer::SetData(void* data, u32 size, u32 offset) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(offset + size <= m_Size,
         "Cannot write {} bytes at an offset of {} into a UBO with size of {} bytes",
         size, offset, m_Size);

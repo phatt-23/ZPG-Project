@@ -15,6 +15,7 @@
 #include "ImGui/ImGuiManager.h"
 #include "Timestep.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
+#include "Profiling/Instrumentor.h"
 #include "Renderer/DrawData.h"
 #include "Scene/Scene.h"
 #include "Renderer/MultipassRenderer.h"
@@ -24,6 +25,7 @@
 namespace ZPG { 
 
 Application::Application() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(s_Instance == nullptr, "Application already instantiated.");
     s_Instance = this;
 
@@ -41,6 +43,7 @@ Application::Application() {
 }
 
 Application::~Application() {
+    ZPG_PROFILE_FUNCTION();
     ResourceManager::Shutdown();
     ImGuiManager::Shutdown();
     Input::Shutdown();
@@ -49,24 +52,26 @@ Application::~Application() {
 }
 
 void Application::Run() {
+    ZPG_PROFILE_FUNCTION();
     while (m_Running) {
+        ImGuiManager::BeginFrame();
         float currentTime = glfwGetTime();
         m_Delta = currentTime - m_LastTime;
         m_LastTime = currentTime;
-        
+
         m_SceneManager.GetActiveScene()->OnUpdate(m_Delta);
         MultipassRenderer::RenderScene(*m_SceneManager.GetActiveScene());
 
-        ImGuiManager::BeginFrame();
             m_SceneManager.GetActiveScene()->OnImGuiRender();
             this->OnImGuiRender();
-        ImGuiManager::EndFrame();
 
         m_Window->OnUpdate();
+        ImGuiManager::EndFrame();
     }
 }
 
 void Application::OnEvent(Event& event) {
+    ZPG_PROFILE_FUNCTION();
     EventDispatcher dispatcher(event);
 
     if (event.IsInCategory(EventCategoryMouse) && ImGui::GetIO().WantCaptureMouse && !Input::IsCursorGrabbed()) {
@@ -80,11 +85,13 @@ void Application::OnEvent(Event& event) {
 }
 
 bool Application::OnWindowClose(WindowCloseEvent& event) {
+    ZPG_PROFILE_FUNCTION();
     m_Running = false;
     return true;
 }
 
 bool Application::OnWindowResize(WindowResizeEvent& event) {
+    ZPG_PROFILE_FUNCTION();
     // Renderer::OnWindowResize(event.GetWidth(), event.GetHeight());
     return false;
 }

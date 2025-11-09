@@ -1,6 +1,7 @@
 #include "OpenGLContext.h"
 #include "Debug/Asserter.h"
 #include "OpenGLCore.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -10,10 +11,10 @@ OpenGLContext::OpenGLContext(GLFWwindow* windowHandle)
 }
 
 OpenGLContext::~OpenGLContext() {
-
 }
 
 void OpenGLContext::Init() {
+    ZPG_PROFILE_FUNCTION();
 
     // makes the OpenGL calls act upon this window
     // glfw function is here because it's OpenGL specific
@@ -44,6 +45,7 @@ void OpenGLContext::Init() {
 }
 
 void OpenGLContext::SwapBuffers() {
+    ZPG_PROFILE_FUNCTION();
     // glfw function is here because it's OpenGL specific
     glfwSwapBuffers(m_WindowHandle);  
 }

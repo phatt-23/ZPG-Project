@@ -1,8 +1,12 @@
 #include "OpenGLCore.h"
 
+#include "Profiling/Instrumentor.h"
+
 const char* OpenGLErrorTypeToString(GLenum glError) 
 {
-    switch (glError) 
+    ZPG_PROFILE_FUNCTION();
+
+    switch (glError)
     {
         case GL_INVALID_ENUM:                  return "GL_Invalid_Enum";
         case GL_INVALID_VALUE:                 return "GL_Invalid_Value";

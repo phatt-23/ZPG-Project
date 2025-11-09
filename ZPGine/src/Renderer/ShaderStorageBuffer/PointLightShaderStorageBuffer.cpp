@@ -1,5 +1,7 @@
 #include "PointLightShaderStorageBuffer.h"
 
+#include "Profiling/Instrumentor.h"
+
 namespace ZPG
 {
     PointLightShaderStorageBuffer::PointLightShaderStorageBuffer(u32 bindingPoint, u32 capacity)
@@ -14,6 +16,7 @@ namespace ZPG
 
     void PointLightShaderStorageBuffer::SetCount(i32 count)
     {
+        ZPG_PROFILE_FUNCTION();
         Bind();
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&count, InternalLayout, Count);
         Unbind();
@@ -21,6 +24,7 @@ namespace ZPG
 
     void PointLightShaderStorageBuffer::SetLightArray(const std::vector<PointLightStruct>& lights)
     {
+        ZPG_PROFILE_FUNCTION();
         Bind();
         u32 count = lights.size();
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&count, InternalLayout, Count);

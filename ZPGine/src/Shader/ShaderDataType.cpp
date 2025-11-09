@@ -6,10 +6,14 @@
 #include "Debug/Asserter.h"
 #include <glad/glad.h>
 
+#include "Profiling/Instrumentor.h"
+
 
 namespace ZPG {
 
 unsigned int ShaderDataType::Sizeof(Type type) {
+    ZPG_PROFILE_FUNCTION();
+
     switch (type) {
     case ShaderDataType::Bool: return 1;
     case ShaderDataType::Float: return 4;
@@ -33,6 +37,8 @@ unsigned int ShaderDataType::Sizeof(Type type) {
 }
 
 GLenum ShaderDataType::ToOpenGLType(Type type) {
+    ZPG_PROFILE_FUNCTION();
+
     switch (type) {
     case Bool: return GL_BOOL;
     case Float:

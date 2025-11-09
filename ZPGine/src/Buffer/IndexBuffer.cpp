@@ -8,9 +8,8 @@ namespace ZPG {
 
 ref<IndexBuffer> IndexBuffer::Create(const u32* indices, u32 count) {
     switch (RendererAPI::GetAPI()) {
-    case RendererAPI::OpenGL: 
-        return MakeRef<OpenGLIndexBuffer>(indices, count);
-    case RendererAPI::None: break;
+        case RendererAPI::OpenGL: return MakeRef<OpenGLIndexBuffer>(indices, count);
+        case RendererAPI::None: break;
     }
     ZPG_UNREACHABLE();
 }

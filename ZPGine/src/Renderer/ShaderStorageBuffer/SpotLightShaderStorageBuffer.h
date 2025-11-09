@@ -11,7 +11,8 @@ namespace ZPG
         struct InternalLayout
         {
             i32 Count;
-            f32 _pad[3];
+            i32 ShadowLayer;  // only for debug
+            f32 _pad[2];
             SpotLightStruct* LightArray;
         };
 
@@ -19,6 +20,7 @@ namespace ZPG
 
         void SetCount(i32 count);
         void SetLightArray(const std::vector<SpotLightStruct>& lights);
+        void SetShadowLayer(int i);
     private:
         u32 m_Capacity;
     };

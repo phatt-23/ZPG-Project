@@ -55,6 +55,7 @@ public:
 
 
     inline static NameType DIRECTIONAL_LIGHT_SHADOW_MAP {"u_DirectionalLightShadowMap", T::Int};
+    inline static NameType SPOTLIGHT_SHADOW_MAP_ARRAY {"u_SpotLightShadowMapArray", T::Int};
 
 
     // helper to map correct uniform names regarding the light array in fragment shaders

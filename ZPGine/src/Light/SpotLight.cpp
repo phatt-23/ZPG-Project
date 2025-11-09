@@ -1,4 +1,6 @@
 #include "SpotLight.h"
+
+#include "Profiling/Instrumentor.h"
 #include "Shader/CommonShaderUniforms.h"
 #include "Shader/ShaderProgram.h"
 
@@ -19,6 +21,7 @@ SpotLight::SpotLight(
     , BeamShape (BeamShapeComponent(beamSize, beamBlend))
     , Atten(atten)
 {
+    ZPG_PROFILE_FUNCTION();
 }
 
 SpotLight::SpotLight(
@@ -35,10 +38,12 @@ SpotLight::SpotLight(
 , BeamShape(beamShape)
 , Atten(atten)
 {
+    ZPG_PROFILE_FUNCTION();
 
 }
 
 void SpotLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
+    ZPG_PROFILE_FUNCTION();
     using uniName = CommonShaderUniforms::LightArray;
     shaderProgram.SetInt(uniName::Type(index),(i32)GetLightType());
     shaderProgram.SetFloat4(uniName::Color(index), Color.Get());
@@ -49,6 +54,7 @@ void SpotLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
 }
 
 LightStruct SpotLight::MapToLightStruct() {
+    ZPG_PROFILE_FUNCTION();
     LightStruct lightStruct{};
     lightStruct.Type = static_cast<i32>(GetLightType());
     lightStruct.Color = Color.Get();

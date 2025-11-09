@@ -4,6 +4,9 @@ namespace ZPG
 {
     namespace RenderBindingPoints
     {
+        /**
+         * Texture unit slots
+         */
         constexpr int ALBEDO_MAP = 0;
         constexpr int METALNESS_MAP = 1;
         constexpr int ROUGHNESS_MAP = 2;
@@ -13,6 +16,8 @@ namespace ZPG
         constexpr int SKYBOX_TEXTURE_SLOT = 10;
         constexpr int SKYDOME_TEXTURE_SLOT = 11;
 
+        constexpr int DIRECTIONAL_LIGHT_SHADOW_MAP = 12;
+        constexpr int SPOTLIGHT_SHADOW_MAP_ARRAY = 13;
 
 
         /**
@@ -25,7 +30,6 @@ namespace ZPG
         constexpr int MATERIAL_SSBO = 4;
         constexpr int MODELS_SSBO = 5;
         constexpr int ENTITY_SSBO = 6;
-        constexpr int DIRECTIONAL_LIGHT_SHADOW_MAP = 12;
     };
 
 }

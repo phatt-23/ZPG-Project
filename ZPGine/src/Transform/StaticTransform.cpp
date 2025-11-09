@@ -1,5 +1,6 @@
 #include "StaticTransform.h"
 #include "Debug/Asserter.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -10,6 +11,7 @@ StaticTransform::~StaticTransform() {
 }
 
 const glm::mat4& StaticTransform::GetMatrix() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(m_Cached, "Static transformation's matrix should already be computed.");
     return m_Matrix;
 }

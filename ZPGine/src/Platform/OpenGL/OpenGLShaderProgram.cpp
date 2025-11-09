@@ -4,11 +4,13 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Debug/Asserter.h"
 #include "Core/Utility.h"
+#include "Profiling/Instrumentor.h"
 #include "Shader/Shader.h"
 
 namespace ZPG {
 
 OpenGLShaderProgram::OpenGLShaderProgram(const std::string& filepath) {
+    ZPG_PROFILE_FUNCTION();
     m_Name = Utility::GetNameFromPath(filepath);
 
     std::unordered_map<Shader::ShaderType, std::string> shaderSources = GetShaderSources(Utility::ReadFile(filepath));
@@ -16,24 +18,30 @@ OpenGLShaderProgram::OpenGLShaderProgram(const std::string& filepath) {
     m_RendererID = LinkShaders(shaders);
 }
 OpenGLShaderProgram::OpenGLShaderProgram(const std::string& name, const std::string& filepath) : m_Name(name) {
+    ZPG_PROFILE_FUNCTION();
     std::unordered_map<Shader::ShaderType, std::string> shaderSources = GetShaderSources(Utility::ReadFile(filepath));
     std::vector<ref<Shader>> shaders = CompileShaderSources(shaderSources);
     m_RendererID = LinkShaders(shaders);
 }
 OpenGLShaderProgram::OpenGLShaderProgram(const std::string& name, const std::vector<ref<Shader>>& shaders) {
+    ZPG_PROFILE_FUNCTION();
     m_Name = name;
     m_RendererID = LinkShaders(shaders);
 }
 OpenGLShaderProgram::~OpenGLShaderProgram() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glDeleteProgram(m_RendererID));
 }
 void OpenGLShaderProgram::Bind() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUseProgram(m_RendererID));
 }
 void OpenGLShaderProgram::Unbind() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUseProgram(0));
 }
 i32 OpenGLShaderProgram::GetUniformLocation(const std::string &name) {
+    ZPG_PROFILE_FUNCTION();
     if (m_LocationCache.contains(name))
         return m_LocationCache[name];
 
@@ -45,37 +53,48 @@ i32 OpenGLShaderProgram::GetUniformLocation(const std::string &name) {
     return location;
 }
 void OpenGLShaderProgram::SetInt(const std::string& uniName, i32 scalar) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUniform1i(GetUniformLocation(uniName), scalar));
 }
 void OpenGLShaderProgram::SetInt2(const std::string& uniName, glm::i32vec2 vec) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUniform2iv(GetUniformLocation(uniName), 1, glm::value_ptr(vec)));
 }
 void OpenGLShaderProgram::SetInt3(const std::string& uniName, glm::i32vec3 vec) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUniform3iv(GetUniformLocation(uniName), 1, glm::value_ptr(vec)));
 }
 void OpenGLShaderProgram::SetInt4(const std::string& uniName, glm::i32vec4 vec) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUniform4iv(GetUniformLocation(uniName), 1, glm::value_ptr(vec)));
 }
 void OpenGLShaderProgram::SetFloat(const std::string& uniName, f32 scalar) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUniform1f(GetUniformLocation(uniName), scalar));
 }
 void OpenGLShaderProgram::SetFloat2(const std::string& uniName, glm::f32vec2 vec) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUniform2fv(GetUniformLocation(uniName), 1, glm::value_ptr(vec)));
 }
 void OpenGLShaderProgram::SetFloat3(const std::string& uniName, glm::f32vec3 vec) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUniform3fv(GetUniformLocation(uniName), 1, glm::value_ptr(vec)));
 }
 void OpenGLShaderProgram::SetFloat4(const std::string& uniName, glm::f32vec4 vec) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUniform4fv(GetUniformLocation(uniName), 1, glm::value_ptr(vec)));
 }
 void OpenGLShaderProgram::SetMat3(const std::string& uniName, glm::mat3 mat) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUniformMatrix3fv(GetUniformLocation(uniName), 1, GL_FALSE, glm::value_ptr(mat)));
 }
 void OpenGLShaderProgram::SetMat4(const std::string& uniName, glm::mat4 mat) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glUniformMatrix4fv(GetUniformLocation(uniName), 1, GL_FALSE, glm::value_ptr(mat)));
 }
 
 u32 OpenGLShaderProgram::LinkShaders(const std::vector<ref<Shader>>& shaders) {
+    ZPG_PROFILE_FUNCTION();
     int programID;
     ZPG_OPENGL_CALL(programID = glCreateProgram());
     ZPG_CORE_ASSERT(programID != 0, "Failed to create OpenGL program!");
@@ -107,6 +126,7 @@ u32 OpenGLShaderProgram::LinkShaders(const std::vector<ref<Shader>>& shaders) {
     return programID;
 }
 std::vector<ref<Shader>> OpenGLShaderProgram::CompileShaderSources(std::unordered_map<Shader::ShaderType, std::string> shaderSources) {
+    ZPG_PROFILE_FUNCTION();
     std::vector<ref<Shader>> shaders;
     for (auto& [type, code] : shaderSources) {
         // default name will be the (current program's name).(vertex or fragment...)
@@ -117,6 +137,7 @@ std::vector<ref<Shader>> OpenGLShaderProgram::CompileShaderSources(std::unordere
     return shaders;
 }
 std::unordered_map<Shader::ShaderType, std::string> OpenGLShaderProgram::GetShaderSources(const std::string& input) {
+    ZPG_PROFILE_FUNCTION();
     using namespace std;
 
     unordered_map<Shader::ShaderType, std::string> shaders;

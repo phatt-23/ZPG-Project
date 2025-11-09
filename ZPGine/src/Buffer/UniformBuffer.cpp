@@ -5,6 +5,8 @@
 #include "UniformBuffer.h"
 
 #include "Debug/Asserter.h"
+#include "Platform/OpenGL/OpenGLCore.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -13,7 +15,8 @@ UniformBuffer::UniformBuffer(u32 bindingPoint, u32 size)
     , m_Size(size)
 
 {
-    glGenBuffers(1, &m_RendererId);
+    ZPG_PROFILE_FUNCTION();
+    ZPG_OPENGL_CALL(glGenBuffers(1, &m_RendererId));
     Bind();
     {
         glBufferData(GL_UNIFORM_BUFFER, m_Size, NULL, GL_DYNAMIC_DRAW);
@@ -25,19 +28,23 @@ UniformBuffer::UniformBuffer(u32 bindingPoint, u32 size)
 }
 
 UniformBuffer::~UniformBuffer() {
+    ZPG_PROFILE_FUNCTION();
     Unbind();
-    glDeleteBuffers(1, &m_RendererId);
+    ZPG_OPENGL_CALL(glDeleteBuffers(1, &m_RendererId));
 }
 
 void UniformBuffer::Bind() {
-    glBindBuffer(GL_UNIFORM_BUFFER, m_RendererId);
+    ZPG_PROFILE_FUNCTION();
+    ZPG_OPENGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, m_RendererId));
 }
 
 void UniformBuffer::Unbind() {
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    ZPG_PROFILE_FUNCTION();
+    ZPG_OPENGL_CALL(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 }
 
 void UniformBuffer::SetData(void* data, u32 size, u32 offset) {
+    ZPG_PROFILE_FUNCTION();
     // void* ptr = glMapBufferRange(GL_UNIFORM_BUFFER, offset, size, GL_MAP_WRITE_BIT);
     // memcpy(ptr, data, size);
     // glUnmapBuffer(GL_UNIFORM_BUFFER);
@@ -47,7 +54,7 @@ void UniformBuffer::SetData(void* data, u32 size, u32 offset) {
         size, offset, m_Size);
 
     Bind();
-    glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+    ZPG_OPENGL_CALL(glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data));
 }
 
 }

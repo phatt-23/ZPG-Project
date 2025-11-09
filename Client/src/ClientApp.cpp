@@ -36,12 +36,11 @@ public:
 
     void AttachScenes() 
     {
-        m_SceneManager.AddScene("CV7 - Forest", new CV7::ForestScene());
-        m_SceneManager.AddScene("Revolver Model", []{ return new RevolverScene::RevolverScene(); }, SceneLifetime::Transient);
-        m_SceneManager.AddScene("Hyena Model", []{ return new HyenaScene::HyenaScene(); }, SceneLifetime::Transient);
+        m_SceneManager.AddScene("CV8 - Shadow", []{ return new CV8::ShadowScene(); }, SceneLifetime::Transient);
         m_SceneManager.AddScene("CV8 - Skydome", []{ return new CV8::SkydomeScene(); }, SceneLifetime::Transient);
         m_SceneManager.AddScene("CV8 - Forest", []{ return new CV8::ForestScene(); }, SceneLifetime::Transient);
-        m_SceneManager.AddScene("CV8 - Shadow", []{ return new CV8::ShadowScene(); }, SceneLifetime::Transient);
+        m_SceneManager.AddScene("Revolver Model", []{ return new RevolverScene::RevolverScene(); }, SceneLifetime::Transient);
+        m_SceneManager.AddScene("Hyena Model", []{ return new HyenaScene::HyenaScene(); }, SceneLifetime::Transient);
 
         m_SceneManager.SetActiveScene("CV8 - Shadow");
     }
@@ -154,6 +153,33 @@ public:
             v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
 
             auto colorTexAttachments = MultipassRenderer::GetRenderContext().DirectionalLightShadowFramebuffer->GetTextureAttachments();
+
+            ImGui::Text("Color RenderAttachment Count (TEX): %ld", colorTexAttachments.size());
+
+            for (auto& texture : colorTexAttachments | std::views::values)
+            {
+                f32 aspect = (f32)texture->GetWidth() / (f32)texture->GetHeight();
+                f32 aspectI = 1.0f / aspect;
+
+                ImGui::Text("%s", texture->GetName().c_str());
+
+                ImGui::Image(
+                    texture->GetRendererID(),
+                    // if width is larger than height
+                    ImVec2(size.x, size.x * aspectI),
+                    ImVec2(0, 1),
+                    ImVec2(1, 0)
+                );
+
+            }
+        }
+        ImGui::End();
+
+        ImGui::Begin("SpotLight Framebuffer");
+        {
+            v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
+
+            auto colorTexAttachments = MultipassRenderer::GetRenderContext().SpotLightShadowFramebuffer->GetTextureAttachments();
 
             ImGui::Text("Color RenderAttachment Count (TEX): %ld", colorTexAttachments.size());
 

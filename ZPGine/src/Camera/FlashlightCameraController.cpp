@@ -9,16 +9,19 @@
 #include "Event/Event.h"
 #include "Event/KeyEvent.h"
 #include "Light/SpotLight.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
 FlashlightCameraController::FlashlightCameraController(const ref<SpotLight>& light, Camera& camera)
 : CameraController(camera), m_Light(light)
 {
+    ZPG_PROFILE_FUNCTION();
 }
 
 void FlashlightCameraController::OnEvent(Event& event)
 {
+    ZPG_PROFILE_FUNCTION();
     CameraController::OnEvent(event);
 
     EventDispatcher dispatcher(event);
@@ -27,6 +30,7 @@ void FlashlightCameraController::OnEvent(Event& event)
 
 void FlashlightCameraController::OnUpdate(Timestep& ts)
 {
+    ZPG_PROFILE_FUNCTION();
     CameraController::OnUpdate(ts);
 
     v3 camPos = GetCamera().GetPosition();
@@ -38,6 +42,7 @@ void FlashlightCameraController::OnUpdate(Timestep& ts)
 
 bool FlashlightCameraController::OnKeyPressed(KeyPressedEvent& event)
 {
+    ZPG_PROFILE_FUNCTION();
     if (event.GetKeyCode() == ZPG_KEY_F) {
         m_FlashlightOn = !m_FlashlightOn;
 

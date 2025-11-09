@@ -2,6 +2,7 @@
 
 #include "Debug/Logger.h"
 #include "Light/Light.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -14,6 +15,7 @@ LightManager::~LightManager() {
 }
 
 void LightManager::AddLight(Light* light) {
+    ZPG_PROFILE_FUNCTION();
     if (m_Lights.size() >= s_LightCapacity) {
         ZPG_CORE_WARN("Light manager cannot hold more than {} lights", s_LightCapacity);
         return;
@@ -23,6 +25,7 @@ void LightManager::AddLight(Light* light) {
 }
 
 void LightManager::AddLight(const ref<Light>& light) {
+    ZPG_PROFILE_FUNCTION();
     // ZPG_CORE_ASSERT(m_Lights.size() <= ZPG_LIGHT_UNIFORM_BUFFER_ARRAY_LENGTH,
     //     "Light manager cannot hold more than {} lights", ZPG_LIGHT_UNIFORM_BUFFER_ARRAY_LENGTH);
     if (m_Lights.size() >= s_LightCapacity) {
@@ -33,6 +36,7 @@ void LightManager::AddLight(const ref<Light>& light) {
     m_Lights.push_back(light);
 }
 void LightManager::RemoveLight(const ref<Light>& light) {
+    ZPG_PROFILE_FUNCTION();
     auto iter = std::ranges::find_if(m_Lights, [&](const ref<Light>& e){
         return (void*)light.get() == (void*)e.get();
     });
@@ -47,6 +51,7 @@ void LightManager::RemoveLight(const ref<Light>& light) {
 
 
 const std::vector<ref<Light>>& LightManager::GetLights() const {
+    ZPG_PROFILE_FUNCTION();
     return m_Lights;
 }
 std::vector<ref<Light>>::iterator LightManager::begin() {

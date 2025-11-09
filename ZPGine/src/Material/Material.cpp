@@ -3,6 +3,7 @@
 #include <Shader/CommonShaderUniforms.h>
 
 #include "Debug/Asserter.h"
+#include "Profiling/Instrumentor.h"
 #include "Resource/CommonResources.h"
 #include "Resource/ResourceManager.h"
 #include "Texture/Texture.h"
@@ -12,6 +13,7 @@ namespace ZPG {
 
 Material::Material(const std::string& name) 
 : m_Name(name) {
+    ZPG_PROFILE_FUNCTION();
     ResourceManager& res = ResourceManager::GetGlobal();
 
     m_ShaderProgram = res.GetShaderProgram(CommonResources::SHADER_PROGRAM_DEFAULT);
@@ -33,74 +35,96 @@ Material::~Material() {
 }
 
 void Material::SetShaderProgram(const ref<ShaderProgram>& shaderProgram) {
+    ZPG_PROFILE_FUNCTION();
     m_ShaderProgram = shaderProgram;
 }
 ref<ShaderProgram>& Material::GetShaderProgram() { 
-    return m_ShaderProgram; 
+    ZPG_PROFILE_FUNCTION();
+    return m_ShaderProgram;
 }
 
 void Material::SetAlbedoMap(const ref<Texture>& albedoMap) {
+    ZPG_PROFILE_FUNCTION();
     m_AlbedoMap = albedoMap;
 }
 void Material::SetNormalMap(const ref<Texture>& normalMap) {
+    ZPG_PROFILE_FUNCTION();
     m_NormalMap = normalMap;
 }
 void Material::SetMetalnessMap(const ref<Texture>& metalnessMap) {
+    ZPG_PROFILE_FUNCTION();
     m_MetalnessMap = metalnessMap;
 }
 void Material::SetRoughnessMap(const ref<Texture>& roughnessMap) {
+    ZPG_PROFILE_FUNCTION();
     m_RoughnessMap = roughnessMap;
 }
 void Material::SetEmissiveMap(const ref<Texture>& emissiveMap) {
+    ZPG_PROFILE_FUNCTION();
     m_EmissiveMap = emissiveMap;
 }
 
 const ref<Texture>& Material::GetAlbedoMap() const {
+    ZPG_PROFILE_FUNCTION();
     return m_AlbedoMap;
 }
 const ref<Texture>& Material::GetNormalMap() const {
+    ZPG_PROFILE_FUNCTION();
     return m_NormalMap;
 }
 const ref<Texture>& Material::GetMetalnessMap() const {
+    ZPG_PROFILE_FUNCTION();
     return m_MetalnessMap;
 }
 const ref<Texture>& Material::GetRoughnessMap() const {
+    ZPG_PROFILE_FUNCTION();
     return m_RoughnessMap;
 }
 const ref<Texture>& Material::GetEmissiveMap() const {
+    ZPG_PROFILE_FUNCTION();
     return m_EmissiveMap;
 }
 
 void Material::SetName(const std::string& name) { 
-    m_Name = name; 
+    ZPG_PROFILE_FUNCTION();
+    m_Name = name;
 }
 std::string const& Material::GetName() const { 
-    return m_Name; 
+    ZPG_PROFILE_FUNCTION();
+    return m_Name;
 }
 
 void Material::SetAlbedo(const v4& albedo) {
+    ZPG_PROFILE_FUNCTION();
     m_Albedo = albedo;
 }
 void Material::SetRoughness(f32 roughness) {
+    ZPG_PROFILE_FUNCTION();
     m_Roughness = roughness;
 }
 void Material::SetMetallic(f32 metallic) {
+    ZPG_PROFILE_FUNCTION();
     m_Metallic = metallic;
 }
 void Material::SetEmissive(const v4& emissive) {
+    ZPG_PROFILE_FUNCTION();
     m_Emissive = emissive;
 }
 
 const v4& Material::GetAlbedo() const {
+    ZPG_PROFILE_FUNCTION();
     return m_Albedo;
 }
 f32 Material::GetRoughness() const {
+    ZPG_PROFILE_FUNCTION();
     return m_Roughness;
 }
 f32 Material::GetMetallic() const {
+    ZPG_PROFILE_FUNCTION();
     return m_Metallic;
 }
 const v4& Material::GetEmissive() const {
+    ZPG_PROFILE_FUNCTION();
     return m_Emissive;
 }
 

@@ -1,4 +1,6 @@
 #include "DirectionalLight.h"
+
+#include "Profiling/Instrumentor.h"
 #include "Shader/CommonShaderUniforms.h"
 #include "Shader/ShaderProgram.h"
 
@@ -8,6 +10,7 @@ DirectionalLight::DirectionalLight(glm::vec4 const& color, glm::vec3 const& dire
 : Light(LightType::Directional)
 , Color(ColorComponent(color))
 , Direction(DirectionComponent(glm::normalize(direction))) {
+    ZPG_PROFILE_FUNCTION();
 
 }
 
@@ -15,9 +18,11 @@ DirectionalLight::DirectionalLight(const ColorComponent& color, const DirectionC
 : Light(LightType::Directional)
 , Color(color)
 , Direction(direction){
+    ZPG_PROFILE_FUNCTION();
 }
 
 void DirectionalLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
+    ZPG_PROFILE_FUNCTION();
     using un = CommonShaderUniforms::LightArray;
 
     shaderProgram.SetInt(un::Type(index), (i32)GetLightType());
@@ -26,6 +31,7 @@ void DirectionalLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 ind
 }
 
 LightStruct DirectionalLight::MapToLightStruct() {
+    ZPG_PROFILE_FUNCTION();
     LightStruct lightStruct{};
     lightStruct.Type = static_cast<i32>(GetLightType());
     lightStruct.Color = Color.Get();

@@ -7,6 +7,7 @@
 #include "OpenGLCore.h"
 #include "Buffer/VertexArray.h"
 #include "Debug/Asserter.h"
+#include "Profiling/Instrumentor.h"
 #include "Resource/ResourceManager.h"
 #include "Shader/ShaderProgram.h"
 #include "stb_image/stb_image.h"
@@ -17,6 +18,8 @@ namespace ZPG {
 OpenGLSkybox::OpenGLSkybox(const SkyboxSpecification& spec)
     : m_Specification(spec)
 {
+    ZPG_PROFILE_FUNCTION();
+
     // Cube Map texture.
     ZPG_OPENGL_CALL(glGenTextures(1, &m_TextureRendererID));
     ZPG_OPENGL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureRendererID));
@@ -69,10 +72,12 @@ OpenGLSkybox::OpenGLSkybox(const SkyboxSpecification& spec)
 }
 
 OpenGLSkybox::~OpenGLSkybox() {
+    ZPG_PROFILE_FUNCTION();
     glDeleteTextures(1, &m_TextureRendererID);
 }
 
 void OpenGLSkybox::Bind() const {
+    ZPG_PROFILE_FUNCTION();
     m_ShaderProgram->Bind();
     m_ShaderProgram->SetInt("u_SkyboxMap", 0);
     BindTextureToSlot(0);
@@ -80,18 +85,21 @@ void OpenGLSkybox::Bind() const {
 }
 
 void OpenGLSkybox::Unbind() const {
+    ZPG_PROFILE_FUNCTION();
     m_VAO->Unbind();
     m_ShaderProgram->Unbind();
 }
 
 const ref<VertexArray>& OpenGLSkybox::GetVertexArray() const {
+    ZPG_PROFILE_FUNCTION();
     return m_VAO;
 }
 
 void OpenGLSkybox::BindTextureToSlot(int slot) const {
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureRendererID);
-    glActiveTexture(GL_TEXTURE0);
+    ZPG_PROFILE_FUNCTION();
+    ZPG_OPENGL_CALL(glActiveTexture(GL_TEXTURE0 + slot));
+    ZPG_OPENGL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, m_TextureRendererID));
+    ZPG_OPENGL_CALL(glActiveTexture(GL_TEXTURE0));
 }
 
 

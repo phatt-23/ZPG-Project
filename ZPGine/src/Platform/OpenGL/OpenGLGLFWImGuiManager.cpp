@@ -4,19 +4,22 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
 #include "implot/implot.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
     
 OpenGLGLFWImGuiManager::OpenGLGLFWImGuiManager(const Window* window) 
 : m_WindowHandle((GLFWwindow*)window->GetNativeWindow()) {
+    ZPG_PROFILE_FUNCTION();
     AttachImGui();
 }
 OpenGLGLFWImGuiManager::~OpenGLGLFWImGuiManager() {
-    Shutdown();
+    ZPG_PROFILE_FUNCTION();
 }
 void OpenGLGLFWImGuiManager::AttachImGui() {
-   // Setup Dear ImGui context
+    ZPG_PROFILE_FUNCTION();
+    // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
 
     ImGui::CreateContext();
@@ -52,6 +55,7 @@ void OpenGLGLFWImGuiManager::AttachImGui() {
     ImGui_ImplOpenGL3_Init(glsl_version);
 }
 void OpenGLGLFWImGuiManager::DetachImGui() {
+    ZPG_PROFILE_FUNCTION();
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -59,6 +63,7 @@ void OpenGLGLFWImGuiManager::DetachImGui() {
     ImGui::DestroyContext();
 }
 void OpenGLGLFWImGuiManager::BeginFrameImpl() {
+    ZPG_PROFILE_FUNCTION();
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -68,6 +73,7 @@ void OpenGLGLFWImGuiManager::BeginFrameImpl() {
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 }
 void OpenGLGLFWImGuiManager::EndFrameImpl() {
+    ZPG_PROFILE_FUNCTION();
 
     ImGuiIO& io = ImGui::GetIO();
     i32 width, height;
@@ -90,6 +96,7 @@ void OpenGLGLFWImGuiManager::EndFrameImpl() {
 }
 
 void OpenGLGLFWImGuiManager::BlockEventsImpl(bool block) {
+    ZPG_PROFILE_FUNCTION();
     m_BlockedEvents = block;
 }
 

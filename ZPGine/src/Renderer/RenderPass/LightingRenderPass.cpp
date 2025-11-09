@@ -10,11 +10,13 @@
 #include "Shader/CommonShaderUniforms.h"
 #include "Shader/Shader.h"
 #include "Buffer/BufferLayout.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG
 {
     LightingRenderPass::LightingRenderPass()
     {
+        ZPG_PROFILE_FUNCTION();
         m_ShaderProgram = ShaderProgram::Create("LightingPassSP", {
             Shader::Create("VertexLightingPassSP", "assets/shaders/multipass/vert/LightingPass.vert"),
             Shader::Create("VertexLightingPassSP", "assets/shaders/multipass/frag/LightingPass.frag"),
@@ -57,6 +59,7 @@ namespace ZPG
 
     void LightingRenderPass::Init(RenderContext &renderContext)
     {
+        ZPG_PROFILE_FUNCTION();
         m_ShaderProgram->Bind();
         for (auto& colorAttachment : renderContext.GeometryPassFramebuffer->GetColorTextureAttachments() | std::views::keys)
         {
@@ -68,6 +71,7 @@ namespace ZPG
 
     void LightingRenderPass::Execute(RenderContext &renderContext)
     {
+        ZPG_PROFILE_FUNCTION();
         renderContext.MainFramebuffer->Bind();
         {
             RenderCommand::Clear();
@@ -123,6 +127,11 @@ namespace ZPG
             m_ShaderProgram->SetInt(CommonShaderUniforms::DIRECTIONAL_LIGHT_SHADOW_MAP, RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP);
             depthAttachmentIter->second->BindToSlot(RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP);
 
+            // SPOTLIGHT SHADOW MAP ARRAY
+
+            m_ShaderProgram->SetInt(CommonShaderUniforms::SPOTLIGHT_SHADOW_MAP_ARRAY, RenderBindingPoints::SPOTLIGHT_SHADOW_MAP_ARRAY);
+            glActiveTexture(GL_TEXTURE0 + RenderBindingPoints::SPOTLIGHT_SHADOW_MAP_ARRAY);
+            glBindTexture(GL_TEXTURE_2D_ARRAY, renderContext.SpotLightShadowMapArrayRendererID);
 
             // bind the uv quad that fills up the NDC
             m_QuadVAO->Bind(); 

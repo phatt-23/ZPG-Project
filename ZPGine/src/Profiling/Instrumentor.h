@@ -71,7 +71,7 @@ namespace ZPG {
 #else
     #define ZPG_PROFILE_BEGIN_SESSION(name, filepath)
     #define ZPG_PROFILE_END_SESSION()
-    #define ZPG_PROFILE_SCOPE()
+    #define ZPG_PROFILE_SCOPE(name)
     #define ZPG_PROFILE_FUNCTION()
 #endif
 

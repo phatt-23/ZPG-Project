@@ -10,6 +10,7 @@
 #include "Event/MouseEvent.h"
 #include "Event/KeyEvent.h"
 #include "Event/WindowEvent.h"
+#include "Profiling/Instrumentor.h"
 
 using namespace glm;
 
@@ -26,12 +27,15 @@ static T wrap(T value, T low, T high) {
 
 CameraController::CameraController(Camera& camera) 
 : m_Camera(camera) {
+    ZPG_PROFILE_FUNCTION();
 }
 
 CameraController::~CameraController() {
+    ZPG_PROFILE_FUNCTION();
 
 }
 void CameraController::OnUpdate(Timestep& ts) {
+    ZPG_PROFILE_FUNCTION();
     // Update camera's position
     float translateSpeed = m_CameraTranslationSpeed * ts;
     
@@ -82,6 +86,7 @@ void CameraController::OnUpdate(Timestep& ts) {
     m_Camera.SetOrientation(normalize(qYaw * qPitch * qRoll));
 }
 void CameraController::OnEvent(Event& event) {
+    ZPG_PROFILE_FUNCTION();
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<MouseScrolledEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnMouseScrolled));
     // dispatcher.Dispatch<WindowResizeEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(CameraController::OnWindowResized));
@@ -90,11 +95,13 @@ void CameraController::OnEvent(Event& event) {
 }
 
 void CameraController::OnResize(u32 width, u32 height) {
+    ZPG_PROFILE_FUNCTION();
     Input::ShowCursor();
     f32 aspectRatio = width / (float)height;
     m_Camera.SetPerspectiveProjection(m_Camera.GetFOV(), aspectRatio, m_Camera.GetZNear(), m_Camera.GetZFar());
 }
 bool CameraController::OnMouseMoved(MouseMovedEvent& e) {
+    ZPG_PROFILE_FUNCTION();
     if (Input::IsCursorGrabbed()) {
 
         vec2 currentPos = vec2(e.GetXPos(), e.GetYPos());
@@ -117,6 +124,7 @@ bool CameraController::OnMouseMoved(MouseMovedEvent& e) {
     return false;
 }
 bool CameraController::OnMouseButtonPressed(MouseButtonPressedEvent& e) {
+    ZPG_PROFILE_FUNCTION();
     GLFWwindow* w = (GLFWwindow*)Application::Get().GetWindow().GetNativeWindow();
     if (e.GetButtonCode() == ZPG_MOUSE_BUTTON_LEFT) {
         Input::GrabCursor();
@@ -129,6 +137,7 @@ bool CameraController::OnMouseButtonPressed(MouseButtonPressedEvent& e) {
     return false;
 }
 bool CameraController::OnMouseScrolled(MouseScrolledEvent& e) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_DEBUG("{}: On mouse scroll", __PRETTY_FUNCTION__);
 
     constexpr f32 sensitivity = 0.25f;
@@ -140,6 +149,7 @@ bool CameraController::OnMouseScrolled(MouseScrolledEvent& e) {
     return false;
 }
 bool CameraController::OnWindowResized(WindowResizeEvent& e) {
+    ZPG_PROFILE_FUNCTION();
     Input::ShowCursor();
     f32 aspectRatio = e.GetWidth() / (float)e.GetHeight();
     m_Camera.SetPerspectiveProjection(m_Camera.GetFOV(), aspectRatio, m_Camera.GetZNear(), m_Camera.GetZFar());

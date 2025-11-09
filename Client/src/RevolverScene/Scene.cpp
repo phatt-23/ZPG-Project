@@ -26,9 +26,12 @@ void RevolverScene::OnLazyAttach() {
     // m_LocalRes.LoadModel("SpecialRevolver", "./assets/models/38_special_revolver/scene.gltf");
     m_LocalRes.LoadModel("ColtPython", "./assets/models/gameready_colt_python_revolver/scene.gltf");
     m_LocalRes.LoadModel("Seoul", "./assets/models/korth_nxr_revolver/scene.gltf");
+    m_LocalRes.LoadModel("Plane", "./assets/models/plane.gltf");
 
     int gridSize = 3;
     float dist = 4;
+
+    GetEntityManager().AddEntity(new Entity(m_LocalRes.GetModel("Plane"), TransformGroup::Build().Add<Scale>(10.0f).Compose()));
 
     for (int i = -gridSize; i < gridSize; i++) {
         for (int j = -gridSize; j < gridSize; j++) {

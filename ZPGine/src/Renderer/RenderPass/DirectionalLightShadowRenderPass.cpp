@@ -3,6 +3,7 @@
 #include "Material/Material.h"
 #include "Model/Mesh.h"
 #include "Model/Model.h"
+#include "Profiling/Instrumentor.h"
 #include "Renderer/RenderCommand.h"
 #include "Shader/ShaderProgram.h"
 #include "Shader/Shader.h"
@@ -63,6 +64,7 @@ namespace ZPG
 {
     DirectionalLightShadowRenderPass::DirectionalLightShadowRenderPass()
     {
+        ZPG_PROFILE_FUNCTION();
         m_ShaderProgram = ShaderProgram::Create("directional_light_sp", {
             Shader::CreateFromCode("vertex_directional_light_sp", Shader::Vertex, vertexShader),
             Shader::CreateFromCode("frag_directional_light_sp", Shader::Fragment, fragShader),
@@ -80,42 +82,47 @@ namespace ZPG
 
     void DirectionalLightShadowRenderPass::Execute(RenderContext &renderContext)
     {
-        if (renderContext.DirectionalLight == nullptr) {
-            return;
-        }
+        ZPG_PROFILE_FUNCTION();
 
         renderContext.DirectionalLightShadowFramebuffer->Bind();
         RenderCommand::Clear();
 
-        m_ShaderProgram->Bind();
+        // glEnable(GL_CULL_FACE);
+        // glCullFace(GL_FRONT);
 
-        for (auto& entity : renderContext.VisibleEntities)
-        {
-            m4 transform = entity->GetTransformMatrix();
-            auto& meshes = entity->GetModel()->GetMeshes();
+        if (renderContext.DirectionalLight != nullptr) {
+            m_ShaderProgram->Bind();
 
-            for (auto& mesh : meshes)
+            for (auto& entity : renderContext.VisibleEntities)
             {
-                m4 local = mesh->GetLocalTransform();
-                auto& vao = mesh->GetVertexArray();
+                m4 transform = entity->GetTransformMatrix();
+                auto& meshes = entity->GetModel()->GetMeshes();
 
-                m_ShaderProgram->SetMat4("u_Model", transform * local);
-                m_ShaderProgram->SetFloat4("u_Color", mesh->GetMaterial()->GetAlbedo());
+                for (auto& mesh : meshes)
+                {
+                    m4 local = mesh->GetLocalTransform();
+                    auto& vao = mesh->GetVertexArray();
 
-                vao->Bind();
+                    m_ShaderProgram->SetMat4("u_Model", transform * local);
+                    m_ShaderProgram->SetFloat4("u_Color", mesh->GetMaterial()->GetAlbedo());
 
-                if (vao->HasIndexBuffer()) {
-                    RenderCommand::DrawIndexed(*vao, vao->GetIndexBuffer()->GetCount());
+                    vao->Bind();
+
+                    if (vao->HasIndexBuffer()) {
+                        RenderCommand::DrawIndexed(*vao, vao->GetIndexBuffer()->GetCount());
+                    }
+                    else {
+                        RenderCommand::DrawArrays(*vao);
+                    }
+
+                    vao->Unbind();
                 }
-                else {
-                    RenderCommand::DrawArrays(*vao);
-                }
-
-                vao->Unbind();
             }
+
+            m_ShaderProgram->Unbind();
         }
 
-        m_ShaderProgram->Unbind();
+        // glCullFace(GL_BACK);
 
         renderContext.DirectionalLightShadowFramebuffer->Unbind();
     }

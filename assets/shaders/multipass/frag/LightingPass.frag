@@ -26,26 +26,30 @@ struct PointLight
 {
     vec4 Color;
     vec3 Position;
-    float pad0[1];
+    int ShadowLayer;
     vec3 Attenuation;
     float pad1[1];
+    mat4 ViewProj;
 };
 
-struct SpotLight
-{
-    vec4 Color;
-    vec3 Position;
-    vec3 Direction;
-    float BeamSize;
-    vec3 Attenuation;
-    float BeamBlend;
-};
 
 layout (std430, binding = 2) buffer PointLightShaderStorageBuffer
 {
     int Count;
     PointLight LightArray[];
 } ssbo_PointLight;
+
+struct SpotLight
+{
+    vec4 Color;
+    vec3 Position;
+    int ShadowLayer;
+    vec3 Direction;
+    float BeamSize;
+    vec3 Attenuation;
+    float BeamBlend;
+    mat4 ViewProj;
+};
 
 layout (std430, binding = 3) buffer SpotLightShaderStorageBuffer
 {
@@ -64,14 +68,15 @@ uniform int u_SkyType;
 uniform sampler2D u_SkydomeMap;
 uniform samplerCube u_SkyboxMap;
 
-uniform sampler2D   g_Color0; // pos
-uniform sampler2D   g_Color1; // normal
-uniform sampler2D   g_Color2; // albedo and metallic
-uniform sampler2D   g_Color3; // emissive and roughness
-uniform isampler2D  g_Color4; // entityID
+uniform sampler2D g_Color0; // pos
+uniform sampler2D g_Color1; // normal
+uniform sampler2D g_Color2; // albedo and metallic
+uniform sampler2D g_Color3; // emissive and roughness
+uniform isampler2D g_Color4; // entityID
 uniform sampler2D g_Color5;
 
 uniform sampler2D u_DirectionalLightShadowMap;
+uniform sampler2DArray u_SpotLightShadowMapArray;
 
 layout(location = 0) out vec4 f_Color0;
 layout(location = 1) out int f_Color1;
@@ -84,21 +89,92 @@ float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 
-float ShadowCalculation(vec4 worldPos) {
-    vec4 worldPosLightSpace = ssbo_EnvironmentLight.DirLight.ViewProj * worldPos;
+float ShadowBias(vec3 worldNormal, vec3 lightDir)
+{
+    float bias = max(0.001 * (1.0 - dot(worldNormal, lightDir)), 0.0005);
+    return bias;
+}
+
+float PCF(sampler2D sampler, vec3 projCoord, float bias, int size)
+{
+    float currentDepth = projCoord.z;
+    vec2 texelSize = 1.0 / textureSize(sampler, 0);
+    float shadow = 0.0;
+    int i = 0;
+
+    for(int x = -size; x <= size; ++x)
+    {
+        for(int y = -size; y <= size; ++y)
+        {
+            float pcfDepth = texture(sampler, projCoord.xy + vec2(x, y) * texelSize).r;
+            shadow += (currentDepth - bias > pcfDepth) ? 1.0 : 0.0;
+            i++;
+        }
+    }
+    return shadow/i;
+}
+
+float PCF(sampler2DArray sampler, int slice, vec3 projCoord, float bias, int size)
+{
+    float currentDepth = projCoord.z;
+    vec2 texelSize = 1.0 / textureSize(sampler, 0).xy;
+    float shadow = 0.0;
+    int i = 0;
+
+    for(int x = -size; x <= size; ++x)
+    {
+        for(int y = -size; y <= size; ++y)
+        {
+            float pcfDepth = texture(sampler, vec3(projCoord.xy + vec2(x,y) * texelSize, float(slice))).r;
+            shadow += (currentDepth - bias > pcfDepth) ? 1.0 : 0.0;
+            i++;
+        }
+    }
+    return shadow/i;
+}
+
+float CalcDirectionalShadow(vec4 worldPos, vec3 worldNormal)
+{
+    DirectionalLight dirLight = ssbo_EnvironmentLight.DirLight;
+    vec3 lightDir = dirLight.Direction;
+    vec4 worldPosLightSpace = dirLight.ViewProj * worldPos;
 
     vec3 projCoord = worldPosLightSpace.xyz / worldPosLightSpace.w;
 
     projCoord = 0.5 * projCoord + 0.5;
 
-    float closestDepth = texture(u_DirectionalLightShadowMap, projCoord.xy).r;
+    // when oversampling, return no shadow
+    if(projCoord.z > 1.0 || projCoord.x > 1.0 || projCoord.y > 1.0 || projCoord.x < 0.0 || projCoord.y < 0.0)
+        return 1.0;
+
+    float bias = ShadowBias(worldNormal, lightDir);
+    int size = 4;
+
+    float shadow = PCF(u_DirectionalLightShadowMap, projCoord, bias, size);
+    return shadow;
+}
+
+float CalcSpotLightShadow(vec4 worldPos, vec3 worldNormal, SpotLight light)
+{
+    int shadowLayer = light.ShadowLayer;
+    vec3 lightDir = light.Direction;
+    vec4 worldPosLightSpace = light.ViewProj * worldPos;
+
+    vec3 projCoord = worldPosLightSpace.xyz / worldPosLightSpace.w;
+
+    projCoord = 0.5 * projCoord + 0.5;
+    // when oversampling, return no shadow
+    if(projCoord.z > 1.0 || projCoord.x > 1.0 || projCoord.y > 1.0 || projCoord.x < 0.0 || projCoord.y < 0.0)
+        return 1.0;
+
+    float closestDepth = texture(u_SpotLightShadowMapArray, vec3(projCoord.xy, shadowLayer)).r;
     float currentDepth = projCoord.z;
 
-    float bias = 0.005;
+    float bias = ShadowBias(worldNormal, lightDir);
+    int size = 4;
 
-    float shadow = (currentDepth - bias < closestDepth) ? 1.0 : 0.0;
+    float shadow = PCF(u_SpotLightShadowMapArray, shadowLayer, projCoord, bias, size);
 
-    // return 1.0;
     return shadow;
 }
 
@@ -134,8 +210,7 @@ void main()
         vec3 lightColor = directionalLightColor.rgb * directionalLightColor.a;
         vec3 lightDir = ssbo_EnvironmentLight.DirLight.Direction;
 
-        // float shadow = 1.0;
-        float shadow = ShadowCalculation(worldPos4);
+        float shadow = 1.0 - CalcDirectionalShadow(worldPos4, N);
 
         // calculate per-light radiance
         vec3 L = normalize(-lightDir);
@@ -201,6 +276,8 @@ void main()
     {
         SpotLight light = ssbo_SpotLight.LightArray[i];
 
+        float shadow = 1.0 - CalcSpotLightShadow(worldPos4, N, light); //light.ShadowLayer);
+
         vec3 lightColor = light.Color.rgb;
         vec3 lightPos = light.Position.xyz;
         vec3 lightAtten = light.Attenuation;
@@ -216,7 +293,7 @@ void main()
         float beamBlendCos = cos(radians(lightBeamSize * (1.0 - lightBeamBlend)));
 
         if (beamBlendCos <= beamSizeCos)
-        continue;
+            continue;
 
         float alpha = dot(normalize(lightDirection), -L);
         float beamNumerator = alpha - beamSizeCos;
@@ -242,8 +319,7 @@ void main()
 
         // add to outgoing radiance Lo
         float NdotL = max(dot(N, L), 0.0);
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
-
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL * shadow;
     }
 
     vec3 color = Lo + La + emissive;

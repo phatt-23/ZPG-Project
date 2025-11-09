@@ -10,6 +10,7 @@
 #include "RenderGroups.h"
 #include "Buffer/VertexArray.h"
 #include "Material/Material.h"
+#include "Profiling/Instrumentor.h"
 #include "Texture/Texture.h"
 
 namespace ZPG
@@ -17,6 +18,7 @@ namespace ZPG
 
     void RenderPass::Flush(RenderContext& renderContext)
     {
+        ZPG_PROFILE_FUNCTION();
         if (renderContext.Batch.GetBatchSize() == 0) {
             return;
         }

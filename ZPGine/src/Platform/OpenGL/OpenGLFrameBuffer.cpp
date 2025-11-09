@@ -2,6 +2,7 @@
 
 #include "OpenGLCore.h"
 #include "OpenGLMapper.h"
+#include "Profiling/Instrumentor.h"
 #include "Renderer/RenderCommand.h"
 #include "Texture/Texture.h"
 
@@ -11,6 +12,7 @@ namespace ZPG
     {
         std::string ToString(FrameBufferAttachmentType attachmentType)
         {
+            ZPG_PROFILE_FUNCTION();
             switch (attachmentType) {
                 case FrameBufferAttachmentType::Color: return "ColorAttachment";
                 case FrameBufferAttachmentType::Depth: return "DepthAttachment";
@@ -24,11 +26,13 @@ namespace ZPG
     OpenGLFrameBuffer::OpenGLFrameBuffer(const FrameBufferSpecification& spec)
         : m_Specification(spec)
     {
+        ZPG_PROFILE_FUNCTION();
         Invalidate();
     }
 
     OpenGLFrameBuffer::~OpenGLFrameBuffer()
     {
+        ZPG_PROFILE_FUNCTION();
         ZPG_OPENGL_CALL(glDeleteFramebuffers(1, &m_RendererID));
     }
 
@@ -38,10 +42,12 @@ namespace ZPG
     }
 
     void OpenGLFrameBuffer::Unbind() {
+        ZPG_PROFILE_FUNCTION();
         ZPG_OPENGL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
     }
 
     void OpenGLFrameBuffer::Invalidate() {
+        ZPG_PROFILE_FUNCTION();
         if (m_RendererID != 0) {
             m_TextureAttachments.clear();
             m_ColorTextureAttachments.clear();
@@ -88,6 +94,7 @@ namespace ZPG
     }
 
     void OpenGLFrameBuffer::Resize(u32 width, u32 height) {
+        ZPG_PROFILE_FUNCTION();
         ZPG_CORE_ASSERT(m_Specification.Resizable, "The framebuffer must be resizable.");
 
         if (width <= 0 || height <= 0 || (width == m_Specification.Width && height == m_Specification.Height)) {
@@ -100,22 +107,26 @@ namespace ZPG
     }
 
     void OpenGLFrameBuffer::BindColorTextureAttachments() {
+        ZPG_PROFILE_FUNCTION();
         for (auto& [attachment, colorTex] : m_ColorTextureAttachments) {
             colorTex->BindToSlot(attachment.Index);
         }
     }
 
     u32 OpenGLFrameBuffer::GetRendererID() const {
+        ZPG_PROFILE_FUNCTION();
         return m_RendererID;
     }
 
     void OpenGLFrameBuffer::CopyAttachment(const ref<FrameBuffer>& readFBO, FrameBufferAttachmentType attachmentType)
     {
+        ZPG_PROFILE_FUNCTION();
         readFBO->WriteAttachment(m_RendererID, m_Specification.Width, m_Specification.Height, attachmentType);
     }
 
     void OpenGLFrameBuffer::WriteAttachment(u32 writeFramebufferRendererID, u32 width, u32 height, FrameBufferAttachmentType attachmentType)
     {
+        ZPG_PROFILE_FUNCTION();
         OpenGLMapper::OpenGLAttachmentMapping gl = OpenGLMapper::ToGL(attachmentType);
 
         ZPG_OPENGL_CALL(glBlitNamedFramebuffer(
@@ -126,10 +137,12 @@ namespace ZPG
     }
 
     const FrameBufferSpecification& OpenGLFrameBuffer::GetSpecification() const {
+        ZPG_PROFILE_FUNCTION();
         return m_Specification;
     }
 
     const std::unordered_map<FrameBufferAttachment, ref<Texture>>& OpenGLFrameBuffer::GetTextureAttachments() const {
+        ZPG_PROFILE_FUNCTION();
         return m_TextureAttachments;
     }
 

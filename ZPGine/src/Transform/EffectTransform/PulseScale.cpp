@@ -1,6 +1,7 @@
 #include "PulseScale.h"
 
 #include "Core/Timestep.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -10,9 +11,12 @@ PulseScale::PulseScale(
         const v3& minScale,
         const v3& maxScale)
 : DynScale(startingScale, growth, minScale, maxScale){
+    ZPG_PROFILE_FUNCTION();
 }
 
 void PulseScale::Update(Timestep& ts) {
+    ZPG_PROFILE_FUNCTION();
+
     glm::vec3 newScale = glm::clamp(
         m_CurrentScale + (m_Growth * ts.AsSeconds()),
         m_MinScale,

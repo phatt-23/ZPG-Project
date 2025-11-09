@@ -30,6 +30,7 @@
 #include "Light/DirectionalLight.h"
 #include "Light/PointLight.h"
 #include "Light/SpotLight.h"
+#include "Profiling/Instrumentor.h"
 #include "Texture/Texture.h"
 #include "Transform/DynamicTransform/DynRotate.h"
 #include "Transform/DynamicTransform/DynScale.h"
@@ -39,6 +40,7 @@ namespace ZPG {
 
 Scene::Scene(const ref<ResourceManager>& resourceManager)
 : m_ResourceManager(resourceManager) {
+    ZPG_PROFILE_FUNCTION();
     m_CameraController = MakeRef(new CameraController(m_Camera));
 }
 
@@ -66,6 +68,7 @@ void Scene::OnPause() {
 }
 
 void Scene::OnUpdate(Timestep& ts) {
+    ZPG_PROFILE_FUNCTION();
     SceneContext ctx = {
         .Ts = ts,
         .AddLight = [this](const Light& light) {
@@ -109,11 +112,13 @@ void Scene::OnUpdate(Timestep& ts) {
 #endif
 
 void Scene::OnEvent(Event& event) {
+    ZPG_PROFILE_FUNCTION();
     PropagateEventDownLayers(event);
     m_CameraController->OnEvent(event);
 }
 
 void Scene::OnImGuiRender() {
+    ZPG_PROFILE_FUNCTION();
     ImGuiRenderEachLayer();
     ImGuiRenderDebug();
 }
@@ -124,11 +129,13 @@ void Scene::OnImGuiRender() {
 
 
 void Scene::PushLayer(Layer* layer) {
+    ZPG_PROFILE_FUNCTION();
     layer->SetScene(this);
     m_LayerStack.PushLayer(layer);
 }
 
 void Scene::PopLayer() {
+    ZPG_PROFILE_FUNCTION();
     ref<Layer> layer = m_LayerStack.PopLayer();
     layer->SetScene(nullptr);
 }
@@ -138,42 +145,52 @@ void Scene::PopLayer() {
  */
 
 void Scene::AddLight(Light* light) {
+    ZPG_PROFILE_FUNCTION();
     m_LightManager.AddLight(MakeRef(light));
 }
 
 void Scene::AddLight(const ref<Light>& light) {
+    ZPG_PROFILE_FUNCTION();
     m_LightManager.AddLight(light);
 }
 
 void Scene::RemoveLight(Light* light) {
+    ZPG_PROFILE_FUNCTION();
     m_LightManager.RemoveLight(MakeRef(light));
 }
 
 void Scene::AddEntity(Entity* entity) {
+    ZPG_PROFILE_FUNCTION();
     m_EntityManager.AddEntity(MakeRef(entity));
 }
 
 void Scene::AddEntity(const ref<Entity>& entity) {
+    ZPG_PROFILE_FUNCTION();
     m_EntityManager.AddEntity(entity);
 }
 
 void Scene::RemoveEntity(Entity* entity) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_NOT_IMPL();
 }
 
 const ref<CameraController>& Scene::GetCameraController() const {
+    ZPG_PROFILE_FUNCTION();
     return m_CameraController;
 }
 
 void Scene::SetCameraController(const ref<CameraController>& cameraController) {
+    ZPG_PROFILE_FUNCTION();
     m_CameraController = cameraController;
 }
 
 void Scene::SetSky(const ref<Sky>& sky) {
+    ZPG_PROFILE_FUNCTION();
     m_Sky = sky;
 }
 
 const ref<Sky>& Scene::GetSky() const {
+    ZPG_PROFILE_FUNCTION();
     return m_Sky;
 }
 
@@ -182,6 +199,7 @@ const ref<Sky>& Scene::GetSky() const {
  */
 
 void Scene::PropagateEventDownLayers(Event& event) {
+    ZPG_PROFILE_FUNCTION();
     // events travel from top to bottom
     for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
         (*--it)->OnEvent(event);
@@ -192,6 +210,7 @@ void Scene::PropagateEventDownLayers(Event& event) {
 }
 
 void Scene::ImGuiRenderEachLayer() {
+    ZPG_PROFILE_FUNCTION();
     for (auto& layer : m_LayerStack) {
         layer->OnImGuiRender();
     }
@@ -203,6 +222,7 @@ void Scene::ImGuiRenderEachLayer() {
  */
 
 void TransformImGuiTreeNode(Transform* transform) {
+    ZPG_PROFILE_FUNCTION();
     ImGui::PushID(transform);
 
     if (typeid(*transform) == typeid(TransformGroup)) {
@@ -306,6 +326,7 @@ void TransformImGuiTreeNode(Transform* transform) {
 
 
 void TextureImGuiImage(Texture* texture) {
+    ZPG_PROFILE_FUNCTION();
     ImGui::PushID(texture);
     if (ImGui::TreeNodeEx(texture->GetName().c_str())) {
         ImVec2 imageSize(200, 200);
@@ -318,6 +339,7 @@ void TextureImGuiImage(Texture* texture) {
 }
 
 void ModelImGuiTreeNode(Model* model) {
+    ZPG_PROFILE_FUNCTION();
     ImGui::PushID(model);
     
     ImGui::Text("Model");
@@ -367,6 +389,7 @@ void ModelImGuiTreeNode(Model* model) {
 }
 
 void Scene::ImGuiRenderDebug() {
+    ZPG_PROFILE_FUNCTION();
     ImGui::Begin("Entities");
 
     auto entities = m_EntityManager.GetEntities();
@@ -433,7 +456,7 @@ void Scene::ImGuiRenderDebug() {
             }
 
             v3 pos = light->Position.Get();
-            if (ImGui::InputFloat3("Position", glm::value_ptr(pos))) {
+            if (ImGui::DragFloat3("Position", glm::value_ptr(pos), 0.01)) {
                 light->Position.Set(pos);
             }
 
@@ -453,7 +476,7 @@ void Scene::ImGuiRenderDebug() {
             }
 
             v3 pos = light->Position.Get();
-            if (ImGui::InputFloat3("Position", glm::value_ptr(pos))) {
+            if (ImGui::DragFloat3("Position", glm::value_ptr(pos), 0.01)) {
                 light->Position.Set(pos);
             }
 

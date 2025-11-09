@@ -22,7 +22,7 @@ namespace ZPG
         ZPG_CORE_ASSERT(s_Instance == nullptr, "MultipassRenderer already initialized.");
        
         RenderContextSpecification renderContextSpec;
-        renderContextSpec.BatchSize = 1024;
+        renderContextSpec.BatchSize = 2 * 1024;
         renderContextSpec.PointLightCapacity = 256;
         renderContextSpec.SpotLightCapacity = 256;
 
@@ -30,7 +30,7 @@ namespace ZPG
 
         PushRenderPass(new DirectionalLightShadowRenderPass());
         // PushRenderPass(new PointLightShadowRenderPass());
-        // PushRenderPass(new SpotLightShadowRenderPass());
+        PushRenderPass(new SpotLightShadowRenderPass());
         PushRenderPass(new GeometryRenderPass());
         PushRenderPass(new LightingRenderPass());
     }
@@ -150,6 +150,8 @@ namespace ZPG
         m_RenderContext.PointLights.clear();
         m_RenderContext.SpotLights.clear();
 
+        int spotLightShadowLayer = 0;
+
         for (const auto& light : lights)
         {
             switch (light->GetLightType())
@@ -171,7 +173,9 @@ namespace ZPG
                 case LightType::Spotlight: 
                     if (m_RenderContext.SpotLights.size() < m_RenderContext.SpotLights.capacity())
                     {
-                        m_RenderContext.SpotLights.push_back(SpotLightStruct(*(SpotLight*)light.get()));
+                        SpotLightStruct spotlightStruct(*(SpotLight*)light.get());
+                        spotlightStruct.ShadowLayer = spotLightShadowLayer++;
+                        m_RenderContext.SpotLights.push_back(spotlightStruct);
                     }
                     break;
                 case LightType::None:

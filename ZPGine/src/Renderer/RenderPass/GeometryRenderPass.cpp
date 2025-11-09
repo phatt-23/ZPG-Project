@@ -11,6 +11,7 @@
 #include "Texture/Texture.h"
 #include "Model/Model.h"
 #include "Model/Mesh.h"
+#include "Profiling/Instrumentor.h"
 #include "Shader/Shader.h"
 
 namespace ZPG
@@ -25,6 +26,7 @@ namespace ZPG
 
     void GeometryRenderPass::Init(RenderContext& renderContext)
     {
+        ZPG_PROFILE_FUNCTION();
         m_ShaderProgram = ShaderProgram::Create("GeometryPassSP", {
             Shader::Create("VertexGeometryPassSP", "./assets/shaders/multipass/vert/GeometryPass.vert"),
             Shader::Create("FragmentGeometryPassSP", "./assets/shaders/multipass/frag/GeometryPass.frag"),
@@ -43,6 +45,7 @@ namespace ZPG
 
     void GeometryRenderPass::Execute(RenderContext& renderContext)
     {
+        ZPG_PROFILE_FUNCTION();
         renderContext.GeometryPassFramebuffer->Bind(); // bind the g-buffer so the consequent draw calls will draw into it
         RenderCommand::Clear();
 
@@ -74,6 +77,7 @@ namespace ZPG
 
     void GeometryRenderPass::Flush(RenderContext& renderContext)
     {
+        ZPG_PROFILE_FUNCTION();
         RenderPass::Flush(renderContext);
         renderContext.Statistics.FlushCountPerFrame++;
     }

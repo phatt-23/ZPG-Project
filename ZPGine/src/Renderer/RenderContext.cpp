@@ -1,5 +1,6 @@
 #include "RenderContext.h"
 #include "RenderBindingPoints.h"
+#include "Profiling/Instrumentor.h"
 #include "Sky/Skybox.h"
 
 namespace ZPG 
@@ -14,8 +15,10 @@ namespace ZPG
         , EntitySSBO(RenderBindingPoints::ENTITY_SSBO, spec.BatchSize)
         , Batch(spec.BatchSize)
     {
+        ZPG_PROFILE_FUNCTION();
         SpotLights.reserve(spec.SpotLightCapacity);
         PointLights.reserve(spec.PointLightCapacity);
+
 
         FrameBufferSpecification directionalLightFramebufferSpec;
         directionalLightFramebufferSpec.Width = 4 * 1024;
@@ -28,6 +31,7 @@ namespace ZPG
 
         DirectionalLightShadowFramebuffer = FrameBuffer::Create(directionalLightFramebufferSpec);
 
+
         FrameBufferSpecification pointLightShadowFramebufferSpec;
         pointLightShadowFramebufferSpec.Width = 1024;
         pointLightShadowFramebufferSpec.Height = 1024;
@@ -38,15 +42,18 @@ namespace ZPG
 
         PointLightShadowFramebuffer = FrameBuffer::Create(pointLightShadowFramebufferSpec);
 
+
         FrameBufferSpecification spotLightShadowFramebufferSpec;
         spotLightShadowFramebufferSpec.Width = 1024;
         spotLightShadowFramebufferSpec.Height = 1024;
         spotLightShadowFramebufferSpec.Resizable = false;
         spotLightShadowFramebufferSpec.Attachments = {
             {TextureDataFormat::Depth32F, 0},
+            // {TextureDataFormat::RGBA32F, 0}, // debug depth
         };
 
         SpotLightShadowFramebuffer = FrameBuffer::Create(spotLightShadowFramebufferSpec);
+
 
         FrameBufferSpecification GeometryPassFramebufferSpec;
         GeometryPassFramebufferSpec.Width = 1024;
@@ -78,10 +85,12 @@ namespace ZPG
 
         MainFramebuffer = FrameBuffer::Create(mainFramebufferSpec);
 
+
         ActiveSky = Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" });
     }
 
     RenderContext::~RenderContext()
     {
+        ZPG_PROFILE_FUNCTION();
     }
 }

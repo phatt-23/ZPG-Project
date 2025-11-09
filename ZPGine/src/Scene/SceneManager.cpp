@@ -2,6 +2,7 @@
 #include "Debug/Asserter.h"
 #include "Scene.h"
 #include "Observer/Payload.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -10,6 +11,7 @@ SceneManager::SceneManager() {
 }
 
 SceneManager::~SceneManager() {
+    ZPG_PROFILE_FUNCTION();
     for (auto& sceneEntry : m_SceneEntries | std::views::values) {
         if (sceneEntry.m_Scene == nullptr) {
             continue;
@@ -23,6 +25,7 @@ SceneManager::~SceneManager() {
 }
 
 void SceneManager::AddScene(const std::string& name, const std::function<Scene*(void)>& sceneFactory, SceneLifetime lifetime) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_DEBUG("SceneManager added scene with name {}", name);
     ZPG_CORE_ASSERT(!Exists(name), "Scene with the given name already exists.");
 
@@ -39,6 +42,7 @@ void SceneManager::AddScene(const std::string& name, const std::function<Scene*(
 }
 
 void SceneManager::AddScene(const std::string& name, Scene* scene) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_DEBUG("SceneManager added scene with name {}", name);
     ZPG_CORE_ASSERT(!Exists(name), "Scene with the given name already exists.");
 
@@ -56,6 +60,7 @@ void SceneManager::AddScene(const std::string& name, Scene* scene) {
 }
 
 bool SceneManager::RemoveScene(const std::string& name) {
+    ZPG_PROFILE_FUNCTION();
     if (Exists(name)) {
         Scene* scene = m_SceneEntries[name].m_Scene;
         m_SceneEntries.erase(name);
@@ -67,10 +72,12 @@ bool SceneManager::RemoveScene(const std::string& name) {
 }
 
 bool SceneManager::Exists(const std::string& name) const {
+    ZPG_PROFILE_FUNCTION();
     return m_SceneEntries.contains(name);
 }
 
 void SceneManager::SetActiveScene(const std::string& name) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(Exists(name), "Cannot set scene with name '{}' as active, it doesn't exist.", name);
 
     if (name == m_ActiveSceneName) {
@@ -114,6 +121,7 @@ void SceneManager::SetActiveScene(const std::string& name) {
 }
 
 Scene* SceneManager::GetActiveScene() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(Exists(m_ActiveSceneName), "There is no active scene with the name: '{}'", m_ActiveSceneName);
     return m_SceneEntries[m_ActiveSceneName].m_Scene;
 }

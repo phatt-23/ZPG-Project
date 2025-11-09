@@ -3,6 +3,8 @@
 //
 #include "Light.h"
 
+#include "Profiling/Instrumentor.h"
+
 namespace ZPG {
 
 Light::Light(LightType lightType)
@@ -10,6 +12,7 @@ Light::Light(LightType lightType)
 }
 
 LightType Light::GetLightType() const {
+    ZPG_PROFILE_FUNCTION();
     return m_LightType;
 }
 

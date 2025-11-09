@@ -12,7 +12,6 @@ AttenComponent::AttenComponent(
 )
 : m_Attenuation(quadratic, linear, constant)
 {
-
 }
 
 f32 AttenComponent::GetQuadratic() const {

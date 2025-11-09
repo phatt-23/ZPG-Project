@@ -7,6 +7,7 @@
 #include "OpenGLCore.h"
 #include "OpenGLMapper.h"
 #include "Debug/Asserter.h"
+#include "Profiling/Instrumentor.h"
 #include "stb_image/stb_image.h"
 
 namespace ZPG {
@@ -23,6 +24,8 @@ namespace ZPG {
         : m_Name(name)
         , m_DataFormat(dataFormat)
     {
+        ZPG_PROFILE_FUNCTION();
+
         auto gl = OpenGLMapper::ToGL(m_DataFormat);
 
         // Cube Map texture.
@@ -66,11 +69,15 @@ namespace ZPG {
         , m_Height(height)
         , m_DataFormat(dataFormat)
     {
+        ZPG_PROFILE_FUNCTION();
+
         Invalidate();
     }
 
     void OpenGLCubemapTexture::Invalidate()
     {
+        ZPG_PROFILE_FUNCTION();
+
         if (m_RendererID == 0)
         {
             glDeleteTextures(1, &m_RendererID);
@@ -95,6 +102,8 @@ namespace ZPG {
 
     OpenGLCubemapTexture::~OpenGLCubemapTexture()
     {
+        ZPG_PROFILE_FUNCTION();
+
         glDeleteTextures(1, &m_RendererID);
     }
 
@@ -105,6 +114,8 @@ namespace ZPG {
 
     void OpenGLCubemapTexture::BindToSlot(u32 slotIndex)
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_OPENGL_CALL(glActiveTexture(GL_TEXTURE0 + slotIndex));
         ZPG_OPENGL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID));
         ZPG_OPENGL_CALL(glActiveTexture(GL_TEXTURE0));
@@ -112,21 +123,28 @@ namespace ZPG {
 
     void OpenGLCubemapTexture::Bind()
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_OPENGL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID));
     }
 
     void OpenGLCubemapTexture::Unbind()
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_OPENGL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
     }
 
     u32 OpenGLCubemapTexture::GetWidth() const
     {
+        ZPG_PROFILE_FUNCTION();
+
         return m_Width;
     }
 
     u32 OpenGLCubemapTexture::GetHeight() const
     {
+        ZPG_PROFILE_FUNCTION();
         return m_Height;
     }
 
@@ -142,6 +160,7 @@ namespace ZPG {
 
     void OpenGLCubemapTexture::Resize(u32 width, u32 height)
     {
+        ZPG_PROFILE_FUNCTION();
         m_Width = width;
         m_Height = height;
         Invalidate();
@@ -149,6 +168,7 @@ namespace ZPG {
 
     u32 OpenGLCubemapTexture::GetRendererID() const
     {
+        ZPG_PROFILE_FUNCTION();
         return m_RendererID;
     }
 
@@ -161,6 +181,7 @@ namespace ZPG {
 
     void OpenGLCubemapTexture::SetFaceData(CubemapFace face, const void* data, u32 size)
     {
+        ZPG_PROFILE_FUNCTION();
         ZPG_OPENGL_CALL(glActiveTexture(GL_TEXTURE0));
         ZPG_OPENGL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, m_RendererID));
         ZPG_OPENGL_CALL(glTexImage2D(

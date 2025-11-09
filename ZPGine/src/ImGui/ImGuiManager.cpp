@@ -4,11 +4,13 @@
 #include "Platform/OpenGL/OpenGLGLFWImGuiManager.h"
 #include "Core/Window.h"
 #include "Debug/Asserter.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
 void ImGuiManager::Init(const scope<Window>& window)
 {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(s_Instance == nullptr, "ImGuiManager already initialized.");
 
     switch (RendererAPI::GetAPI())
@@ -24,8 +26,9 @@ void ImGuiManager::Init(const scope<Window>& window)
 
 void ImGuiManager::Shutdown()
 {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(s_Instance != nullptr, "ImGuiManager isn't initialized.");
-    free(s_Instance);
+    delete s_Instance;
 }
 
 }

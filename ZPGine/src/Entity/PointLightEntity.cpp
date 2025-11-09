@@ -5,6 +5,7 @@
 #include "PointLightEntity.h"
 
 #include "Light/PointLight.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -14,13 +15,16 @@ PointLightEntity::PointLightEntity(
     const ref<Transform>& transform)
 : Entity(model, transform)
 , m_PointLight(pointLight) {
+    ZPG_PROFILE_FUNCTION();
     m_PointLight->Position.Set(GetTransformMatrix()[3]);
 }
 
 PointLightEntity::~PointLightEntity() {
+    ZPG_PROFILE_FUNCTION();
 }
 
 void PointLightEntity::Update(Timestep& ts) {
+    ZPG_PROFILE_FUNCTION();
     Entity::Update(ts);
     m_PointLight->Position.Set(GetTransformMatrix()[3]);
 }

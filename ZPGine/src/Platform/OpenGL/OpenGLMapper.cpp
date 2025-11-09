@@ -5,12 +5,14 @@
 #include "OpenGLMapper.h"
 
 #include "Debug/Asserter.h"
+#include "Profiling/Instrumentor.h"
 
 
 namespace ZPG {
 
 
 OpenGLMapper::OpenGLAttachmentMapping OpenGLMapper::ToGL(const FrameBufferAttachmentType& bufferType) {
+    ZPG_PROFILE_FUNCTION();
     switch (bufferType) {
         case FrameBufferAttachmentType::Color:         return { GL_COLOR_ATTACHMENT0, GL_COLOR_BUFFER_BIT };
         case FrameBufferAttachmentType::DepthStencil:  return { GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT };
@@ -22,6 +24,7 @@ OpenGLMapper::OpenGLAttachmentMapping OpenGLMapper::ToGL(const FrameBufferAttach
 }
 
 OpenGLMapper::OpenGLFormatMapping OpenGLMapper::ToGL(const TextureDataFormat& format) {
+    ZPG_PROFILE_FUNCTION();
     switch (format) {
         case TextureDataFormat::R8:                 return { GL_R8,                 GL_RED,             GL_UNSIGNED_BYTE,       1 };
         case TextureDataFormat::RG8:                return { GL_RG8,                GL_RG,              GL_UNSIGNED_BYTE,       2 };

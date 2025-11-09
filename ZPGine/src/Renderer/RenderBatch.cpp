@@ -3,9 +3,11 @@
 //
 
 #include "RenderBatch.h"
+
 #include "Debug/Asserter.h"
 #include "RenderGroups.h"
 #include "Model/Mesh.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -13,8 +15,14 @@ namespace ZPG {
 RenderBatch::RenderBatch(u32 batchCapacity)
 : m_BatchCapacity(batchCapacity)
 , m_NeedsSorting(false) {
+    ZPG_PROFILE_FUNCTION();
     m_DrawCommands.reserve(m_BatchCapacity);
+
     m_Transforms.reserve(m_BatchCapacity);
+    m_EntityIDs.reserve(m_BatchCapacity);
+
+    m_SortedTransforms.reserve(m_BatchCapacity);
+    m_SortedEntityIDs.reserve(m_BatchCapacity);
 
     // reserve upfront
     // since there are at most m_BatchCapacity draw commands,
@@ -22,12 +30,14 @@ RenderBatch::RenderBatch(u32 batchCapacity)
     m_ShaderProgramGroups.reserve(m_BatchCapacity);
     m_MaterialGroups.reserve(m_BatchCapacity);
     m_VertexArrayGroups.reserve(m_BatchCapacity);
+
 }
 
 RenderBatch::~RenderBatch() {
 }
 
 void RenderBatch::AddCommand(DrawCommand& command, const m4& transform, i32 entityID) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(m_DrawCommands.size() <= m_BatchCapacity, "Batch cannot exceed its capacity.");
 
     m_Transforms.push_back(transform);
@@ -40,6 +50,7 @@ void RenderBatch::AddCommand(DrawCommand& command, const m4& transform, i32 enti
 }
 
 void RenderBatch::SubmitMesh(const Mesh& mesh, const m4& transform, i32 entityID) {
+    ZPG_PROFILE_FUNCTION();
     auto& vao = mesh.GetVertexArray();
     auto& material = mesh.GetMaterial();
     auto& local = mesh.GetLocalTransform();
@@ -50,6 +61,7 @@ void RenderBatch::SubmitMesh(const Mesh& mesh, const m4& transform, i32 entityID
 }
 
 void RenderBatch::Reset() {
+    ZPG_PROFILE_FUNCTION();
     m_DrawCommands.clear();
     m_Transforms.clear();
     m_EntityIDs.clear();
@@ -59,48 +71,90 @@ void RenderBatch::Reset() {
 void RenderBatch::SortCommands() {
     m_NeedsSorting = false;
 
-    std::ranges::sort(
-        m_DrawCommands.begin(), 
-        m_DrawCommands.end(), 
-        DrawCommand::DrawCommandComparator());
-
-    // after sorting, reorder transforms to match
-    std::vector<m4> sortedTransforms(m_DrawCommands.size());
-    std::vector<i32> sortedEntityIDs(m_DrawCommands.size());
-
-    for (size_t i = 0; i < m_DrawCommands.size(); i++)
-    {
-        sortedTransforms[i] = m_Transforms[m_DrawCommands[i].m_DrawIndex];
-        sortedEntityIDs[i] = m_EntityIDs[m_DrawCommands[i].m_DrawIndex];
+    for (auto& cmd : m_DrawCommands) {
+        cmd.ComputeSortKey();
     }
 
-    m_Transforms = std::move(sortedTransforms);
-    m_EntityIDs = std::move(sortedEntityIDs);
+    std::ranges::sort(m_DrawCommands,
+                             [](const DrawCommand& a, const DrawCommand& b) {
+                                 return a.m_SortKey < b.m_SortKey;
+                             });
+
+    // Make sure sorted arrays are the correct size
+    size_t count = m_DrawCommands.size();
+    m_SortedTransforms.resize(count);
+    m_SortedEntityIDs.resize(count);
+
+    for (size_t i = 0; i < count; i++)
+    {
+        m_SortedTransforms[i] = m_Transforms[m_DrawCommands[i].m_DrawIndex];
+        m_SortedEntityIDs[i] = m_EntityIDs[m_DrawCommands[i].m_DrawIndex];
+    }
+
+    m_Transforms.swap(m_SortedTransforms);
+    m_EntityIDs.swap(m_SortedEntityIDs);
 
     // update each command’s transform index to reflect the new sorted order
-    for (size_t i = 0; i < m_DrawCommands.size(); i++)
+    for (size_t i = 0; i < count; i++)
     {
         m_DrawCommands[i].m_DrawIndex = i;
     }
 }
 
+#if 0
+void RenderBatch::SortCommands() {
+    ZPG_PROFILE_FUNCTION();
+    m_NeedsSorting = false;
+
+    std::ranges::sort(
+        m_DrawCommands.begin(),
+        m_DrawCommands.end(),
+        DrawCommand::DrawCommandComparator());
+
+    // Make sure sorted arrays are the correct size
+    size_t count = m_DrawCommands.size();
+    m_SortedTransforms.resize(count);
+    m_SortedEntityIDs.resize(count);
+
+    for (size_t i = 0; i < count; i++)
+    {
+        m_SortedTransforms[i] = m_Transforms[m_DrawCommands[i].m_DrawIndex];
+        m_SortedEntityIDs[i] = m_EntityIDs[m_DrawCommands[i].m_DrawIndex];
+    }
+
+    m_Transforms.swap(m_SortedTransforms);
+    m_EntityIDs.swap(m_SortedEntityIDs);
+
+    // update each command’s transform index to reflect the new sorted order
+    for (size_t i = 0; i < count; i++)
+    {
+        m_DrawCommands[i].m_DrawIndex = i;
+    }
+}
+#endif
+
 const std::vector<DrawCommand>& RenderBatch::GetDrawCommands() const {
+    ZPG_PROFILE_FUNCTION();
     return m_DrawCommands;
 }
 
 u32 RenderBatch::GetBatchSize() const {
+    ZPG_PROFILE_FUNCTION();
     return m_DrawCommands.size();
 }
 
 u32 RenderBatch::GetBatchCapacity() const {
+    ZPG_PROFILE_FUNCTION();
     return m_BatchCapacity;
 }
 
 bool RenderBatch::IsFull() const {
+    ZPG_PROFILE_FUNCTION();
     return m_DrawCommands.size() >= m_BatchCapacity;
 }
 
 void RenderBatch::BuildGroups() {
+    ZPG_PROFILE_FUNCTION();
     if (m_DrawCommands.empty()) {
         return;
     }
@@ -215,27 +269,35 @@ void RenderBatch::BuildGroups() {
     });
 }
 
+
+
 const std::vector<ShaderProgramGroup>& RenderBatch::GetShaderProgramGroups() const {
+    ZPG_PROFILE_FUNCTION();
     return m_ShaderProgramGroups;
 }
 
 const std::vector<MaterialGroup>& RenderBatch::GetMaterialGroups() const {
+    ZPG_PROFILE_FUNCTION();
     return m_MaterialGroups;
 }
 
 const std::vector<VertexArrayGroup>& RenderBatch::GetVertexArrayGroups() const {
+    ZPG_PROFILE_FUNCTION();
     return m_VertexArrayGroups;
 }
 
 const m4& RenderBatch::GetTransform(u32 transformIndex) const {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(transformIndex < m_Transforms.size(), "Cannot index Transforms with the size of {} at position {}", m_Transforms.size(), transformIndex);
     return m_Transforms[transformIndex];
 }
 const std::vector<m4>& RenderBatch::GetTransforms() const {
+    ZPG_PROFILE_FUNCTION();
     return m_Transforms;
 }
 
 const std::vector<i32>& RenderBatch::GetEntityIDs() const {
+    ZPG_PROFILE_FUNCTION();
     return m_EntityIDs;
 }
 

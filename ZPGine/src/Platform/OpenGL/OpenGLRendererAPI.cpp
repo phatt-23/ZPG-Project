@@ -4,10 +4,12 @@
 
 #include "Buffer/BufferLayout.h"
 #include "Buffer/VertexArray.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
 void OpenGLRendererAPI::Init() {
+    ZPG_PROFILE_FUNCTION();
     // ZPG_OPENGL_CALL(glEnable(GL_BLEND));
     // ZPG_OPENGL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
@@ -26,21 +28,26 @@ void OpenGLRendererAPI::Shutdown() {
 }
 
 void OpenGLRendererAPI::SetClearColor(glm::vec4 color) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glClearColor(color.r, color.g, color.b, color.a));
 }
 
 void OpenGLRendererAPI::Clear() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
 void OpenGLRendererAPI::SetViewport(int x, int y, int width, int height) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glViewport(x, y, width, height));
 }
 
 void OpenGLRendererAPI::DrawIndexed(const VertexArray& vertexArray, const u32 indexCount) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr));
 }
 void OpenGLRendererAPI::DrawArrays(const VertexArray& vertexArray) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glDrawArrays(GL_TRIANGLES, 0, vertexArray.GetVertexCount()));
 }
 
@@ -49,6 +56,7 @@ void OpenGLRendererAPI::DrawIndexedInstanced(
     const u32 indexCount,
     const u32 instanceCount
 ) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glDrawElementsInstanced(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr, instanceCount));
 }
 
@@ -56,6 +64,7 @@ void OpenGLRendererAPI::DrawArraysInstanced(
     const VertexArray& vertexArray,
     const u32 instanceCount
 ) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glDrawArraysInstanced(GL_TRIANGLES, 0, vertexArray.GetVertexCount(), instanceCount));
 }
 }

@@ -24,6 +24,7 @@
 #include "RenderGroups.h"
 #include "Texture/Texture.h"
 #include "RenderStatistics.h"
+#include "Profiling/Instrumentor.h"
 #include "Resource/CommonResources.h"
 #include "Sky/Skybox.h"
 #include "Sky/Skydome.h"
@@ -32,11 +33,13 @@ namespace ZPG {
 
 RendererAPI::API Renderer::GetAPI() 
 {
+    ZPG_PROFILE_FUNCTION();
     return RendererAPI::GetAPI();
 }
 
 void Renderer::Init() 
 {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(s_Draw == nullptr, "Renderer already initialized.");
 
     // RenderCommand::Init();
@@ -46,6 +49,7 @@ void Renderer::Init()
 
 void Renderer::Shutdown() 
 {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(s_Draw != nullptr, "Renderer isn't initialized.");
 
     // RenderCommand::Shutdown();
@@ -55,6 +59,7 @@ void Renderer::Shutdown()
 
 void Renderer::BeginDraw(const Camera& camera) 
 {
+    ZPG_PROFILE_FUNCTION();
     // bind the g-buffer so the consequent draw calls will draw into it
     s_Draw->GBuffer->Bind();
     RenderCommand::Clear();
@@ -79,6 +84,7 @@ void Renderer::BeginDraw(const Camera& camera)
 
 void Renderer::EndDraw() 
 {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(s_Draw);
     Flush();
 
@@ -158,6 +164,7 @@ void Renderer::EndDraw()
 }
 
 void Renderer::Flush() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(s_Draw);
 
     // nothing to do
@@ -200,6 +207,7 @@ void Renderer::Flush() {
 
 void Renderer::SetLights(const std::vector<ref<Light>>& lights) 
 {
+    ZPG_PROFILE_FUNCTION();
     s_Draw->LightsStorage.LightCount = std::min((u32)lights.size(), LightManager::s_LightCapacity);
 
     for (int i = 0; i < s_Draw->LightsStorage.LightCount; i++) {
@@ -232,16 +240,19 @@ void Renderer::SetLights(const std::vector<ref<Light>>& lights)
 
 void Renderer::SetSkybox(const ref<Skybox>& skybox) 
 {
+    ZPG_PROFILE_FUNCTION();
     s_Draw->CurrentSky = skybox;
 }
 
 void Renderer::SetSkydome(const ref<Skydome>& skydome) 
 {
+    ZPG_PROFILE_FUNCTION();
     s_Draw->CurrentSky = skydome;
 }
 
 void Renderer::SubmitEntity(const Entity* entity, const glm::mat4& transform) 
 {
+    ZPG_PROFILE_FUNCTION();
     const glm::mat4& entityTransform = transform * entity->GetTransformMatrix();
     const ref<Model>& model = entity->GetModel();
     SubmitModel(model.get(), entityTransform, entity->GetEntityID());
@@ -249,6 +260,7 @@ void Renderer::SubmitEntity(const Entity* entity, const glm::mat4& transform)
 
 void Renderer::SubmitModel(const Model* model, const m4& transform, int entityID) 
 {
+    ZPG_PROFILE_FUNCTION();
     const std::vector<ref<Mesh>>& meshes = model->GetMeshes();
 
     for (auto& mesh : meshes) 
@@ -259,6 +271,7 @@ void Renderer::SubmitModel(const Model* model, const m4& transform, int entityID
 
 void Renderer::SubmitMesh(const Mesh* mesh, const m4& transform, int entityID) 
 {
+    ZPG_PROFILE_FUNCTION();
     // query everything out of the mesh object
     ShaderProgram* shaderProgram = mesh->GetMaterial()->GetShaderProgram().get();
     Material* material = mesh->GetMaterial().get();
@@ -276,12 +289,14 @@ void Renderer::SubmitMesh(const Mesh* mesh, const m4& transform, int entityID)
 
 void Renderer::OnViewportResize(int width, int height) 
 {
+    ZPG_PROFILE_FUNCTION();
     s_Draw->GBuffer->Resize(width, height);
     s_Draw->MainFBO->Resize(width, height);
 }
 
 void Renderer::InstancedRender() 
 {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(s_Draw);
 
     s_Draw->Batch.BuildGroups();

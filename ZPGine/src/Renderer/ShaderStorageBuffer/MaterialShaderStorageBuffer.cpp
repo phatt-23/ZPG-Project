@@ -1,5 +1,6 @@
 #include "MaterialShaderStorageBuffer.h"
 #include "Material/Material.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG
 {
@@ -11,6 +12,7 @@ namespace ZPG
 
     void MaterialShaderStorageBuffer::SetMaterial(const Material& material)
     {
+        ZPG_PROFILE_FUNCTION();
         Bind();
 
         InternalLayout internalLayout;
@@ -26,6 +28,7 @@ namespace ZPG
 
     void MaterialShaderStorageBuffer::SetAlbedo(const v4& albedo)
     {
+        ZPG_PROFILE_FUNCTION();
         Bind();
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(glm::value_ptr(*(v4*)&albedo), InternalLayout, Albedo);
         Unbind();
@@ -33,6 +36,7 @@ namespace ZPG
 
     void MaterialShaderStorageBuffer::SetEmissive(const v4& emissive) 
     {
+        ZPG_PROFILE_FUNCTION();
         Bind();
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(glm::value_ptr(*(v4*)&emissive), InternalLayout, Emissive);
         Unbind();
@@ -40,6 +44,7 @@ namespace ZPG
 
     void MaterialShaderStorageBuffer::SetRoughness(f32 roughness) 
     {
+        ZPG_PROFILE_FUNCTION();
         Bind();
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&roughness, InternalLayout, Roughness);
         Unbind();
@@ -47,6 +52,7 @@ namespace ZPG
 
     void MaterialShaderStorageBuffer::SetMetallic(f32 metallic) 
     {
+        ZPG_PROFILE_FUNCTION();
         Bind();
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&metallic, InternalLayout, Metallic);
         Unbind();

@@ -1,4 +1,6 @@
 #include "PointLight.h"
+
+#include "Profiling/Instrumentor.h"
 #include "Shader/CommonShaderUniforms.h"
 #include "Shader/ShaderProgram.h"
 
@@ -7,12 +9,13 @@ namespace ZPG {
 PointLight::PointLight(
     const glm::vec4& color,
     const glm::vec3& position,
-    const AttenComponent atten
+    const AttenComponent& atten
 )
 : Light(LightType::Point)
 , Color(ColorComponent(color))
 , Position(PositionComponent(position))
 , Atten(atten) {
+    ZPG_PROFILE_FUNCTION();
 
 }
 
@@ -24,10 +27,12 @@ PointLight::PointLight(
 , Color(color)
 , Position(position)
 , Atten(atten) {
+    ZPG_PROFILE_FUNCTION();
 
 }
 
 void PointLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
+    ZPG_PROFILE_FUNCTION();
     using un = CommonShaderUniforms::LightArray;
 
     shaderProgram.SetInt(un::Type(index), (i32)GetLightType());
@@ -36,6 +41,7 @@ void PointLight::SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) {
 }
 
 LightStruct PointLight::MapToLightStruct() {
+    ZPG_PROFILE_FUNCTION();
     LightStruct lightStruct{};
     lightStruct.Type = static_cast<i32>(GetLightType());
     lightStruct.Color = Color.Get();

@@ -13,7 +13,7 @@ public:
     PointLight(
         const v4& color,
         const v3& position,
-        AttenComponent atten = AttenComponent());
+        const AttenComponent& atten = AttenComponent());
 
     PointLight(
         const ColorComponent& color,

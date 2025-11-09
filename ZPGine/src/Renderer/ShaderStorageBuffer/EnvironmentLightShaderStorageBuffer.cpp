@@ -1,6 +1,7 @@
 #include "EnvironmentLightShaderStorageBuffer.h"
 
 #include "Camera/Camera.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG
 {
@@ -11,12 +12,14 @@ namespace ZPG
 
     void EnvironmentLightShaderStorageBuffer::SetAmbient(const AmbientLight &ambientLight) 
     { 
+        ZPG_PROFILE_FUNCTION();
         v4 color = ambientLight.Color.Get();
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(glm::value_ptr(color), InternalLayout, AmbientColor);
     }
 
     void EnvironmentLightShaderStorageBuffer::SetDirectionalLight(const DirectionalLight &directionalLight, const Camera& camera)
     {
+        ZPG_PROFILE_FUNCTION();
         DirectionalLightStruct directionalLightStruct(directionalLight, camera);
 
         SetData(glm::value_ptr(directionalLightStruct.Color),

@@ -3,24 +3,30 @@
 #include <glad/glad.h>
 
 #include "Buffer/BufferLayout.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
 OpenGLVertexArray::OpenGLVertexArray() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glGenVertexArrays(1, &m_RendererID));
 }
 OpenGLVertexArray::~OpenGLVertexArray() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glDeleteVertexArrays(1, &m_RendererID));
 }
 void OpenGLVertexArray::Bind() const {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glBindVertexArray(m_RendererID));
 }
 
 void OpenGLVertexArray::Unbind() const {
+    ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glBindVertexArray(0));
 }
 
 void OpenGLVertexArray::AddVertexBuffer(const ref<VertexBuffer>& vertexBuffer) {
+    ZPG_PROFILE_FUNCTION();
 
     const BufferLayout& layout = vertexBuffer->GetLayout();
 
@@ -61,6 +67,7 @@ void OpenGLVertexArray::AddVertexBuffer(const ref<VertexBuffer>& vertexBuffer) {
 }
 
 void OpenGLVertexArray::SetIndexBuffer(const ref<IndexBuffer>& indexBuffer) {
+    ZPG_PROFILE_FUNCTION();
     m_IndexBuffer = indexBuffer;
 
     Bind();
@@ -70,18 +77,22 @@ void OpenGLVertexArray::SetIndexBuffer(const ref<IndexBuffer>& indexBuffer) {
 }
 
 bool OpenGLVertexArray::HasIndexBuffer() const {
+    ZPG_PROFILE_FUNCTION();
     return m_IndexBuffer != nullptr;
 }
 
 u32 OpenGLVertexArray::GetVertexCount() const {
+    ZPG_PROFILE_FUNCTION();
     return m_VertexCount;
 }
 
 const std::vector<ref<VertexBuffer>>& OpenGLVertexArray::GetVertexBuffers() const {
+    ZPG_PROFILE_FUNCTION();
     return m_VertexBuffers;
 }
 
 const ref<IndexBuffer>& OpenGLVertexArray::GetIndexBuffer() const {
+    ZPG_PROFILE_FUNCTION();
     return m_IndexBuffer;
 }
 

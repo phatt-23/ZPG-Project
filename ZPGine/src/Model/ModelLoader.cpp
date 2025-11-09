@@ -11,10 +11,12 @@
 #include "Model.h"
 #include "Vertex.h"
 #include "Debug/Asserter.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
 static glm::mat4 AssimpToGLM(const aiMatrix4x4t<float>& m) {
+    ZPG_PROFILE_FUNCTION();
     glm::mat4 ret(1.0f);
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -25,24 +27,29 @@ static glm::mat4 AssimpToGLM(const aiMatrix4x4t<float>& m) {
 }
 
 static v2 AssimpToGLM(const aiVector2D& v) {
+    ZPG_PROFILE_FUNCTION();
     return v2(v.x, v.y);
 }
 
 static v3 AssimpToGLM(const aiVector3D& v) {
+    ZPG_PROFILE_FUNCTION();
     return v3(v.x, v.y, v.z);
 }
 
 static v3 AssimpToGLM(const aiColor3D& c) {
+    ZPG_PROFILE_FUNCTION();
     return v3(c.r, c.g, c.b);
 }
 
 static v4 AssimpToGLM(const aiColor4D& c) {
+    ZPG_PROFILE_FUNCTION();
     return v4(c.r, c.g, c.b, c.a);
 }
 
 
 ModelLoader::ModelLoader(const std::string& path)
 : m_Path(path) {
+    ZPG_PROFILE_FUNCTION();
     m_LoadingFlags = aiProcess_Triangulate       // guarantees three vertices per face
                    | aiProcess_CalcTangentSpace  // guarantees normals and tangents exist
                //  | aiProcess_FlipUVs
@@ -50,6 +57,7 @@ ModelLoader::ModelLoader(const std::string& path)
 }
 
 ref<Model> ModelLoader::Load() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_DEBUG("Loading in model: {} ...", m_Path);
     
     Assimp::Importer importer;
@@ -71,11 +79,13 @@ ref<Model> ModelLoader::Load() {
 }
 
 ref<Texture> ModelLoader::LoadTexture(std::string const& textureFile) {
+    ZPG_PROFILE_FUNCTION();
     std::string texturePath = std::filesystem::path(m_Path).parent_path() / textureFile;
     return Texture::Create(texturePath);
 }
 
 ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMaterial* material) {
+    ZPG_PROFILE_FUNCTION();
     ResourceManager& res = ResourceManager::GetGlobal();
 
     ref<Material> myMaterial = MakeRef<Material>();
@@ -202,6 +212,7 @@ void ModelLoader::TraverseNode(
     const aiNode* node, 
     const glm::mat4& parentTransform
 ) {
+    ZPG_PROFILE_FUNCTION();
     glm::mat4 localTransform = AssimpToGLM(node->mTransformation);
     glm::mat4 nodeTransform = parentTransform * localTransform;
 
@@ -220,6 +231,7 @@ void ModelLoader::TraverseNode(
 
 
 void ModelLoader::ProcessMesh(const aiScene* scene, const aiMesh* mesh, const glm::mat4& meshTransform) {
+    ZPG_PROFILE_FUNCTION();
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
 

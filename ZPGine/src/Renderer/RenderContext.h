@@ -74,9 +74,7 @@ namespace ZPG
          * Shadow Pass 
          */
 
-        u32 DirectionalShadowMap;
-        u32 SpotLightShadowMapArray;
-        u32 PointLightShadowMapArray;
+        u32 SpotLightShadowMapArrayRendererID;
 
 
         ref<FrameBuffer> DirectionalLightShadowFramebuffer;

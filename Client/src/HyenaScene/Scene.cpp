@@ -3,11 +3,17 @@
 
 namespace HyenaScene {
 
-HyenaScene::HyenaScene() {
+HyenaScene::HyenaScene()
+{
+
 }
 
 void HyenaScene::OnAttach() {
     m_LocalRes.LoadModel("Hyena", "./assets/models/hyena/hyena_demo_free_download/scene.gltf");
+
+    auto spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0), v3(1.0), 20.f, 0.5f, AttenComponent(0.001, 0.001, 0.1f)));
+    auto controller = MakeRef(new FlashlightCameraController(spotlight, GetCamera()));
+    SetCameraController(controller);
 
     int grid_size = 10;
 
@@ -40,7 +46,7 @@ void HyenaScene::OnAttach() {
     m_LocalRes.AddModel("Firefly", firefly_model);
 
     for (int i = -grid_size; i < grid_size; i++) {
-        auto firefly_light = MakeRef(new PointLight(v4(1.0), v3(0.0)));
+        auto firefly_light = MakeRef(new PointLight(v4(1.0), v3(0.0), AttenComponent(3.0, 4.0, 5.0f)));
         GetLightManager().AddLight(firefly_light);
         fireflyLights.push_back(firefly_light);
 

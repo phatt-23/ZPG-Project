@@ -5,6 +5,7 @@
 #include "FrameBufferAttachment.h"
 
 #include "Debug/Asserter.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -13,6 +14,7 @@ namespace ZPG {
 
         FrameBufferAttachmentType DeduceBufferType(TextureDataFormat format)
         {
+            ZPG_PROFILE_FUNCTION();
             switch (format)
             {
                 case TextureDataFormat::Depth32F:          return FrameBufferAttachmentType::Depth;
@@ -30,6 +32,7 @@ namespace ZPG {
         , DataFormat(format)
         , Index(index)
     {
+        ZPG_PROFILE_FUNCTION();
 
     }
 
@@ -38,16 +41,19 @@ namespace ZPG {
           , DataFormat(format)
           , Index(index)
     {
+        ZPG_PROFILE_FUNCTION();
 
     }
 
     bool FrameBufferAttachment::operator==(const FrameBufferAttachment& other) const
     {
+        ZPG_PROFILE_FUNCTION();
         return DataFormat == other.DataFormat && AttachmentType == other.AttachmentType && Index == other.Index;
     }
 
     std::string FrameBufferAttachment::operator()() const
     {
+        ZPG_PROFILE_FUNCTION();
         switch (AttachmentType)
         {
             case FrameBufferAttachmentType::Color:         return "COLOR" + fmt::to_string(Index);
@@ -63,6 +69,7 @@ namespace ZPG {
 
 std::size_t std::hash<ZPG::FrameBufferAttachment>::operator()(const ZPG::FrameBufferAttachment& attachment) const noexcept
 {
+    ZPG_PROFILE_FUNCTION();
 
     std::size_t h1 = std::hash<ZPG::u32>{}((ZPG::u32)attachment.AttachmentType);
     std::size_t h2 = std::hash<ZPG::u32>{}((ZPG::u32)attachment.DataFormat);

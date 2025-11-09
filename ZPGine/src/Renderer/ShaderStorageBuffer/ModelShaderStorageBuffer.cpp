@@ -1,5 +1,7 @@
 #include "ModelShaderStorageBuffer.h"
 
+#include "Profiling/Instrumentor.h"
+
 namespace ZPG
 {
     ModelShaderStorageBuffer::ModelShaderStorageBuffer(u32 bindingPoint, u32 capacity)
@@ -14,6 +16,7 @@ namespace ZPG
 
     void ModelShaderStorageBuffer::SetCount(u32 count) 
     {
+        ZPG_PROFILE_FUNCTION();
         Bind();
         count = std::max(count, m_Capacity);
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&count, InternalLayout, Count);
@@ -22,6 +25,7 @@ namespace ZPG
     
     void ModelShaderStorageBuffer::SetModels(const std::vector<m4>& models) 
     {
+        ZPG_PROFILE_FUNCTION();
         Bind();
         u32 count = models.size();
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&count, InternalLayout, Count);
@@ -31,6 +35,7 @@ namespace ZPG
 
     void ModelShaderStorageBuffer::SetModels(const m4* modelsData, u32 count)
     {
+        ZPG_PROFILE_FUNCTION();
         Bind();
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&count, InternalLayout, Count);
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA_ARRAY((void*)modelsData, count, InternalLayout, Models);

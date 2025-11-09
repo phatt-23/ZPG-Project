@@ -11,7 +11,7 @@ public:
     ~BufferLayout();
 
     u32 GetStride() const;
-    const std::vector<BufferElement> GetElements() const;
+    const std::vector<BufferElement>& GetElements() const;
 
     std::vector<BufferElement>::const_iterator begin() const;
     std::vector<BufferElement>::const_iterator end() const;

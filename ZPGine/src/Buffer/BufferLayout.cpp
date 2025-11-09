@@ -1,5 +1,6 @@
 #include "BufferLayout.h"
 #include "Core/Core.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
@@ -16,16 +17,20 @@ BufferLayout::~BufferLayout() {
     
 }
 u32 BufferLayout::GetStride() const { 
-    return m_Stride; 
+    ZPG_PROFILE_FUNCTION();
+    return m_Stride;
 }
-const std::vector<BufferElement> BufferLayout::GetElements() const { 
-    return m_Elements; 
+const std::vector<BufferElement>& BufferLayout::GetElements() const {
+    ZPG_PROFILE_FUNCTION();
+    return m_Elements;
 }
 std::vector<BufferElement>::const_iterator BufferLayout::begin() const { 
-    return m_Elements.begin(); 
+    ZPG_PROFILE_FUNCTION();
+    return m_Elements.begin();
 }
 std::vector<BufferElement>::const_iterator BufferLayout::end() const { 
-    return m_Elements.end(); 
+    ZPG_PROFILE_FUNCTION();
+    return m_Elements.end();
 }
 
 }

@@ -6,10 +6,12 @@
 #include "Core/Core.h"
 #include "Debug/Logger.h"
 #include "Debug/Asserter.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
 std::string Utility::ReadFile(const std::string& path) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_DEBUG("Reading file from CWD: {}", std::filesystem::current_path().c_str());
 
     std::ifstream f(path, std::ios::binary);
@@ -31,6 +33,7 @@ std::string Utility::ReadFile(const std::string& path) {
 }
 
 std::string Utility::GetNameFromPath(const std::string& path) {
+    ZPG_PROFILE_FUNCTION();
     size_t lastSlash = path.find_last_of("/\\");  // linux and windows slash
     size_t lastDot = path.rfind(".");
     auto nameBegin = lastSlash == std::string::npos ? 0 : lastSlash + 1;
@@ -39,6 +42,7 @@ std::string Utility::GetNameFromPath(const std::string& path) {
 }
 
 f32 Utility::GetRandomFloat(f32 min, f32 max) {
+    ZPG_PROFILE_FUNCTION();
     return (max - min) * (f32)rand() / (f32)RAND_MAX + min;
 }
 

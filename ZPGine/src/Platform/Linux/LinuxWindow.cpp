@@ -5,21 +5,25 @@
 #include "Event/WindowEvent.h"
 #include "Event/MouseEvent.h"
 #include "Event/KeyEvent.h"
+#include "Profiling/Instrumentor.h"
 
 namespace ZPG {
 
 static bool s_GLFWInitialised = false;
 static void CustomGLFWErrorCallback(int error_code, const char* description) {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ERROR("GLFW Error {}: {}", error_code, description);
 }
 
 LinuxWindow::LinuxWindow(const WindowProps& props) 
     : m_Data({.Props = props, .EventCallback = nullptr}) 
 {
-    Init();    
+    ZPG_PROFILE_FUNCTION();
+    Init();
 }
 
 void LinuxWindow::Init() {
+    ZPG_PROFILE_FUNCTION();
     ZPG_CORE_INFO("Creating window: {} size = ({}, {})", m_Data.Props.Title, m_Data.Props.Width, m_Data.Props.Height);
 
     // GLFW can be init only once
@@ -51,6 +55,7 @@ void LinuxWindow::Init() {
     SetupCallbacks();
 }
 void LinuxWindow::SetupCallbacks() {
+    ZPG_PROFILE_FUNCTION();
     // set window callbacks
     glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) -> void {
         auto* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
@@ -143,43 +148,52 @@ void LinuxWindow::SetupCallbacks() {
 }
 
 void LinuxWindow::Shutdown() {
+    ZPG_PROFILE_FUNCTION();
     glfwDestroyWindow(m_Window);
 }
 
 LinuxWindow::~LinuxWindow() {
+    ZPG_PROFILE_FUNCTION();
     delete m_Context;
     Shutdown();
 }
 
 void LinuxWindow::OnUpdate() {
+    ZPG_PROFILE_FUNCTION();
     glfwPollEvents();
     m_Context->SwapBuffers();
 }
 
 void LinuxWindow::SetEventCallback(EventCallbackFn&& fn) {
+    ZPG_PROFILE_FUNCTION();
     m_Data.EventCallback = fn;
 }
 
 u32 LinuxWindow::GetWidth() const {
+    ZPG_PROFILE_FUNCTION();
     return m_Data.Props.Width;
 }
 
 u32 LinuxWindow::GetHeight() const {
+    ZPG_PROFILE_FUNCTION();
     return m_Data.Props.Height;
 }
 
 void LinuxWindow::SetVSync(bool enabled) {
+    ZPG_PROFILE_FUNCTION();
     if (enabled) glfwSwapInterval(1);
     else glfwSwapInterval(0);
     m_Data.Props.VSync = enabled;
 }
 
 bool LinuxWindow::IsVSync() const {
+    ZPG_PROFILE_FUNCTION();
     return m_Data.Props.VSync;
 }
 
 void* LinuxWindow::GetNativeWindow() const {
-    return m_Window; 
+    ZPG_PROFILE_FUNCTION();
+    return m_Window;
 }
 
 }
