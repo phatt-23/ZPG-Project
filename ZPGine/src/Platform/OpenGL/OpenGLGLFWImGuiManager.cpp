@@ -10,13 +10,16 @@ namespace ZPG {
 
     
 OpenGLGLFWImGuiManager::OpenGLGLFWImGuiManager(const Window* window) 
-: m_WindowHandle((GLFWwindow*)window->GetNativeWindow()) {
+: m_WindowHandle((GLFWwindow*)window->GetNativeWindow()) 
+{
     ZPG_PROFILE_FUNCTION();
     AttachImGui();
 }
+
 OpenGLGLFWImGuiManager::~OpenGLGLFWImGuiManager() {
     ZPG_PROFILE_FUNCTION();
 }
+
 void OpenGLGLFWImGuiManager::AttachImGui() {
     ZPG_PROFILE_FUNCTION();
     // Setup Dear ImGui context
@@ -54,6 +57,7 @@ void OpenGLGLFWImGuiManager::AttachImGui() {
     ImGui_ImplGlfw_InitForOpenGL(m_WindowHandle, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 }
+
 void OpenGLGLFWImGuiManager::DetachImGui() {
     ZPG_PROFILE_FUNCTION();
     // Cleanup
@@ -62,6 +66,7 @@ void OpenGLGLFWImGuiManager::DetachImGui() {
     ImPlot::DestroyContext();
     ImGui::DestroyContext();
 }
+
 void OpenGLGLFWImGuiManager::BeginFrameImpl() {
     ZPG_PROFILE_FUNCTION();
     // Start the Dear ImGui frame
@@ -72,6 +77,7 @@ void OpenGLGLFWImGuiManager::BeginFrameImpl() {
     // Create a dockspace in main viewport, where central node is transparent.
     ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 }
+
 void OpenGLGLFWImGuiManager::EndFrameImpl() {
     ZPG_PROFILE_FUNCTION();
 

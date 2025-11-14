@@ -15,11 +15,11 @@ namespace ZPG
             m4 Proj;
             m4 ViewProj;
             v3 CameraPosition;
-            f32 _pad[1];
+            float FarPlane;
         };
         
         CameraShaderStorageBuffer(u32 bindingPoint);
 
-        void SetLayout(const Camera& camera);
+        void SetCamera(const Camera& camera);
     };
  }

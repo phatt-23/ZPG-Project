@@ -8,7 +8,7 @@ namespace ZPG {
 
 class Model;
 class Mesh;
-class Texture;
+class Texture2D;
 class Material;
 
 // Works as a SCOPED loader, holds data while loading in the model.
@@ -22,7 +22,7 @@ private:
     void TraverseNode(const aiScene* scene, const aiNode* node, const glm::mat4& parentTransform);
     void ProcessMesh(const aiScene* scene, const aiMesh* mesh, const glm::mat4& meshTransform);
     ref<Material> ProcessMaterial(const aiScene* scene, const aiMaterial* material);
-    ref<Texture> LoadTexture(std::string const& textureFile);
+    ref<Texture2D> LoadTexture(std::string const& textureFile);
 
 private:
     std::string m_Path;

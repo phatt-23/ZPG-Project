@@ -6,19 +6,20 @@
 
 #include "Debug/Asserter.h"
 #include "Platform/OpenGL/OpenGLFrameBuffer.h"
-#include "Renderer/Renderer.h"
+#include "Renderer/RendererAPI.h"
 
 namespace ZPG {
 
     ref<FrameBuffer> FrameBuffer::Create(const FrameBufferSpecification &spec)
     {
-        switch (RendererAPI::GetAPI()) {
+        switch (RendererAPI::GetAPI())
+        {
             case RendererAPI::None: ZPG_UNREACHABLE("RendererAPI::None is not supported"); return nullptr;
             case RendererAPI::OpenGL: return MakeRef(new OpenGLFrameBuffer(spec));
         }
 
         ZPG_UNREACHABLE();
+        return nullptr;
     }
-
 
 }

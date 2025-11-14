@@ -17,7 +17,10 @@
 
 namespace ZPG
 {
-    struct RenderContextSpecification
+class TextureCubeMapArray;
+class Texture2DArray;
+
+struct RenderContextSpecification
     {
         u32 PointLightCapacity;     
         u32 SpotLightCapacity;
@@ -74,8 +77,9 @@ namespace ZPG
          * Shadow Pass 
          */
 
-        u32 SpotLightShadowMapArrayRendererID;
-
+        ref<Texture2DArray> SpotLightShadowMapArray = nullptr;
+        ref<TextureCubeMapArray> PointLightShadowCubeMapArray = nullptr;
+        ref<Texture2D> DirectionalLightShadowMap = nullptr;
 
         ref<FrameBuffer> DirectionalLightShadowFramebuffer;
         ref<FrameBuffer> PointLightShadowFramebuffer;

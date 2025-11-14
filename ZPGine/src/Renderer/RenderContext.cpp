@@ -25,8 +25,12 @@ namespace ZPG
         directionalLightFramebufferSpec.Height = 4 * 1024;
         directionalLightFramebufferSpec.Resizable = false;
         directionalLightFramebufferSpec.Attachments = {
-            {TextureDataFormat::Depth32F, 0},
-            {TextureDataFormat::RGBA32F, 0}
+            {
+                .AttachType = FrameBufferAttachmentType::Depth,
+                .DataFormat = TextureDataFormat::Depth32F,
+                .Index = 0,
+            },
+            { .DataFormat = TextureDataFormat::RGBA32F, .Index = 0, }
         };
 
         DirectionalLightShadowFramebuffer = FrameBuffer::Create(directionalLightFramebufferSpec);
@@ -37,7 +41,12 @@ namespace ZPG
         pointLightShadowFramebufferSpec.Height = 1024;
         pointLightShadowFramebufferSpec.Resizable = false;
         pointLightShadowFramebufferSpec.Attachments = {
-            {TextureDataFormat::Depth32F, 0},
+            {
+                .AttachType = FrameBufferAttachmentType::Depth,
+                .TexType = TextureType::TextureCubeMapArray,
+                .DataFormat = TextureDataFormat::Depth32F,
+                .Index = 0
+            },
         };
 
         PointLightShadowFramebuffer = FrameBuffer::Create(pointLightShadowFramebufferSpec);
@@ -48,28 +57,35 @@ namespace ZPG
         spotLightShadowFramebufferSpec.Height = 1024;
         spotLightShadowFramebufferSpec.Resizable = false;
         spotLightShadowFramebufferSpec.Attachments = {
-            {TextureDataFormat::Depth32F, 0},
-            // {TextureDataFormat::RGBA32F, 0}, // debug depth
+            {
+                .AttachType = FrameBufferAttachmentType::Depth,
+                .TexType = TextureType::Texture2DArray,
+                .DataFormat = TextureDataFormat::Depth32F,
+                .Index = 0,
+            },
         };
 
         SpotLightShadowFramebuffer = FrameBuffer::Create(spotLightShadowFramebufferSpec);
 
 
-        FrameBufferSpecification GeometryPassFramebufferSpec;
-        GeometryPassFramebufferSpec.Width = 1024;
-        GeometryPassFramebufferSpec.Height = 1024;
-        GeometryPassFramebufferSpec.Resizable = true;
-        GeometryPassFramebufferSpec.Attachments = {
-            { TextureDataFormat::Depth24Stencil8, 0 },
-            { TextureDataFormat::RGBA32F, 0 }, // pos
-            { TextureDataFormat::RGBA32F, 1 }, // normal
-            { TextureDataFormat::RGBA32F, 2 }, // albedo metallic
-            { TextureDataFormat::RGBA32F, 3 }, // emissive roughness
-            { TextureDataFormat::RedInteger, 4 }, // entity id
-            { TextureDataFormat::RGBA8, 5 }, // entity id colorized
+        FrameBufferSpecification geometryPassFramebufferSpec;
+        geometryPassFramebufferSpec.Width = 1024;
+        geometryPassFramebufferSpec.Height = 1024;
+        geometryPassFramebufferSpec.Resizable = true;
+        geometryPassFramebufferSpec.Attachments = {
+            {
+                .AttachType = FrameBufferAttachmentType::DepthStencil,
+                .DataFormat = TextureDataFormat::Depth24Stencil8,
+                .Index = 0,
+            },
+            { .DataFormat = TextureDataFormat::RGBA32F, .Index = 0, }, // pos
+            { .DataFormat = TextureDataFormat::RGBA32F, .Index = 1, }, // normal
+            { .DataFormat = TextureDataFormat::RGBA32F, .Index = 2, }, // albedo metallic
+            { .DataFormat = TextureDataFormat::RGBA32F, .Index = 3, }, // emissive roughness
+            { .DataFormat = TextureDataFormat::RedInteger, .Index = 4, }, // entity id
         };
 
-        GeometryPassFramebuffer = FrameBuffer::Create(GeometryPassFramebufferSpec);
+        GeometryPassFramebuffer = FrameBuffer::Create(geometryPassFramebufferSpec);
 
 
         FrameBufferSpecification mainFramebufferSpec;
@@ -77,16 +93,16 @@ namespace ZPG
         mainFramebufferSpec.Height = 1024;
         mainFramebufferSpec.Resizable = true;
         mainFramebufferSpec.Attachments = {
-            {TextureDataFormat::RGBA8, 0},      // viewing result
-            {TextureDataFormat::RedInteger, 1}, // entity id
-            {TextureDataFormat::RGBA8, 2}, // entity id colorized
-            {TextureDataFormat::Depth24Stencil8, 0},
+            {
+                .AttachType = FrameBufferAttachmentType::DepthStencil,
+                .DataFormat = TextureDataFormat::Depth24Stencil8,
+                .Index = 0
+            },
+            { .DataFormat = TextureDataFormat::RGBA8, .Index = 0 }, // viewing result
+            { .DataFormat = TextureDataFormat::RedInteger, .Index = 1 }, // entity id
         };
 
         MainFramebuffer = FrameBuffer::Create(mainFramebufferSpec);
-
-
-        ActiveSky = Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" });
     }
 
     RenderContext::~RenderContext()

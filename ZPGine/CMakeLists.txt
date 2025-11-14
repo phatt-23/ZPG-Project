@@ -56,6 +56,9 @@ target_link_libraries(ZPGine PUBLIC ImGui)
 add_subdirectory(vendor/stb_image)
 target_link_libraries(ZPGine PUBLIC Stb_Image)
 
+add_subdirectory(vendor/stb_include)
+target_link_libraries(ZPGine PUBLIC Stb_Include)
+
 target_link_libraries(ZPGine PUBLIC assimp)
 
 # boost c++ library

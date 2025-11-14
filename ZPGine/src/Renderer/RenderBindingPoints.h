@@ -18,6 +18,7 @@ namespace ZPG
 
         constexpr int DIRECTIONAL_LIGHT_SHADOW_MAP = 12;
         constexpr int SPOTLIGHT_SHADOW_MAP_ARRAY = 13;
+        constexpr int POINTLIGHT_SHADOW_CUBE_MAP_ARRAY = 14;
 
 
         /**

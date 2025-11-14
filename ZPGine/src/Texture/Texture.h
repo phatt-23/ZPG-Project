@@ -1,54 +1,38 @@
 //
-// Created by phatt on 9/22/25.
+// Created by phatt on 11/14/25.
 //
 
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef WORKSPACE_TEXTURE_H
+#define WORKSPACE_TEXTURE_H
 
-#include "Buffer/FrameBufferAttachment.h"
-#include "Buffer/FrameBufferAttachment.h"
-#include "Buffer/FrameBuffer.h"
+#include "TextureType.h"
+#include "TextureDataFormat.h"
 
-namespace ZPG {
+namespace ZPG
+{
+    struct FrameBufferAttachment;
 
-class Texture {
-public:
-    virtual ~Texture() {}
+    class Texture
+    {
+    public:
+        virtual ~Texture() = default;
+        virtual TextureType GetTextureType() const { return TextureType::None; }
 
-    virtual const std::string& GetName() const = 0;
-    virtual void BindToSlot(u32 slotIndex) = 0;
-    virtual void Bind() = 0;
-    virtual void Unbind() = 0;
+        virtual void BindToSlot(u32 slotIndex) = 0;
 
-    virtual u32 GetWidth() const = 0;
-    virtual u32 GetHeight() const = 0;
+        virtual void AttachToFrameBuffer(u32 frameBufferRendererID, const FrameBufferAttachment& frameBufferAttachment) = 0;
 
-    virtual void SetData(const void *data, u32 size) = 0;
+        virtual void Invalidate() = 0;
 
-    virtual void AttachToFrameBuffer(u32 frameBufferID, FrameBufferAttachment frameBufferAttachment) = 0;
+        virtual u32 GetWidth() const = 0;
+        virtual u32 GetHeight() const = 0;
+        virtual TextureDataFormat GetDataFormat() const = 0;
+        virtual const std::string& GetName() const = 0;
 
-    virtual void Resize(u32 width, u32 height) = 0;
-
-    virtual void Invalidate() = 0;
-
-    virtual u32 GetRendererID() const = 0;
-
-    static ref<Texture> Create(
-        const std::string& filepath, 
-        TextureDataFormat dataFormat = TextureDataFormat::RGBA8);
-
-    static ref<Texture> Create(
-        const std::string& name, 
-        const std::string& filepath, 
-        TextureDataFormat dataFormat = TextureDataFormat::RGBA8);                                                           /* There is no need for this dataFormat, it should be deduced from the loaded texture */
-
-    static ref<Texture> Create(
-        const std::string& name, 
-        u32 width, 
-        u32 height,
-        TextureDataFormat dataFormat = TextureDataFormat::RGBA8);
-};
+        // for debugging
+        virtual u32 GetRendererID() const = 0;
+    };
 
 }
 
-#endif //TEXTURE_H
+#endif //WORKSPACE_TEXTURE_H

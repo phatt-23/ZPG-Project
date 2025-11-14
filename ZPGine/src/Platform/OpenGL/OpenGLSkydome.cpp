@@ -5,7 +5,7 @@
 #include "Resource/CommonResources.h"
 #include "Resource/ResourceManager.h"
 #include "Shader/ShaderProgram.h"
-#include "Texture/Texture.h"
+#include "Texture/Texture2D.h"
 
 namespace ZPG 
 {
@@ -17,7 +17,7 @@ OpenGLSkydome::OpenGLSkydome(const SkydomeSpecification& spec)
     m_VertexArray = ResourceManager::GetGlobal().GetMesh(CommonResources::MESH_SKYDOME)->GetVertexArray();
     m_ShaderProgram = ResourceManager::GetGlobal().GetShaderProgram(CommonResources::SHADER_PROGRAM_SKYDOME);
 
-    m_Texture = Texture::Create(m_Spec.TexturePath);
+    m_Texture = Texture2D::Create(m_Spec.TexturePath);
 }
 
 OpenGLSkydome::~OpenGLSkydome()

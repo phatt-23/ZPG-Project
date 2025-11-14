@@ -30,10 +30,8 @@
 #include "Event/KeyEvent.h"
 #include "Event/MouseEvent.h"
 
-#include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/RenderStatistics.h"
-#include "Renderer/DrawData.h"
 
 
 #include "Buffer/VertexArray.h"
@@ -47,7 +45,7 @@
 #include "Camera/CameraController.h"
 #include "Camera/FlashlightCameraController.h"
 
-#include "Texture/Texture.h"
+#include "Texture/Texture2D.h"
 #include "Texture/TextureLibrary.h"
 
 #include "Shader/ShaderDataType.h"

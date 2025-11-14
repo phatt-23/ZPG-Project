@@ -1,27 +1,29 @@
 #pragma once
 
 #include "Texture/TextureDataFormat.h"
+#include "Texture/TextureType.h"
 
 namespace ZPG {
 
-enum class FrameBufferAttachmentType {
-    Color,
-    Depth,
-    Stencil,
-    DepthStencil,
-};
+    enum class FrameBufferAttachmentType {
+        Color,
+        Depth,
+        Stencil,
+        DepthStencil,
+    };
 
-struct FrameBufferAttachment {
-    FrameBufferAttachment(TextureDataFormat format, u32 index = 0);
-    FrameBufferAttachment(FrameBufferAttachmentType type, TextureDataFormat format, u32 index = 0);
+    struct FrameBufferAttachment
+    {
+        FrameBufferAttachmentType AttachType = FrameBufferAttachmentType::Color;
+        TextureType TexType = TextureType::Texture2D;
+        TextureDataFormat DataFormat = TextureDataFormat::RGBA8;
+        u32 Index = 0;
+        u32 ArraySize = 1;
 
-    FrameBufferAttachmentType AttachmentType = FrameBufferAttachmentType::Color;
-    TextureDataFormat DataFormat = TextureDataFormat::RGBA8;
-    u32 Index = 0;
+        bool operator==(const FrameBufferAttachment& other) const;
+        std::string operator()() const;
+    };
 
-    bool operator==(const FrameBufferAttachment& other) const;
-    std::string operator()() const;
-};
 }
 
 template <>

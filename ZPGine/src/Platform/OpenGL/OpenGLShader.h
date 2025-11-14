@@ -18,8 +18,10 @@ public:
     
 private:
     u32 CompileShader(ShaderType shaderType, const std::string& source);
-    static std::pair<ShaderType, std::string> EatAndSetShaderTypeDirective(const std::string& source);
-    static GLenum MapShaderTypeToOpenGLenum(ShaderType type);
+    std::pair<ShaderType, std::string> EatAndSetShaderTypeDirective(const std::string& source);
+    GLenum MapShaderTypeToOpenGLenum(ShaderType type);
+    std::string ResolveIncludes(const std::string& source, const std::string& directoryPath, const std::string& filename);
+
 private:
     ShaderType m_ShaderType;
     std::string m_Name;

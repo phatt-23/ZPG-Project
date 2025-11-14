@@ -3,8 +3,8 @@
 namespace ZPG
 {
     class ShaderProgram;
-    class CubemapTexture;
-    class Texture;
+    class TextureCubeMap;
+    class Texture2D;
 
     class LightingRenderPass : public RenderPass 
     {
@@ -17,8 +17,8 @@ namespace ZPG
         
     private:
         ref<ShaderProgram> m_ShaderProgram;
-        ref<CubemapTexture> m_NullSkyboxCubeMap;
-        ref<Texture> m_NullSkydomeMap;
+        ref<TextureCubeMap> m_NullSkyboxCubeMap;
+        ref<Texture2D> m_NullSkydomeMap;
         ref<VertexArray> m_QuadVAO;
     };
 }

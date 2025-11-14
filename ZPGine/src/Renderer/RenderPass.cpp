@@ -11,7 +11,7 @@
 #include "Buffer/VertexArray.h"
 #include "Material/Material.h"
 #include "Profiling/Instrumentor.h"
-#include "Texture/Texture.h"
+#include "Texture/Texture2D.h"
 
 namespace ZPG
 {

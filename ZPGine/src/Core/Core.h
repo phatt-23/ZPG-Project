@@ -7,6 +7,9 @@
 
 #include <memory>
 #include <cstdint>
+#include <unordered_map>
+#include <map>
+#include <vector>
 #include <glm/glm.hpp>
 
 namespace ZPG {
@@ -34,6 +37,15 @@ typedef glm::i32vec4 iv4;
 typedef glm::mat3 m3;
 typedef glm::mat4 m4;
 typedef glm::quat qtr;
+
+template<typename T, typename R>
+using umap = std::unordered_map<T, R>;
+
+template<typename T, typename R>
+using map = std::map<T, R>;
+
+template<typename T>
+using vec = std::vector<T>;
 
 template<typename T>
 using ref = std::shared_ptr<T>;

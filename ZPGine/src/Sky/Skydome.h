@@ -13,7 +13,7 @@ namespace ZPG
     class ShaderProgram;
     class Mesh;
     class VertexArray;
-    class Texture;
+    class Texture2D;
 
     class Skydome : public Sky
     {

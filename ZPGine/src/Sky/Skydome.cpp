@@ -2,7 +2,7 @@
 
 #include "Debug/Asserter.h"
 #include "Platform/OpenGL/OpenGLSkydome.h"
-#include "Renderer/Renderer.h"
+#include "Renderer/RendererAPI.h"
 
 namespace ZPG
 {
@@ -17,11 +17,13 @@ namespace ZPG
 
     ref<Skydome> Skydome::Create(const SkydomeSpecification& spec)
     {
-        switch (RendererAPI::GetAPI()) {
+        switch (RendererAPI::GetAPI())
+        {
             case RendererAPI::None: ZPG_UNREACHABLE("RendererAPI::None is not supported"); return nullptr;
             case RendererAPI::OpenGL: return MakeRef(new OpenGLSkydome(spec));
         }
 
         ZPG_UNREACHABLE();
+        return nullptr;
     }
 }

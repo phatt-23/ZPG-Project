@@ -4,7 +4,8 @@
 
 namespace ZPG {
 
-	class OpenGLFrameBuffer : public FrameBuffer {
+	class OpenGLFrameBuffer : public FrameBuffer
+	{
 	public:
 		OpenGLFrameBuffer(const FrameBufferSpecification& spec);
 
@@ -22,9 +23,11 @@ namespace ZPG {
 		void CopyAttachment(const ref<FrameBuffer>& readFBO, FrameBufferAttachmentType attachmentType) override;
 		void WriteAttachment(u32 writeFramebufferRendererID, u32 width, u32 height, FrameBufferAttachmentType attachmentType) override;
 
+        void AttachTexture(const ref<Texture>& texture, const FrameBufferAttachment& frameBufferAttachment) override;
+
 		const FrameBufferSpecification& GetSpecification() const override;
-		const std::unordered_map<FrameBufferAttachment, ref<Texture>>& GetTextureAttachments() const override;
-		const std::unordered_map<FrameBufferAttachment, ref<Texture>>& GetColorTextureAttachments() const override;
+		const umap<FrameBufferAttachment, ref<Texture>>& GetTextureAttachments() const override;
+		const umap<FrameBufferAttachment, ref<Texture>>& GetColorTextureAttachments() const override;
 
         i32 ReadPixelInt(u32 x, u32 y, FrameBufferAttachmentType attachmentType = FrameBufferAttachmentType::Color, u32 index = 0) const override;
 		v4 ReadPixelFloat4(u32 x, u32 y, FrameBufferAttachmentType attachmentType = FrameBufferAttachmentType::Color, u32 index = 0) const override;
@@ -34,8 +37,8 @@ namespace ZPG {
 		u32 m_RendererID = 0;
 		FrameBufferSpecification m_Specification;
 
-		std::unordered_map<FrameBufferAttachment, ref<Texture>> m_TextureAttachments;
-		std::unordered_map<FrameBufferAttachment, ref<Texture>> m_ColorTextureAttachments;
+		umap<FrameBufferAttachment, ref<Texture>> m_TextureAttachments;
+		umap<FrameBufferAttachment, ref<Texture>> m_ColorTextureAttachments;
 	};
 
 }

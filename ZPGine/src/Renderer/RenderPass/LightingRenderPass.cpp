@@ -6,24 +6,27 @@
 #include "Resource/CommonResources.h"
 #include "Resource/ResourceManager.h"
 #include "Shader/ShaderProgram.h"
-#include "Texture/CubemapTexture.h"
+#include "Texture/TextureCubeMap.h"
 #include "Shader/CommonShaderUniforms.h"
 #include "Shader/Shader.h"
 #include "Buffer/BufferLayout.h"
 #include "Profiling/Instrumentor.h"
+#include "Texture/Texture2DArray.h"
+#include "Texture/TextureCubeMapArray.h"
 
 namespace ZPG
 {
     LightingRenderPass::LightingRenderPass()
     {
         ZPG_PROFILE_FUNCTION();
-        m_ShaderProgram = ShaderProgram::Create("LightingPassSP", {
-            Shader::Create("VertexLightingPassSP", "assets/shaders/multipass/vert/LightingPass.vert"),
-            Shader::Create("VertexLightingPassSP", "assets/shaders/multipass/frag/LightingPass.frag"),
+        m_ShaderProgram = ShaderProgram::Create("LightingPass",
+        {
+            Shader::Create("assets/shaders/multipass/LightingPass.vert"),
+            Shader::Create("assets/shaders/multipass/LightingPass.frag"),
         });
 
 
-        m_NullSkyboxCubeMap = CubemapTexture::Create("NullSkyboxCubeMap", 1, 1, TextureDataFormat::RGBA8);
+        m_NullSkyboxCubeMap = TextureCubeMap::Create("NullSkyboxCubeMap", 1, TextureDataFormat::RGBA8);
         for (int i = 0; i < 6; i++)
         {
             u8 nullCubemapData[] = { 0, 0, 0, 0 };
@@ -31,7 +34,7 @@ namespace ZPG
         }
 
 
-        m_NullSkydomeMap = Texture::Create("NullSkydomeMap", 1, 1, TextureDataFormat::RGBA8);
+        m_NullSkydomeMap = Texture2D::Create("NullSkydomeMap", 1, 1, TextureDataFormat::RGBA8);
 
 
         constexpr static float quadVertices[] = {
@@ -54,24 +57,36 @@ namespace ZPG
 
     LightingRenderPass::~LightingRenderPass()
     {
-
     }
 
     void LightingRenderPass::Init(RenderContext &renderContext)
     {
         ZPG_PROFILE_FUNCTION();
+
         m_ShaderProgram->Bind();
+
         for (auto& colorAttachment : renderContext.GeometryPassFramebuffer->GetColorTextureAttachments() | std::views::keys)
         {
             std::string uniformName = "g_Color" + std::to_string(colorAttachment.Index);
             m_ShaderProgram->SetInt(uniformName, colorAttachment.Index);
         }
+
+        m_ShaderProgram->SetInt(CommonShaderUniforms::DIRECTIONAL_LIGHT_SHADOW_MAP, RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::SPOTLIGHT_SHADOW_MAP_ARRAY, RenderBindingPoints::SPOTLIGHT_SHADOW_MAP_ARRAY);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::POINTLIGHT_SHADOW_CUBE_MAP_ARRAY, RenderBindingPoints::POINTLIGHT_SHADOW_CUBE_MAP_ARRAY);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::SKYBOX_CUBEMAP, RenderBindingPoints::SKYBOX_TEXTURE_SLOT);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::SKYDOME_MAP, RenderBindingPoints::SKYDOME_TEXTURE_SLOT);
+
         m_ShaderProgram->Unbind();
     }
 
     void LightingRenderPass::Execute(RenderContext &renderContext)
     {
         ZPG_PROFILE_FUNCTION();
+
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+
         renderContext.MainFramebuffer->Bind();
         {
             RenderCommand::Clear();
@@ -79,15 +94,8 @@ namespace ZPG
             m_ShaderProgram->Bind();
 
             // SKY
-
-            // bind dummy skybox map texture
-            m_NullSkyboxCubeMap->BindToSlot(RenderBindingPoints::SKYBOX_TEXTURE_SLOT);
-            m_ShaderProgram->SetInt(CommonShaderUniforms::SKYBOX_CUBEMAP, RenderBindingPoints::SKYBOX_TEXTURE_SLOT);
-
-            // bind dummy skydome map texture
-            m_NullSkydomeMap->BindToSlot(RenderBindingPoints::SKYDOME_TEXTURE_SLOT);
-            m_ShaderProgram->SetInt(CommonShaderUniforms::SKYDOME_MAP, RenderBindingPoints::SKYDOME_TEXTURE_SLOT);
-
+            m_NullSkyboxCubeMap->BindToSlot(RenderBindingPoints::SKYBOX_TEXTURE_SLOT); // bind dummy skybox map texture
+            m_NullSkydomeMap->BindToSlot(RenderBindingPoints::SKYDOME_TEXTURE_SLOT); // bind dummy skydome map texture
             if (renderContext.ActiveSky != nullptr)
             {
                 switch (renderContext.ActiveSky->GetSkyType()) 
@@ -95,13 +103,11 @@ namespace ZPG
                     case SkyType::Skybox:
                         renderContext.ActiveSky->BindTextureToSlot(RenderBindingPoints::SKYBOX_TEXTURE_SLOT); // this must come first
                         m_ShaderProgram->SetInt(CommonShaderUniforms::SKYTYPE, (i32)SkyType::Skybox);
-                        m_ShaderProgram->SetInt(CommonShaderUniforms::SKYBOX_CUBEMAP, RenderBindingPoints::SKYBOX_TEXTURE_SLOT);
                         break;
 
                     case SkyType::Skydome: 
                         renderContext.ActiveSky->BindTextureToSlot(RenderBindingPoints::SKYDOME_TEXTURE_SLOT); // this must come first
                         m_ShaderProgram->SetInt(CommonShaderUniforms::SKYTYPE, (i32)SkyType::Skydome);
-                        m_ShaderProgram->SetInt(CommonShaderUniforms::SKYDOME_MAP, RenderBindingPoints::SKYDOME_TEXTURE_SLOT);
                         break;
 
                     case SkyType::None:
@@ -110,28 +116,17 @@ namespace ZPG
             }
 
             // G-BUFFER
-
             // bind the g-buffer's color texture attachments with the collected geometry information
             renderContext.GeometryPassFramebuffer->BindColorTextureAttachments();
 
             // DIRECTIONAL LIGHT SHADOW
-
-            auto depthAttachmentIter = std::ranges::find_if(renderContext.DirectionalLightShadowFramebuffer->GetTextureAttachments(),
-                [](const std::pair<FrameBufferAttachment, ref<Texture>>& pair)
-                {
-                    return pair.first.AttachmentType == FrameBufferAttachmentType::Depth;
-                });
-
-            ZPG_CORE_ASSERT(depthAttachmentIter != renderContext.DirectionalLightShadowFramebuffer->GetTextureAttachments().end(), "Directional Light Shadow Framebuffer must have a depth attachment");
-
-            m_ShaderProgram->SetInt(CommonShaderUniforms::DIRECTIONAL_LIGHT_SHADOW_MAP, RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP);
-            depthAttachmentIter->second->BindToSlot(RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP);
+            renderContext.DirectionalLightShadowMap->BindToSlot(RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP);
 
             // SPOTLIGHT SHADOW MAP ARRAY
+            renderContext.SpotLightShadowMapArray->BindToSlot(RenderBindingPoints::SPOTLIGHT_SHADOW_MAP_ARRAY);
 
-            m_ShaderProgram->SetInt(CommonShaderUniforms::SPOTLIGHT_SHADOW_MAP_ARRAY, RenderBindingPoints::SPOTLIGHT_SHADOW_MAP_ARRAY);
-            glActiveTexture(GL_TEXTURE0 + RenderBindingPoints::SPOTLIGHT_SHADOW_MAP_ARRAY);
-            glBindTexture(GL_TEXTURE_2D_ARRAY, renderContext.SpotLightShadowMapArrayRendererID);
+            // POINT LIGHT SHADOW MAP ARRAY
+            renderContext.PointLightShadowCubeMapArray->BindToSlot(RenderBindingPoints::POINTLIGHT_SHADOW_CUBE_MAP_ARRAY);
 
             // bind the uv quad that fills up the NDC
             m_QuadVAO->Bind(); 
@@ -143,11 +138,7 @@ namespace ZPG
 
             // Copy the G-Buffer's depth buffer into the main FBO's depth buffer
             renderContext.MainFramebuffer->CopyAttachment(renderContext.GeometryPassFramebuffer, FrameBufferAttachmentType::Depth);
-        }
-        renderContext.MainFramebuffer->Unbind();
 
-        renderContext.MainFramebuffer->Bind();
-        {
             if (renderContext.ActiveSky) 
             {
                 const ref<VertexArray>& skyVertexArray = renderContext.ActiveSky->GetVertexArray();
@@ -162,6 +153,7 @@ namespace ZPG
                 glDepthMask(GL_TRUE); // restore
                 glDepthFunc(GL_LESS);
             }
+
         }
         renderContext.MainFramebuffer->Unbind();
     }

@@ -2,46 +2,56 @@
 #include "OpenGLCore.h"
 #include "Core/Utility.h"
 #include <glad/glad.h>
+#include <stb_include/stb_include.h>
 
 #include "Profiling/Instrumentor.h"
 
 namespace ZPG {
+
+static std::string s_ShaderDirectoryPath = "./assets/shaders";
 
 OpenGLShader::OpenGLShader(const std::string& filepath) {
     ZPG_PROFILE_FUNCTION();
     m_Name = Utility::GetNameFromPath(filepath);
     auto [shaderType, sourceCode] = EatAndSetShaderTypeDirective(Utility::ReadFile(filepath));
     m_ShaderType = shaderType;
-    m_RendererID = CompileShader(shaderType, sourceCode);
+    m_RendererID = CompileShader(shaderType, ResolveIncludes(sourceCode, s_ShaderDirectoryPath, filepath));
 }
+
 OpenGLShader::OpenGLShader(const std::string& name, const std::string& filepath) {
     ZPG_PROFILE_FUNCTION();
     m_Name = name;
     auto [shaderType, sourceCode] = EatAndSetShaderTypeDirective(Utility::ReadFile(filepath));
     m_ShaderType = shaderType;
-    m_RendererID = CompileShader(shaderType, sourceCode);
+    m_RendererID = CompileShader(shaderType, ResolveIncludes(sourceCode, s_ShaderDirectoryPath, filepath));
 }
+
 OpenGLShader::OpenGLShader(const std::string& name, ShaderType shaderType, const std::string& sourceCode) {
     ZPG_PROFILE_FUNCTION();
     m_Name = name;
     m_ShaderType = shaderType;
-    m_RendererID = CompileShader(shaderType, sourceCode);
+    m_RendererID = CompileShader(shaderType, ResolveIncludes(sourceCode, s_ShaderDirectoryPath, name));
 }
+
 OpenGLShader::~OpenGLShader() {
     ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glDeleteShader(m_RendererID));
 }
+
 Shader::ShaderType OpenGLShader::GetShaderType() const {
     ZPG_PROFILE_FUNCTION();
     return m_ShaderType;
 }
+
 void OpenGLShader::AttachTo(u32 shaderProgramID) const {
     ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glAttachShader(shaderProgramID, m_RendererID));
 }
+
 void OpenGLShader::DetachFrom(u32 shaderProgramID) const {
     ZPG_OPENGL_CALL(glDetachShader(shaderProgramID, m_RendererID));
 }
+
 GLenum OpenGLShader::MapShaderTypeToOpenGLenum(Shader::ShaderType type) {
     ZPG_PROFILE_FUNCTION();
     switch (type) {
@@ -51,7 +61,31 @@ GLenum OpenGLShader::MapShaderTypeToOpenGLenum(Shader::ShaderType type) {
         default:
             ZPG_UNREACHABLE("Unknown shader type");
     }
+    return -1;
 }
+
+std::string OpenGLShader::ResolveIncludes(const std::string& source, const std::string& directoryPath, const std::string& filename) {
+    // Do include-processing on the string 'str'. To free the return value, pass it to free()
+    // char *stb_include_string(char *str, char *inject, char *path_to_includes, char *filename_for_line_directive, char error[256]);
+
+    std::string e;
+    e.resize(256);
+
+    std::string s(source);
+    std::string d(directoryPath);
+    std::string f(filename);
+
+    char* res = stb_include_string(s.data(), nullptr, d.data(), f.data(), e.data());
+
+    ZPG_CORE_ASSERT(res != nullptr, "Preprocessing of the shader {} in directory {} failed: {}", f.c_str(), d.c_str(), e.c_str());
+
+    std::string result(res);
+
+    free(res);
+
+    return result;
+}
+
 std::pair<Shader::ShaderType, std::string> OpenGLShader::EatAndSetShaderTypeDirective(const std::string& source) {
     ZPG_PROFILE_FUNCTION();
     const char* typeDirectiveTok = "#type";
@@ -72,8 +106,10 @@ std::pair<Shader::ShaderType, std::string> OpenGLShader::EatAndSetShaderTypeDire
 
     ShaderType shaderType = Shader::ShaderTypeFromString(type);
     std::string tail = source.substr(lineEnd);
-    return { shaderType, std::move(tail) };
+
+    return { shaderType, tail };
 }
+
 u32 OpenGLShader::CompileShader(ShaderType shaderType, const std::string& source) {
     ZPG_PROFILE_FUNCTION();
     const char* sourcePtr = source.c_str();

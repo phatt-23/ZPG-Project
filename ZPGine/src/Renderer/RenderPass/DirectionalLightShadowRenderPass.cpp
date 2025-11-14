@@ -9,59 +9,55 @@
 #include "Shader/Shader.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderGroups.h"
-
-static const char* vertexShader = R"(
-    #version 440 core
-  
-    struct DirectionalLight
-    {
-        vec4 Color;
-        vec3 Direction;
-        float pad;
-        mat4 ViewProj;
-    };
-
-    layout(location = 0) in vec3 a_Pos; // only need the objects position
-
-    layout (std430, binding = 1) buffer EnvironmentLightShaderStorageBuffer
-    {
-        vec4 AmbientColor;
-        DirectionalLight DirLight;
-    } ssbo_EnvironmentLight;
-
-    uniform mat4 u_Model;
-
-    out vec4 v_WorldPos;
-
-    void main()
-    {
-        mat4 lightViewProj = ssbo_EnvironmentLight.DirLight.ViewProj;
-        v_WorldPos = u_Model * vec4(a_Pos, 1.0);
-        gl_Position = lightViewProj * v_WorldPos;
-    }
-)";
-
-static const char* fragShader = R"(
-    #version 440 core
-
-    in vec4 v_WorldPos;
-
-    layout(location = 0) out vec4 f_Color0;
-
-    uniform vec4 u_Color;
-
-    void main()
-    {
-        gl_FragDepth = gl_FragCoord.z;
-        // f_Color0 = vec4(vec3(u_Color), 1);
-        // f_Color0 = vec4(vec3(gl_FragCoord.z), 1.0);
-        f_Color0 = v_WorldPos;
-        // f_Color0 = vec4(1.0, 0, 0, 1);
-    }
-)";
+#include "Texture/Texture2D.h"
 
 namespace ZPG
 {
+
+    static const char* vertexShader = R"(
+        #version 440 core
+
+        struct DirectionalLight
+        {
+            vec4 Color;
+            vec3 Direction;
+            float pad;
+            mat4 ViewProj;
+        };
+
+        layout(location = 0) in vec3 a_Pos; // only need the objects position
+
+        layout (std430, binding = 1) buffer EnvironmentLightShaderStorageBuffer
+        {
+            vec4 AmbientColor;
+            DirectionalLight DirLight;
+        } ssbo_EnvironmentLight;
+
+        uniform mat4 u_Model;
+
+        out vec4 v_WorldPos;
+
+        void main()
+        {
+            mat4 lightViewProj = ssbo_EnvironmentLight.DirLight.ViewProj;
+            v_WorldPos = u_Model * vec4(a_Pos, 1.0);
+            gl_Position = lightViewProj * v_WorldPos;
+        }
+    )";
+
+    static const char* fragShader = R"(
+        #version 440 core
+
+        in vec4 v_WorldPos;
+
+        uniform vec4 u_Color;
+
+        void main()
+        {
+            gl_FragDepth = gl_FragCoord.z;
+        }
+    )";
+
     DirectionalLightShadowRenderPass::DirectionalLightShadowRenderPass()
     {
         ZPG_PROFILE_FUNCTION();
@@ -78,6 +74,25 @@ namespace ZPG
 
     void DirectionalLightShadowRenderPass::Init(RenderContext &renderContext)
     {
+        u32 width = renderContext.DirectionalLightShadowFramebuffer->GetSpecification().Width;
+        u32 height = renderContext.DirectionalLightShadowFramebuffer->GetSpecification().Height;
+
+        renderContext.DirectionalLightShadowMap = Texture2D::Create(
+            "directional_light_shadow_map",
+            width,
+            height,
+            TextureDataFormat::Depth32F
+        );
+
+        renderContext.DirectionalLightShadowFramebuffer->AttachTexture(
+            renderContext.DirectionalLightShadowMap,
+            FrameBufferAttachment{
+                .AttachType = FrameBufferAttachmentType::Depth,
+                .TexType = TextureType::Texture2D,
+                .DataFormat = TextureDataFormat::Depth32F,
+                .Index = 0,
+            }
+        );
     }
 
     void DirectionalLightShadowRenderPass::Execute(RenderContext &renderContext)
@@ -104,7 +119,6 @@ namespace ZPG
                     auto& vao = mesh->GetVertexArray();
 
                     m_ShaderProgram->SetMat4("u_Model", transform * local);
-                    m_ShaderProgram->SetFloat4("u_Color", mesh->GetMaterial()->GetAlbedo());
 
                     vao->Bind();
 

@@ -2,7 +2,7 @@
 
 #include "Resource/ResourceManager.h"
 #include "Resource/CommonResources.h"
-#include "Texture/Texture.h"
+#include "Texture/Texture2D.h"
 #include "Material/Material.h"
 #include <assimp/postprocess.h>
 #include <assimp/types.h>
@@ -78,10 +78,10 @@ ref<Model> ModelLoader::Load() {
     return model;
 }
 
-ref<Texture> ModelLoader::LoadTexture(std::string const& textureFile) {
+ref<Texture2D> ModelLoader::LoadTexture(std::string const& textureFile) {
     ZPG_PROFILE_FUNCTION();
     std::string texturePath = std::filesystem::path(m_Path).parent_path() / textureFile;
-    return Texture::Create(texturePath);
+    return Texture2D::Create(texturePath);
 }
 
 ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMaterial* material) {
@@ -150,7 +150,7 @@ ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMateria
     } else if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFile) == AI_SUCCESS) {
         myMaterial->SetAlbedoMap(LoadTexture(textureFile.C_Str()));
     } else {
-        myMaterial->SetAlbedoMap(res.GetTexture(CommonResources::NULL_ALBEDO_MAP));
+        myMaterial->SetAlbedoMap(res.GetTexture<Texture2D>(CommonResources::NULL_ALBEDO_MAP));
     }
 
     // load normal map
@@ -159,7 +159,7 @@ ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMateria
     } else if (material->GetTexture(aiTextureType_NORMALS, 0, &textureFile) == AI_SUCCESS) {
         myMaterial->SetNormalMap(LoadTexture(textureFile.C_Str()));
     } else {
-        myMaterial->SetNormalMap(res.GetTexture(CommonResources::NULL_NORMAL_MAP));
+        myMaterial->SetNormalMap(res.GetTexture<Texture2D>(CommonResources::NULL_NORMAL_MAP));
     }
 
     // load metalness map
@@ -168,7 +168,7 @@ ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMateria
     } else if (material->GetTexture(aiTextureType_SPECULAR, 0, &textureFile) == AI_SUCCESS) {
         myMaterial->SetMetalnessMap(LoadTexture(textureFile.C_Str()));
     } else {
-        myMaterial->SetMetalnessMap(res.GetTexture(CommonResources::NULL_METALNESS_MAP));
+        myMaterial->SetMetalnessMap(res.GetTexture<Texture2D>(CommonResources::NULL_METALNESS_MAP));
     }
 
     // load roughness map
@@ -177,14 +177,14 @@ ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMateria
     } else if (material->GetTexture(aiTextureType_SHININESS, 0, &textureFile) == AI_SUCCESS) {
         myMaterial->SetRoughnessMap(LoadTexture(textureFile.C_Str()));
     } else {
-        myMaterial->SetRoughnessMap(res.GetTexture(CommonResources::NULL_ROUGHNESS_MAP));
+        myMaterial->SetRoughnessMap(res.GetTexture<Texture2D>(CommonResources::NULL_ROUGHNESS_MAP));
     }
 
     // load emissive map
     if (material->GetTexture(aiTextureType_EMISSIVE, 0, &textureFile) == AI_SUCCESS) {
         myMaterial->SetEmissiveMap(LoadTexture(textureFile.C_Str()));
     } else {
-        myMaterial->SetEmissiveMap(res.GetTexture(CommonResources::NULL_EMISSIVE_MAP));
+        myMaterial->SetEmissiveMap(res.GetTexture<Texture2D>(CommonResources::NULL_EMISSIVE_MAP));
     }
 
 

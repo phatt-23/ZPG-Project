@@ -1,8 +1,8 @@
 #include "ShaderProgram.h"
 #include "Debug/Asserter.h"
-#include "Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLShaderProgram.h"
 #include "Profiling/Instrumentor.h"
+#include "Renderer/RendererAPI.h"
 
 namespace ZPG {
 
@@ -15,6 +15,7 @@ ref<ShaderProgram> ShaderProgram::Create(const std::string& filePath)
         case RendererAPI::None: break;
     }
     ZPG_UNREACHABLE();
+    return nullptr;
 }
 
 ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::string& filePath)
@@ -26,6 +27,7 @@ ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::str
         case RendererAPI::None: break;
     }
     ZPG_UNREACHABLE();
+    return nullptr;
 }
 
 ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::vector<ref<Shader>>& shaders)
@@ -50,7 +52,9 @@ ref<ShaderProgram> ShaderProgram::Create(const std::string& name, const std::vec
         case RendererAPI::OpenGL: return MakeRef<OpenGLShaderProgram>(name, shaders);
         case RendererAPI::None: break;
     }
+
     ZPG_UNREACHABLE();
+    return nullptr;
 }
 
 }

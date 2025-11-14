@@ -8,7 +8,7 @@
 
 namespace ZPG {
 
-    class Texture;
+    class Texture2D;
     class VertexArray;
     class ShaderProgram;
 

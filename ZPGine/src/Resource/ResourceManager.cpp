@@ -13,8 +13,8 @@
 #include "Profiling/Instrumentor.h"
 #include "Shader/ShaderDataType.h"
 #include "Shader/Shader.h"
-#include "Texture/CubemapTexture.h"
-#include "Texture/Texture.h"
+#include "Texture/TextureCubeMap.h"
+#include "Texture/Texture2D.h"
 
 namespace ZPG {
 
@@ -146,14 +146,14 @@ void ResourceManager::InitDefaultTextures() {
     };
 
     for (auto& [name, bytes] : nullMapData) {
-        auto nullMap = Texture::Create(name, 1, 1, TextureDataFormat::RGBA8);
+        auto nullMap = Texture2D::Create(name, 1, 1, TextureDataFormat::RGBA8);
 
         nullMap->SetData(bytes.data(), sizeof(u8) * bytes.size());
 
         s_Instance->AddTexture(nullMap->GetName(), nullMap);
     }
 
-    ref<CubemapTexture> cubemapTexture = CubemapTexture::Create(CommonResources::NULL_CUBEMAP, 1, 1, TextureDataFormat::RGBA8);
+    ref<TextureCubeMap> cubemapTexture = TextureCubeMap::Create(CommonResources::NULL_CUBEMAP, 1, TextureDataFormat::RGBA8);
 
     for (int i = 0; i < 6; i++)
     {
@@ -297,7 +297,7 @@ bool ResourceManager::HasShaderProgram(const std::string& name) const
 void ResourceManager::LoadTexture(const std::string& name, const std::string& path)
 {
     ZPG_PROFILE_FUNCTION();
-    ref<Texture> texture = Texture::Create(path);
+    ref<Texture2D> texture = Texture2D::Create(path);
     m_TextureLib.AddTexture(name, texture);
 }
 void ResourceManager::AddTexture(const std::string& name, const ref<Texture>& texture)
@@ -311,7 +311,7 @@ const ref<Texture>& ResourceManager::GetTexture(const std::string& name)
     return m_TextureLib.GetTexture(name);
 }
 
-const ResourceManager::MapOf<std::shared_ptr<Texture>>& ResourceManager::GetTextures() const {
+const ResourceManager::MapOf<ref<Texture>>& ResourceManager::GetTextures() const {
     ZPG_PROFILE_FUNCTION();
     return m_TextureLib.GetTextures();
 }

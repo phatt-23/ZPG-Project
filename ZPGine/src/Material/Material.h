@@ -3,7 +3,7 @@
 namespace ZPG {
 
 class ShaderProgram;
-class Texture;
+class Texture2D;
 
 /**
  * Can either be texture based or single factor based.
@@ -39,17 +39,17 @@ public:
     f32 GetMetallic() const;
     const v4& GetEmissive() const;
 
-    void SetAlbedoMap(const ref<Texture>& albedoMap);
-    void SetNormalMap(const ref<Texture>& normalMap);
-    void SetMetalnessMap(const ref<Texture>& metalnessMap);
-    void SetRoughnessMap(const ref<Texture>& roughnessMap);
-    void SetEmissiveMap(const ref<Texture>& emissiveMap);
+    void SetAlbedoMap(const ref<Texture2D>& albedoMap);
+    void SetNormalMap(const ref<Texture2D>& normalMap);
+    void SetMetalnessMap(const ref<Texture2D>& metalnessMap);
+    void SetRoughnessMap(const ref<Texture2D>& roughnessMap);
+    void SetEmissiveMap(const ref<Texture2D>& emissiveMap);
 
-    const ref<Texture>& GetAlbedoMap() const;
-    const ref<Texture>& GetNormalMap() const;
-    const ref<Texture>& GetMetalnessMap() const;
-    const ref<Texture>& GetRoughnessMap() const;
-    const ref<Texture>& GetEmissiveMap() const;
+    const ref<Texture2D>& GetAlbedoMap() const;
+    const ref<Texture2D>& GetNormalMap() const;
+    const ref<Texture2D>& GetMetalnessMap() const;
+    const ref<Texture2D>& GetRoughnessMap() const;
+    const ref<Texture2D>& GetEmissiveMap() const;
 
     void SetName(const std::string& name);
     std::string const& GetName() const;
@@ -91,33 +91,33 @@ public:
      * which is a 1x1 texture with single color (1,1,1).
      * When multiplied by the albedo color, it has no effect
      */
-    ref<Texture> m_AlbedoMap;
+    ref<Texture2D> m_AlbedoMap;
 
     /**
      * Metalness map. Reflectivity input.
      *
      *     float metallic = clamp(texture(u_MetalnessMap, v_TexCoord).r * u_Metallic, 0.01, 1.0);
      */
-    ref<Texture> m_MetalnessMap;
+    ref<Texture2D> m_MetalnessMap;
 
     /**
      * Roughness map. Micro-surface input.
      *
      *     float roughness = clamp(texture(u_RoughnessMap, v_TexCoord).r * u_Metallic, 0.01, 1.0);
      */
-    ref<Texture> m_RoughnessMap;
+    ref<Texture2D> m_RoughnessMap;
 
     /**
      * By default, it is 1x1 texture with color (0.5, 0.5, 1.0).
      *
      *     vec3 normal = normalize(v_TBN * (texture(u_NormalMap, v_TexCoord).rgb * 2.0 - 1.0));
      */
-    ref<Texture> m_NormalMap;
+    ref<Texture2D> m_NormalMap;
 
     /**
      * Emissive map, by default (1, 1, 1)
      */
-    ref<Texture> m_EmissiveMap;
+    ref<Texture2D> m_EmissiveMap;
 };
 
 }

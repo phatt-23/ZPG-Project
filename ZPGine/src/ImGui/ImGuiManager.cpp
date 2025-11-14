@@ -1,10 +1,10 @@
 #include "ImGuiManager.h"
 
-#include "Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLGLFWImGuiManager.h"
 #include "Core/Window.h"
 #include "Debug/Asserter.h"
 #include "Profiling/Instrumentor.h"
+#include "Renderer/RendererAPI.h"
 
 namespace ZPG {
 

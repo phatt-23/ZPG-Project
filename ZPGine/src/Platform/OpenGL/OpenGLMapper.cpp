@@ -21,6 +21,7 @@ OpenGLMapper::OpenGLAttachmentMapping OpenGLMapper::ToGL(const FrameBufferAttach
     }
 
     ZPG_UNREACHABLE();
+    return {};
 }
 
 OpenGLMapper::OpenGLFormatMapping OpenGLMapper::ToGL(const TextureDataFormat& format) {

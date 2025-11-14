@@ -5,7 +5,6 @@
 #include "Debug/Asserter.h"
 #include "Event/Event.h"
 #include "Event/WindowEvent.h"
-#include "Renderer/Renderer.h"
 #include "Input.h"
 #include <GLFW/glfw3.h>
 #include "Resource/ResourceManager.h"
@@ -14,9 +13,8 @@
 #include "imgui.h"
 #include "ImGui/ImGuiManager.h"
 #include "Timestep.h"
-#include "Platform/OpenGL/OpenGLTexture.h"
+#include "Platform/OpenGL/OpenGLTexture2D.h"
 #include "Profiling/Instrumentor.h"
-#include "Renderer/DrawData.h"
 #include "Scene/Scene.h"
 #include "Renderer/MultipassRenderer.h"
 #include "Renderer/RenderCommand.h"
@@ -54,18 +52,20 @@ Application::~Application() {
 void Application::Run() {
     ZPG_PROFILE_FUNCTION();
     while (m_Running) {
-        ImGuiManager::BeginFrame();
         float currentTime = glfwGetTime();
         m_Delta = currentTime - m_LastTime;
         m_LastTime = currentTime;
 
-        m_SceneManager.GetActiveScene()->OnUpdate(m_Delta);
-        MultipassRenderer::RenderScene(*m_SceneManager.GetActiveScene());
+        ImGuiManager::BeginFrame();
+        {
+            m_SceneManager.GetActiveScene()->OnUpdate(m_Delta);
+            MultipassRenderer::RenderScene(*m_SceneManager.GetActiveScene());
 
             m_SceneManager.GetActiveScene()->OnImGuiRender();
             this->OnImGuiRender();
 
-        m_Window->OnUpdate();
+            m_Window->OnUpdate();
+        }
         ImGuiManager::EndFrame();
     }
 }

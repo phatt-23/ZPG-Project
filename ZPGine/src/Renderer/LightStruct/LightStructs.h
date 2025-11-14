@@ -2,8 +2,8 @@
 
 namespace ZPG
 {
-class Camera;
-class SpotLight;
+    class Camera;
+    class SpotLight;
     class PointLight;
     class DirectionalLight;
     class AmbientLight;
@@ -12,7 +12,7 @@ class SpotLight;
     {
         v4 Color;  // 16
         v3 Direction;
-        f32 _pad0[1]{};  // 16
+        f32 _pad0{};  // 16
         m4 ViewProj;
 
     public:
@@ -31,12 +31,12 @@ class SpotLight;
 
     struct PointLightStruct 
     {
-        v4 Color;  // 16
-        v3 Position;
-        i32 ShadowLayer = -1;  // 16
-        v3 Attenuation; 
-        f32 _pad1[1];  // 16
-        m4 ViewProj;  // 64
+        v4  Color;          // 16
+        v3  Position;
+        i32 Index = -1;     // 16
+        v3  Attenuation;
+        f32 Radius;         // 16
+        m4  ViewProj[6];    // 16
 
     public:
         PointLightStruct() = default;
@@ -45,14 +45,16 @@ class SpotLight;
 
     struct SpotLightStruct
     {
-        v4 Color;  // 16
-        v3 Position; 
-        i32 ShadowLayer;  // 16
-        v3 Direction;
-        f32 BeamSize;  // 16
-        v3 Attenuation; 
-        f32 BeamBlend; // 16
-        m4 ViewProj;  // 64
+        v4  Color;      // 16
+        v3  Position;
+        i32 Index;      // 16
+        v3  Direction;
+        f32 BeamSize;   // 16
+        v3  Attenuation;
+        f32 BeamBlend;  // 16
+        f32 Radius;
+        f32 _pad0[3];   // 16
+        m4 ViewProj;    // 64
 
     public:
         SpotLightStruct() = default;

@@ -1,6 +1,5 @@
 #include "VertexBuffer.h"
 #include "Debug/Asserter.h"
-#include "Renderer/Renderer.h"
 #include "Renderer/RendererAPI.h"
 #include "Platform/OpenGL/OpenGLVertexBuffer.h"
 
@@ -16,6 +15,7 @@ ref<VertexBuffer> VertexBuffer::Create(const void* vertices, u32 size)
             break;
     }
     ZPG_UNREACHABLE();
+    return nullptr;
 }
 
 ref<VertexBuffer> VertexBuffer::Create(u32 size)
@@ -28,6 +28,7 @@ ref<VertexBuffer> VertexBuffer::Create(u32 size)
             break;
     }
     ZPG_UNREACHABLE();
+    return nullptr;
 }
 
 ref<VertexBuffer> VertexBuffer::Create(const void* vertices, u32 size, const BufferLayout& layout)
@@ -43,6 +44,7 @@ ref<VertexBuffer> VertexBuffer::Create(const void* vertices, u32 size, const Buf
             break;
     }
     ZPG_UNREACHABLE();
+    return nullptr;
 }
 
 }

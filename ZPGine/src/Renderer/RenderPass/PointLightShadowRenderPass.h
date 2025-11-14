@@ -4,6 +4,8 @@
 
 namespace ZPG
 {
+    class ShaderProgram;
+
     class PointLightShadowRenderPass : public RenderPass
     {
     public:
@@ -15,6 +17,8 @@ namespace ZPG
         void Execute(RenderContext& renderContext) override;
 
     private:
+
+        ref<ShaderProgram> m_ShaderProgram;
     };
 }
 

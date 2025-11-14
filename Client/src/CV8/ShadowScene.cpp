@@ -6,16 +6,21 @@
 
 #include "Camera/FlashlightCameraController.h"
 #include "Core/KeyCodes.h"
+#include "Material/Material.h"
+#include "Model/Mesh.h"
+#include "Model/Model.h"
 #include "Entity/Entity.h"
+#include "Entity/PointLightEntity.h"
 #include "Entity/SpotLightEntity.h"
 #include "Event/Event.h"
 #include "Event/KeyEvent.h"
 #include "Light/AmbientLight.h"
 #include "Light/DirectionalLight.h"
+#include "Light/PointLight.h"
 #include "Light/SpotLight.h"
-#include "Material/Material.h"
-#include "Model/Model.h"
+#include "Sky/Skybox.h"
 #include "Transform/TransformGroup.h"
+#include "Transform/StaticTransform/Rotate.h"
 #include "Transform/StaticTransform/Scale.h"
 #include "Transform/StaticTransform/Translate.h"
 
@@ -39,7 +44,7 @@ namespace CV8
         GetLightManager().AddLight(spotlight);
 
         GetLightManager().AddLight(new AmbientLight(v4(0.1)));
-        GetLightManager().AddLight(new DirectionalLight(v4(1.0), v3(-1.0, -1.0, -1.0)));
+        GetLightManager().AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.5), v3(-1.0, -1.0, -1.0)));
 
         m_LocalResources.LoadModel("Plane", "./assets/models/plane.gltf");
         m_LocalResources.LoadModel("Sphere", "./assets/models/sphere.gltf");
@@ -56,6 +61,8 @@ namespace CV8
         m_LocalResources.GetModel("GreenCube")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0.0, 1.0, 0.0, 1.0));
         m_LocalResources.GetModel("BlueCube")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0.0, 0.0, 1.0, 1.0));
 
+        // SetSky(Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" }));
+
         {
             spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0), v3(0.0, -0.8, -1.0), 20.f, 0.5f, AttenComponent(0.001, 0.001, 0.1f)));
             GetLightManager().AddLight(spotlight);
@@ -67,7 +74,7 @@ namespace CV8
 
             GetEntityManager().AddEntity(new SpotLightEntity(spotlight, m_LocalResources.GetModel("LightSphere"), transform));
 
-            spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0), v3(0.0, -1.0, 0.0), 20.f, 0.5f, AttenComponent(0.001, 0.001, 0.1f)));
+            spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0, 5.0, 0.0), v3(-1.0, 0.0, 1.0), 20.f, 0.5f, AttenComponent(0.001, 0.001, 0.1f)));
             GetLightManager().AddLight(spotlight);
 
             transform = TransformGroup::Build()
@@ -78,12 +85,44 @@ namespace CV8
             GetEntityManager().AddEntity(new SpotLightEntity(spotlight, m_LocalResources.GetModel("LightSphere"), transform));
         }
 
+        {
+            auto pointLight = MakeRef(new PointLight(v4(1.0, 0.0, 0.0, 1.0), v3(0.0), AttenComponent(0.01, 0.01, 1.0)));
+            GetLightManager().AddLight(pointLight);
+
+            auto transform = TransformGroup::Build()
+                .Add<Scale>(0.1)
+                .Add<Translate>(-4.0, 1.5, 2.5)
+                .Compose();
+
+            GetEntityManager().AddEntity(new PointLightEntity(pointLight, m_LocalResources.GetModel("LightSphere"), transform));
+
+
+            pointLight = MakeRef(new PointLight(v4(1.0, 0.0, 0.0, 1.0), v3(0.0), AttenComponent(0.01, 0.01, 1.0)));
+            GetLightManager().AddLight(pointLight);
+
+            transform = TransformGroup::Build()
+                .Add<Scale>(0.1)
+                .Add<Translate>(-0.0, 1.5, 2.5)
+                .Compose();
+
+            GetEntityManager().AddEntity(new PointLightEntity(pointLight, m_LocalResources.GetModel("LightSphere"), transform));
+        }
+
         GetCamera().SetPosition(v3(0.0, 2.0, 6.0));
 
         GetEntityManager().AddEntity(new Entity(
             m_LocalResources.GetModel("Plane"),
             TransformGroup::Build()
                 .Add<Scale>(20.0)
+                .Compose()
+        ));
+
+        GetEntityManager().AddEntity(new Entity(
+            m_LocalResources.GetModel("Plane"),
+            TransformGroup::Build()
+                .Add<Rotate>(90.0, v3(0.0, 0.0, -1.0))
+                .Add<Scale>(20.0)
+                .Add<Translate>(-10.0, 10.0, 0.0)
                 .Compose()
         ));
 

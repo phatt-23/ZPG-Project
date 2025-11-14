@@ -1,7 +1,7 @@
 #include "Scene.h"
 
 #include "Renderer/MultipassRenderer.h"
-#include "Platform/OpenGL/OpenGLTexture.h"
+#include "Platform/OpenGL/OpenGLTexture2D.h"
 #include "SceneContext.h"
 #include "Renderer/RenderCommand.h"
 #include "Core/Application.h"
@@ -10,7 +10,6 @@
 #include "Debug/Logger.h"
 
 #include "Event/WindowEvent.h"
-#include "Renderer/Renderer.h"
 
 #include "Core/Timestep.h"
 #include "Debug/Asserter.h"
@@ -31,7 +30,7 @@
 #include "Light/PointLight.h"
 #include "Light/SpotLight.h"
 #include "Profiling/Instrumentor.h"
-#include "Texture/Texture.h"
+#include "Texture/Texture2D.h"
 #include "Transform/DynamicTransform/DynRotate.h"
 #include "Transform/DynamicTransform/DynScale.h"
 #include "Transform/DynamicTransform/DynTranslate.h"
@@ -325,13 +324,13 @@ void TransformImGuiTreeNode(Transform* transform) {
 }
 
 
-void TextureImGuiImage(Texture* texture) {
+void TextureImGuiImage(Texture2D* texture) {
     ZPG_PROFILE_FUNCTION();
     ImGui::PushID(texture);
     if (ImGui::TreeNodeEx(texture->GetName().c_str())) {
         ImVec2 imageSize(200, 200);
-        auto* glTexture = (OpenGLTexture*)texture;
-        ImGui::Image(glTexture->m_RendererID, imageSize);
+        auto* glTexture = (OpenGLTexture2D*)texture;
+        ImGui::Image(glTexture->GetRendererID(), imageSize);
 
         ImGui::TreePop();
     }

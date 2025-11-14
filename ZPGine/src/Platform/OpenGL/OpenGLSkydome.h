@@ -6,7 +6,7 @@ namespace ZPG
     class Mesh;
     class ShaderProgram;
     class Model;
-    class Texture;
+    class Texture2D;
     class VertexArray;
 
     class OpenGLSkydome : public Skydome
@@ -22,7 +22,7 @@ namespace ZPG
 
     private:
         SkydomeSpecification m_Spec;
-        ref<Texture> m_Texture;
+        ref<Texture2D> m_Texture;
         ref<ShaderProgram> m_ShaderProgram;
         ref<VertexArray> m_VertexArray;
     };

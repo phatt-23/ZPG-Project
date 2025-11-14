@@ -8,7 +8,6 @@ using namespace ZPG;
 
 namespace CV8
 {
-
     ForestScene::ForestScene()
     {
         ref<SpotLight> spotlight = MakeRef(new SpotLight(

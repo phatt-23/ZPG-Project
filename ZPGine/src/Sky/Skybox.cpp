@@ -8,7 +8,7 @@
 #include "Buffer/VertexArray.h"
 #include "Debug/Asserter.h"
 #include "Platform/OpenGL/OpenGLSkybox.h"
-#include "Renderer/Renderer.h"
+#include "Renderer/RendererAPI.h"
 #include "Shader/Shader.h"
 #include "Shader/ShaderProgram.h"
 #include "stb_image/stb_image.h"
@@ -31,6 +31,7 @@ ref<Skybox> Skybox::Create(const SkyboxSpecification& spec)
     }
 
     ZPG_UNREACHABLE();
+    return nullptr;
 }
 
 } // ZPG

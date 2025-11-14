@@ -6,7 +6,7 @@
 #include "Profiling/Instrumentor.h"
 #include "Resource/CommonResources.h"
 #include "Resource/ResourceManager.h"
-#include "Texture/Texture.h"
+#include "Texture/Texture2D.h"
 #include "Shader/ShaderProgram.h"
 
 namespace ZPG {
@@ -23,11 +23,11 @@ Material::Material(const std::string& name)
     m_Metallic = 0.0;
     m_Emissive = v4(0.0);
 
-    m_AlbedoMap = res.GetTexture(CommonResources::NULL_ALBEDO_MAP);
-    m_NormalMap = res.GetTexture(CommonResources::NULL_NORMAL_MAP);
-    m_MetalnessMap = res.GetTexture(CommonResources::NULL_METALNESS_MAP);
-    m_RoughnessMap = res.GetTexture(CommonResources::NULL_ROUGHNESS_MAP);
-    m_EmissiveMap = res.GetTexture(CommonResources::NULL_EMISSIVE_MAP);
+    m_AlbedoMap = res.GetTexture<Texture2D>(CommonResources::NULL_ALBEDO_MAP);
+    m_NormalMap = res.GetTexture<Texture2D>(CommonResources::NULL_NORMAL_MAP);
+    m_MetalnessMap = res.GetTexture<Texture2D>(CommonResources::NULL_METALNESS_MAP);
+    m_RoughnessMap = res.GetTexture<Texture2D>(CommonResources::NULL_ROUGHNESS_MAP);
+    m_EmissiveMap = res.GetTexture<Texture2D>(CommonResources::NULL_EMISSIVE_MAP);
 }
 
 Material::~Material() {
@@ -43,44 +43,44 @@ ref<ShaderProgram>& Material::GetShaderProgram() {
     return m_ShaderProgram;
 }
 
-void Material::SetAlbedoMap(const ref<Texture>& albedoMap) {
+void Material::SetAlbedoMap(const ref<Texture2D>& albedoMap) {
     ZPG_PROFILE_FUNCTION();
     m_AlbedoMap = albedoMap;
 }
-void Material::SetNormalMap(const ref<Texture>& normalMap) {
+void Material::SetNormalMap(const ref<Texture2D>& normalMap) {
     ZPG_PROFILE_FUNCTION();
     m_NormalMap = normalMap;
 }
-void Material::SetMetalnessMap(const ref<Texture>& metalnessMap) {
+void Material::SetMetalnessMap(const ref<Texture2D>& metalnessMap) {
     ZPG_PROFILE_FUNCTION();
     m_MetalnessMap = metalnessMap;
 }
-void Material::SetRoughnessMap(const ref<Texture>& roughnessMap) {
+void Material::SetRoughnessMap(const ref<Texture2D>& roughnessMap) {
     ZPG_PROFILE_FUNCTION();
     m_RoughnessMap = roughnessMap;
 }
-void Material::SetEmissiveMap(const ref<Texture>& emissiveMap) {
+void Material::SetEmissiveMap(const ref<Texture2D>& emissiveMap) {
     ZPG_PROFILE_FUNCTION();
     m_EmissiveMap = emissiveMap;
 }
 
-const ref<Texture>& Material::GetAlbedoMap() const {
+const ref<Texture2D>& Material::GetAlbedoMap() const {
     ZPG_PROFILE_FUNCTION();
     return m_AlbedoMap;
 }
-const ref<Texture>& Material::GetNormalMap() const {
+const ref<Texture2D>& Material::GetNormalMap() const {
     ZPG_PROFILE_FUNCTION();
     return m_NormalMap;
 }
-const ref<Texture>& Material::GetMetalnessMap() const {
+const ref<Texture2D>& Material::GetMetalnessMap() const {
     ZPG_PROFILE_FUNCTION();
     return m_MetalnessMap;
 }
-const ref<Texture>& Material::GetRoughnessMap() const {
+const ref<Texture2D>& Material::GetRoughnessMap() const {
     ZPG_PROFILE_FUNCTION();
     return m_RoughnessMap;
 }
-const ref<Texture>& Material::GetEmissiveMap() const {
+const ref<Texture2D>& Material::GetEmissiveMap() const {
     ZPG_PROFILE_FUNCTION();
     return m_EmissiveMap;
 }

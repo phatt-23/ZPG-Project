@@ -23,7 +23,7 @@ public:
     static Application& Get() { return *s_Instance; }
 
     void Run();
-    void OnEvent(Event& e);
+    virtual void OnEvent(Event& e);
     virtual void OnImGuiRender() {};
 
     const Window& GetWindow() { return *m_Window; } 

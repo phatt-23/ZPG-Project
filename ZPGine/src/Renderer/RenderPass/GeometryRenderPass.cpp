@@ -8,7 +8,7 @@
 #include "Renderer/RenderCommand.h"
 #include "Shader/ShaderProgram.h"
 #include "Shader/CommonShaderUniforms.h"
-#include "Texture/Texture.h"
+#include "Texture/Texture2D.h"
 #include "Model/Model.h"
 #include "Model/Mesh.h"
 #include "Profiling/Instrumentor.h"
@@ -28,8 +28,8 @@ namespace ZPG
     {
         ZPG_PROFILE_FUNCTION();
         m_ShaderProgram = ShaderProgram::Create("GeometryPassSP", {
-            Shader::Create("VertexGeometryPassSP", "./assets/shaders/multipass/vert/GeometryPass.vert"),
-            Shader::Create("FragmentGeometryPassSP", "./assets/shaders/multipass/frag/GeometryPass.frag"),
+            Shader::Create("./assets/shaders/multipass/GeometryPass.vert"),
+            Shader::Create("./assets/shaders/multipass/GeometryPass.frag"),
         });
 
         m_ShaderProgram->Bind();

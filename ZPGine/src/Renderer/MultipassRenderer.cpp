@@ -21,7 +21,7 @@ namespace ZPG
 
         ZPG_CORE_ASSERT(s_Instance == nullptr, "MultipassRenderer already initialized.");
        
-        RenderContextSpecification renderContextSpec;
+        RenderContextSpecification renderContextSpec{};
         renderContextSpec.BatchSize = 2 * 1024;
         renderContextSpec.PointLightCapacity = 256;
         renderContextSpec.SpotLightCapacity = 256;
@@ -29,10 +29,11 @@ namespace ZPG
         s_Instance = new MultipassRenderer(renderContextSpec);
 
         PushRenderPass(new DirectionalLightShadowRenderPass());
-        // PushRenderPass(new PointLightShadowRenderPass());
         PushRenderPass(new SpotLightShadowRenderPass());
+        PushRenderPass(new PointLightShadowRenderPass());
         PushRenderPass(new GeometryRenderPass());
         PushRenderPass(new LightingRenderPass());
+
     }
 
     void MultipassRenderer::Shutdown()
@@ -103,7 +104,7 @@ namespace ZPG
         m_RenderContext.VisibleEntities = scene.GetEntityManager().GetEntities(); // todo: cull here
         m_RenderContext.ActiveSky = scene.GetSky();
 
-        for (auto& renderPass : m_RenderPasses) 
+        for (const auto& renderPass : m_RenderPasses) 
         {
             renderPass->Execute(m_RenderContext);
         }
@@ -138,7 +139,7 @@ namespace ZPG
         ZPG_PROFILE_FUNCTION();
 
         m_RenderContext.ActiveCamera = (Camera*)&camera;
-        m_RenderContext.CameraSSBO.SetLayout(camera);
+        m_RenderContext.CameraSSBO.SetCamera(camera);
     }
 
     void MultipassRenderer::SetLightsImpl(const std::vector<ref<Light>>& lights)
@@ -151,6 +152,7 @@ namespace ZPG
         m_RenderContext.SpotLights.clear();
 
         int spotLightShadowLayer = 0;
+        int pointLightShadowLayer = 0;
 
         for (const auto& light : lights)
         {
@@ -167,14 +169,16 @@ namespace ZPG
                 case LightType::Point: 
                     if (m_RenderContext.PointLights.size() < m_RenderContext.PointLights.capacity())
                     {
-                        m_RenderContext.PointLights.push_back(PointLightStruct(*(PointLight*)light.get()));
+                        PointLightStruct pointlightStruct(*(PointLight*)light.get());
+                        pointlightStruct.Index = pointLightShadowLayer++;
+                        m_RenderContext.PointLights.push_back(pointlightStruct);
                     }
                     break;
                 case LightType::Spotlight: 
                     if (m_RenderContext.SpotLights.size() < m_RenderContext.SpotLights.capacity())
                     {
                         SpotLightStruct spotlightStruct(*(SpotLight*)light.get());
-                        spotlightStruct.ShadowLayer = spotLightShadowLayer++;
+                        spotlightStruct.Index = spotLightShadowLayer++;
                         m_RenderContext.SpotLights.push_back(spotlightStruct);
                     }
                     break;

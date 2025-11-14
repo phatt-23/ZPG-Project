@@ -6,19 +6,25 @@
 #define FRAMEBUFFER_H
 
 #include "FrameBufferAttachment.h"
+#include "Texture/Texture.h"
 
 namespace ZPG {
+class TextureCubeMapArray;
+class TextureCubeMap;
+class Texture2DArray;
 
-    class Texture;
+class Texture2D;
 
-    struct FrameBufferSpecification {
+    struct FrameBufferSpecification
+    {
         u32 Width;
         u32 Height;
         bool Resizable = true;
         std::vector<FrameBufferAttachment> Attachments;
     };
 
-    class FrameBuffer {
+    class FrameBuffer
+    {
     public:
         virtual ~FrameBuffer() = default;
 
@@ -30,9 +36,12 @@ namespace ZPG {
         virtual void Resize(u32 width, u32 height) = 0;
         virtual void BindColorTextureAttachments() = 0;
 
+        virtual void AttachTexture(const ref<Texture>& texture, const FrameBufferAttachment& frameBufferAttachment) = 0;
+
         virtual const FrameBufferSpecification& GetSpecification() const = 0;
-        virtual const std::unordered_map<FrameBufferAttachment, ref<Texture>>& GetTextureAttachments() const = 0;
-        virtual const std::unordered_map<FrameBufferAttachment, ref<Texture>>& GetColorTextureAttachments() const = 0;
+
+        virtual const umap<FrameBufferAttachment, ref<Texture>>& GetTextureAttachments() const = 0;
+        virtual const umap<FrameBufferAttachment, ref<Texture>>& GetColorTextureAttachments() const = 0;
 
         virtual void CopyAttachment(const ref<FrameBuffer>& srcFramebuffer, FrameBufferAttachmentType attachmentType) = 0;
         virtual void WriteAttachment(u32 destFramebufferRendererID, u32 width, u32 height, FrameBufferAttachmentType attachmentType) = 0;
