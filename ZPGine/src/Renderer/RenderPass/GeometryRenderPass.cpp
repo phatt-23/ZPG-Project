@@ -27,25 +27,25 @@ namespace ZPG
     void GeometryRenderPass::Init(RenderContext& renderContext)
     {
         ZPG_PROFILE_FUNCTION();
-        m_ShaderProgram = ShaderProgram::Create("GeometryPassSP", {
+
+        m_ShaderProgram = ShaderProgram::Create("GeometryPass.program", {
             Shader::Create("./assets/shaders/multipass/GeometryPass.vert"),
             Shader::Create("./assets/shaders/multipass/GeometryPass.frag"),
         });
 
         m_ShaderProgram->Bind();
-
         m_ShaderProgram->SetInt(CommonShaderUniforms::ALBEDO_MAP,       RenderBindingPoints::ALBEDO_MAP);
         m_ShaderProgram->SetInt(CommonShaderUniforms::METALNESS_MAP,    RenderBindingPoints::METALNESS_MAP);
         m_ShaderProgram->SetInt(CommonShaderUniforms::ROUGHNESS_MAP,    RenderBindingPoints::ROUGHNESS_MAP);
         m_ShaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP,       RenderBindingPoints::NORMAL_MAP);
         m_ShaderProgram->SetInt(CommonShaderUniforms::EMISSIVE_MAP,     RenderBindingPoints::EMISSIVE_MAP);
-
         m_ShaderProgram->Unbind();
     }
 
     void GeometryRenderPass::Execute(RenderContext& renderContext)
     {
         ZPG_PROFILE_FUNCTION();
+
         renderContext.GeometryPassFramebuffer->Bind(); // bind the g-buffer so the consequent draw calls will draw into it
         RenderCommand::Clear();
 

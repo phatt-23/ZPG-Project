@@ -17,10 +17,10 @@
 
 namespace ZPG
 {
-class TextureCubeMapArray;
-class Texture2DArray;
+    class TextureCubeMapArray;
+    class Texture2DArray;
 
-struct RenderContextSpecification
+    struct RenderContextSpecification
     {
         u32 PointLightCapacity;     
         u32 SpotLightCapacity;

@@ -16,12 +16,15 @@ namespace ZPG
     public:
         static void Init();
         static void Shutdown();
+
         static void PushRenderPass(RenderPass* renderPass);
+
         static void RenderScene(const Scene& scene);
-        static void OnResize(u32 width, u32 height);
+
         static const RenderContext& GetRenderContext();
         static const RenderStatistics& GetStats();
 
+        static void OnResize(u32 width, u32 height);
     private:
         MultipassRenderer(const RenderContextSpecification& renderContextSpecification);
         ~MultipassRenderer();

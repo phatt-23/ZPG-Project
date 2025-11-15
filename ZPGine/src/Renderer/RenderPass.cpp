@@ -16,19 +16,19 @@
 namespace ZPG
 {
 
-    void RenderPass::Flush(RenderContext& renderContext)
+    void RenderPass::Flush(RenderContext& context)
     {
         ZPG_PROFILE_FUNCTION();
-        if (renderContext.Batch.GetBatchSize() == 0) {
+        if (context.Batch.GetBatchSize() == 0) {
             return;
         }
 
-        renderContext.Batch.BuildGroups();
+        context.Batch.BuildGroups();
 
-        const auto& materialGroups = renderContext.Batch.GetMaterialGroups();
-        const auto& vaoGroups = renderContext.Batch.GetVertexArrayGroups();
-        const auto& modelTransforms = renderContext.Batch.GetTransforms();
-        const auto& entityIDs = renderContext.Batch.GetEntityIDs();
+        const auto& materialGroups = context.Batch.GetMaterialGroups();
+        const auto& vaoGroups = context.Batch.GetVertexArrayGroups();
+        const auto& modelTransforms = context.Batch.GetTransforms();
+        const auto& entityIDs = context.Batch.GetEntityIDs();
 
         for (const auto& materialGroup : materialGroups)
         {
@@ -40,7 +40,7 @@ namespace ZPG
             material->GetNormalMap()->BindToSlot(RenderBindingPoints::NORMAL_MAP);
             material->GetEmissiveMap()->BindToSlot(RenderBindingPoints::EMISSIVE_MAP);
 
-            renderContext.MaterialSSBO.SetMaterial(*material);
+            context.MaterialSSBO.SetMaterial(*material);
 
             for (int vaoIdx = materialGroup.m_VertexArrayStart;
                 vaoIdx < materialGroup.m_VertexArrayStart + materialGroup.m_VertexArrayCount;
@@ -51,8 +51,8 @@ namespace ZPG
 
                 vao->Bind();
 
-                renderContext.ModelSSBO.SetModels(&modelTransforms[vaoGroup.m_Start], vaoGroup.m_Count);
-                renderContext.EntitySSBO.SetEntityIDs(&entityIDs[vaoGroup.m_Start], vaoGroup.m_Count);
+                context.ModelSSBO.SetModels(&modelTransforms[vaoGroup.m_Start], vaoGroup.m_Count);
+                context.EntitySSBO.SetEntityIDs(&entityIDs[vaoGroup.m_Start], vaoGroup.m_Count);
 
                 if (vaoGroup.m_VertexArray->HasIndexBuffer()) {
                     RenderCommand::DrawIndexedInstanced(*vao, vao->GetIndexBuffer()->GetCount(), vaoGroup.m_Count);
@@ -63,13 +63,13 @@ namespace ZPG
 
                 vao->Unbind();
 
-                renderContext.Statistics.DrawCallCountPerFrame++;
+                context.Statistics.DrawCallCountPerFrame++;
             }
 
         }
 
-        renderContext.Batch.Reset();
+        context.Batch.Reset();
 
-        renderContext.Statistics.FlushCountPerFrame++;
+        context.Statistics.FlushCountPerFrame++;
     }
 }

@@ -25,7 +25,6 @@ namespace ZPG
             Shader::Create("assets/shaders/multipass/LightingPass.frag"),
         });
 
-
         m_NullSkyboxCubeMap = TextureCubeMap::Create("NullSkyboxCubeMap", 1, TextureDataFormat::RGBA8);
         for (int i = 0; i < 6; i++)
         {
@@ -33,9 +32,7 @@ namespace ZPG
             m_NullSkyboxCubeMap->SetFaceData((CubemapFace)i, nullCubemapData, sizeof(nullCubemapData));
         }
 
-
         m_NullSkydomeMap = Texture2D::Create("NullSkydomeMap", 1, 1, TextureDataFormat::RGBA8);
-
 
         constexpr static float quadVertices[] = {
             // positions   // texCoords
@@ -91,11 +88,12 @@ namespace ZPG
         {
             RenderCommand::Clear();
 
-            m_ShaderProgram->Bind();
+            m_ShaderProgram->Bind(); // bind the lighting pass shader program
 
-            // SKY
+            // sky
             m_NullSkyboxCubeMap->BindToSlot(RenderBindingPoints::SKYBOX_TEXTURE_SLOT); // bind dummy skybox map texture
             m_NullSkydomeMap->BindToSlot(RenderBindingPoints::SKYDOME_TEXTURE_SLOT); // bind dummy skydome map texture
+
             if (renderContext.ActiveSky != nullptr)
             {
                 switch (renderContext.ActiveSky->GetSkyType()) 
@@ -115,17 +113,13 @@ namespace ZPG
                 }
             }
 
-            // G-BUFFER
+            // g-buffer
             // bind the g-buffer's color texture attachments with the collected geometry information
             renderContext.GeometryPassFramebuffer->BindColorTextureAttachments();
 
-            // DIRECTIONAL LIGHT SHADOW
+            // light shadow maps
             renderContext.DirectionalLightShadowMap->BindToSlot(RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP);
-
-            // SPOTLIGHT SHADOW MAP ARRAY
             renderContext.SpotLightShadowMapArray->BindToSlot(RenderBindingPoints::SPOTLIGHT_SHADOW_MAP_ARRAY);
-
-            // POINT LIGHT SHADOW MAP ARRAY
             renderContext.PointLightShadowCubeMapArray->BindToSlot(RenderBindingPoints::POINTLIGHT_SHADOW_CUBE_MAP_ARRAY);
 
             // bind the uv quad that fills up the NDC
@@ -133,10 +127,9 @@ namespace ZPG
             RenderCommand::DrawArrays(*m_QuadVAO);
             m_QuadVAO->Unbind();
 
-            // bind the lighting pass shader program
             m_ShaderProgram->Unbind();
 
-            // Copy the G-Buffer's depth buffer into the main FBO's depth buffer
+            // copy the g-buffer's depth buffer into the main FBO depth buffer
             renderContext.MainFramebuffer->CopyAttachment(renderContext.GeometryPassFramebuffer, FrameBufferAttachmentType::Depth);
 
             if (renderContext.ActiveSky) 
@@ -153,7 +146,6 @@ namespace ZPG
                 glDepthMask(GL_TRUE); // restore
                 glDepthFunc(GL_LESS);
             }
-
         }
         renderContext.MainFramebuffer->Unbind();
     }
