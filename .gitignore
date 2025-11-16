@@ -1,7 +1,7 @@
 build/
 **/cmake-build-debug/
 **/cmake-build-debug-event-trace/
-**/__cmake_systeminformation
+__cmake_systeminformation
 *.zip
 .idea/
 .cache/
