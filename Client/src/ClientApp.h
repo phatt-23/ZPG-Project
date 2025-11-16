@@ -12,7 +12,6 @@ public:
     ClientApp();
 
     void AttachScenes();
-
     void OnImGuiRender() override;
 
     void ShowPlots();
@@ -21,7 +20,7 @@ public:
     void ShowDirectionalShadowMap();
     void ShowSpotShadowFramebuffer();
     void ShowPointShadowFramebuffer();
-    void ShowSceneViewport();
+    void ShowSceneViewportInfo();
     void ShowCameraInfo();
 
 private:
@@ -30,10 +29,8 @@ private:
     const size_t maxSamples = 1000; // number of frames visible in plot
     float time = 0.0f;
 
-    ZPG::v2 m_ViewportSize = { 0.0, 0.0 };
     bool m_ViewportFocused = false;
     bool m_ViewportHovered = false;
-    ZPG::v2 m_ViewportBounds[2] = { ZPG::v2(0.0), ZPG::v2(0.0) };
 };
 
 inline ZPG::Application* ZPG::CreateApplication() {

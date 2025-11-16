@@ -5,43 +5,51 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-namespace ZPG {
+namespace ZPG
+{
 
-class Event;
+    class Event;
 
-struct WindowProps {
-    std::string Title;
-    u32 Width, Height;
-    bool VSync;
+    struct WindowProps
+    {
+        std::string Title;
+        u32 Width, Height;
+        bool VSync;
 
-    WindowProps(
-        const std::string& title = "ZPG Window",
-        u32 width = 800,
-        u32 height = 600,
-        bool vSync = true
-    ) : Title(title), Width(width), Height(height), VSync(vSync) {
-    }
-};
+        WindowProps(
+            const std::string& title = "ZPG Window",
+            u32 width = 800,
+            u32 height = 600,
+            bool vSync = true
+        )
+            : Title(title)
+            , Width(width)
+            , Height(height)
+            , VSync(vSync)
+        {
+        }
+    };
 
-class Window {
-public:
-    using EventCallbackFn = std::function<void(Event&)>;
+    class Window
+    {
+    public:
+        using EventCallbackFn = std::function<void(Event&)>;
 
-    Window() = default;
-    virtual ~Window() = default;
+        Window() = default;
+        virtual ~Window() = default;
 
-    virtual void OnUpdate() = 0;
-    virtual void SetEventCallback(EventCallbackFn&& fn) = 0;
-    virtual u32 GetWidth() const = 0;
-    virtual u32 GetHeight() const = 0;
-    virtual void SetVSync(bool value) = 0;
-    virtual bool IsVSync() const = 0;
+        virtual void OnUpdate() = 0;
+        virtual void SetEventCallback(EventCallbackFn&& fn) = 0;
+        virtual u32 GetWidth() const = 0;
+        virtual u32 GetHeight() const = 0;
+        virtual void SetVSync(bool value) = 0;
+        virtual bool IsVSync() const = 0;
 
-    virtual void* GetNativeWindow() const = 0;
-    virtual f32 GetAspectRatio() const { return static_cast<f32>(GetWidth()) / static_cast<f32>(GetHeight()); }
+        virtual void* GetNativeWindow() const = 0;
+        virtual f32 GetAspectRatio() const { return static_cast<f32>(GetWidth()) / static_cast<f32>(GetHeight()); }
 
-    static scope<Window> Create(WindowProps&& props = WindowProps());
-};
+        static scope<Window> Create(WindowProps&& props = WindowProps());
+    };
 
 }
 

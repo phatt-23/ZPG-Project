@@ -146,28 +146,27 @@ namespace CV8
 
     bool ForestScene::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     {
-        // TODO: Make the Application have a SceneViewport class that has info about its size and position within the window
-        // docasne, abstrahuju potom
+        auto& mainFrameBuffer = Renderer::GetRenderContext().Targets.MainFrameBuffer;
+        auto& sceneViewportInfo = Application::Get().GetSceneViewportInfo();
+
+        v2 mouse = sceneViewportInfo.MousePosition;
+        i32 entityID = mainFrameBuffer->ReadPixelInt(mouse.x, mouse.y, FrameBufferAttachmentType::Color, 1);
+        f32 depth = mainFrameBuffer->ReadPixelFloat(mouse.x, mouse.y, FrameBufferAttachmentType::Depth, 0);
+
         if (event.GetButtonCode() == ZPG_MOUSE_BUTTON_LEFT)
         {
-            auto [mouseX, mouseY] = Input::GetMousePosition();
-
-            mouseY = Renderer::GetRenderContext().Targets.MainFrameBuffer->GetSpecification().Height - mouseY;
-
-            auto& mainFrameBuffer = Renderer::GetRenderContext().Targets.MainFrameBuffer;
-
-            f32 depth = mainFrameBuffer->ReadPixelFloat(mouseX, mouseY, FrameBufferAttachmentType::Depth, 0);
-
-            glm::i32vec4 viewport;
-            ZPG_OPENGL_CALL(glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport)));
-
+            GetEntityManager().RemoveEntity(entityID);
+        }
+        else if (event.GetButtonCode() == ZPG_MOUSE_BUTTON_RIGHT)
+        {
             v3 pos = glm::unProject(
-                v3(mouseX, mouseY, depth),
+                v3(mouse.x, mouse.y, depth),
                 GetCamera().GetViewMatrix(),
                 GetCamera().GetProjMatrix(),
-                viewport);
+                v4(0, 0, sceneViewportInfo.PanelSize.x, sceneViewportInfo.PanelSize.y)
+            );
 
-            ZPG_INFO("Mouse Position: {0}, {1}, Depth: {2}", mouseX, mouseY, depth);
+            ZPG_INFO("Mouse Position: {0}, {1}, Depth: {2}", mouse.x, mouse.y, depth);
             ZPG_INFO("World Position: {0}, {1}, {2}", pos.x, pos.y, pos.z);
 
             Entity* entity = new Entity(

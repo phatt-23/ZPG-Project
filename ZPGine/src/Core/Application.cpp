@@ -13,87 +13,118 @@
 #include "imgui.h"
 #include "ImGui/ImGuiManager.h"
 #include "Timestep.h"
+#include "Camera/CameraController.h"
 #include "Profiling/Instrumentor.h"
 #include "Scene/Scene.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
+#include "Texture/Texture2D.h"
 
-namespace ZPG { 
+namespace ZPG {
 
-Application::Application() {
-    ZPG_PROFILE_FUNCTION();
-    ZPG_CORE_ASSERT(s_Instance == nullptr, "Application already instantiated.");
-    s_Instance = this;
-
-    m_Window = Window::Create(WindowProps("ZPGine", 1280, 720, true));
-
-    m_Window->SetEventCallback([this](Event& e)
+    Application::Application()
     {
-        this->OnEvent(e);
-    });
+        ZPG_PROFILE_FUNCTION();
+        ZPG_CORE_ASSERT(s_Instance == nullptr, "Application already instantiated.");
 
-    m_Window->SetVSync(false);
+        s_Instance = this;
 
-    // initialize subsystems
-    Input::Init();
-    ImGuiManager::Init(m_Window);
-    ResourceManager::Init();
-    RenderCommand::Init();
-    Renderer::Init();
-}
+        m_Window = Window::Create(WindowProps("ZPGine", 1280, 720, true));
+        m_Window->SetEventCallback([this](Event& e)
+        {
+            this->OnEvent(e);
+        });
 
-Application::~Application() {
-    ZPG_PROFILE_FUNCTION();
-    ResourceManager::Shutdown();
-    ImGuiManager::Shutdown();
-    Input::Shutdown();
-    RenderCommand::Shutdown();
-    Renderer::Shutdown();
-}
+        m_Window->SetVSync(false);
 
-void Application::Run() {
-    ZPG_PROFILE_FUNCTION();
-    while (m_Running) {
-        float currentTime = glfwGetTime();
-        m_Delta = currentTime - m_LastTime;
-        m_LastTime = currentTime;
+        // initialize subsystems
+        Input           ::Init();
+        ImGuiManager    ::Init(m_Window);
+        ResourceManager ::Init();
+        RenderCommand   ::Init();
+        Renderer        ::Init();
+    }
 
-        ImGuiManager::BeginFrame();
-            m_SceneManager.GetActiveScene()->OnUpdate(m_Delta);
-            Renderer::RenderScene(*m_SceneManager.GetActiveScene());
+    Application::~Application()
+    {
+        ZPG_PROFILE_FUNCTION();
+        ResourceManager ::Shutdown();
+        ImGuiManager    ::Shutdown();
+        Input           ::Shutdown();
+        RenderCommand   ::Shutdown();
+        Renderer        ::Shutdown();
+    }
 
-            m_SceneManager.GetActiveScene()->OnImGuiRender();
-            this->OnImGuiRender();
+    void Application::Run()
+    {
+        ZPG_PROFILE_FUNCTION();
+
+        float lastTime = 0;
+        while (m_Running)
+        {
+            float currentTime = glfwGetTime();
+            m_Delta = currentTime - lastTime;
+            lastTime = currentTime;
+
+            ImGuiManager::BeginFrame();
+                m_SceneManager.GetActiveScene()->OnUpdate(m_Delta);
+                m_SceneManager.GetActiveScene()->OnRender();
+                m_SceneManager.GetActiveScene()->OnImGuiRender();
+                this->OnImGuiRender();
+            ImGuiManager::EndFrame();
 
             m_Window->OnUpdate();
-        ImGuiManager::EndFrame();
+        }
     }
-}
 
-void Application::OnEvent(Event& event) {
-    ZPG_PROFILE_FUNCTION();
-    EventDispatcher dispatcher(event);
+    void Application::OnEvent(Event& event)
+    {
+        ZPG_PROFILE_FUNCTION();
+        EventDispatcher dispatcher(event);
 
-    // if (event.IsInCategory(EventCategoryMouse) && ImGui::GetIO().WantCaptureMouse && !Input::IsCursorGrabbed()) {
-    //     return;
-    // }
+        dispatcher.Dispatch<WindowCloseEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(Application::OnWindowClose));
+        dispatcher.Dispatch<WindowResizeEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(Application::OnWindowResize));
 
-    dispatcher.Dispatch<WindowCloseEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(Application::OnWindowClose));
-    dispatcher.Dispatch<WindowResizeEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(Application::OnWindowResize));
+        m_SceneManager.GetActiveScene()->OnEvent(event);
+    }
 
-    m_SceneManager.GetActiveScene()->OnEvent(event);
-}
+    bool Application::OnWindowClose(WindowCloseEvent& event)
+    {
+        ZPG_PROFILE_FUNCTION();
+        m_Running = false;
+        return true;
+    }
 
-bool Application::OnWindowClose(WindowCloseEvent& event) {
-    ZPG_PROFILE_FUNCTION();
-    m_Running = false;
-    return true;
-}
+    bool Application::OnWindowResize(WindowResizeEvent& event)
+    {
+        ZPG_PROFILE_FUNCTION();
+        // Renderer::OnWindowResize(event.GetWidth(), event.GetHeight());
+        return false;
+    }
 
-bool Application::OnWindowResize(WindowResizeEvent& event) {
-    ZPG_PROFILE_FUNCTION();
-    // Renderer::OnWindowResize(event.GetWidth(), event.GetHeight());
-    return false;
-}
+    void Application::OnImGuiRender()
+    {
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::Begin("Scene Viewport");
 
+        v2 lastPanelSize = m_SceneViewportInfo.PanelSize;
+        m_SceneViewportInfo.Invalidate();
+        v2 panelSize = m_SceneViewportInfo.PanelSize;
+
+        if (lastPanelSize != panelSize)
+        {
+            Renderer::OnResize(panelSize.x, panelSize.y);
+            m_SceneManager.GetActiveScene()->GetCameraController()->OnResize(panelSize.x, panelSize.y);
+        }
+
+        ImGui::Image(
+            Renderer::GetRenderContext().Targets.MainColorMap->GetRendererID(),
+            ImVec2(panelSize.x, panelSize.y),
+            ImVec2(0, 1),
+            ImVec2(1, 0)
+        );
+
+        ImGui::End();
+        ImGui::PopStyleVar();
+    }
 }

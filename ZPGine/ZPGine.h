@@ -19,7 +19,6 @@
 #include "Resource/CommonResources.h"
 
 #include "Scene/Scene.h"
-#include "Scene/SceneContext.h"
 #include "Scene/SceneManager.h"
 
 #include "Debug/Asserter.h"
@@ -32,7 +31,6 @@
 
 #include "Renderer/RenderCommand.h"
 #include "Renderer/RenderStatistics.h"
-
 
 #include "Buffer/VertexArray.h"
 #include "Buffer/VertexBuffer.h"

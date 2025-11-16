@@ -8,19 +8,20 @@
 #include "Renderer/GraphicsContext.h"
 #include <GLFW/glfw3.h>
 
-namespace ZPG {
+namespace ZPG
+{
+    class OpenGLContext : public GraphicsContext
+    {
+    public:
+        OpenGLContext(GLFWwindow* windowHandle);
+        ~OpenGLContext() override;
 
-class OpenGLContext : public GraphicsContext {
-public:
-    OpenGLContext(GLFWwindow* windowHandle);
-    virtual ~OpenGLContext() override;
+        void Init() override;
+        void SwapBuffers() override;
 
-    virtual void Init() override;
-    virtual void SwapBuffers() override;
-private:
-    GLFWwindow* m_WindowHandle;
-};
-
+    private:
+        GLFWwindow* m_WindowHandle;
+    };
 }
 
 #endif //OPENGLCONTEXT_H

@@ -1,10 +1,10 @@
 build/
 **/cmake-build-debug/
 **/cmake-build-debug-event-trace/
-__cmake_systeminformation
-*.zip
+__cmake_systeminformation/
 .idea/
 .cache/
 build/
 assets/models/
 assets/textures/
+*.zip

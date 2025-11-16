@@ -112,7 +112,6 @@ namespace ZPG {
     {
         ZPG_PROFILE_FUNCTION();
 
-
         if (Input::IsMouseButtonPressed(ZPG_MOUSE_BUTTON_MIDDLE))
         {
             vec2 currentPos = vec2(e.GetXPos(), e.GetYPos());
