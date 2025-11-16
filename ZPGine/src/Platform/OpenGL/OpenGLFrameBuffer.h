@@ -32,6 +32,7 @@ namespace ZPG {
         i32 ReadPixelInt(u32 x, u32 y, FrameBufferAttachmentType attachmentType = FrameBufferAttachmentType::Color, u32 index = 0) const override;
 		v4 ReadPixelFloat4(u32 x, u32 y, FrameBufferAttachmentType attachmentType = FrameBufferAttachmentType::Color, u32 index = 0) const override;
 		glm::u8vec4 ReadPixelByte4(u32 x, u32 y, FrameBufferAttachmentType attachmentType = FrameBufferAttachmentType::Color, u32 index = 0) const override;
+		f32 ReadPixelFloat(u32 x, u32 y, FrameBufferAttachmentType attachmentType, u32 index) const override;
 
 	private:
 		u32 m_RendererID = 0;

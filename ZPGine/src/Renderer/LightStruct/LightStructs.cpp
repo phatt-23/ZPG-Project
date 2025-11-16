@@ -41,9 +41,8 @@ namespace ZPG
         float linear = Attenuation.y;
         float constant = Attenuation.z;
 
-        float lightMax  = std::fmaxf(std::fmaxf(Color.r, Color.g), Color.b);
-        float radius    = (-linear +  std::sqrtf(linear * linear - 4 * quadratic * (constant - (256.0 / 5.0) * lightMax)))
-  / (2 * quadratic);
+        float lightMax = std::fmaxf(std::fmaxf(Color.r, Color.g), Color.b);
+        float radius = (-linear + std::sqrtf(linear * linear - 4 * quadratic * (constant - (256.0 / 5.0) * lightMax))) / (2 * quadratic);
 
         Radius = radius;
         f32 aspect = 1.0f;
@@ -65,31 +64,24 @@ namespace ZPG
 
     }
 
-    /**
-     * Creates the direction light structure used in shaders.
-     *
-     * It calculates the light's view projection matrix (light space matrix) using the camera's viewing frustum.
-     *
-     * source: https://gamedev.stackexchange.com/questions/193929/how-to-move-the-shadow-map-with-the-camera
-     */
     DirectionalLightStruct::DirectionalLightStruct(const DirectionalLight& directionalLight, const Camera& camera)
         : Color(directionalLight.Color.Get())
         , Direction(directionalLight.Direction.Get())
     {
         ZPG_PROFILE_FUNCTION();
+#if 1
+        f32 size = 40.0f;
 
-        f32 size = 20.0f;
-        // finally, set our ortho projection // and create the light space view-projection matrix
         m4 lightView = glm::lookAt(-Direction, v3(0.0), v3(0, 1, 0));
         m4 lightProjection = glm::ortho(-size, size, -size, size, -size, size);
 
         ViewProj = lightProjection * lightView;
+#endif
 #if 0
-
         using namespace glm;
 
         float ar = camera.GetAspectRatio();
-        float fov = glm::radians(camera.GetFOV());
+        float fov = radians(camera.GetFOV());
         float nearDist = 0.01f;
         float farDist = 100.0f;
         float Hnear = 2* tan(fov/2) * nearDist;
@@ -120,7 +112,7 @@ namespace ZPG
         vec3 lightDir = normalize(Direction); // e.g., vec3(-0.2f, -1.0f, -0.3f)
         vec3 lightPos = frustumCenter - lightDir * 50.0f; // move light back along its direction
 
-        mat4 lightView = glm::lookAt(lightPos, frustumCenter, vec3(0.0f, 1.0f, 0.0f));
+        mat4 lightView = lookAt(lightPos, frustumCenter, vec3(0.0f, 1.0f, 0.0f));
 
         std::array frustumToLightView = {
             vec3(lightView * vec4(bottomRightNear, 1.0f)),
@@ -146,21 +138,11 @@ namespace ZPG
 
         // finally, set our ortho projection
         // and create the light space view-projection matrix
-        mat4 lightProjection = glm::ortho(min.x, max.x, min.y, max.y, -max.z, -min.z);
+        mat4 lightProjection = ortho(min.x, max.x, min.y, max.y, -max.z, -min.z);
 
         ViewProj = lightProjection * lightView;
 #endif
-    }
-
-
 #if 0
-    DirectionalLightStruct::DirectionalLightStruct(const DirectionalLight& directionalLight, const Camera& camera)
-        : Color(directionalLight.Color.Get())
-        , Direction(directionalLight.Direction.Get())
-    {
-        const float nearPlane = 0.1f;
-        const float farPlane  = 300.0f;
-
         const v3 camPos = camera.GetPosition();
         const v3 camFront = camera.GetFront();
 
@@ -178,9 +160,11 @@ namespace ZPG
         const v3 lightPos = target - lightDir * (camFar * 0.75f);
 
         const m4 view = glm::lookAt(lightPos, target, v3(0, 1, 0));
-        const m4 proj = glm::ortho(-size, size, -size, size, nearPlane, farPlane);
+        const m4 proj = glm::ortho(-size, size, -size, size, camNear, camFar);
 
         ViewProj = proj * view;
-    }
 #endif
+    }
+
+
 }

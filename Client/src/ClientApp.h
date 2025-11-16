@@ -16,9 +16,9 @@ public:
     void OnImGuiRender() override;
 
     void ShowPlots();
-    void ShowMainFramebuffer();
-    void ShowGBuffer();
-    void ShowDirectionalShadowFramebuffer();
+    void ShowMainMaps();
+    void ShowGeometryBufferMaps();
+    void ShowDirectionalShadowMap();
     void ShowSpotShadowFramebuffer();
     void ShowPointShadowFramebuffer();
     void ShowSceneViewport();

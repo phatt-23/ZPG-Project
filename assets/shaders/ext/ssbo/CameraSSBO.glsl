@@ -3,7 +3,7 @@
 
 #include "ext/constants.glsl"
 
-layout (std430, binding = CAMERA_SSBO_BINDING_POINT) buffer CameraShaderStorageBuffer
+layout (std430, binding = BINDING_POINT_CAMERA_SSBO) buffer CameraShaderStorageBuffer
 {
     mat4 View;
     mat4 Proj;

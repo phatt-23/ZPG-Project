@@ -4,6 +4,9 @@
 
 #include "ForestScene.h"
 
+#include "Platform/OpenGL/OpenGLCore.h"
+#include "Renderer/Renderer.h"
+
 using namespace ZPG;
 
 namespace CV8
@@ -60,7 +63,7 @@ namespace CV8
         }
 
         // Add bushes
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 50; i++) {
             f32 x = planeSize * Utility::GetRandomFloat(-1, 1);
             f32 z = planeSize * Utility::GetRandomFloat(-1, 1);
 
@@ -75,7 +78,7 @@ namespace CV8
         }
 
         // Add fireflies
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 20; i++) {
             f32 x = planeSize * Utility::GetRandomFloat(-1, 1);
             f32 y = planeSize * Utility::GetRandomFloat(0.01, 0.3);
             f32 z = planeSize * Utility::GetRandomFloat(-1, 1);
@@ -131,5 +134,54 @@ namespace CV8
                 new Entity(m_LocalRes.GetModel(i % 2 ? "Shrek" : "Fiona"), transform));
         }
 
+    }
+
+    void ForestScene::OnEvent(Event& event)
+    {
+        Scene::OnEvent(event);
+
+        EventDispatcher dispatcher(event);
+        dispatcher.Dispatch<MouseButtonPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(ForestScene::OnMouseButtonPressed));
+    }
+
+    bool ForestScene::OnMouseButtonPressed(MouseButtonPressedEvent& event)
+    {
+        // TODO: Make the Application have a SceneViewport class that has info about its size and position within the window
+        // docasne, abstrahuju potom
+        if (event.GetButtonCode() == ZPG_MOUSE_BUTTON_LEFT)
+        {
+            auto [mouseX, mouseY] = Input::GetMousePosition();
+
+            mouseY = Renderer::GetRenderContext().Targets.MainFrameBuffer->GetSpecification().Height - mouseY;
+
+            auto& mainFrameBuffer = Renderer::GetRenderContext().Targets.MainFrameBuffer;
+
+            f32 depth = mainFrameBuffer->ReadPixelFloat(mouseX, mouseY, FrameBufferAttachmentType::Depth, 0);
+
+            glm::i32vec4 viewport;
+            ZPG_OPENGL_CALL(glGetIntegerv(GL_VIEWPORT, glm::value_ptr(viewport)));
+
+            v3 pos = glm::unProject(
+                v3(mouseX, mouseY, depth),
+                GetCamera().GetViewMatrix(),
+                GetCamera().GetProjMatrix(),
+                viewport);
+
+            ZPG_INFO("Mouse Position: {0}, {1}, Depth: {2}", mouseX, mouseY, depth);
+            ZPG_INFO("World Position: {0}, {1}, {2}", pos.x, pos.y, pos.z);
+
+            Entity* entity = new Entity(
+                m_LocalRes.GetModel("Tree"),
+                TransformGroup::Build()
+                    .Add<Rotate>(90, v3(1, 0, 0))
+                    .Add<Scale>(0.06)
+                    .Add<Translate>(pos)
+                    .Compose()
+            );
+
+            GetEntityManager().AddEntity(entity);
+        }
+
+        return false;
     }
 }

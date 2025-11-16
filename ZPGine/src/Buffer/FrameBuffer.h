@@ -46,9 +46,10 @@ class Texture2D;
         virtual void CopyAttachment(const ref<FrameBuffer>& srcFramebuffer, FrameBufferAttachmentType attachmentType) = 0;
         virtual void WriteAttachment(u32 destFramebufferRendererID, u32 width, u32 height, FrameBufferAttachmentType attachmentType) = 0;
 
-        virtual i32 ReadPixelInt(u32 x, u32 y, FrameBufferAttachmentType attachmentType = FrameBufferAttachmentType::Color, u32 index = 0) const = 0;
-        virtual v4 ReadPixelFloat4(u32 x, u32 y, FrameBufferAttachmentType attachmentType = FrameBufferAttachmentType::Color, u32 index = 0) const = 0;
-        virtual glm::u8vec4 ReadPixelByte4(u32 x, u32 y, FrameBufferAttachmentType attachmentType = FrameBufferAttachmentType::Color, u32 index = 0) const = 0;
+        virtual i32 ReadPixelInt(u32 x, u32 y, FrameBufferAttachmentType attachmentType, u32 index) const = 0;
+        virtual v4 ReadPixelFloat4(u32 x, u32 y, FrameBufferAttachmentType attachmentType, u32 index) const = 0;
+        virtual glm::u8vec4 ReadPixelByte4(u32 x, u32 y, FrameBufferAttachmentType attachmentType, u32 index)  const = 0;
+        virtual f32 ReadPixelFloat(u32 x, u32 y, FrameBufferAttachmentType attachmentType, u32 index) const = 0;
 
         static ref<FrameBuffer> Create(const FrameBufferSpecification& spec);
     };

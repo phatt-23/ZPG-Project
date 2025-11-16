@@ -1,17 +1,13 @@
 #include "Scene.h"
 
-#include "Renderer/MultipassRenderer.h"
+#include "Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLTexture2D.h"
 #include "SceneContext.h"
-#include "Renderer/RenderCommand.h"
-#include "Core/Application.h"
-#include "Core/Window.h"
 #include "Core/Layer.h"
 #include "Debug/Logger.h"
 
 #include "Event/WindowEvent.h"
 
-#include "Core/Timestep.h"
 #include "Debug/Asserter.h"
 #include "Light/Light.h"
 
@@ -38,7 +34,8 @@
 namespace ZPG {
 
 Scene::Scene(const ref<ResourceManager>& resourceManager)
-: m_ResourceManager(resourceManager) {
+    : m_ResourceManager(resourceManager)
+{
     ZPG_PROFILE_FUNCTION();
     m_CameraController = MakeRef(new CameraController(m_Camera));
 }

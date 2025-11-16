@@ -58,59 +58,96 @@ namespace ZPG
             m_TextureAttachments.clear();
             m_ColorTextureAttachments.clear();
             ZPG_OPENGL_CALL(glDeleteFramebuffers(1, &m_RendererID));
+            m_RendererID = 0;
         }
 
         ZPG_OPENGL_CALL(glCreateFramebuffers(1, &m_RendererID));
 
-        for (const auto& frameBufferAttachment : m_Specification.Attachments)
+        for (const auto& attachment : m_Specification.Attachments)
         {
-            const std::string textureName = Utils::ToString(frameBufferAttachment.AttachType) + std::to_string(frameBufferAttachment.Index);
-
             ref<Texture> texture = nullptr;
 
-            switch (frameBufferAttachment.TexType)
+            if (attachment.TextureAttachment != nullptr)
             {
-                case TextureType::Texture2D:
-                    texture = Texture2D::Create(textureName, m_Specification.Width, m_Specification.Height, frameBufferAttachment.DataFormat);
+                texture = attachment.TextureAttachment;
 
-                    break;
-                case TextureType::TextureCubeMap:
-                    texture = TextureCubeMap::Create(textureName, std::max(m_Specification.Width, m_Specification.Height), frameBufferAttachment.DataFormat);
+                switch (texture->GetTextureType())
+                {
+                    case TextureType::Texture2D:
+                        ((Texture2D*)texture.get())->Resize(m_Specification.Width, m_Specification.Height);
+                        break;
+                    case TextureType::TextureCubeMap:
+                        ((TextureCubeMap*)texture.get())->Resize(std::max(m_Specification.Width, m_Specification.Height));
+                        break;
+                    case TextureType::Texture2DArray:
+                    {
+                        auto texture2DArray = (Texture2DArray*)texture.get();
+                        texture2DArray->Resize(m_Specification.Width, m_Specification.Height, texture2DArray->GetArraySize());
+                    } break;
+                    case TextureType::TextureCubeMapArray:
+                    {
+                        auto textureCubeMapArray = (TextureCubeMapArray*)texture.get();
+                        textureCubeMapArray->Resize(std::max(m_Specification.Width, m_Specification.Height), textureCubeMapArray->GetArraySize());
+                    } break;
+                    case TextureType::None:
+                    default:
+                        ZPG_UNREACHABLE("TextureType::None not supported");
+                        break;
+                }
+            }
+            else
+            {
+                const std::string textureName = Utils::ToString(attachment.AttachType) + std::to_string(attachment.Index);
 
-                    break;
-                case TextureType::Texture2DArray:
-                    texture = Texture2DArray::Create(
-                        textureName,
-                        m_Specification.Width,
-                        m_Specification.Height,
-                        frameBufferAttachment.ArraySize,
-                        frameBufferAttachment.DataFormat
-                    );
+                switch (attachment.TexType)
+                {
+                    case TextureType::Texture2D:
+                        texture = Texture2D::Create(
+                            textureName, 
+                            m_Specification.Width, 
+                            m_Specification.Height,     
+                            attachment.DataFormat
+                        );
+                        break;
+                    case TextureType::TextureCubeMap:
+                        texture = TextureCubeMap::Create(
+                            textureName, 
+                            std::max(m_Specification.Width, m_Specification.Height), 
+                            attachment.DataFormat
+                        );
+                        break;
+                    case TextureType::Texture2DArray:
+                        texture = Texture2DArray::Create(
+                            textureName,
+                            m_Specification.Width,
+                            m_Specification.Height,
+                            attachment.ArraySize,
+                            attachment.DataFormat
+                        );
+                        break;
+                    case TextureType::TextureCubeMapArray:
+                        texture = TextureCubeMapArray::Create(
+                            textureName,
+                            std::max(m_Specification.Width, m_Specification.Height),
+                            attachment.ArraySize,
+                            attachment.DataFormat
+                        );
+                        break;
+                    case TextureType::None:
+                    default:
+                        ZPG_UNREACHABLE("TextureType::None not supported");
+                }
 
-                    break;
-                case TextureType::TextureCubeMapArray:
-                    texture = TextureCubeMapArray::Create(
-                        textureName,
-                        std::max(m_Specification.Width, m_Specification.Height),
-                        frameBufferAttachment.ArraySize,
-                        frameBufferAttachment.DataFormat
-                    );
-
-                    break;
-                case TextureType::None:
-                default:
-                    ZPG_UNREACHABLE("TextureType::None not supported");
             }
 
             ZPG_CORE_ASSERT(texture != nullptr);
+            m_TextureAttachments[attachment] = texture;
 
-            m_TextureAttachments[frameBufferAttachment] = texture;
+            texture->AttachToFrameBuffer(m_RendererID, attachment);
 
-            texture->AttachToFrameBuffer(m_RendererID, frameBufferAttachment);
-
-            if (frameBufferAttachment.AttachType == FrameBufferAttachmentType::Color)
+            if (attachment.AttachType == FrameBufferAttachmentType::Color)
             {
-                m_ColorTextureAttachments[frameBufferAttachment] = texture;
+                m_ColorTextureAttachments[attachment] = texture;
             }
         }
 
@@ -134,6 +171,12 @@ namespace ZPG
 
     void OpenGLFrameBuffer::Resize(u32 width, u32 height) {
         ZPG_PROFILE_FUNCTION();
+
+        if (!m_Specification.Resizable)
+        {
+            return;
+        }
+
         ZPG_CORE_ASSERT(m_Specification.Resizable, "The framebuffer must be resizable.");
 
         if (width <= 0 || height <= 0 || (width == m_Specification.Width && height == m_Specification.Height)) {
@@ -166,13 +209,18 @@ namespace ZPG
     void OpenGLFrameBuffer::WriteAttachment(u32 writeFramebufferRendererID, u32 width, u32 height, FrameBufferAttachmentType attachmentType)
     {
         ZPG_PROFILE_FUNCTION();
+
         OpenGLMapper::OpenGLAttachmentMapping gl = OpenGLMapper::ToGL(attachmentType);
 
         ZPG_OPENGL_CALL(glBlitNamedFramebuffer(
-            m_RendererID, writeFramebufferRendererID,
-            0, 0, m_Specification.Width, m_Specification.Height,
-            0, 0, width, height,
-            gl.BufferBit, GL_NEAREST));
+            m_RendererID,
+            writeFramebufferRendererID,
+            0, 0,
+            m_Specification.Width, m_Specification.Height,
+            0, 0,
+            width, height,
+            gl.BufferBit,
+            GL_NEAREST));
     }
 
     void OpenGLFrameBuffer::AttachTexture(const ref<Texture>& texture, const FrameBufferAttachment& frameBufferAttachment)
@@ -200,7 +248,8 @@ namespace ZPG
     }
 
     i32 OpenGLFrameBuffer::ReadPixelInt(u32 x, u32 y, FrameBufferAttachmentType attachmentType, u32 index) const {
-        auto it = std::ranges::find_if(m_TextureAttachments, [&](const std::pair<FrameBufferAttachment, ref<Texture>>& pair) {
+        auto it = std::ranges::find_if(m_TextureAttachments, [&](const std::pair<FrameBufferAttachment, ref<Texture>>& pair)
+        {
             return pair.first.AttachType == attachmentType && pair.first.Index == index;
         });
 
@@ -212,15 +261,23 @@ namespace ZPG
         ZPG_CORE_ASSERT(glDataFormat.Format == GL_RED_INTEGER);
         ZPG_CORE_ASSERT(glDataFormat.SampleType == GL_INT);
 
+        if (glAttachment.BufferBit == GL_COLOR_BUFFER_BIT)
+        {
+            ZPG_OPENGL_CALL(glNamedFramebufferReadBuffer(m_RendererID, glAttachment.Attachment + index));
+        }
+
         i32 pixelData = 0;
-        ZPG_OPENGL_CALL(glReadBuffer(glAttachment.Attachment + index));
+
+        ZPG_OPENGL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID));
         ZPG_OPENGL_CALL(glReadPixels(x, y, 1, 1, glDataFormat.Format, glDataFormat.SampleType, &pixelData));
+        ZPG_OPENGL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
 
         return pixelData;
     }
 
     v4 OpenGLFrameBuffer::ReadPixelFloat4(u32 x, u32 y, FrameBufferAttachmentType attachmentType, u32 index) const {
-        auto it = std::ranges::find_if(m_TextureAttachments, [&](const std::pair<FrameBufferAttachment, ref<Texture>>& pair) {
+        auto it = std::ranges::find_if(m_TextureAttachments, [&](const std::pair<FrameBufferAttachment, ref<Texture>>& pair)
+        {
             return pair.first.AttachType == attachmentType && pair.first.Index == index;
         });
 
@@ -232,15 +289,23 @@ namespace ZPG
         ZPG_CORE_ASSERT(glDataFormat.Format == GL_RGBA);
         ZPG_CORE_ASSERT(glDataFormat.SampleType == GL_FLOAT);
 
+        if (glAttachment.BufferBit == GL_COLOR_BUFFER_BIT)
+        {
+            ZPG_OPENGL_CALL(glNamedFramebufferReadBuffer(m_RendererID, glAttachment.Attachment + index));
+        }
+
         v4 pixelData{0};
-        ZPG_OPENGL_CALL(glReadBuffer(glAttachment.Attachment + index));
+
+        ZPG_OPENGL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID));
         ZPG_OPENGL_CALL(glReadPixels(x, y, 1, 1, glDataFormat.Format, glDataFormat.SampleType, &pixelData));
+        ZPG_OPENGL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
 
         return pixelData;
     }
 
     glm::u8vec4 OpenGLFrameBuffer::ReadPixelByte4(u32 x, u32 y, FrameBufferAttachmentType attachmentType, u32 index) const {
-        auto it = std::ranges::find_if(m_TextureAttachments, [&](const std::pair<FrameBufferAttachment, ref<Texture>>& pair) {
+        auto it = std::ranges::find_if(m_TextureAttachments, [&](const std::pair<FrameBufferAttachment, ref<Texture>>& pair)
+        {
             return pair.first.AttachType == attachmentType && pair.first.Index == index;
         });
 
@@ -253,10 +318,45 @@ namespace ZPG
         ZPG_CORE_ASSERT(glDataFormat.SampleType == GL_UNSIGNED_BYTE);
 
         glm::u8vec4 pixelData{0};
-        ZPG_OPENGL_CALL(glReadBuffer(glAttachment.Attachment + index));
+
+        if (glAttachment.BufferBit == GL_COLOR_BUFFER_BIT)
+        {
+            ZPG_OPENGL_CALL(glNamedFramebufferReadBuffer(m_RendererID, glAttachment.Attachment + index));
+        }
+
+        ZPG_OPENGL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID));
         ZPG_OPENGL_CALL(glReadPixels(x, y, 1, 1, glDataFormat.Format, glDataFormat.SampleType, &pixelData));
+        ZPG_OPENGL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
 
         return pixelData;
     }
 
+    f32 OpenGLFrameBuffer::ReadPixelFloat(u32 x, u32 y, FrameBufferAttachmentType attachmentType, u32 index) const
+    {
+        auto it = std::ranges::find_if(m_TextureAttachments, [&](const std::pair<FrameBufferAttachment, ref<Texture>>& pair)
+        {
+            return pair.first.AttachType == attachmentType && pair.first.Index == index;
+        });
+
+        ZPG_CORE_ASSERT(it != m_TextureAttachments.end(), "Attachment with the type {} and index {} isn't present in the FrameBuffer", (u32)attachmentType, index);
+
+        OpenGLMapper::OpenGLAttachmentMapping glAttachment = OpenGLMapper::ToGL(it->first.AttachType);
+        OpenGLMapper::OpenGLFormatMapping glDataFormat = OpenGLMapper::ToGL(it->first.DataFormat);
+
+        ZPG_CORE_ASSERT(glDataFormat.Format == GL_DEPTH_COMPONENT || glDataFormat.Format == GL_RED);
+        ZPG_CORE_ASSERT(glDataFormat.SampleType == GL_FLOAT);
+
+        if (glAttachment.BufferBit == GL_COLOR_BUFFER_BIT)
+        {
+            ZPG_OPENGL_CALL(glNamedFramebufferReadBuffer(m_RendererID, glAttachment.Attachment + index));
+        }
+
+        f32 pixelData{};
+
+        ZPG_OPENGL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID));
+        ZPG_OPENGL_CALL(glReadPixels(x, y, 1, 1, glDataFormat.Format, glDataFormat.SampleType, &pixelData));
+        ZPG_OPENGL_CALL(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
+
+        return pixelData;
+    }
 }

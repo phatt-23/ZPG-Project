@@ -4,6 +4,8 @@
 #include "Model/Mesh.h"
 #include "Model/Model.h"
 #include "Profiling/Instrumentor.h"
+#include "Renderer/DrawCommand.h"
+#include "Renderer/DrawBatch.h"
 #include "Renderer/RenderCommand.h"
 #include "Shader/ShaderProgram.h"
 #include "Shader/Shader.h"
@@ -13,37 +15,24 @@
 
 namespace ZPG
 {
-    DirectionalLightShadowRenderPass::DirectionalLightShadowRenderPass()
-    {
-    }
-
-    DirectionalLightShadowRenderPass::~DirectionalLightShadowRenderPass()
-    {
-    }
-
-    void DirectionalLightShadowRenderPass::Init(RenderContext &renderContext)
+    void DirectionalLightShadowRenderPass::Init(RenderContext& context)
     {
         ZPG_PROFILE_FUNCTION();
 
-        u32 width = renderContext.DirectionalLightShadowFramebuffer->GetSpecification().Width;
-        u32 height = renderContext.DirectionalLightShadowFramebuffer->GetSpecification().Height;
-
-        renderContext.DirectionalLightShadowMap = Texture2D::Create(
-            "DirectionalShadow.texture2d",
-            width,
-            height,
-            TextureDataFormat::Depth32F
-        );
-
-        renderContext.DirectionalLightShadowFramebuffer->AttachTexture(
-            renderContext.DirectionalLightShadowMap,
-            FrameBufferAttachment{
+        FrameBufferSpecification directionalLightFramebufferSpec;
+        directionalLightFramebufferSpec.Width = 1024;
+        directionalLightFramebufferSpec.Height = 1024;
+        directionalLightFramebufferSpec.Resizable = false;
+        directionalLightFramebufferSpec.Attachments = {
+            {
                 .AttachType = FrameBufferAttachmentType::Depth,
-                .TexType = TextureType::Texture2D,
                 .DataFormat = TextureDataFormat::Depth32F,
                 .Index = 0,
-            }
-        );
+                .TextureAttachment = context.Targets.DirectionalLightShadowMap,
+            },
+        };
+
+        m_FrameBuffer = FrameBuffer::Create(directionalLightFramebufferSpec);
 
         m_ShaderProgram = ShaderProgram::Create("DirectionalShadow.program",
         {
@@ -52,46 +41,30 @@ namespace ZPG
         });
     }
 
-    void DirectionalLightShadowRenderPass::Execute(RenderContext &renderContext)
+    void DirectionalLightShadowRenderPass::Execute(RenderContext &context)
     {
         ZPG_PROFILE_FUNCTION();
 
-        renderContext.DirectionalLightShadowFramebuffer->Bind();
+        m_FrameBuffer->Bind();
         RenderCommand::Clear();
 
-        if (renderContext.DirectionalLight == nullptr) {
+        if (context.Lights.DirectionalLight == nullptr) {
+            m_FrameBuffer->Unbind();
             return;
         }
 
         m_ShaderProgram->Bind();
 
-        for (auto& entity : renderContext.VisibleEntities)
+        for (const auto& [_, batch] : context.Batches.Shadow)
         {
-            m4 transform = entity->GetTransformMatrix();
-            auto& meshes = entity->GetModel()->GetMeshes();
-
-            for (auto& mesh : meshes)
-            {
-                m4 local = mesh->GetLocalTransform();
-                auto& vao = mesh->GetVertexArray();
-
-                m_ShaderProgram->SetMat4("u_Model", transform * local);
-
-                vao->Bind();
-
-                if (vao->HasIndexBuffer()) {
-                    RenderCommand::DrawIndexed(*vao, vao->GetIndexBuffer()->GetCount());
-                }
-                else {
-                    RenderCommand::DrawArrays(*vao);
-                }
-
-                vao->Unbind();
-            }
+            context.SSBO.EntitySSBO.SetEntityIDs(batch.entityIDs);
+            context.SSBO.ModelSSBO.SetModels(batch.transforms);
+            context.SSBO.MaterialSSBO.SetMaterial(*batch.mesh->GetMaterial());
+            batch.mesh->GetMaterial()->BindMaps();
+            RenderCommand::DrawInstanced(*batch.mesh->GetVertexArray(), batch.GetSize());
         }
 
         m_ShaderProgram->Unbind();
-
-        renderContext.DirectionalLightShadowFramebuffer->Unbind();
+        m_FrameBuffer->Unbind();
     }
 }

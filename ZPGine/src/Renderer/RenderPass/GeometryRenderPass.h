@@ -1,22 +1,15 @@
+#pragma once
+
 #include "Renderer/RenderPass.h"
 
 namespace ZPG
 {
-    class ShaderProgram;
+    class Texture2D;
 
     class GeometryRenderPass : public RenderPass
     {
     public:
-        GeometryRenderPass();
-        ~GeometryRenderPass() override;
-
-        void Init(RenderContext& renderContext) override;
-
-        void Execute(RenderContext& renderContext) override;
-
-        void Flush(RenderContext& renderContext);
-
-    private:
-        ref<ShaderProgram> m_ShaderProgram;
+        void Init(RenderContext& context) override;
+        void Execute(RenderContext& context) override;
     };
 }

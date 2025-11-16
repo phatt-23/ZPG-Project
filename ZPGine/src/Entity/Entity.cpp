@@ -46,7 +46,7 @@ const ref<Model>& Entity::GetModel() const {
     return m_Model;
 }
 
-u32 Entity::GetEntityID() const {
+i32 Entity::GetEntityID() const {
     ZPG_PROFILE_FUNCTION();
     return m_EntityID;
 }

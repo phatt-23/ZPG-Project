@@ -4,7 +4,7 @@
 #include "ext/constants.glsl"
 #include "ext/light/DirectionalLight.glsl"
 
-layout (std430, binding = ENVIRONMENT_LIGHT_SSBO_BINDING_POINT) buffer EnvironmentLightShaderStorageBuffer
+layout (std430, binding = BINDING_POINT_ENVIRONMENT_LIGHT_SSBO) buffer EnvironmentLightShaderStorageBuffer
 {
     vec4 AmbientColor;
     DirectionalLight DirLight;

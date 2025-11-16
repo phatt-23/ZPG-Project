@@ -38,8 +38,8 @@ typedef glm::mat3 m3;
 typedef glm::mat4 m4;
 typedef glm::quat qtr;
 
-template<typename T, typename R>
-using umap = std::unordered_map<T, R>;
+template<typename K, typename V, typename H = std::hash<K>>
+using umap = std::unordered_map<K, V, H>;
 
 template<typename T, typename R>
 using map = std::map<T, R>;

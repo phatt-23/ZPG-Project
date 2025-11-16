@@ -1,50 +1,34 @@
 #include "SpotLightShadowRenderPass.h"
 
-#include "Buffer/VertexArray.h"
 #include "Material/Material.h"
 #include "Model/Mesh.h"
-#include "Model/Model.h"
-#include "Platform/OpenGL/OpenGLCore.h"
 #include "Profiling/Instrumentor.h"
-#include "Renderer/RenderBindingPoints.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/RenderContext.h"
 #include "Shader/Shader.h"
 #include "Shader/ShaderProgram.h"
 #include "Texture/Texture2DArray.h"
+#include "Buffer/FrameBuffer.h"
 
 namespace ZPG
 {
-    SpotLightShadowRenderPass::SpotLightShadowRenderPass()
+    void SpotLightShadowRenderPass::Init(RenderContext& context)
     {
-    }
-
-    SpotLightShadowRenderPass::~SpotLightShadowRenderPass()
-    {
-    }
-
-    void SpotLightShadowRenderPass::Init(RenderContext &renderContext)
-    {
-        u32 width = renderContext.SpotLightShadowFramebuffer->GetSpecification().Width;
-        u32 height = renderContext.SpotLightShadowFramebuffer->GetSpecification().Height;
-
-        const int maxShadowCastingLights = 64;
-
-        renderContext.SpotLightShadowMapArray = Texture2DArray::Create( width,
-            height,
-            maxShadowCastingLights,
-            TextureDataFormat::Depth32F
-        );
-
-        renderContext.SpotLightShadowFramebuffer->AttachTexture(
-            renderContext.SpotLightShadowMapArray,
-            FrameBufferAttachment{
+        FrameBufferSpecification frameBufferSpec;
+        frameBufferSpec.Width = 1024;
+        frameBufferSpec.Height = 1024;
+        frameBufferSpec.Resizable = false;
+        frameBufferSpec.Attachments = {
+            {
                 .AttachType = FrameBufferAttachmentType::Depth,
                 .TexType = TextureType::Texture2DArray,
                 .DataFormat = TextureDataFormat::Depth32F,
                 .Index = 0,
-            }
-        );
+                .TextureAttachment = context.Targets.SpotLightShadowMapArray,
+            },
+        };
+
+        m_FrameBuffer = FrameBuffer::Create(frameBufferSpec);
 
         m_ShaderProgram = ShaderProgram::Create("SpotLightShadowMap",
         {
@@ -54,62 +38,36 @@ namespace ZPG
         });
     }
 
-    void SpotLightShadowRenderPass::Execute(RenderContext &renderContext)
+    void SpotLightShadowRenderPass::Execute(RenderContext& context)
     {
         ZPG_PROFILE_FUNCTION();
 
-        // glEnable(GL_CULL_FACE);
-        // glCullFace(GL_BACK);
-        // glCullFace(GL_FRONT);
-
-        if (renderContext.SpotLights.empty()) {
+        if (context.Lights.SpotLights.empty()) {
             return;
         }
 
-        renderContext.SpotLightShadowFramebuffer->Bind();
+        m_FrameBuffer->Bind();
         RenderCommand::Clear();
 
         m_ShaderProgram->Bind();
 
         int index = 0;
-        for (auto& spotLight : renderContext.SpotLights)
+        for (auto& spotLight : context.Lights.SpotLights)
         {
             m_ShaderProgram->SetInt("u_Index", index);
             index++;
 
-            for (auto& entity : renderContext.VisibleEntities)
+            for (const auto& [_, batch] : context.Batches.Shadow)
             {
-                m4 transform = entity->GetTransformMatrix();
-                auto& meshes = entity->GetModel()->GetMeshes();
-
-                for (auto& mesh : meshes)
-                {
-                    m4 local = mesh->GetLocalTransform();
-                    auto& vao = mesh->GetVertexArray();
-
-                    m_ShaderProgram->Bind();
-                    m_ShaderProgram->SetMat4("u_Model", transform * local);
-
-                    vao->Bind();
-
-                    if (vao->HasIndexBuffer()) {
-                        RenderCommand::DrawIndexed(*vao, vao->GetIndexBuffer()->GetCount());
-                    }
-                    else {
-                        RenderCommand::DrawArrays(*vao);
-                    }
-
-                    vao->Unbind();
-                }
+                context.SSBO.EntitySSBO.SetEntityIDs(batch.entityIDs);
+                context.SSBO.ModelSSBO.SetModels(batch.transforms);
+                context.SSBO.MaterialSSBO.SetMaterial(*batch.mesh->GetMaterial());
+                batch.mesh->GetMaterial()->BindMaps();
+                RenderCommand::DrawInstanced(*batch.mesh->GetVertexArray(), batch.GetSize());
             }
         }
 
         m_ShaderProgram->Unbind();
-
-        // glCullFace(GL_BACK);
-        // glDisable(GL_CULL_FACE);
-
-        renderContext.SpotLightShadowFramebuffer->Unbind();
+        m_FrameBuffer->Unbind();
     }
-
 }

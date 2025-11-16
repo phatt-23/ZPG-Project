@@ -1,0 +1,14 @@
+#ifndef MATERIAL_SSBO_GLSL
+#define MATERIAL_SSBO_GLSL
+
+#include "ext/constants.glsl"
+
+layout (std430, binding = BINDING_POINT_MATERIAL_SSBO) buffer MaterialStorageBuffer
+{
+    vec4 Albedo;
+    vec4 Emissive;
+    float Roughness;
+    float Metallic;
+} ssbo_Material;
+
+#endif

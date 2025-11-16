@@ -26,6 +26,8 @@ public:
     Material(const std::string& name = "");
     ~Material();
 
+    void BindMaps();
+
     void SetShaderProgram(const ref<ShaderProgram>& shaderProgram);
     ref<ShaderProgram>& GetShaderProgram();
 

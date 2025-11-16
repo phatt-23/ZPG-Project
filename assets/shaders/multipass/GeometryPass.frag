@@ -1,6 +1,8 @@
 #type fragment
 #version 440 core
 
+#include "ext/ssbo/MaterialSSBO.glsl"
+
 in vec4 v_WorldPos;
 in vec3 v_WorldNormal;
 in vec2 v_TexCoord;
@@ -12,14 +14,6 @@ layout(location = 1) out vec4 g_Color1; // normal
 layout(location = 2) out vec4 g_Color2; // albedo, metallic
 layout(location = 3) out vec4 g_Color3; // emissive, roughness
 layout(location = 4) out int g_Color4;  // entityID
-
-layout (std430, binding = 4) buffer MaterialStorageBuffer
-{
-    vec4 Albedo;
-    vec4 Emissive;
-    float Roughness;
-    float Metallic;
-} ssbo_Material;
 
 uniform sampler2D u_AlbedoMap;
 uniform sampler2D u_RoughnessMap;

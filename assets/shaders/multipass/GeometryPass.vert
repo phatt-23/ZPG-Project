@@ -12,36 +12,18 @@ out vec2 v_TexCoord;
 out mat3 v_TBN;
 out flat int v_EntityID;
 
-layout (std430, binding = 0) buffer CameraShaderStorageBuffer
-{
-    mat4 View;
-    mat4 Proj;
-    mat4 ViewProj;
-    vec3 CameraPosition;
-} ssbo_Camera;
+#include "ext/ssbo/CameraSSBO.glsl"
+#include "ext/ssbo/ModelSSBO.glsl"
+#include "ext/ssbo/EntitySSBO.glsl"
 
-layout (std430, binding = 5) buffer ModelShaderStorageBuffer
+void main()
 {
-    int ModelCount;
-    mat4 Models[];
-} ssbo_Model;
-
-layout (std430, binding = 6) buffer EntityShaderStorageBuffer
-{
-    int EntityCount;
-    float pad[3];
-    int EntityIDs[];
-} ssbo_Entity;
-
-void main() {
     mat4 model = ssbo_Model.Models[gl_InstanceID];
 
     vec4 worldPos = model * vec4(a_Pos, 1.f);
-
-    v_EntityID = ssbo_Entity.EntityIDs[gl_InstanceID];
-
     mat3 normalMat = transpose(inverse(mat3(model)));
 
+    v_EntityID = ssbo_Entity.EntityIDs[gl_InstanceID];
     v_WorldPos = worldPos;
     v_WorldNormal = normalize(normalMat * a_Normal);
     v_TexCoord = a_TexCoord;

@@ -1,5 +1,6 @@
 #include "GeometryRenderPass.h"
-#include "Buffer/VertexArray.h"
+
+#include "Renderer/DrawBatch.h"
 #include "Renderer/RenderBindingPoints.h"
 #include "Renderer/RenderContext.h"
 #include "Buffer/FrameBuffer.h"
@@ -16,19 +17,12 @@
 
 namespace ZPG
 {
-    GeometryRenderPass::GeometryRenderPass()
-    {
-    }
-
-    GeometryRenderPass::~GeometryRenderPass()
-    {
-    }
-
-    void GeometryRenderPass::Init(RenderContext& renderContext)
+    void GeometryRenderPass::Init(RenderContext& context)
     {
         ZPG_PROFILE_FUNCTION();
 
-        m_ShaderProgram = ShaderProgram::Create("GeometryPass.program", {
+        m_ShaderProgram = ShaderProgram::Create("GeometryPass.program",
+        {
             Shader::Create("./assets/shaders/multipass/GeometryPass.vert"),
             Shader::Create("./assets/shaders/multipass/GeometryPass.frag"),
         });
@@ -40,45 +34,29 @@ namespace ZPG
         m_ShaderProgram->SetInt(CommonShaderUniforms::NORMAL_MAP,       RenderBindingPoints::NORMAL_MAP);
         m_ShaderProgram->SetInt(CommonShaderUniforms::EMISSIVE_MAP,     RenderBindingPoints::EMISSIVE_MAP);
         m_ShaderProgram->Unbind();
+
+        m_FrameBuffer = context.Targets.GeometryFrameBuffer;
     }
 
-    void GeometryRenderPass::Execute(RenderContext& renderContext)
+    void GeometryRenderPass::Execute(RenderContext& context)
     {
         ZPG_PROFILE_FUNCTION();
 
-        renderContext.GeometryPassFramebuffer->Bind(); // bind the g-buffer so the consequent draw calls will draw into it
+        m_FrameBuffer->Bind();
         RenderCommand::Clear();
 
-        m_ShaderProgram->Bind(); // bind the gpass shader program and set the sampler slots
+        m_ShaderProgram->Bind(); 
 
-        for (const auto& entity : renderContext.VisibleEntities)
+        for (const auto& batch : context.Batches.GeometryBuffer | std::views::values)
         {
-            const auto& model = entity->GetModel();
-            const auto& entTransform = entity->GetTransformMatrix();
-            const auto& meshes = model->GetMeshes();
-
-            for (auto& mesh : meshes)
-            {
-                if (renderContext.Batch.IsFull())
-                {
-                    Flush(renderContext);
-                }
-
-                renderContext.Batch.SubmitMesh(*mesh, entTransform, entity->GetEntityID());
-            }
+            context.SSBO.EntitySSBO.SetEntityIDs(batch.entityIDs);
+            context.SSBO.ModelSSBO.SetModels(batch.transforms);
+            context.SSBO.MaterialSSBO.SetMaterial(*batch.mesh->GetMaterial());
+            batch.mesh->GetMaterial()->BindMaps();
+            RenderCommand::DrawInstanced(*batch.mesh->GetVertexArray(), batch.GetSize());
         }
 
-        Flush(renderContext);
-
         m_ShaderProgram->Unbind();
-
-        renderContext.GeometryPassFramebuffer->Unbind();
-    }
-
-    void GeometryRenderPass::Flush(RenderContext& renderContext)
-    {
-        ZPG_PROFILE_FUNCTION();
-        RenderPass::Flush(renderContext);
-        renderContext.Statistics.FlushCountPerFrame++;
+        m_FrameBuffer->Unbind();
     }
 }

@@ -1,11 +1,13 @@
 #pragma once
 
+#include "Texture/Texture.h"
 #include "Texture/TextureDataFormat.h"
 #include "Texture/TextureType.h"
 
 namespace ZPG {
 
-    enum class FrameBufferAttachmentType {
+    enum class FrameBufferAttachmentType
+    {
         Color,
         Depth,
         Stencil,
@@ -19,6 +21,8 @@ namespace ZPG {
         TextureDataFormat DataFormat = TextureDataFormat::RGBA8;
         u32 Index = 0;
         u32 ArraySize = 1;
+
+        ref<Texture> TextureAttachment = nullptr;
 
         bool operator==(const FrameBufferAttachment& other) const;
         std::string operator()() const;

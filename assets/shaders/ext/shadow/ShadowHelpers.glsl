@@ -11,7 +11,7 @@ bool WithinNDCBounds(vec3 projCoord);
 
 float ShadowBias(vec3 worldNormal, vec3 lightDir)
 {
-    float bias = max(0.001 * (1.0 - dot(worldNormal, lightDir)), 0.0005);
+    float bias = max(0.005 * (1.0 - dot(worldNormal, lightDir)), 0.005);
     return bias;
 }
 

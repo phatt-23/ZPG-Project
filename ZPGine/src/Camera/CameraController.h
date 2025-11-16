@@ -34,7 +34,6 @@ public:
 
 private:
     bool OnWindowResized(WindowResizeEvent& e);
-    bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
     bool OnMouseMoved(MouseMovedEvent& e);
     bool OnMouseScrolled(MouseScrolledEvent& e);
 protected:

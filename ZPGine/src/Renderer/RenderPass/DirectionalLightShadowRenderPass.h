@@ -1,19 +1,14 @@
 #pragma once
 
-
 #include "Renderer/RenderPass.h"
+
 namespace ZPG
 {
-    class ShaderProgram;
-
     class DirectionalLightShadowRenderPass : public RenderPass
     {
     public:
-        DirectionalLightShadowRenderPass();
-        ~DirectionalLightShadowRenderPass() override;
-
-        void Init(RenderContext &renderContext) override;
-        void Execute(RenderContext &renderContext) override;
+        void Init(RenderContext& context) override;
+        void Execute(RenderContext& context) override;
 
     private:
         ref<ShaderProgram> m_ShaderProgram;

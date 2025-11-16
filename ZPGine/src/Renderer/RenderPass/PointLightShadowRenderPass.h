@@ -4,21 +4,11 @@
 
 namespace ZPG
 {
-    class ShaderProgram;
-
     class PointLightShadowRenderPass : public RenderPass
     {
     public:
-        PointLightShadowRenderPass();
-        ~PointLightShadowRenderPass() override;
-
-        void Init(RenderContext& renderContext) override;
-
-        void Execute(RenderContext& renderContext) override;
-
-    private:
-
-        ref<ShaderProgram> m_ShaderProgram;
+        void Init(RenderContext& context) override;
+        void Execute(RenderContext& context) override;
     };
 }
 

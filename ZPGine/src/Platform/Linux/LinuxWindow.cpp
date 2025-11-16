@@ -54,10 +54,14 @@ void LinuxWindow::Init() {
 
     SetupCallbacks();
 }
-void LinuxWindow::SetupCallbacks() {
+
+void LinuxWindow::SetupCallbacks()
+{
     ZPG_PROFILE_FUNCTION();
+
     // set window callbacks
-    glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) -> void {
+    glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) -> void
+    {
         auto* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         data->Props.Width = width;
         data->Props.Height = height;
@@ -65,82 +69,90 @@ void LinuxWindow::SetupCallbacks() {
         data->EventCallback(event);
     });
 
-    glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int xpos, int ypos) -> void {
+    glfwSetWindowPosCallback(m_Window, [](GLFWwindow* window, int xpos, int ypos) -> void
+    {
         auto* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         WindowMovedEvent event(xpos, ypos);
         data->EventCallback(event);
     });
 
-    glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused){
+    glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* window, int focused)
+    {
         auto* data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         switch (focused) {
-        case GLFW_TRUE: {
-            WindowFocusEvent event;
-            data->EventCallback(event);
-        } break;
-        case GLFW_FALSE: {
-            WindowLostFocusEvent event;
-            data->EventCallback(event);
-        } break;
-        default: break;
+            case GLFW_TRUE: {
+                WindowFocusEvent event;
+                data->EventCallback(event);
+            } break;
+            case GLFW_FALSE: {
+                WindowLostFocusEvent event;
+                data->EventCallback(event);
+            } break;
+            default: break;
         }
     });
 
-    glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) -> void {
+    glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) -> void
+    {
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         WindowCloseEvent event{};
         data->EventCallback(event);
     });
 
     // set keyboard callbacks
-    glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void {
+    glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) -> void
+    {
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         switch (action) {
-        case GLFW_PRESS: {
-            KeyPressedEvent event(key, 0);
-            data->EventCallback(event);
-        } break;
-        case GLFW_REPEAT: {
-            KeyPressedEvent event(key, 1);
-            data->EventCallback(event);
-        } break;
-        case GLFW_RELEASE: {
-            KeyReleasedEvent event(key);
-            data->EventCallback(event);
-        } break;
-        default: break;
+            case GLFW_PRESS: {
+                KeyPressedEvent event(key, 0);
+                data->EventCallback(event);
+            } break;
+            case GLFW_REPEAT: {
+                KeyPressedEvent event(key, 1);
+                data->EventCallback(event);
+            } break;
+            case GLFW_RELEASE: {
+                KeyReleasedEvent event(key);
+                data->EventCallback(event);
+            } break;
+            default: break;
         }
     });
 
-    glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int charCode) {
+    glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int charCode)
+    {
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         KeyTypedEvent event(charCode);
         data->EventCallback(event);
     });
 
     // set mouse callbacks
-    glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) -> void {
+    glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) -> void
+    {
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         switch (action) {
-        case GLFW_PRESS: {
-            MouseButtonPressedEvent event(button);
-            data->EventCallback(event);
-        } break;
-        case GLFW_RELEASE: {
-            MouseButtonReleasedEvent event(button);
-            data->EventCallback(event);
-        } break;
-        default: break;
+            case GLFW_PRESS: {
+                MouseButtonPressedEvent event(button);
+                data->EventCallback(event);
+            } break;
+            case GLFW_RELEASE: {
+                MouseButtonReleasedEvent event(button);
+                data->EventCallback(event);
+            } break;
+            default: break;
         }
     });
 
-    glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) -> void {
+    glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) -> void
+    {
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         MouseScrolledEvent event((float)xOffset, (float)yOffset);
         data->EventCallback(event);
     });
 
-    glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y) -> void {
+    glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y) -> void
+    {
         auto data = static_cast<WindowData*>(glfwGetWindowUserPointer(window));
         MouseMovedEvent event((float)x, (float)y);
         data->EventCallback(event);
@@ -181,8 +193,14 @@ u32 LinuxWindow::GetHeight() const {
 
 void LinuxWindow::SetVSync(bool enabled) {
     ZPG_PROFILE_FUNCTION();
-    if (enabled) glfwSwapInterval(1);
-    else glfwSwapInterval(0);
+
+    if (enabled) {
+        glfwSwapInterval(1);
+    }
+    else {
+        glfwSwapInterval(0);
+    }
+
     m_Data.Props.VSync = enabled;
 }
 

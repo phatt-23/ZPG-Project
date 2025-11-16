@@ -130,6 +130,8 @@ u32 OpenGLShader::CompileShader(ShaderType shaderType, const std::string& source
 
         ZPG_CORE_ERROR("Shader compilation failed: {}", m_Name);
         ZPG_CORE_ERROR("{}", msg);
+        ZPG_CORE_ERROR("Source code:");
+        ZPG_CORE_ERROR("{}", source.c_str());
         ZPG_UNREACHABLE();
 
         delete[] msg;

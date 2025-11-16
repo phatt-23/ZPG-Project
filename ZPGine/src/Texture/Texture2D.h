@@ -15,11 +15,6 @@ namespace ZPG {
     public:
         virtual ~Texture2D() override {}
 
-        virtual const std::string& GetName() const = 0;
-
-        virtual u32 GetWidth() const = 0;
-        virtual u32 GetHeight() const = 0;
-
         virtual void SetData(const void *data, u32 size) = 0;
 
         virtual void Resize(u32 width, u32 height) = 0;
@@ -33,7 +28,8 @@ namespace ZPG {
         static ref<Texture2D> Create(
             const std::string& name,
             const std::string& filepath,
-            TextureDataFormat dataFormat = TextureDataFormat::RGBA8);                                                           /* There is no need for this dataFormat, it should be deduced from the loaded texture */
+            TextureDataFormat dataFormat = TextureDataFormat::RGBA8);                                                           
+            /* There is no need for this dataFormat, it should be deduced from the loaded texture */
 
         static ref<Texture2D> Create(
             const std::string& name,

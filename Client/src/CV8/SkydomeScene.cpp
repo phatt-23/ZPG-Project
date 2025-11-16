@@ -1,7 +1,5 @@
 #include "SkydomeScene.h"
 
-#include "Renderer/MultipassRenderer.h"
-
 using namespace ZPG;
 
 namespace CV8

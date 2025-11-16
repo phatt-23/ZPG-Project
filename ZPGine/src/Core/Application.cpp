@@ -13,12 +13,10 @@
 #include "imgui.h"
 #include "ImGui/ImGuiManager.h"
 #include "Timestep.h"
-#include "Platform/OpenGL/OpenGLTexture2D.h"
 #include "Profiling/Instrumentor.h"
 #include "Scene/Scene.h"
-#include "Renderer/MultipassRenderer.h"
+#include "Renderer/Renderer.h"
 #include "Renderer/RenderCommand.h"
-#include "Renderer/RendererAPI.h"
 
 namespace ZPG { 
 
@@ -29,7 +27,11 @@ Application::Application() {
 
     m_Window = Window::Create(WindowProps("ZPGine", 1280, 720, true));
 
-    m_Window->SetEventCallback([this](Event& e){ this->OnEvent(e); });
+    m_Window->SetEventCallback([this](Event& e)
+    {
+        this->OnEvent(e);
+    });
+
     m_Window->SetVSync(false);
 
     // initialize subsystems
@@ -37,7 +39,7 @@ Application::Application() {
     ImGuiManager::Init(m_Window);
     ResourceManager::Init();
     RenderCommand::Init();
-    MultipassRenderer::Init();
+    Renderer::Init();
 }
 
 Application::~Application() {
@@ -46,7 +48,7 @@ Application::~Application() {
     ImGuiManager::Shutdown();
     Input::Shutdown();
     RenderCommand::Shutdown();
-    MultipassRenderer::Shutdown();
+    Renderer::Shutdown();
 }
 
 void Application::Run() {
@@ -57,15 +59,13 @@ void Application::Run() {
         m_LastTime = currentTime;
 
         ImGuiManager::BeginFrame();
-        {
             m_SceneManager.GetActiveScene()->OnUpdate(m_Delta);
-            MultipassRenderer::RenderScene(*m_SceneManager.GetActiveScene());
+            Renderer::RenderScene(*m_SceneManager.GetActiveScene());
 
             m_SceneManager.GetActiveScene()->OnImGuiRender();
             this->OnImGuiRender();
 
             m_Window->OnUpdate();
-        }
         ImGuiManager::EndFrame();
     }
 }
@@ -74,9 +74,9 @@ void Application::OnEvent(Event& event) {
     ZPG_PROFILE_FUNCTION();
     EventDispatcher dispatcher(event);
 
-    if (event.IsInCategory(EventCategoryMouse) && ImGui::GetIO().WantCaptureMouse && !Input::IsCursorGrabbed()) {
-        return;
-    }
+    // if (event.IsInCategory(EventCategoryMouse) && ImGui::GetIO().WantCaptureMouse && !Input::IsCursorGrabbed()) {
+    //     return;
+    // }
 
     dispatcher.Dispatch<WindowCloseEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(Application::OnWindowClose));
     dispatcher.Dispatch<WindowResizeEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(Application::OnWindowResize));

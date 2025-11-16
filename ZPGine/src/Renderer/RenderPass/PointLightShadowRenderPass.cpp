@@ -1,47 +1,33 @@
 #include "PointLightShadowRenderPass.h"
-#include "Buffer/VertexArray.h"
-#include "Platform/OpenGL/OpenGLCore.h"
+
+#include "Material/Material.h"
 #include "Renderer/RenderCommand.h"
 #include "Renderer/RenderContext.h"
 #include "Shader/Shader.h"
 #include "Shader/ShaderProgram.h"
 #include "Model/Model.h"
 #include "Model/Mesh.h"
-#include "Texture/TextureCubeMap.h"
 #include "Texture/TextureCubeMapArray.h"
 
 namespace ZPG
 {
-
-    PointLightShadowRenderPass::PointLightShadowRenderPass()
+    void PointLightShadowRenderPass::Init(RenderContext& context)
     {
-    }
-
-    PointLightShadowRenderPass::~PointLightShadowRenderPass()
-    {
-    }
-
-    void PointLightShadowRenderPass::Init(RenderContext& renderContext)
-    {
-        int length = 1024;
-        int numCubeMaps = 10;
-        int depth = 6 * numCubeMaps;
-
-        renderContext.PointLightShadowCubeMapArray = TextureCubeMapArray::Create(
-            length,
-            depth,
-            TextureDataFormat::Depth32F
-        );
-
-        renderContext.PointLightShadowFramebuffer->AttachTexture(
-            renderContext.PointLightShadowCubeMapArray,
-            FrameBufferAttachment{
+        FrameBufferSpecification framebufferSpec;
+        framebufferSpec.Width = 1024;
+        framebufferSpec.Height = 1024;
+        framebufferSpec.Resizable = false;
+        framebufferSpec.Attachments = {
+            {
                 .AttachType = FrameBufferAttachmentType::Depth,
                 .TexType = TextureType::TextureCubeMapArray,
                 .DataFormat = TextureDataFormat::Depth32F,
                 .Index = 0,
-            }
-        );
+                .TextureAttachment = context.Targets.PointLightShadowCubeMapArray,
+            },
+        };
+
+        m_FrameBuffer = FrameBuffer::Create(framebufferSpec);
 
         m_ShaderProgram = ShaderProgram::Create("PointLightShadowMap",
         {
@@ -51,54 +37,35 @@ namespace ZPG
         });
     }
 
-    void PointLightShadowRenderPass::Execute(RenderContext& renderContext)
+    void PointLightShadowRenderPass::Execute(RenderContext& context)
     {
-        if (renderContext.PointLights.empty()) {
+        if (context.Lights.PointLights.empty()) {
             return;
         }
 
-        renderContext.PointLightShadowFramebuffer->Bind();
+        m_FrameBuffer->Bind();
         RenderCommand::Clear();
 
         m_ShaderProgram->Bind();
 
         int index = 0;
-        for (auto& pointLight : renderContext.PointLights)
+        for (const auto& pointLight : context.Lights.PointLights)
         {
             m_ShaderProgram->SetInt("u_Index", index);
             index++;
 
-
-            for (auto& entity : renderContext.VisibleEntities)
+            for (const auto& [_, batch] : context.Batches.Shadow)
             {
-                m4 transform = entity->GetTransformMatrix();
-                auto& meshes = entity->GetModel()->GetMeshes();
-
-                for (auto& mesh : meshes)
-                {
-                    m4 local = mesh->GetLocalTransform();
-                    auto& vao = mesh->GetVertexArray();
-
-                    m_ShaderProgram->Bind();
-                    m_ShaderProgram->SetMat4("u_Model", transform * local);
-
-                    vao->Bind();
-
-                    if (vao->HasIndexBuffer()) {
-                        RenderCommand::DrawIndexed(*vao, vao->GetIndexBuffer()->GetCount());
-                    }
-                    else {
-                        RenderCommand::DrawArrays(*vao);
-                    }
-
-                    vao->Unbind();
-                }
+                context.SSBO.EntitySSBO.SetEntityIDs(batch.entityIDs);
+                context.SSBO.ModelSSBO.SetModels(batch.transforms);
+                context.SSBO.MaterialSSBO.SetMaterial(*batch.mesh->GetMaterial());
+                batch.mesh->GetMaterial()->BindMaps();
+                RenderCommand::DrawInstanced(*batch.mesh->GetVertexArray(), batch.GetSize());
             }
         }
 
         m_ShaderProgram->Unbind();
-
-        renderContext.PointLightShadowFramebuffer->Unbind();
+        m_FrameBuffer->Unbind();
     }
 
 }

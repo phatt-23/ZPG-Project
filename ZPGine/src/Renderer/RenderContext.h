@@ -2,8 +2,8 @@
 
 #include "RenderStatistics.h"
 #include "Buffer/FrameBuffer.h"
-#include "Renderer/RenderBatch.h"
 #include "Camera/Camera.h"
+#include "Renderer/DrawBatch.h"
 #include "Sky/Sky.h"
 #include "LightStruct/LightStructs.h"
 #include "Renderer/ShaderStorageBuffer/CameraShaderStorageBuffer.h"
@@ -13,12 +13,13 @@
 #include "Renderer/ShaderStorageBuffer/SpotLightShaderStorageBuffer.h"
 #include "Renderer/ShaderStorageBuffer/ModelShaderStorageBuffer.h"
 #include "Renderer/ShaderStorageBuffer/MaterialShaderStorageBuffer.h"
-#include "Entity/Entity.h"
 
 namespace ZPG
 {
     class TextureCubeMapArray;
     class Texture2DArray;
+    class DrawCommand;
+    class DrawBatch;
 
     struct RenderContextSpecification
     {
@@ -34,69 +35,76 @@ namespace ZPG
         ~RenderContext();
 
     public:
-        /**
-         * Provides view, projection matrices and camera position.
-         */
-        Camera* ActiveCamera = nullptr;
-
-
-        /**
-         * Could be skybox ar skydome
-         */
-        ref<Sky> ActiveSky = nullptr;
+        Camera* ActiveCamera = nullptr;     // Provides view, projection matrices and camera position.
+        Sky* ActiveSky = nullptr;           // Could be skybox ar skydome
        
-        /**
-         * Visible entities
-         */
-        std::vector<ref<Entity>> VisibleEntities;
+        // Shader storage buffers.
+        struct ShaderStorageBuffers 
+        {
+            CameraShaderStorageBuffer CameraSSBO;
+            ModelShaderStorageBuffer ModelSSBO;
+            EntityShaderStorageBuffer EntitySSBO;
+            EnvironmentLightShaderStorageBuffer EnvironmentLightSSBO;
+            PointLightShaderStorageBuffer PointLightSSBO;
+            SpotLightShaderStorageBuffer SpotLightSSBO;
+            MaterialShaderStorageBuffer MaterialSSBO;
+        } SSBO;
 
-        /** 
-        * Lights represented in the same form as in shader programs.
-        */
-        std::vector<PointLightStruct> PointLights;
-        std::vector<SpotLightStruct> SpotLights;
-        AmbientLightStruct* AmbientLight = nullptr;
-        DirectionalLightStruct* DirectionalLight = nullptr;
+        struct RenderTargets
+        {
+            // main attachment
+            ref<FrameBuffer> MainFrameBuffer = nullptr;
+            ref<Texture2D> MainDepthMap = nullptr;
+            ref<Texture2D> MainColorMap = nullptr;
+            ref<Texture2D> MainEntityIDMap = nullptr;
 
-        
-        /**
-         * Shader storage buffers.
-         */
-        CameraShaderStorageBuffer CameraSSBO;
+            // shadow map attachments
+            ref<Texture2DArray> SpotLightShadowMapArray = nullptr;
+            ref<TextureCubeMapArray> PointLightShadowCubeMapArray = nullptr;
+            ref<Texture2D> DirectionalLightShadowMap = nullptr;
 
-        EnvironmentLightShaderStorageBuffer EnvironmentLightSSBO;
-        PointLightShaderStorageBuffer PointLightSSBO;
-        SpotLightShaderStorageBuffer SpotLightSSBO;
+            // geometry buffer attachments
+            ref<FrameBuffer> GeometryFrameBuffer = nullptr;
+            ref<Texture2D> GeometryDepthMap = nullptr;
+            ref<Texture2D> GeometryPositionMap = nullptr;
+            ref<Texture2D> GeometryNormalMap = nullptr;
+            ref<Texture2D> GeometryAlbedoMetallicMap = nullptr;
+            ref<Texture2D> GeometryEmissiveRoughnessMap = nullptr;
+            ref<Texture2D> GeometryEntityIDMap = nullptr;
 
-        MaterialShaderStorageBuffer MaterialSSBO;
-        ModelShaderStorageBuffer ModelSSBO;
-        EntityShaderStorageBuffer EntitySSBO;
+        } Targets;
 
+        struct DrawCommandQueues
+        {
+            vec<DrawCommand> Shadow;
+            vec<DrawCommand> GeometryBuffer;
+            vec<DrawCommand> ForwardOpaque;
+            vec<DrawCommand> ForwardTransparent;
 
-        /**
-         * Shadow Pass 
-         */
+            void Clear();
+        } Queues;
 
-        ref<Texture2DArray> SpotLightShadowMapArray = nullptr;
-        ref<TextureCubeMapArray> PointLightShadowCubeMapArray = nullptr;
-        ref<Texture2D> DirectionalLightShadowMap = nullptr;
+        struct DrawBatches
+        {
+            umap<DrawBatchKey, DrawBatch> Shadow;
+            umap<DrawBatchKey, DrawBatch> GeometryBuffer;
+            umap<DrawBatchKey, DrawBatch> ForwardOpaque;
+            umap<DrawBatchKey, DrawBatch> ForwardTransparent;
 
-        ref<FrameBuffer> DirectionalLightShadowFramebuffer;
-        ref<FrameBuffer> PointLightShadowFramebuffer;
-        ref<FrameBuffer> SpotLightShadowFramebuffer;
-        ref<FrameBuffer> GeometryPassFramebuffer;
-        ref<FrameBuffer> MainFramebuffer;
+            void Clear();
+        } Batches;
 
-    
+        struct Lights // Lights represented in the same form as in shader programs.
+        {
+            std::vector<PointLightStruct> PointLights;
+            std::vector<SpotLightStruct> SpotLights;
+            AmbientLightStruct* AmbientLight = nullptr;
+            DirectionalLightStruct* DirectionalLight = nullptr;
 
-        /**
-        * Batch
-        */
-        RenderBatch Batch;
+            void Clear();
+        } Lights;
 
-        /**
-         * Statistics
-         */
+        // Statistics
         RenderStatistics Statistics;
     };
 }
