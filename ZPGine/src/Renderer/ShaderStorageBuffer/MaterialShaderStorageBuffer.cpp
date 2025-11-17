@@ -1,4 +1,6 @@
 #include "MaterialShaderStorageBuffer.h"
+
+#include "Debug/Asserter.h"
 #include "Material/Material.h"
 #include "Profiling/Instrumentor.h"
 
@@ -13,6 +15,7 @@ namespace ZPG
     void MaterialShaderStorageBuffer::SetMaterial(const Material& material)
     {
         ZPG_PROFILE_FUNCTION();
+
         Bind();
 
         InternalLayout internalLayout;

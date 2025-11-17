@@ -57,6 +57,12 @@ namespace ZPG
 
     void Scene::OnResume()
     {
+        Renderer::Clear();
+
+        for (auto& entity : GetEntityManager().GetStaticEntities())
+        {
+            Renderer::Submit(*entity, RenderFeatureCastsShadow | RenderFeatureDeferred | RenderFeatureStatic);
+        }
     }
 
     void Scene::OnPause()

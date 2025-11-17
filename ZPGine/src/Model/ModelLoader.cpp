@@ -48,7 +48,8 @@ static v4 AssimpToGLM(const aiColor4D& c) {
 
 
 ModelLoader::ModelLoader(const std::string& path)
-: m_Path(path) {
+    : m_Path(path)
+{
     ZPG_PROFILE_FUNCTION();
     m_LoadingFlags = aiProcess_Triangulate       // guarantees three vertices per face
                    | aiProcess_CalcTangentSpace  // guarantees normals and tangents exist
@@ -56,7 +57,12 @@ ModelLoader::ModelLoader(const std::string& path)
                    ;
 }
 
-ref<Model> ModelLoader::Load() {
+ModelLoader::~ModelLoader()
+{
+}
+
+ref<Model> ModelLoader::Load()
+{
     ZPG_PROFILE_FUNCTION();
     ZPG_CORE_DEBUG("Loading in model: {} ...", m_Path);
     
@@ -66,7 +72,8 @@ ref<Model> ModelLoader::Load() {
         "Model loading failed: {}", m_Path);
 
     // load the materials first (meshes refer to them by index, link them together right away)
-    for (int i = 0; i < scene->mNumMaterials; i++) {
+    for (int i = 0; i < scene->mNumMaterials; i++)
+    {
         m_Materials[i] = ProcessMaterial(scene, scene->mMaterials[i]);
     }
 
@@ -78,13 +85,15 @@ ref<Model> ModelLoader::Load() {
     return model;
 }
 
-ref<Texture2D> ModelLoader::LoadTexture(std::string const& textureFile) {
+ref<Texture2D> ModelLoader::LoadTexture(std::string const& textureFile)
+{
     ZPG_PROFILE_FUNCTION();
     std::string texturePath = std::filesystem::path(m_Path).parent_path() / textureFile;
     return Texture2D::Create(texturePath);
 }
 
-ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMaterial* material) {
+ref<Material> ModelLoader::ProcessMaterial(const aiScene* scene, const aiMaterial* material)
+{
     ZPG_PROFILE_FUNCTION();
     ResourceManager& res = ResourceManager::GetGlobal();
 

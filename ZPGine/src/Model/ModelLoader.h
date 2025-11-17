@@ -16,6 +16,7 @@ class Material;
 class ModelLoader {
 public:
     ModelLoader(const std::string& path);
+    ~ModelLoader();
     ref<Model> Load();
 
 private:

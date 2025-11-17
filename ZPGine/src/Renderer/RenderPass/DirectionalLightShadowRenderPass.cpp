@@ -37,6 +37,7 @@ namespace ZPG
         m_ShaderProgram = ShaderProgram::Create("DirectionalShadow.program",
         {
             Shader::Create("./assets/shaders/shadow-mapping/directional/DirectionalShadow.vert"),
+            // Shader::Create("./assets/shaders/shadow-mapping/directional/DirectionalShadow.geom"),
             Shader::Create("./assets/shaders/shadow-mapping/directional/DirectionalShadow.frag"),
         });
     }
@@ -55,7 +56,10 @@ namespace ZPG
 
         m_ShaderProgram->Bind();
 
-        for (const auto& [_, batch] : context.Batches.Shadow)
+        for (const auto& batch : std::views::concat(
+            context.Batches.Shadow | std::views::values,
+            context.StaticBatches.Shadow | std::views::values)
+        )
         {
             context.SSBO.EntitySSBO.SetEntityIDs(batch.entityIDs);
             context.SSBO.ModelSSBO.SetModels(batch.transforms);

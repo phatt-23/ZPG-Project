@@ -54,7 +54,10 @@ namespace ZPG
             m_ShaderProgram->SetInt("u_Index", index);
             index++;
 
-            for (const auto& [_, batch] : context.Batches.Shadow)
+            for (const auto& batch : std::views::concat(
+                context.Batches.Shadow | std::views::values,
+                context.StaticBatches.Shadow | std::views::values)
+            )
             {
                 context.SSBO.EntitySSBO.SetEntityIDs(batch.entityIDs);
                 context.SSBO.ModelSSBO.SetModels(batch.transforms);

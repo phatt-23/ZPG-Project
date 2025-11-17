@@ -31,9 +31,7 @@ namespace CV8
 
     ShadowScene::ShadowScene()
     {
-
     }
-
 
     void ShadowScene::OnAttach()
     {
@@ -61,7 +59,7 @@ namespace CV8
         m_LocalResources.GetModel("GreenCube")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0.0, 1.0, 0.0, 1.0));
         m_LocalResources.GetModel("BlueCube")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0.0, 0.0, 1.0, 1.0));
 
-        // SetSky(Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" }));
+        SetSky(Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" }));
 
         {
             spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0), v3(0.0, -0.8, -1.0), 20.f, 0.5f, AttenComponent(0.001, 0.001, 0.1f)));
@@ -192,7 +190,8 @@ namespace CV8
 
     }
 
-    void ShadowScene::OnEvent(ZPG::Event& event) {
+    void ShadowScene::OnEvent(ZPG::Event& event)
+    {
         Scene::OnEvent(event);
 
         EventDispatcher dispatcher(event);

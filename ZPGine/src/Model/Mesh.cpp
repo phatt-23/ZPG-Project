@@ -13,9 +13,9 @@
 namespace ZPG {
 
     Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<u32>& indices, const glm::mat4& localTransform)
-        : m_VAO(VertexArray::Create())
-        , m_LocalTransform(localTransform) 
-        , m_ID(s_NextID++)
+        : m_ID(s_NextID++)
+        , m_VAO(VertexArray::Create())
+        , m_LocalTransform(localTransform)
     {
         ZPG_PROFILE_FUNCTION();
         u32 vboSize = vertices.size() * sizeof(vertices[0]);
@@ -33,9 +33,9 @@ namespace ZPG {
     }
 
     Mesh::Mesh(const ref<VertexArray>& vertexArray, const glm::mat4& localTransform) 
-        : m_VAO(vertexArray)
+        : m_ID(s_NextID++)
+        , m_VAO(vertexArray)
         , m_LocalTransform(localTransform)
-        , m_ID(s_NextID++)
     {
         ZPG_PROFILE_FUNCTION();
         auto defaultMaterial = ResourceManager::GetGlobal().GetMaterial(CommonResources::NULL_MATERIAL);
@@ -45,6 +45,7 @@ namespace ZPG {
     void Mesh::SetMaterial(const ref<Material>& material) 
     {
         ZPG_PROFILE_FUNCTION();
+        ZPG_CORE_ASSERT(material != nullptr, "Material cannot be null!");
         m_Material = material;
     }
 

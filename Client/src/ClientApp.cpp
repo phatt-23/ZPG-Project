@@ -19,6 +19,7 @@
 #include "Renderer/Renderer.h"
 #include "Texture/Texture2DArray.h"
 #include "Texture/TextureCubeMapArray.h"
+#include "Renderer/DrawCommand.h"
 
 
 using namespace ZPG;
@@ -55,11 +56,27 @@ void ClientApp::OnImGuiRender()
 
     ImGui::Begin("Stats");
     ImGui::Text("FPS: %f\n", fps);
-    ImGui::Text("Flush Per Frame      : %d", Renderer::GetStats().FlushCountPerFrame);
-    ImGui::Text("Draw Calls Per Frame : %d", Renderer::GetStats().DrawCallCountPerFrame);
-    ImGui::Text("Shader Groups        : %d", Renderer::GetStats().ShaderProgramGroupCount);
-    ImGui::Text("Material Groups      : %d", Renderer::GetStats().MaterialGroupCount);
-    ImGui::Text("VAO Groups           : %d", Renderer::GetStats().VAOGroupCount);
+    ImGui::Text("Submissions                : %d", Renderer::GetStats().Submissions);
+    ImGui::SeparatorText("Batches");
+    ImGui::Text("Static GeometryBuffer      : %ld", Renderer::GetRenderContext().StaticBatches.GeometryBuffer.size());
+    ImGui::Text("Static Shadow              : %ld", Renderer::GetRenderContext().StaticBatches.Shadow.size());
+    ImGui::Text("Static ForwardOpaque       : %ld", Renderer::GetRenderContext().StaticBatches.ForwardOpaque.size());
+    ImGui::Text("Static ForwardTransparent  : %ld", Renderer::GetRenderContext().StaticBatches.ForwardTransparent.size());
+    ImGui::Separator();
+    ImGui::Text("Dynamic GeometryBuffer     : %ld", Renderer::GetRenderContext().Batches.GeometryBuffer.size());
+    ImGui::Text("Dynamic Shadow             : %ld", Renderer::GetRenderContext().Batches.Shadow.size());
+    ImGui::Text("Dynamic ForwardOpaque      : %ld", Renderer::GetRenderContext().Batches.ForwardOpaque.size());
+    ImGui::Text("Dynamic ForwardTransparent : %ld", Renderer::GetRenderContext().Batches.ForwardTransparent.size());
+    ImGui::SeparatorText("Queues");
+    ImGui::Text("Static GeometryBuffer      : %ld", Renderer::GetRenderContext().StaticQueues.GeometryBuffer.size());
+    ImGui::Text("Static Shadow              : %ld", Renderer::GetRenderContext().StaticQueues.Shadow.size());
+    ImGui::Text("Static ForwardOpaque       : %ld", Renderer::GetRenderContext().StaticQueues.ForwardOpaque.size());
+    ImGui::Text("Static ForwardTransparent  : %ld", Renderer::GetRenderContext().StaticQueues.ForwardTransparent.size());
+    ImGui::Separator();
+    ImGui::Text("Dynamic GeometryBuffer     : %ld", Renderer::GetRenderContext().Queues.GeometryBuffer.size());
+    ImGui::Text("Dynamic Shadow             : %ld", Renderer::GetRenderContext().Queues.Shadow.size());
+    ImGui::Text("Dynamic ForwardOpaque      : %ld", Renderer::GetRenderContext().Queues.ForwardOpaque.size());
+    ImGui::Text("Dynamic ForwardTransparent : %ld", Renderer::GetRenderContext().Queues.ForwardTransparent.size());
     ImGui::End();
 
     ImGui::Begin("Scene Switcher");

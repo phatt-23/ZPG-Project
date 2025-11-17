@@ -27,7 +27,8 @@ namespace CV8
         SetCameraController(MakeRef(flashlightCameraController));
     }
 
-    void ForestScene::OnLazyAttach() {
+    void ForestScene::OnLazyAttach()
+    {
         m_LocalRes.LoadModel("Tree", "./assets/models/pine_tree/scene.gltf");
         m_LocalRes.LoadModel("Bush", "./assets/models/bush/scene.gltf");
         m_LocalRes.LoadModel("Bush2", "./assets/models/small_bush/scene.gltf");
@@ -36,6 +37,7 @@ namespace CV8
         m_LocalRes.LoadModel("Shrek", "./assets/models/shrek/shrek.obj");
         m_LocalRes.LoadModel("Fiona", "./assets/models/shrek/fiona.obj");
 
+        SetSky(Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" }));
 
         for (auto& ffMesh : m_LocalRes.GetModel("Firefly")->GetMeshes()) {
             ffMesh->GetMaterial()->SetEmissive(v4(1.0));
@@ -59,7 +61,7 @@ namespace CV8
                              .Add<Translate>(x, 0.0, z)
                              .Compose();
 
-            GetEntityManager().AddEntity(new Entity(m_LocalRes.GetModel("Tree"), transform));
+            GetEntityManager().AddStaticEntity(new Entity(m_LocalRes.GetModel("Tree"), transform));
         }
 
         // Add bushes
@@ -73,7 +75,7 @@ namespace CV8
                              .Add<Translate>(x, 0.0, z)
                              .Compose();
 
-            GetEntityManager().AddEntity(
+            GetEntityManager().AddStaticEntity(
                 new Entity(m_LocalRes.GetModel(i % 2 == 0 ? "Bush" : "Bush2"), transform));
         }
 
@@ -114,7 +116,7 @@ namespace CV8
                                  .Add<Translate>(v3(groundDist * i, -groundDist, groundDist * j))
                                  .Compose();
 
-                GetEntityManager().AddEntity(
+                GetEntityManager().AddStaticEntity(
                     new Entity(m_LocalRes.GetModel("GrassBlock"), transform));
             }
         }
@@ -133,7 +135,6 @@ namespace CV8
             GetEntityManager().AddEntity(
                 new Entity(m_LocalRes.GetModel(i % 2 ? "Shrek" : "Fiona"), transform));
         }
-
     }
 
     void ForestScene::OnEvent(Event& event)

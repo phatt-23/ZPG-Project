@@ -82,7 +82,7 @@ namespace ZPG
             vec<DrawCommand> ForwardTransparent;
 
             void Clear();
-        } Queues;
+        } Queues, StaticQueues;
 
         struct DrawBatches
         {
@@ -92,7 +92,7 @@ namespace ZPG
             umap<DrawBatchKey, DrawBatch> ForwardTransparent;
 
             void Clear();
-        } Batches;
+        } Batches, StaticBatches;
 
         struct Lights // Lights represented in the same form as in shader programs.
         {
@@ -104,7 +104,6 @@ namespace ZPG
             void Clear();
         } Lights;
 
-        // Statistics
         RenderStatistics Statistics;
     };
 }

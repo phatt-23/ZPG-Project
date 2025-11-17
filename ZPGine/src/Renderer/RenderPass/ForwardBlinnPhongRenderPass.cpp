@@ -51,7 +51,10 @@ namespace ZPG
 
         m_ShaderProgram->Bind();
 
-        for (const auto& batch : context.Batches.GeometryBuffer | std::views::values)
+        for (const auto& batch : std::views::concat(
+            context.Batches.GeometryBuffer | std::views::values,
+            context.StaticBatches.GeometryBuffer | std::views::values)
+        )
         {
             Material& material = *batch.mesh->GetMaterial();
 

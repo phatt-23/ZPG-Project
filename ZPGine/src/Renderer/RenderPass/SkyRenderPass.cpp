@@ -2,34 +2,13 @@
 
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderCommand.h"
-#include "Texture/Texture2D.h"
-#include "Texture/TextureDataFormat.h"
 
 namespace ZPG
 {
 
     void SkyRenderPass::Init(RenderContext& context)
     {
-        FrameBufferSpecification spec;
-        spec.Width = 1024;
-        spec.Height = 1024;
-        spec.Resizable = false;
-        spec.Attachments = {
-            {
-                .AttachType = FrameBufferAttachmentType::Depth,
-                .DataFormat = TextureDataFormat::Depth32F,
-                .Index = 0,
-                .TextureAttachment = context.Targets.MainDepthMap,
-            },
-            {
-                .AttachType = FrameBufferAttachmentType::Color,
-                .DataFormat = TextureDataFormat::RGBA8,
-                .Index = 0,
-                .TextureAttachment = context.Targets.MainColorMap,
-            },
-        };
-
-        m_FrameBuffer = FrameBuffer::Create(spec);
+        m_FrameBuffer = context.Targets.MainFrameBuffer;
     }
 
     void SkyRenderPass::Execute(RenderContext& context)

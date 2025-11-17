@@ -22,6 +22,20 @@
 
 namespace ZPG
 {
+
+#define ADD_DYNAMIC_COMMANDS(where, commands) \
+    AddCommands(s->m_RenderContext.Queues.where, s->m_RenderContext.Batches.where, commands)
+
+#define ADD_STATIC_COMMANDS(where, commands) \
+    AddCommands(s->m_RenderContext.StaticQueues.where, s->m_RenderContext.StaticBatches.where, commands)
+
+#define ADD_COMMANDS(isStatic, where, commands) \
+    if (isStatic) \
+        ADD_STATIC_COMMANDS(where, drawCommands); \
+    else \
+        ADD_DYNAMIC_COMMANDS(where, drawCommands);
+
+
     Renderer::Renderer(const RenderContextSpecification& renderContextSpecification)
         : m_RenderContext(renderContextSpecification)
     {   
@@ -49,7 +63,7 @@ namespace ZPG
         // PushRenderPass(new LightingRenderPass());
         // PushRenderPass(new ForwardBlinnPhongRenderPass());
         PushRenderPass(new DeferredLightingBlinnPhongRenderPass());
-        // PushRenderPass(new SkyRenderPass());
+        PushRenderPass(new SkyRenderPass());
     }
 
     void Renderer::Shutdown()
@@ -59,9 +73,10 @@ namespace ZPG
         delete s;
     }
 
-    void Renderer::NewFrame()
+    void Renderer::BeginFrame()
     {
         s->m_RenderContext.Batches.Clear();
+        s->m_RenderContext.Queues.Clear();
         s->m_RenderContext.Lights.Clear();
         s->m_RenderContext.ActiveSky = nullptr;
         s->m_RenderContext.ActiveCamera = nullptr;
@@ -148,6 +163,8 @@ namespace ZPG
     {
         ZPG_CORE_ASSERT(flags.IsValid());
 
+        s->m_RenderContext.Statistics.Submissions++;
+
         auto entityID = entity.GetEntityID();
         auto model = entity.GetModel();
         auto transform = entity.GetTransformMatrix();
@@ -164,24 +181,24 @@ namespace ZPG
             drawCommands.push_back(command);
         }
 
-        if (flags & RenderFeature::CastsShadow)
+        if (flags & RenderFeatureCastsShadow)
         {
-            AddCommands(s->m_RenderContext.Queues.Shadow, s->m_RenderContext.Batches.Shadow, drawCommands);
+            ADD_COMMANDS(flags & RenderFeatureStatic, Shadow, drawCommands);
         }
 
-        if (flags & RenderFeature::Forward && flags & RenderFeature::Transparent)
+        if (flags & RenderFeatureForward && flags & RenderFeatureTransparent)
         {
-            AddCommands(s->m_RenderContext.Queues.ForwardTransparent, s->m_RenderContext.Batches.ForwardTransparent, drawCommands);
+            ADD_COMMANDS(flags & RenderFeatureStatic, ForwardTransparent, drawCommands);
         }
 
-        if (flags & RenderFeature::Forward && flags & RenderFeature::Opaque)
+        if (flags & RenderFeatureForward && flags & RenderFeatureOpaque)
         {
-            AddCommands(s->m_RenderContext.Queues.ForwardOpaque, s->m_RenderContext.Batches.ForwardOpaque, drawCommands);
+            ADD_COMMANDS(flags & RenderFeatureStatic, ForwardOpaque, drawCommands);
         }
 
-        if (flags & RenderFeature::Deferred)
+        if (flags & RenderFeatureDeferred)
         {
-            AddCommands(s->m_RenderContext.Queues.GeometryBuffer, s->m_RenderContext.Batches.GeometryBuffer, drawCommands);
+            ADD_COMMANDS(flags & RenderFeatureStatic, GeometryBuffer, drawCommands);
         }
     }
 
@@ -197,14 +214,14 @@ namespace ZPG
     {
         ZPG_PROFILE_FUNCTION();
 
-        Renderer::NewFrame();
+        Renderer::BeginFrame();
         Renderer::SetCamera(scene.GetCamera());
         Renderer::SetLights(scene.GetLightManager().GetLights());
         Renderer::SetSky(scene.GetSky().get());
 
         for (const auto& entity : scene.GetEntityManager().GetEntities())
         {
-            Renderer::Submit(*entity, RenderFeature::Deferred | RenderFeature::CastsShadow);
+            Renderer::Submit(*entity, RenderFeatureDeferred | RenderFeatureCastsShadow | RenderFeatureDynamic);
         }
 
         Renderer::EndFrame();
@@ -227,6 +244,13 @@ namespace ZPG
     {
         ZPG_PROFILE_FUNCTION();
         return s->m_RenderContext.Statistics;
+    }
+
+    void Renderer::Clear()
+    {
+        Renderer::BeginFrame();
+        s->m_RenderContext.StaticBatches.Clear();
+        s->m_RenderContext.StaticQueues.Clear();
     }
 
     void Renderer::OnResize(u32 width, u32 height)

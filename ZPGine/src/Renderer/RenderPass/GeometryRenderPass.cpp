@@ -56,6 +56,15 @@ namespace ZPG
             RenderCommand::DrawInstanced(*batch.mesh->GetVertexArray(), batch.GetSize());
         }
 
+        for (const auto& batch : context.StaticBatches.GeometryBuffer | std::views::values)
+        {
+            context.SSBO.EntitySSBO.SetEntityIDs(batch.entityIDs);
+            context.SSBO.ModelSSBO.SetModels(batch.transforms);
+            context.SSBO.MaterialSSBO.SetMaterial(*batch.mesh->GetMaterial());
+            batch.mesh->GetMaterial()->BindMaps();
+            RenderCommand::DrawInstanced(*batch.mesh->GetVertexArray(), batch.GetSize());
+        }
+
         m_ShaderProgram->Unbind();
         m_FrameBuffer->Unbind();
     }

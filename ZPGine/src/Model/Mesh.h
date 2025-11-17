@@ -1,4 +1,5 @@
 #pragma once
+#include "Debug/Asserter.h"
 
 namespace ZPG {
 
@@ -22,7 +23,7 @@ public:
 
     const m4& GetLocalTransform() const { return m_LocalTransform; }
     const ref<VertexArray>& GetVertexArray() const { return m_VAO; }
-    const ref<Material>& GetMaterial() const { return m_Material; }
+    const ref<Material>& GetMaterial() const { ZPG_CORE_ASSERT(m_Material != nullptr); return m_Material; }
 
     u32 GetID() const { return m_ID; }
 

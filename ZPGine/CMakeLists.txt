@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30)
 project(ZPGine)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB_RECURSE engine_headers "src/**.h")
