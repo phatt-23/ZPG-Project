@@ -58,6 +58,11 @@ public:
     inline static NameType SPOTLIGHT_SHADOW_MAP_ARRAY {"u_SpotLightShadowMapArray", T::Int};
     inline static NameType POINTLIGHT_SHADOW_CUBE_MAP_ARRAY {"u_PointLightShadowCubeMapArray", T::Int};
 
+    inline static NameType GEOMETRY_POSITION_MAP {"g_PositionMap", T::Int};
+    inline static NameType GEOMETRY_NORMAL_MAP {"g_NormalMap", T::Int};
+    inline static NameType GEOMETRY_ALBEDO_METALLIC_MAP {"g_AlbedoMetallicMap", T::Int};
+    inline static NameType GEOMETRY_EMISSIVE_ROUGHNESS_MAP {"g_EmissiveRoughnessMap", T::Int};
+    inline static NameType GEOMETRY_ENTITY_ID_MAP {"g_EntityIDMap", T::Int};
 
     // helper to map correct uniform names regarding the light array in fragment shaders
     class LightArray {

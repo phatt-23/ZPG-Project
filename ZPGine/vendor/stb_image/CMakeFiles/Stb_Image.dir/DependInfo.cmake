@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/phatt/Programming/GameEngine/Engine/vendor/stb_image/stb_image.cpp" "Engine/vendor/stb_image/CMakeFiles/Stb_Image.dir/stb_image.cpp.o" "gcc" "Engine/vendor/stb_image/CMakeFiles/Stb_Image.dir/stb_image.cpp.o.d"
+  "/home/phatt/School/sem5/ZPG/ZPG-Project/ZPGine/vendor/stb_image/stb_image_impl.cpp" "ZPGine/vendor/stb_image/CMakeFiles/Stb_Image.dir/stb_image_impl.cpp.o" "gcc" "ZPGine/vendor/stb_image/CMakeFiles/Stb_Image.dir/stb_image_impl.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

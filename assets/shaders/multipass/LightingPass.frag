@@ -22,11 +22,11 @@ uniform int u_SkyType;
 uniform sampler2D u_SkydomeMap;
 uniform samplerCube u_SkyboxMap;
 
-uniform sampler2D g_Color0; // pos
-uniform sampler2D g_Color1; // normal
-uniform sampler2D g_Color2; // albedo and metallic
-uniform sampler2D g_Color3; // emissive and roughness
-uniform isampler2D g_Color4; // entityID
+uniform sampler2D g_Color0; // pos (vec3)
+uniform sampler2D g_Color1; // normal (vec3)
+uniform sampler2D g_Color2; // albedo and metallic (vec3, float)
+uniform sampler2D g_Color3; // emissive and roughness (vec3, float)
+uniform isampler2D g_Color4; // entityID (int)
 
 uniform sampler2D u_DirectionalLightShadowMap;
 uniform sampler2DArray u_SpotLightShadowMapArray;
@@ -39,7 +39,6 @@ void main()
 {
     // extract material properties from maps
     vec3 worldPos = texture(g_Color0, v_TexCoord).rgb;
-    vec4 worldPos4 = texture(g_Color0, v_TexCoord).rgba;
     vec3 worldNormal = texture(g_Color1, v_TexCoord).rgb * 2.0 - 1.0;
 
     vec3 albedo = texture(g_Color2, v_TexCoord).rgb;
@@ -67,7 +66,7 @@ void main()
         vec3 lightColor = directionalLightColor.rgb * directionalLightColor.a;
         vec3 lightDir = ssbo_EnvironmentLight.DirLight.Direction;
 
-        float shadow = 1.0 - CalcShadowDirectional(u_DirectionalLightShadowMap, worldPos4, N);
+        float shadow = 1.0 - CalcShadowDirectional(u_DirectionalLightShadowMap, worldPos, N);
 
         // calculate per-light radiance
         vec3 L = normalize(-lightDir);
@@ -98,7 +97,7 @@ void main()
     {
         PointLight light = ssbo_PointLight.LightArray[i];
 
-        float shadow = 1.0 - CalcShadowPointLight(u_PointLightShadowCubeMapArray, worldPos4, N, light);
+        float shadow = 1.0 - CalcShadowPointLight(u_PointLightShadowCubeMapArray, worldPos, N, light);
 
         vec3 lightColor = light.Color.rgb;
         vec3 lightPos = light.Position.xyz;
@@ -135,7 +134,7 @@ void main()
     {
         SpotLight light = ssbo_SpotLight.LightArray[i];
 
-        float shadow = 1.0 - CalcShadowSpotLight(u_SpotLightShadowMapArray, worldPos4, N, light);
+        float shadow = 1.0 - CalcShadowSpotLight(u_SpotLightShadowMapArray, worldPos, N, light);
 
         vec3 lightColor = light.Color.rgb;
         vec3 lightPos = light.Position.xyz;

@@ -36,7 +36,6 @@ void main()
 {
     // extract material properties from maps
     vec3 worldPos = texture(g_Color0, v_TexCoord).rgb;
-    vec4 worldPos4 = texture(g_Color0, v_TexCoord).rgba;
     vec3 worldNormal = texture(g_Color1, v_TexCoord).rgb * 2.0 - 1.0;
 
     vec3 albedo = texture(g_Color2, v_TexCoord).rgb; albedo = pow(albedo, vec3(2.2));
@@ -64,8 +63,7 @@ void main()
     {
         DirectionalLight light = ssbo_EnvironmentLight.DirLight;
 
-        // float CalcShadowDirectional(sampler2D sampler, vec4 worldPos, vec3 worldNormal);
-        float shadow = 1.0 - CalcShadowDirectional(u_DirectionalLightShadowMap, worldPos4, worldNormal);
+        float shadow = 1.0 - CalcShadowDirectional(u_DirectionalLightShadowMap, worldPos, worldNormal, light);
 
         vec3 L = normalize(-light.Direction);
         vec3 H = normalize(L + V);
@@ -85,12 +83,14 @@ void main()
         PointLight light = ssbo_PointLight.LightArray[i];
 
         vec3 L = normalize(light.Position - worldPos);
-        vec3 H = normalize(L + V);
+        vec3 R = reflect(-L, N);
+        // vec3 H = normalize(V + L);
         float dist = length(light.Position - worldPos);
-        float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z), 1.0);
+        float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z + 0.0001), 1.0);
 
         float NdotL = max(dot(N, L), 0.0);
-        float NdotH = max(dot(N, H), 0.0);
+        // float NdotH = max(dot(N, H), 0.0);
+        float NdotH = max(dot(V, R), 0.0);
 
         vec3 diffuse = NdotL * diffuseColor;
         vec3 specular = pow(NdotH, shininess) * specularColor;
@@ -104,9 +104,10 @@ void main()
         SpotLight light = ssbo_SpotLight.LightArray[i];
 
         vec3 L = normalize(light.Position - worldPos);
-        vec3 H = normalize(V + L);
+        vec3 R = reflect(-L, N);
+        // vec3 H = normalize(V + L);
         float dist = length(light.Position - worldPos);
-        float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z), 1.0);
+        float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z + 0.00001), 1.0);
 
         float lightBeamSize = light.BeamSize;
         float lightBeamBlend = max(light.BeamBlend, 0.01);
@@ -123,7 +124,8 @@ void main()
         float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
 
         float NdotL = max(dot(N, L), 0.0);
-        float NdotH = max(dot(N, H), 0.0);
+        // float NdotH = max(dot(N, H), 0.0);
+        float NdotH = max(dot(V, R), 0.0);
 
         vec3 diffuse = NdotL * diffuseColor;
         vec3 specular = pow(NdotH, shininess) * specularColor;

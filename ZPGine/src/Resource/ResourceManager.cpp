@@ -91,6 +91,11 @@ void ResourceManager::InitDefaultModels() {
     s_Instance->AddModel(CommonResources::MODEL_SKYBOX, skyboxModel);
     s_Instance->AddMesh(CommonResources::MESH_SKYBOX, skyboxModel->GetMeshes().front());
     s_Instance->AddVAO(CommonResources::VAO_SKYBOX, skyboxModel->GetMeshes().front()->GetVertexArray());
+
+    ref<Model> coneModel = ModelLoader("./assets/models/Cone.obj").Load();
+    s_Instance->AddModel(CommonResources::MODEL_CONE, coneModel);
+    s_Instance->AddMesh(CommonResources::MESH_CONE, coneModel->GetMeshes().front());
+    s_Instance->AddVAO(CommonResources::VAO_CONE, coneModel->GetMeshes().front()->GetVertexArray());
 }
 
 void ResourceManager::InitDefaultShaderPrograms() {
@@ -186,6 +191,27 @@ void ResourceManager::InitDefaultVAOs() {
             IndexBuffer::Create(phatt::boxIndices, ZPG_ARRAY_LENGTH(phatt::boxIndices))
         )
     );
+
+    constexpr static float quadVertices[] =
+    {
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+    };
+
+    auto quadVao = VertexArray::Create({
+        VertexBuffer::Create(quadVertices, sizeof(quadVertices), {
+            {ShaderDataType::Float2, "a_Pos"},
+            {ShaderDataType::Float2, "a_TexCoords"}
+        })
+    });
+
+    s_Instance->AddVAO(CommonResources::VAO_QUAD, quadVao);
 }
 
 void ResourceManager::InitDefaultMeshes() {

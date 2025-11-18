@@ -5,6 +5,9 @@ __cmake_systeminformation/
 .idea/
 .cache/
 build/
+build-debug/
+build-profile/
+build-release/
 assets/models/
 assets/textures/
 *.zip

@@ -493,7 +493,7 @@ namespace ZPG
                 }
 
                 v3 atten = light->Atten.GetAttenuation();
-                if (ImGui::DragFloat3("Attenuation", glm::value_ptr(atten), 0.01, 0.0, 1.0)) {
+                if (ImGui::DragFloat3("Attenuation", glm::value_ptr(atten), 0.01)) {
                     light->Atten.SetAttenuation(atten);
                 }
 

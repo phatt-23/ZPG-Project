@@ -2,8 +2,7 @@
 // Created by phatt on 9/22/25.
 //
 
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#pragma once
 
 #include "Core/Timestep.h"
 #include "ImGui/ImGuiViewportInfo.h"
@@ -53,4 +52,3 @@ namespace ZPG {
 
 }
 
-#endif //APPLICATION_H

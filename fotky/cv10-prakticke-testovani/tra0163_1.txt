@@ -1,0 +1,67 @@
+Prevod z 3D na 4D homogenni prostor se provadi:
+f: [x,y,z] -> [wx,wy,wz,w]
+
+Prevod z 4D homogenniho prostoru do 3D se provadi:
+f': [x,y,z,w] -> [x,y,z]/w
+
+Transformace s [3][3] nastavenou na omega, scalne objekt o 1/omega.
+        
+Prakticky je to jako klasicka scale transfomace (s meritky pro jednotlive osy na diagonale),
+ale jde o uniformni scale (stejna meritka pro vsechny osy) a pouziva homogenni slozku, 
+kdezto u klasickeho scale se homogenni slozky nedotykame.
+
+Mejme vektor A[x,y,z] a jako homogenni slozku zvolime w = 500.
+Vektor A prevedeme do projektivniho prostoru Ah[wx,wy,wz,w] = Ah[500x, 500y, 500z, 500].
+Necht uniformni scale slozka omega = 20.
+
+[1 0 0 0    ] [wx]
+[0 1 0 0    ] [wy]
+[0 0 1 0    ] [wz]
+[0 0 0 omega] [w ]
+
+[1 0 0 0]  [500x]    [500x]
+[0 1 0 0]  [500y] => [500y]
+[0 0 1 0]  [500z]    [500z]
+[0 0 0 20] [500 ]    [10000]
+
+Vektor Ah prevedeme z projektivniho prostoru do kartezskeho:
+
+Ah[500x, 500y, 500z, 10000] -> A[500x, 500y, 500z]/10000 
+                          = 5/100 * A[x,y,z]
+                          = 1/20 * A[x,y,z]
+
+Vidime, ze se puvodni vektor A[x,y,z] transformoval na 1/20 * [x,y,z] (scalenul se o 1/omega).
+
+Vsechno funguje, protoze shader vypada takto:
+
+```glsl
+    float w = 500.0f;
+
+    vec4 worldPos = model * vec4(w * a_Pos, w);     // prevod na projektivni prostor a transformace modelovou matici
+
+    v_WorldPos = worldPos.xyz / worldPos.w;         // ve fragment shaderu pouzivam pozici v globalnim prostoru pro kalkulaci osvetleni
+
+    gl_Position = ssbo_Camera.ViewProj * worldPos;  // pohledova a projektivni (perspektivni) transfomace
+```
+
+a modelova matice je poskladana takto:
+
+```cpp
+    m4 transformMatrix(1.0);
+    transformMatrix[3][3] = 20.f;  // objekt se scalne o 1/20
+
+    auto model = TransformGroup::Build()
+        .Add<Transform>(transformMatrix)
+        .Add<Translate>(0.0, 1.0, -6.0)
+        ...
+        .Add<...>(...)
+        .Compose()
+```
+
+Spravnou funkcnost poznam tim, ze:
+    - s nastavenim w != 1 (a w != 0)
+    - a [3][3] prvku matice 
+se objekt pouze scalne o 1/20. 
+Nebude afektovana translace ani rotace.
+
+

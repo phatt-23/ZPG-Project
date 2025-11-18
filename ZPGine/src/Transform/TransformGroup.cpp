@@ -63,6 +63,7 @@ TransformGroup::Self TransformGroup::Build() {
 
 ref<TransformGroup> TransformGroup::Compose() {
     ZPG_PROFILE_FUNCTION();
+    this->ComputeMatrix();
     return MakeRef(this);
 }
 

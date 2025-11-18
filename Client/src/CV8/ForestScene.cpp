@@ -18,7 +18,7 @@ namespace CV8
             PositionComponent(v3(0.0)),
             DirectionComponent(v3(0.0, 0.0, -1.0)),
             BeamShapeComponent(20.0, 0.5),
-            AttenComponent(0.0001, 0.0001, 0.1)
+            AttenComponent(0.001, 0.001, 0.01)
         ));
 
         GetLightManager().AddLight(spotlight);
@@ -45,8 +45,8 @@ namespace CV8
 
 
         // Add lights
-        GetLightManager().AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.1)));
-        GetLightManager().AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.5), v3(-1, -1, -1)));
+        GetLightManager().AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.01)));
+        GetLightManager().AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.2), v3(-1, -1, -1)));
 
         f32 planeSize = 40;
 
@@ -145,6 +145,7 @@ namespace CV8
         dispatcher.Dispatch<MouseButtonPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(ForestScene::OnMouseButtonPressed));
     }
 
+
     bool ForestScene::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     {
         auto& mainFrameBuffer = Renderer::GetRenderContext().Targets.MainFrameBuffer;
@@ -156,6 +157,7 @@ namespace CV8
 
         if (event.GetButtonCode() == ZPG_MOUSE_BUTTON_LEFT)
         {
+            ZPG_INFO("Removing Entity ID: {0}", entityID);
             GetEntityManager().RemoveEntity(entityID);
         }
         else if (event.GetButtonCode() == ZPG_MOUSE_BUTTON_RIGHT)

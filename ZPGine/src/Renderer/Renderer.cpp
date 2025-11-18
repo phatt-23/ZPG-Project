@@ -14,7 +14,9 @@
 #include "Entity/Entity.h"
 #include "Profiling/Instrumentor.h"
 #include "RenderPass/DeferredLightingBlinnPhongRenderPass.h"
+#include "RenderPass/EntityRenderPass.h"
 #include "RenderPass/ForwardBlinnPhongRenderPass.h"
+#include "RenderPass/LightVolumeDeferredLightingBlinnPhongRenderPass.h"
 #include "RenderPass/SkyRenderPass.h"
 #include "Scene/Scene.h"
 #include "Texture/Texture2D.h"
@@ -62,7 +64,9 @@ namespace ZPG
         PushRenderPass(new GeometryRenderPass());
         // PushRenderPass(new LightingRenderPass());
         // PushRenderPass(new ForwardBlinnPhongRenderPass());
-        PushRenderPass(new DeferredLightingBlinnPhongRenderPass());
+        // PushRenderPass(new DeferredLightingBlinnPhongRenderPass());
+        PushRenderPass(new LightVolumeDeferredLightingBlinnPhongRenderPass());
+        PushRenderPass(new EntityRenderPass());
         PushRenderPass(new SkyRenderPass());
     }
 
@@ -75,6 +79,8 @@ namespace ZPG
 
     void Renderer::BeginFrame()
     {
+        ZPG_PROFILE_FUNCTION();
+
         s->m_RenderContext.Batches.Clear();
         s->m_RenderContext.Queues.Clear();
         s->m_RenderContext.Lights.Clear();
@@ -161,6 +167,8 @@ namespace ZPG
 
     void Renderer::Submit(const Entity& entity, RenderFlags flags)
     {
+        ZPG_PROFILE_FUNCTION();
+
         ZPG_CORE_ASSERT(flags.IsValid());
 
         s->m_RenderContext.Statistics.Submissions++;
@@ -204,6 +212,8 @@ namespace ZPG
 
     void Renderer::EndFrame()
     {
+        ZPG_PROFILE_FUNCTION();
+
         for (const auto& renderPass : s->m_RenderPasses)
         {
             renderPass->Execute(s->m_RenderContext);
@@ -248,6 +258,8 @@ namespace ZPG
 
     void Renderer::Clear()
     {
+        ZPG_PROFILE_FUNCTION();
+
         Renderer::BeginFrame();
         s->m_RenderContext.StaticBatches.Clear();
         s->m_RenderContext.StaticQueues.Clear();

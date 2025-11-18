@@ -1,0 +1,2 @@
+/usr/bin/ar qc libStb_Include.a CMakeFiles/Stb_Include.dir/stb_include.cpp.o
+/usr/bin/ranlib libStb_Include.a

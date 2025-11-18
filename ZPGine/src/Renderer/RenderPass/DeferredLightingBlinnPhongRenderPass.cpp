@@ -90,31 +90,17 @@ namespace ZPG
     {
         m_FrameBuffer->Bind();
         RenderCommand::Clear();
-
         m_ShaderProgram->Bind();
+        m_QuadVAO->Bind();
 
         BindGeometryMaps(context);
         BindLightMaps(context);
 
-        m_QuadVAO->Bind();
         RenderCommand::Draw(*m_QuadVAO);
-        m_QuadVAO->Unbind();
 
+        m_QuadVAO->Unbind();
         m_ShaderProgram->Unbind();
         m_FrameBuffer->Unbind();
-
-
         m_FrameBuffer->CopyAttachment(context.Targets.GeometryFrameBuffer, FrameBufferAttachmentType::Depth);
-
-        // GLuint fbo;
-        // glCreateFramebuffers(1, &fbo);
-        // glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, context.Targets.GeometryDepthMap->GetRendererID(), 0);
-        //
-        // glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
-        // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_FrameBuffer->GetRendererID());
-        // // GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter
-        // glBlitFramebuffer(0, 0, 100, 100, 0, 0, 100, 100, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        //
-        // glDeleteFramebuffers(1, &fbo);
     }
 }

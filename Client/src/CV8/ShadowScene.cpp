@@ -62,7 +62,7 @@ namespace CV8
         SetSky(Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" }));
 
         {
-            spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0), v3(0.0, -0.8, -1.0), 20.f, 0.5f, AttenComponent(0.001, 0.001, 0.1f)));
+            spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0), v3(0.0, -0.8, -1.0), 20.f, 0.5f, AttenComponent(0.0006, 0.0009, 0.001f)));
             GetLightManager().AddLight(spotlight);
 
             auto transform = TransformGroup::Build()
@@ -72,7 +72,7 @@ namespace CV8
 
             GetEntityManager().AddEntity(new SpotLightEntity(spotlight, m_LocalResources.GetModel("LightSphere"), transform));
 
-            spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0, 5.0, 0.0), v3(-1.0, 0.0, 1.0), 20.f, 0.5f, AttenComponent(0.001, 0.001, 0.1f)));
+            spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0, 5.0, 0.0), v3(-1.0, 0.0, 1.0), 20.f, 0.5f, AttenComponent(0.6, 0.9, 1.0f)));
             GetLightManager().AddLight(spotlight);
 
             transform = TransformGroup::Build()
@@ -84,7 +84,7 @@ namespace CV8
         }
 
         {
-            auto pointLight = MakeRef(new PointLight(v4(1.0, 0.0, 0.0, 1.0), v3(0.0), AttenComponent(0.01, 0.01, 1.0)));
+            auto pointLight = MakeRef(new PointLight(v4(1.0, 0.0, 0.0, 1.0), v3(0.0), AttenComponent(0.6, 0.9, 1.0f)));
             GetLightManager().AddLight(pointLight);
 
             auto transform = TransformGroup::Build()
@@ -95,7 +95,7 @@ namespace CV8
             GetEntityManager().AddEntity(new PointLightEntity(pointLight, m_LocalResources.GetModel("LightSphere"), transform));
 
 
-            pointLight = MakeRef(new PointLight(v4(1.0, 0.0, 0.0, 1.0), v3(0.0), AttenComponent(0.01, 0.01, 1.0)));
+            pointLight = MakeRef(new PointLight(v4(1.0, 0.0, 0.0, 1.0), v3(0.0), AttenComponent(0.6, 0.9, 1.0f)));
             GetLightManager().AddLight(pointLight);
 
             transform = TransformGroup::Build()
@@ -187,6 +187,19 @@ namespace CV8
                 .Add<Scale>(1.0)
                 .Compose()
         ));
+
+
+        m4 transformMatrix(1.0);
+        transformMatrix[3][3] = 20.f;  // objekt se scale o 1/20
+
+        GetEntityManager().AddEntity(new Entity(
+            m_LocalResources.GetModel("RedCube"),
+            TransformGroup::Build()
+                .Add<Transform>(transformMatrix)
+                .Add<Translate>(0.0, 1.0, -6.0)
+                .Compose()
+        ));
+
 
     }
 
