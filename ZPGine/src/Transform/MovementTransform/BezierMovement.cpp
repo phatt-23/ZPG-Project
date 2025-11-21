@@ -7,9 +7,14 @@ namespace ZPG
 {
 
     BezierMovement::BezierMovement(const vec<v3>& controlPoints, float duration)
-        : Movement(duration), m_ControlPoints(controlPoints) {}
+        : Movement(duration)    
+        , m_ControlPoints(controlPoints) 
+    {
+    }
 
-    BezierMovement::~BezierMovement() {}
+    BezierMovement::~BezierMovement() 
+    {   
+    }
 
     static float binom(int n, int k)
     {

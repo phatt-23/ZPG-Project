@@ -12,7 +12,7 @@ namespace ZPG
         void Update(Timestep &ts) override;
         
         const vec<v3>& GetControlPoints() const { return m_ControlPoints; }
-        void GetControlPoints(const vec<v3>& controlPoints) { m_ControlPoints = controlPoints; }
+        void SetControlPoints(const vec<v3>& controlPoints) { m_ControlPoints = controlPoints; }
         
     private:
         vec<v3> m_ControlPoints;
