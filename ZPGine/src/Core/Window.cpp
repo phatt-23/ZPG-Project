@@ -6,9 +6,10 @@
 
 namespace ZPG {
 
-scope<Window> Window::Create(WindowProps&& props) {
-    ZPG_PROFILE_FUNCTION();
-    return MakeScope<LinuxWindow>(props);
-}
+    scope<Window> Window::Create(WindowProps&& props) 
+    {
+        ZPG_PROFILE_FUNCTION();
+        return MakeScope<LinuxWindow>(props);
+    }
 
 }

@@ -8,43 +8,47 @@
 #include "Debug/Asserter.h"
 #include "Profiling/Instrumentor.h"
 
-namespace ZPG {
+namespace ZPG 
+{
+    namespace Utility
+    {
+        std::string ReadFile(const std::string& path) 
+        {
+            ZPG_PROFILE_FUNCTION();
+            ZPG_CORE_DEBUG("Reading file from CWD: {}", std::filesystem::current_path().c_str());
 
-std::string Utility::ReadFile(const std::string& path) {
-    ZPG_PROFILE_FUNCTION();
-    ZPG_CORE_DEBUG("Reading file from CWD: {}", std::filesystem::current_path().c_str());
+            std::ifstream f(path, std::ios::binary);
+            ZPG_CORE_ASSERT(f.is_open(), "File {} failed to open", path);
 
-    std::ifstream f(path, std::ios::binary);
-    ZPG_CORE_ASSERT(f.is_open(), "File {} failed to open", path);
+            f.seekg(0, std::ios::end);
+            std::string content;
+            u32 fileSize = f.tellg();
 
-    f.seekg(0, std::ios::end);
-    std::string content;
-    u32 fileSize = f.tellg();
+            ZPG_CORE_INFO("File size: {}", fileSize);
+            ZPG_CORE_ASSERT(fileSize > 0, "File {} is empty", path);
 
-    ZPG_CORE_INFO("File size: {}", fileSize);
-    ZPG_CORE_ASSERT(fileSize > 0, "File {} is empty", path);
+            content.resize(fileSize);
+            f.seekg(0, std::ios::beg);
+            f.read(content.data(), content.size());
+            f.close();
 
-    content.resize(fileSize);
-    f.seekg(0, std::ios::beg);
-    f.read(content.data(), content.size());
-    f.close();
+            return content;
+        }
 
-    return content;
-}
+        std::string GetNameFromPath(const std::string& path) 
+        {
+            ZPG_PROFILE_FUNCTION();
+            size_t lastSlash = path.find_last_of("/\\");  // linux and windows slash
+            size_t lastDot = path.rfind(".");
+            auto nameBegin = lastSlash == std::string::npos ? 0 : lastSlash + 1;
+            auto nameEnd = lastDot == std::string::npos ? path.size() : lastDot;
+            return path.substr(nameBegin, nameEnd - nameBegin);
+        }
 
-std::string Utility::GetNameFromPath(const std::string& path) {
-    ZPG_PROFILE_FUNCTION();
-    size_t lastSlash = path.find_last_of("/\\");  // linux and windows slash
-    size_t lastDot = path.rfind(".");
-    auto nameBegin = lastSlash == std::string::npos ? 0 : lastSlash + 1;
-    auto nameEnd = lastDot == std::string::npos ? path.size() : lastDot;
-    return path.substr(nameBegin, nameEnd - nameBegin);
-}
-
-f32 Utility::GetRandomFloat(f32 min, f32 max) {
-    ZPG_PROFILE_FUNCTION();
-    return (max - min) * (f32)rand() / (f32)RAND_MAX + min;
-}
-
-
+        f32 GetRandomFloat(f32 min, f32 max) 
+        {
+            ZPG_PROFILE_FUNCTION();
+            return (max - min) * (f32)rand() / (f32)RAND_MAX + min;
+        }
+    }
 }

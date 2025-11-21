@@ -21,29 +21,30 @@ RevolverScene::RevolverScene()
     SetCameraController(m_CameraController);
 }
 
-void RevolverScene::OnLazyAttach() {
-    // m_LocalRes.LoadModel("Revolver", "./assets/models/revolver/scene.gltf");
-    // m_LocalRes.LoadModel("SpecialRevolver", "./assets/models/38_special_revolver/scene.gltf");
-    m_LocalRes.LoadModel("ColtPython", "./assets/models/gameready_colt_python_revolver/scene.gltf");
-    m_LocalRes.LoadModel("Seoul", "./assets/models/korth_nxr_revolver/scene.gltf");
-    m_LocalRes.LoadModel("Plane", "./assets/models/plane.gltf");
+void RevolverScene::OnLazyAttach() 
+{
+    m_LocalRes.LoadModel("ColtPython", "./assets/models/vendor/gameready_colt_python_revolver/scene.gltf");
+    m_LocalRes.LoadModel("KorthRevolver", "./assets/models/vendor/korth_nxr_revolver/scene.gltf");
+    m_LocalRes.LoadModel("Plane", "./assets/models/plane/plane.gltf");
 
     int gridSize = 3;
     float dist = 4;
 
-    GetEntityManager().AddEntity(new Entity(m_LocalRes.GetModel("Plane"), TransformGroup::Build().Add<Scale>(10.0f).Compose()));
+    GetEntityManager().AddEntity(new Entity(
+        m_LocalRes.GetModel("Plane"), 
+        TransformGroup::Build().Add<Scale>(10.0f).Compose()));
 
     for (int i = -gridSize; i < gridSize; i++) {
         for (int j = -gridSize; j < gridSize; j++) {
             auto transform = TransformGroup::Build()
                 .Add<Scale>(0.1)
                 .Add<DynRotate>(0.0, 20.0)
-                // .Add<Rotate>(90.0, v3(1.0, 0.0, 0.0))
                 .Add<Translate>(dist*i, 0, dist*j)
                 .Compose();
 
-            GetEntityManager().AddEntity(
-                new Entity(m_LocalRes.GetModel("Seoul"), transform));
+            GetEntityManager().AddEntity(new Entity(
+                    m_LocalRes.GetModel("KorthRevolver"), 
+                    transform));
         }
     }
 
@@ -96,51 +97,6 @@ void RevolverScene::OnLazyAttach() {
 
     dir_light = new DirectionalLight(v4(1.0, 1.0, 1.0, 0.8), v3(-1.0));
     GetLightManager().AddLight(dir_light);
-}
-
-void RevolverScene::OnImGuiRender() {
-    Scene::OnImGuiRender();
-
-    ImGui::Begin("Shader program");
-
-    static const char* shader_programs[] = {
-        CommonResources::SHADER_PROGRAM_CONSTANT,
-        CommonResources::SHADER_PROGRAM_LAMBERT,
-        CommonResources::SHADER_PROGRAM_PHONG,
-        CommonResources::SHADER_PROGRAM_BLINN_PHONG,
-        CommonResources::SHADER_PROGRAM_PBR,
-    };
-
-    for (int i = 0; i < ZPG_ARRAY_LENGTH(shader_programs); i++) {
-        if (ImGui::RadioButton(shader_programs[i], m_CurrentShaderProgramRoute == shader_programs[i])) {
-            m_CurrentShaderProgramRoute = (char*)shader_programs[i];
-
-            auto shaderProgram = GetResourceManager().GetShaderProgram(m_CurrentShaderProgramRoute);
-
-            for (auto& [_, model] : m_LocalRes.GetModels()) {
-                for (auto& mesh : model->GetMeshes()) {
-                    mesh->GetMaterial()->SetShaderProgram(shaderProgram);
-                }
-            }
-        }
-    }
-
-    if (ImGui::SliderFloat4("firefly color", glm::value_ptr(firefly_color), 0.0, 1.0)) {
-        firefly_material->SetEmissive(firefly_color);
-        for (ref<PointLight> light : firefly_lights)
-            light->Color.Set(firefly_color);
-    }
-
-    static v4 dirLightColor = dir_light->Color.Get();
-    if (ImGui::SliderFloat4("DirLight Color", glm::value_ptr(dirLightColor), 0.0, 1.0)) {
-        dir_light->Color.Set(dirLightColor);
-    }
-    static v4 ambientLightColor = ambient_light->Color.Get();
-    if (ImGui::SliderFloat4("AmbientLight Color", glm::value_ptr(ambientLightColor), 0.0, 1.0)) {
-        ambient_light->Color.Set(ambientLightColor);
-    }
-
-    ImGui::End();
 }
 
 } 

@@ -145,6 +145,7 @@ namespace ZPG
 
             texture->AttachToFrameBuffer(m_RendererID, attachment);
 
+
             if (attachment.AttachType == FrameBufferAttachmentType::Color)
             {
                 m_ColorTextureAttachments[attachment] = texture;
@@ -166,7 +167,7 @@ namespace ZPG
         }
 
         int status = glCheckNamedFramebufferStatus(m_RendererID, GL_FRAMEBUFFER);
-        ZPG_CORE_ASSERT(status == GL_FRAMEBUFFER_COMPLETE, "Framebuffer isn't complete - OpenGL status code: %d", status);
+        ZPG_CORE_ASSERT(status == GL_FRAMEBUFFER_COMPLETE, "Framebuffer isn't complete - OpenGL status code: {}", status);
     }
 
     void OpenGLFrameBuffer::Resize(u32 width, u32 height) {

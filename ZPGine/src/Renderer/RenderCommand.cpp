@@ -15,11 +15,12 @@ namespace ZPG {
         ZPG_PROFILE_FUNCTION();
         ZPG_CORE_ASSERT(!s_RenderCommandInitialised, "RenderCommand was already initialized.");
 
-        switch (RendererAPI::GetAPI()) {
-        case RendererAPI::OpenGL: s_RendererAPI = new OpenGLRendererAPI(); break;
-        case RendererAPI::None:
-        default:
-            ZPG_UNREACHABLE("RenderCommand couldn't instantiate RendererAPI. API not known.");
+        switch (RendererAPI::GetAPI()) 
+        {
+            case RendererAPI::OpenGL: s_RendererAPI = new OpenGLRendererAPI(); break;
+            case RendererAPI::None:
+            default:
+                ZPG_UNREACHABLE("RenderCommand couldn't instantiate RendererAPI. API not known.");
         }
 
         s_RendererAPI->Init();

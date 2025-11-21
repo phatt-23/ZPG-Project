@@ -5,6 +5,8 @@
 #include "Event/WindowEvent.h"
 #include "Light/Light.h"
 #include "Entity/Entity.h"
+#include "Transform/MovementTransform/CircleMovement.h"
+#include "Transform/MovementTransform/LineMovement.h"
 #include "Transform/StaticTransform/Rotate.h"
 #include "Transform/StaticTransform/Scale.h"
 #include "Transform/StaticTransform/Translate.h"
@@ -337,6 +339,62 @@ namespace ZPG
             if (ImGui::DragFloat3("Min Translation", glm::value_ptr(min), 0.01f, 0.0, 100.0))
             {
                 dynTranslate->SetMinTranslation(min);
+            }
+        }
+        else if (typeid(*transform) == typeid(LineMovement))
+        {
+            auto* line = (LineMovement*)transform;
+
+            ImGui::Text("CircleMovement"); 
+            ImGui::Text("CurrentTime: %f", line->GetCurrentTime()); 
+
+            float d = line->GetDuration();
+            if (ImGui::DragFloat("Duration", &d, 0.1))
+            {
+                line->SetDuration(d);
+            }
+
+            v3 s = line->GetStartPoint();
+            if (ImGui::DragFloat3("StartPoint", glm::value_ptr(s), 0.1))
+            {
+                line->SetStartPoint(s);
+            }
+
+            v3 e = line->GetEndPoint();
+            if (ImGui::DragFloat3("EndPoint", glm::value_ptr(e), 0.1))
+            {
+                line->SetEndPoint(e);
+            }
+        }
+        else if (typeid(*transform) == typeid(CircleMovement))
+        {
+            auto* circle = (CircleMovement*)transform;
+
+            ImGui::Text("CircleMovement"); 
+            ImGui::Text("CurrentTime: %f", circle->GetCurrentTime()); 
+
+            float d = circle->GetDuration();
+            if (ImGui::DragFloat("Duration", &d, 0.1))
+            {
+                circle->SetDuration(d);
+            }
+
+            float r = circle->GetRadius();
+            if (ImGui::DragFloat("Radius", &r, 0.1))
+            {
+                circle->SetRadius(r);
+            }
+
+            v3 c = circle->GetCenter();
+            if (ImGui::DragFloat3("Center", glm::value_ptr(c), 0.1))
+            {
+                circle->SetCenter(c);
+            }
+
+            v3 dir = circle->GetDirection();
+            if (ImGui::DragFloat3("Direction", glm::value_ptr(dir), 0.1, -1.0, 1.0))
+            {
+                circle->SetDirection(dir);
             }
         }
 

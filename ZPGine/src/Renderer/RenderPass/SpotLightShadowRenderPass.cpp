@@ -7,6 +7,7 @@
 #include "Renderer/RenderContext.h"
 #include "Shader/Shader.h"
 #include "Shader/ShaderProgram.h"
+#include "Texture/Texture2D.h"
 #include "Texture/Texture2DArray.h"
 #include "Buffer/FrameBuffer.h"
 
@@ -33,10 +34,11 @@ namespace ZPG
         m_ShaderProgram = ShaderProgram::Create("SpotLightShadowMap",
         {
             Shader::Create("assets/shaders/shadow-mapping/spotlight/SpotLightShadow.vert"),
-            Shader::Create("assets/shaders/shadow-mapping/spotlight/SpotLightShadow.geom"),
+            // Shader::Create("assets/shaders/shadow-mapping/spotlight/SpotLightShadow.geom"),
             Shader::Create("assets/shaders/shadow-mapping/spotlight/SpotLightShadow.frag"),
         });
     }
+
 
     void SpotLightShadowRenderPass::Execute(RenderContext& context)
     {
@@ -54,9 +56,11 @@ namespace ZPG
         int index = 0;
         for (auto& spotLight : context.Lights.SpotLights)
         {
+            if (index >= context.Targets.SpotLightShadowMapArray->GetArraySize())
+                break;
+
             m_ShaderProgram->SetInt("u_Index", index);
             index++;
-
             for (const auto& batch : std::views::concat(
                 context.Batches.Shadow | std::views::values,
                 context.StaticBatches.Shadow | std::views::values)
@@ -69,6 +73,7 @@ namespace ZPG
                 RenderCommand::DrawInstanced(*batch.mesh->GetVertexArray(), batch.GetSize());
             }
         }
+
 
         m_ShaderProgram->Unbind();
         m_FrameBuffer->Unbind();

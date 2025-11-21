@@ -20,6 +20,7 @@
 #include "Texture/Texture2DArray.h"
 #include "Texture/TextureCubeMapArray.h"
 #include "Renderer/DrawCommand.h"
+#include "CV10/MovementScene.h"
 
 
 using namespace ZPG;
@@ -40,12 +41,13 @@ ClientApp::ClientApp()
 
 void ClientApp::AttachScenes()
 {
+    m_SceneManager.AddScene("10-Movement", []{ return new CV10::MovementScene(); });
     m_SceneManager.AddScene("8-Shadow",  []{ return new CV8::ShadowScene(); },             SceneLifetime::Transient);
     m_SceneManager.AddScene("8-Skydome", []{ return new CV8::SkydomeScene(); },            SceneLifetime::Transient);
     m_SceneManager.AddScene("8-Forest",  []{ return new CV8::ForestScene(); },             SceneLifetime::Transient);
     m_SceneManager.AddScene("Revolver",  []{ return new RevolverScene::RevolverScene(); }, SceneLifetime::Transient);
     m_SceneManager.AddScene("Hyena",     []{ return new HyenaScene::HyenaScene(); },       SceneLifetime::Transient);
-    m_SceneManager.SetActiveScene("8-Shadow");
+    m_SceneManager.SetActiveScene("10-Movement");
 }
 
 void ClientApp::OnImGuiRender()
@@ -92,7 +94,7 @@ void ClientApp::OnImGuiRender()
     ShowMainMaps();
     ShowGeometryBufferMaps();
     ShowDirectionalShadowMap();
-    // ShowSpotShadowFramebuffer();
+    ShowSpotShadowFramebuffer();
     // ShowPointShadowFramebuffer();
     ShowCameraInfo();
 }

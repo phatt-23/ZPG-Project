@@ -7,6 +7,10 @@
 #include "Renderer/DrawCommand.h"
 #include "Renderer/RenderPass.h"
 #include "Renderer/RenderPass/DirectionalLightShadowRenderPass.h"
+#include "Renderer/RenderPass/LightVolume/EnvironmentLightRenderPass.h"
+#include "Renderer/RenderPass/LightVolume/PointLightRenderPass.h"
+#include "Renderer/RenderPass/LightVolume/SpotLightRenderPass.h"
+#include "Renderer/RenderPass/LightVolume/TransitionRenderPass.h"
 #include "Renderer/RenderPass/PointLightShadowRenderPass.h"
 #include "Renderer/RenderPass/SpotLightShadowRenderPass.h"
 #include "Renderer/RenderPass/GeometryRenderPass.h"
@@ -62,11 +66,15 @@ namespace ZPG
         // PushRenderPass(new SpotLightShadowRenderPass());
         // PushRenderPass(new PointLightShadowRenderPass());
         PushRenderPass(new GeometryRenderPass());
+        PushRenderPass(new TransitionRenderPass());
         // PushRenderPass(new LightingRenderPass());
         // PushRenderPass(new ForwardBlinnPhongRenderPass());
-        // PushRenderPass(new DeferredLightingBlinnPhongRenderPass());
-        PushRenderPass(new LightVolumeDeferredLightingBlinnPhongRenderPass());
-        PushRenderPass(new EntityRenderPass());
+        PushRenderPass(new DeferredLightingBlinnPhongRenderPass());
+        // PushRenderPass(new LightVolumeDeferredLightingBlinnPhongRenderPass());
+        // PushRenderPass(new EnvironmentLightRenderPass());
+        // PushRenderPass(new PointLightRenderPass());
+        // PushRenderPass(new SpotLightRenderPass());
+        // PushRenderPass(new EntityRenderPass());
         PushRenderPass(new SkyRenderPass());
     }
 
@@ -127,32 +135,44 @@ namespace ZPG
         {
             switch (light->GetLightType())
             {
-            case LightType::Ambient:
-                s->m_RenderContext.Lights.AmbientLight = new AmbientLightStruct(*(AmbientLight*)light.get());
-                s->m_RenderContext.SSBO.EnvironmentLightSSBO.SetAmbient(*(AmbientLight*)light.get());
-                break;
-            case LightType::Directional:
-                s->m_RenderContext.Lights.DirectionalLight = new DirectionalLightStruct(*(DirectionalLight*)light.get(), *s->m_RenderContext.ActiveCamera);
-                s->m_RenderContext.SSBO.EnvironmentLightSSBO.SetDirectionalLight(*(DirectionalLight*)light.get(), *s->m_RenderContext.ActiveCamera);
-                break;
-            case LightType::Point:
-                if (s->m_RenderContext.Lights.PointLights.size() < s->m_RenderContext.Lights.PointLights.capacity())
+                case LightType::Ambient:
                 {
-                    PointLightStruct pointlightStruct(*(PointLight*)light.get());
-                    pointlightStruct.Index = pointLightIndex++;
-                    s->m_RenderContext.Lights.PointLights.push_back(pointlightStruct);
-                }
-                break;
-            case LightType::Spotlight:
-                if (s->m_RenderContext.Lights.SpotLights.size() < s->m_RenderContext.Lights.SpotLights.capacity())
+                    s->m_RenderContext.Lights.AmbientLight = new AmbientLightStruct(*(AmbientLight*)light.get());
+                    s->m_RenderContext.SSBO.EnvironmentLightSSBO.SetAmbient(*(AmbientLight*)light.get());
+                } break;
+                case LightType::Directional:
                 {
-                    SpotLightStruct spotlightStruct(*(SpotLight*)light.get());
-                    spotlightStruct.Index = spotLightIndex++;
-                    s->m_RenderContext.Lights.SpotLights.push_back(spotlightStruct);
-                }
-                break;
-            case LightType::None:
-                ZPG_UNREACHABLE("LightType::None is not supported");
+                    s->m_RenderContext.Lights.DirectionalLight = new DirectionalLightStruct(
+                        *(DirectionalLight*)light.get(), 
+                        *s->m_RenderContext.ActiveCamera
+                    );
+                    s->m_RenderContext.SSBO.EnvironmentLightSSBO.SetDirectionalLight(
+                        *(DirectionalLight*)light.get(), 
+                        *s->m_RenderContext.ActiveCamera
+                    );
+                } break;
+                case LightType::Point:
+                {
+                    const auto& pointLights = s->m_RenderContext.Lights.PointLights;
+                    if (pointLights.size() < pointLights.capacity())
+                    {
+                        PointLightStruct pointlightStruct(*(PointLight*)light.get());
+                        pointlightStruct.Index = pointLightIndex++;
+                        s->m_RenderContext.Lights.PointLights.push_back(pointlightStruct);
+                    }
+                } break;
+                case LightType::Spotlight:
+                {
+                    const auto& spotLights = s->m_RenderContext.Lights.SpotLights;
+                    if (spotLights.size() < spotLights.capacity())
+                    {
+                        SpotLightStruct spotlightStruct(*(SpotLight*)light.get());
+                        spotlightStruct.Index = spotLightIndex++;
+                        s->m_RenderContext.Lights.SpotLights.push_back(spotlightStruct);
+                    }
+                } break;
+                case LightType::None:
+                    ZPG_UNREACHABLE("LightType::None is not supported");
             }
         }
 

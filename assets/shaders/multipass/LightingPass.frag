@@ -66,7 +66,7 @@ void main()
         vec3 lightColor = directionalLightColor.rgb * directionalLightColor.a;
         vec3 lightDir = ssbo_EnvironmentLight.DirLight.Direction;
 
-        float shadow = 1.0 - CalcShadowDirectional(u_DirectionalLightShadowMap, worldPos, N);
+        float shadow = 1.0 - CalcShadowDirectional(u_DirectionalLightShadowMap, worldPos, N, ssbo_EnvironmentLight.DirLight);
 
         // calculate per-light radiance
         vec3 L = normalize(-lightDir);

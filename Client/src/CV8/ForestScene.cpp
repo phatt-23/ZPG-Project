@@ -29,13 +29,13 @@ namespace CV8
 
     void ForestScene::OnLazyAttach()
     {
-        m_LocalRes.LoadModel("Tree", "./assets/models/pine_tree/scene.gltf");
-        m_LocalRes.LoadModel("Bush", "./assets/models/bush/scene.gltf");
-        m_LocalRes.LoadModel("Bush2", "./assets/models/small_bush/scene.gltf");
-        m_LocalRes.LoadModel("Firefly", "./assets/models/sphere/scene.gltf");
-        m_LocalRes.LoadModel("GrassBlock", "./assets/models/minecraft_grass_block/scene.gltf");
-        m_LocalRes.LoadModel("Shrek", "./assets/models/shrek/shrek.obj");
-        m_LocalRes.LoadModel("Fiona", "./assets/models/shrek/fiona.obj");
+        m_LocalRes.LoadModel("Tree", "./assets/models/vendor/pine_tree/scene.gltf");
+        m_LocalRes.LoadModel("Bush", "./assets/models/vendor/bush/scene.gltf");
+        m_LocalRes.LoadModel("Bush2", "./assets/models/vendor/small_bush/scene.gltf");
+        m_LocalRes.LoadModel("Firefly", "./assets/models/sphere/sphere.gltf");
+        m_LocalRes.LoadModel("GrassBlock", "./assets/models/vendor/minecraft_grass_block/scene.gltf");
+        m_LocalRes.LoadModel("Shrek", "./assets/models/vendor/shrek/shrek.obj");
+        m_LocalRes.LoadModel("Fiona", "./assets/models/vendor/shrek/fiona.obj");
 
         SetSky(Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" }));
 

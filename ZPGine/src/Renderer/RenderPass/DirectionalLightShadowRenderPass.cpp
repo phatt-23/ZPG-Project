@@ -20,8 +20,8 @@ namespace ZPG
         ZPG_PROFILE_FUNCTION();
 
         FrameBufferSpecification directionalLightFramebufferSpec;
-        directionalLightFramebufferSpec.Width = 1024;
-        directionalLightFramebufferSpec.Height = 1024;
+        directionalLightFramebufferSpec.Width = context.Targets.DirectionalLightShadowMap->GetWidth();
+        directionalLightFramebufferSpec.Height = context.Targets.DirectionalLightShadowMap->GetHeight();
         directionalLightFramebufferSpec.Resizable = false;
         directionalLightFramebufferSpec.Attachments = {
             {

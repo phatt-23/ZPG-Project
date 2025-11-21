@@ -34,6 +34,8 @@ public:
     constexpr static auto MODEL_SKYDOME = "model://Skydome";
     constexpr static auto MODEL_SKYBOX = "model://Skybox";
     constexpr static auto MODEL_CONE = "model://Cone";
+    constexpr static auto MODEL_PLANE = "model://Plane";
+    constexpr static auto MODEL_CUBE = "model://Cube";
 
     constexpr static auto VAO_SPHERE = "vao://Sphere";
     constexpr static auto VAO_BOX = "vao://Box";
@@ -41,12 +43,16 @@ public:
     constexpr static auto VAO_SKYBOX = "vao://Skybox";
     constexpr static auto VAO_QUAD = "vao://Quad";
     constexpr static auto VAO_CONE = "vao://Cone";
+    constexpr static auto VAO_PLANE = "vao://Plane";
+    constexpr static auto VAO_CUBE = "vao://Cube";
 
     constexpr static auto MESH_SPHERE = "mesh://Sphere";
     constexpr static auto MESH_BOX = "mesh://Box";
     constexpr static auto MESH_SKYBOX = "mesh://Skybox";
     constexpr static auto MESH_SKYDOME = "mesh://Skydome";
     constexpr static auto MESH_CONE = "mesh://Cone";
+    constexpr static auto MESH_PLANE = "mesh://Plane";
+    constexpr static auto MESH_CUBE = "mesh://Cube";
 
 };
 

@@ -19,6 +19,7 @@
 #include "Light/PointLight.h"
 #include "Light/SpotLight.h"
 #include "Sky/Skybox.h"
+#include "Transform/MovementTransform/LineMovement.h"
 #include "Transform/TransformGroup.h"
 #include "Transform/StaticTransform/Rotate.h"
 #include "Transform/StaticTransform/Scale.h"
@@ -35,34 +36,54 @@ namespace CV8
 
     void ShadowScene::OnAttach()
     {
-        auto spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0), v3(1.0), 20.f, 0.5f, AttenComponent(0.001, 0.001, 0.1f)));
-        auto controller = MakeRef(new FlashlightCameraController(spotlight, GetCamera()));
-        SetCameraController(controller);
+        // auto spotlight = MakeRef(new SpotLight(
+        //     v4(1.0), 
+        //     v3(0.0), 
+        //     v3(1.0), 
+        //     20.f, 0.5f, 
+        //     AttenComponent(0.01, 0.01, 0.1f)));
+        //
+        // auto controller = MakeRef(new FlashlightCameraController(spotlight, GetCamera()));
+        // SetCameraController(controller);
 
-        GetLightManager().AddLight(spotlight);
+        // GetLightManager().AddLight(spotlight);
 
-        GetLightManager().AddLight(new AmbientLight(v4(0.1)));
-        GetLightManager().AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.5), v3(-1.0, -1.0, -1.0)));
+        GetLightManager().AddLight(new AmbientLight(v4(0.05)));
+        GetLightManager().AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.05), v3(-1,-1,-1)));
 
-        m_LocalResources.LoadModel("Plane", "./assets/models/plane.gltf");
-        m_LocalResources.LoadModel("Sphere", "./assets/models/sphere.gltf");
-        m_LocalResources.LoadModel("LightSphere", "./assets/models/sphere.gltf");
-        m_LocalResources.LoadModel("Cube", "./assets/models/cube.gltf");
-        m_LocalResources.LoadModel("GreenCube", "./assets/models/cube.gltf");
-        m_LocalResources.LoadModel("BlueCube", "./assets/models/cube.gltf");
-        m_LocalResources.LoadModel("RedCube", "./assets/models/cube.gltf");
+        m_LocalResources.LoadModel("Plane", "./assets/models/plane/plane.gltf");
+        m_LocalResources.LoadModel("Sphere", "./assets/models/sphere/sphere.gltf");
+        m_LocalResources.LoadModel("LightSphere", "./assets/models/sphere/sphere.gltf");
+        m_LocalResources.LoadModel("Cube", "./assets/models/cube/cube.gltf");
+        m_LocalResources.LoadModel("GreenCube", "./assets/models/cube/cube.gltf");
+        m_LocalResources.LoadModel("BlueCube", "./assets/models/cube/cube.gltf");
+        m_LocalResources.LoadModel("RedCube", "./assets/models/cube/cube.gltf");
 
-        m_LocalResources.GetModel("Sphere")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(1.0, 1.0, 0.0, 1.0));
-        m_LocalResources.GetModel("LightSphere")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(1.0, 1.0, 0.0, 1.0));
-        m_LocalResources.GetModel("LightSphere")->GetMeshes().front()->GetMaterial()->SetEmissive(v4(1.0, 1.0, 0.0, 1.0));
-        m_LocalResources.GetModel("RedCube")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(1.0, 0.0, 0.0, 1.0));
-        m_LocalResources.GetModel("GreenCube")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0.0, 1.0, 0.0, 1.0));
-        m_LocalResources.GetModel("BlueCube")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0.0, 0.0, 1.0, 1.0));
+        m_LocalResources.GetModel("Sphere")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(1,1,0,1));
+        m_LocalResources.GetModel("LightSphere")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(1,1,0,1));
+        m_LocalResources.GetModel("LightSphere")->GetMeshes().front()->GetMaterial()->SetEmissive(v4(1,1,0,1));
+        m_LocalResources.GetModel("RedCube")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(1,0,0,1));
+        m_LocalResources.GetModel("GreenCube")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0,1,0,1));
+        m_LocalResources.GetModel("BlueCube")->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0,0,1,1));
+
+        m_LocalResources.GetModel("Plane")->GetMeshes().front()->GetMaterial()->SetMetallic(0);
+        m_LocalResources.GetModel("Sphere")->GetMeshes().front()->GetMaterial()->SetMetallic(0);
+        m_LocalResources.GetModel("LightSphere")->GetMeshes().front()->GetMaterial()->SetMetallic(0);
+        m_LocalResources.GetModel("LightSphere")->GetMeshes().front()->GetMaterial()->SetMetallic(0);
+        m_LocalResources.GetModel("RedCube")->GetMeshes().front()->GetMaterial()->SetMetallic(0);
+        m_LocalResources.GetModel("GreenCube")->GetMeshes().front()->GetMaterial()->SetMetallic(0);
+        m_LocalResources.GetModel("BlueCube")->GetMeshes().front()->GetMaterial()->SetMetallic(0);
 
         SetSky(Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" }));
 
         {
-            spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0), v3(0.0, -0.8, -1.0), 20.f, 0.5f, AttenComponent(0.0006, 0.0009, 0.001f)));
+            auto spotlight = MakeRef(new SpotLight(
+                v4(1.0), 
+                v3(0.0), 
+                v3(0.0, -0.8, -1.0), 
+                20.f, 0.5f, 
+                AttenComponent(0.02, 0.02, 1.f)));
+
             GetLightManager().AddLight(spotlight);
 
             auto transform = TransformGroup::Build()
@@ -70,9 +91,18 @@ namespace CV8
                 .Add<Translate>(5.0, 3.0, 5.0)
                 .Compose();
 
-            GetEntityManager().AddEntity(new SpotLightEntity(spotlight, m_LocalResources.GetModel("LightSphere"), transform));
+            GetEntityManager().AddEntity(new SpotLightEntity(
+                spotlight, 
+                m_LocalResources.GetModel("LightSphere"), 
+                transform));
 
-            spotlight = MakeRef(new SpotLight(v4(1.0), v3(0.0, 5.0, 0.0), v3(-1.0, 0.0, 1.0), 20.f, 0.5f, AttenComponent(0.6, 0.9, 1.0f)));
+            spotlight = MakeRef(new SpotLight(
+                v4(1.0), 
+                v3(0.0, 5.0, 0.0), 
+                v3(-1.0, 0.0, 1.0), 
+                20.f, 0.5f, 
+                AttenComponent(0.04, 0.07, 1.0f)));
+
             GetLightManager().AddLight(spotlight);
 
             transform = TransformGroup::Build()
@@ -80,11 +110,18 @@ namespace CV8
                 .Add<Translate>(0.0, 4.0, 0.0)
                 .Compose();
 
-            GetEntityManager().AddEntity(new SpotLightEntity(spotlight, m_LocalResources.GetModel("LightSphere"), transform));
+            GetEntityManager().AddEntity(new SpotLightEntity(
+                spotlight, 
+                m_LocalResources.GetModel("LightSphere"), 
+                transform));
         }
 
         {
-            auto pointLight = MakeRef(new PointLight(v4(1.0, 0.0, 0.0, 1.0), v3(0.0), AttenComponent(0.6, 0.9, 1.0f)));
+            auto pointLight = MakeRef(new PointLight(
+                v4(1.0, 0.0, 0.0, 1.0), 
+                v3(0.0), 
+                AttenComponent(0.6, 0.9, 1.0f)));
+
             GetLightManager().AddLight(pointLight);
 
             auto transform = TransformGroup::Build()
@@ -92,10 +129,16 @@ namespace CV8
                 .Add<Translate>(-4.0, 1.5, 2.5)
                 .Compose();
 
-            GetEntityManager().AddEntity(new PointLightEntity(pointLight, m_LocalResources.GetModel("LightSphere"), transform));
+            GetEntityManager().AddEntity(new PointLightEntity(
+                pointLight, 
+                m_LocalResources.GetModel("LightSphere"), 
+                transform));
 
+            pointLight = MakeRef(new PointLight(
+                v4(1.0, 0.0, 0.0, 1.0), 
+                v3(0.0), 
+                AttenComponent(0.6, 0.9, 1.0f)));
 
-            pointLight = MakeRef(new PointLight(v4(1.0, 0.0, 0.0, 1.0), v3(0.0), AttenComponent(0.6, 0.9, 1.0f)));
             GetLightManager().AddLight(pointLight);
 
             transform = TransformGroup::Build()
@@ -103,7 +146,10 @@ namespace CV8
                 .Add<Translate>(-0.0, 1.5, 2.5)
                 .Compose();
 
-            GetEntityManager().AddEntity(new PointLightEntity(pointLight, m_LocalResources.GetModel("LightSphere"), transform));
+            GetEntityManager().AddEntity(new PointLightEntity(
+                pointLight, 
+                m_LocalResources.GetModel("LightSphere"), 
+                transform));
         }
 
         GetCamera().SetPosition(v3(0.0, 2.0, 6.0));
@@ -190,7 +236,7 @@ namespace CV8
 
 
         m4 transformMatrix(1.0);
-        transformMatrix[3][3] = 20.f;  // objekt se scale o 1/20
+        transformMatrix[3][3] = 20.f;  // objekt se scalne o 1/20
 
         GetEntityManager().AddEntity(new Entity(
             m_LocalResources.GetModel("RedCube"),

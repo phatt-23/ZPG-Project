@@ -11,20 +11,11 @@
 #include "Event/KeyEvent.h"
 #include "Event/WindowEvent.h"
 #include "Profiling/Instrumentor.h"
+#include "Core/Utility.h"
 
 using namespace glm;
 
 namespace ZPG {
-
-    template<typename T> concept IsNumeric = std::is_integral_v<T> || std::is_floating_point_v<T>;
-
-    template<IsNumeric T>
-    static T wrap(T value, T low, T high)
-    {
-        if (value < low) return high;
-        if (value > high) return low;
-        return value;
-    }
 
     CameraController::CameraController(Camera& camera)
         : m_Camera(camera)
@@ -77,7 +68,7 @@ namespace ZPG {
         if (Input::IsKeyPressed(ZPG_KEY_L))
             m_Yaw += mouseSensitivity;
 
-        m_Yaw = wrap(m_Yaw, -180.f, 180.f);
+        m_Yaw = Utility::Wrap(m_Yaw, -180.f, 180.f);
         m_Pitch = clamp(m_Pitch, -89.f, 89.f);
 
         // Update camera's orientation
@@ -118,7 +109,7 @@ namespace ZPG {
             vec2 offset = currentPos - m_LastCursorPos;
 
             m_Yaw += offset.x * m_MouseSensitivity;
-            m_Yaw = wrap(m_Yaw, -180.f, 180.f);
+            m_Yaw = Utility::Wrap(m_Yaw, -180.f, 180.f);
             m_Pitch += offset.y * m_MouseSensitivity;
             m_Pitch = clamp(m_Pitch, -89.f, 89.f);
 

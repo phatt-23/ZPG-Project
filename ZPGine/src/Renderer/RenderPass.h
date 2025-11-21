@@ -16,8 +16,8 @@ namespace ZPG
         virtual void OnResize(u32 width, u32 height);
 
     protected:
-        ref<FrameBuffer> m_FrameBuffer;
-        ref<ShaderProgram> m_ShaderProgram;
+        ref<FrameBuffer> m_FrameBuffer = nullptr;
+        ref<ShaderProgram> m_ShaderProgram = nullptr;
     };
 
 }

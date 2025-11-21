@@ -11,7 +11,10 @@ namespace ZPG
 
     void RenderPass::OnResize(u32 width, u32 height)
     {
-        m_FrameBuffer->Resize(width, height);
+        if (m_FrameBuffer != nullptr)
+        {
+            m_FrameBuffer->Resize(width, height);
+        }
     }
 
 }

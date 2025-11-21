@@ -51,6 +51,9 @@ namespace ZPG
         int index = 0;
         for (const auto& pointLight : context.Lights.PointLights)
         {
+            if (index >= context.Targets.PointLightShadowCubeMapArray->GetArraySize()) 
+                break;
+
             m_ShaderProgram->SetInt("u_Index", index);
             index++;
 

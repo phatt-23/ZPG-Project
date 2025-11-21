@@ -19,7 +19,7 @@ namespace ZPG
 
 
             float lightMax = std::max({Color.r, Color.g, Color.b});
-            float brightnessCutoff = 5.0 / 256.0; // threshold
+            float brightnessCutoff = 0.0001; // threshold
             float limit = lightMax / brightnessCutoff;
 
             float radius = (-linear + sqrt(linear * linear - 4 * quadratic * (constant - limit))) / (2 * quadratic);

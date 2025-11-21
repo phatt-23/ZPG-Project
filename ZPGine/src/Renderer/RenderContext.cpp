@@ -1,4 +1,5 @@
 #include "RenderContext.h"
+#include "Debug/Logger.h"
 #include "RenderBindingPoints.h"
 #include "Profiling/Instrumentor.h"
 #include "Renderer/DrawBatch.h"
@@ -45,7 +46,7 @@ namespace ZPG
 
         Targets.SpotLightShadowMapArray = Texture2DArray::Create( 1024, 1024, 64, TextureDataFormat::Depth32F );
         Targets.PointLightShadowCubeMapArray = TextureCubeMapArray::Create( 1024, 6 * 10, TextureDataFormat::Depth32F );
-        Targets.DirectionalLightShadowMap = Texture2D::Create( "DirectionalShadow.texture2d", 1024, 1024, TextureDataFormat::Depth32F );
+        Targets.DirectionalLightShadowMap = Texture2D::Create( "DirectionalShadow.texture2d", 4 * 1024, 4 * 1024, TextureDataFormat::Depth32F );
 
         FrameBufferSpecification mainFramebufferSpec;
         mainFramebufferSpec.Width = 1024;
@@ -72,6 +73,7 @@ namespace ZPG
             }, // entity id
         };
 
+        ZPG_CORE_INFO("Creating main framebuffer");
         Targets.MainFrameBuffer = FrameBuffer::Create(mainFramebufferSpec);
 
 
@@ -119,6 +121,7 @@ namespace ZPG
             },
         };
 
+        ZPG_CORE_INFO("Creating geometry framebuffer");
         Targets.GeometryFrameBuffer = FrameBuffer::Create(geometryFrameBufferSpec);
 
     }

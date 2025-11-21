@@ -1,8 +1,7 @@
 #include "ResourceManager.h"
 #include "Shader/ShaderProgram.h"
 #include "CommonResources.h"
-#include "../../../assets/models/nemec/sphere.h"
-#include "../../../assets/models/phatt/box.h"
+#include "../../../assets/models/phatt-assets/box.h"
 #include "Debug/Asserter.h"
 #include "Material/Material.h"
 #include "Model/Mesh.h"
@@ -75,27 +74,48 @@ void ResourceManager::Init() {
 void ResourceManager::InitDefaultModels() {
     ZPG_PROFILE_FUNCTION();
     ref<Model> sphereModel = ModelLoader("./assets/models/sphere/scene.gltf").Load();
+    sphereModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
+    sphereModel->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0,1,0,1));
     s_Instance->AddModel(CommonResources::MODEL_SPHERE, sphereModel);
     s_Instance->AddMesh(CommonResources::MESH_SPHERE, sphereModel->GetMeshes().front());
     s_Instance->AddVAO(CommonResources::VAO_SPHERE, sphereModel->GetMeshes().front()->GetVertexArray());
 
     ref<Model> boxModel = Model::Create({ s_Instance->GetMesh(CommonResources::MESH_BOX) });
+    boxModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
+    boxModel->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(1,0,0,1));
     s_Instance->AddModel(CommonResources::MODEL_BOX, boxModel);
 
     ref<Model> skydomeModel = ModelLoader("./assets/models/skydome/skydome.obj").Load();
+    skydomeModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
     s_Instance->AddModel(CommonResources::MODEL_SKYDOME, skydomeModel);
     s_Instance->AddMesh(CommonResources::MESH_SKYDOME, skydomeModel->GetMeshes().front());
     s_Instance->AddVAO(CommonResources::VAO_SKYDOME, skydomeModel->GetMeshes().front()->GetVertexArray());
 
     ref<Model> skyboxModel = ModelLoader("./assets/models/skybox/skybox.obj").Load();
+    skyboxModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
     s_Instance->AddModel(CommonResources::MODEL_SKYBOX, skyboxModel);
     s_Instance->AddMesh(CommonResources::MESH_SKYBOX, skyboxModel->GetMeshes().front());
     s_Instance->AddVAO(CommonResources::VAO_SKYBOX, skyboxModel->GetMeshes().front()->GetVertexArray());
 
-    ref<Model> coneModel = ModelLoader("./assets/models/Cone.obj").Load();
+    ref<Model> coneModel = ModelLoader("./assets/models/cone/Cone.obj").Load();
+    coneModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
     s_Instance->AddModel(CommonResources::MODEL_CONE, coneModel);
     s_Instance->AddMesh(CommonResources::MESH_CONE, coneModel->GetMeshes().front());
     s_Instance->AddVAO(CommonResources::VAO_CONE, coneModel->GetMeshes().front()->GetVertexArray());
+
+    ref<Model> planeModel = ModelLoader("./assets/models/plane/plane.gltf").Load();
+    planeModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
+    planeModel->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0.0, 1.0, 0, 1));
+    s_Instance->AddModel(CommonResources::MODEL_PLANE, planeModel);
+    s_Instance->AddMesh(CommonResources::MESH_PLANE, planeModel->GetMeshes().front());
+    s_Instance->AddVAO(CommonResources::VAO_PLANE, planeModel->GetMeshes().front()->GetVertexArray());
+
+    ref<Model> cubeModel = ModelLoader("./assets/models/cube/cube.gltf").Load();
+    cubeModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
+    cubeModel->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(1.0, 0.0, 0, 1));
+    s_Instance->AddModel(CommonResources::MODEL_CUBE, cubeModel);
+    s_Instance->AddMesh(CommonResources::MESH_CUBE, cubeModel->GetMeshes().front());
+    s_Instance->AddVAO(CommonResources::VAO_CUBE, cubeModel->GetMeshes().front()->GetVertexArray());
 }
 
 void ResourceManager::InitDefaultShaderPrograms() {
@@ -262,8 +282,6 @@ bool ResourceManager::HasModel(const std::string& name) const {
     return m_ModelLib.Exists(name);
 }
 
-
-
 void ResourceManager::LoadShaderProgram(
     const std::string& name,
     const std::string& vertexShaderPath,
@@ -317,7 +335,6 @@ bool ResourceManager::HasShaderProgram(const std::string& name) const
     ZPG_PROFILE_FUNCTION();
     return m_ShaderProgramLib.Exists(name);
 }
-
 
 
 void ResourceManager::LoadTexture(const std::string& name, const std::string& path)
