@@ -8,10 +8,12 @@ namespace ZPG
     class CircleMovement : public Movement
     {
     public:
-        CircleMovement(const v3& center, float radius, const v3& direction, float duration);
+        CircleMovement(const v3& center, float radius, const v3& direction, float duration, MovementMode mode = MovementMode::Once);
         virtual ~CircleMovement() override;
         
         void Update(Timestep& ts) override;
+
+        v3 GetCurrentPosition() override;
 
         float GetRadius() const { return m_Radius; }
         const v3& GetCenter() const { return m_Center; }

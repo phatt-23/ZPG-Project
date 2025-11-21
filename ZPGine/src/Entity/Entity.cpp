@@ -41,6 +41,11 @@ const ref<Transform>& Entity::GetTransform() const {
     return m_Transform;
 }
 
+ref<Transform>& Entity::GetTransform()
+{
+    return m_Transform;
+}
+
 const ref<Model>& Entity::GetModel() const {
     ZPG_PROFILE_FUNCTION();
     return m_Model;

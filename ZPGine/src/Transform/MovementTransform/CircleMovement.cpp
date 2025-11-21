@@ -1,11 +1,10 @@
 #include "CircleMovement.h"
 #include "Core/Timestep.h"
-#include "Core/Utility.h"
 
 namespace ZPG
 {
-    CircleMovement::CircleMovement(const v3& center, float radius, const v3& direction, float duration)
-        : Movement(duration)
+    CircleMovement::CircleMovement(const v3& center, float radius, const v3& direction, float duration, MovementMode mode)
+        : Movement(duration, mode)
         , m_Center(center)
         , m_Radius(radius)
         , m_Direction(glm::normalize(direction))
@@ -16,11 +15,8 @@ namespace ZPG
     {
     }
 
-    void CircleMovement::Update(Timestep& ts)
+    v3 CircleMovement::GetCurrentPosition()
     {
-        Movement::Update(ts);
-        m_CurrentTime = Utility::Wrap(m_CurrentTime, 0.0f, m_Duration);
-
         constexpr float TWO_PI = 2.0f * glm::pi<float>();
         float alpha = TWO_PI * (m_CurrentTime / m_Duration);
         v3 position = m_Radius * v3(glm::cos(alpha), glm::sin(alpha), 0.0f);
@@ -33,6 +29,14 @@ namespace ZPG
         qtr rotationQuaternion = glm::quatLookAt(glm::normalize(m_Direction), up);
         m4 R = glm::mat4_cast(rotationQuaternion);
 
-        m_Matrix = glm::translate(m4(1.0f), v3(R * v4(position, 1.0f)) + m_Center);
+        v3 currentPoint(v3(R * v4(position, 1.0f)) + m_Center);
+        return currentPoint;
+    }
+
+    void CircleMovement::Update(Timestep& ts)
+    {
+        Movement::Update(ts);
+        v3 currentPoint = GetCurrentPosition();
+        m_Matrix = glm::translate(m4(1.0f), currentPoint);
     }
 }

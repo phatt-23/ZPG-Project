@@ -31,6 +31,7 @@
 
 #include "Renderer/RenderCommand.h"
 #include "Renderer/RenderStatistics.h"
+#include "Renderer/Renderer.h"
 
 #include "Buffer/VertexArray.h"
 #include "Buffer/VertexBuffer.h"
@@ -70,6 +71,10 @@
 #include "Transform/DynamicTransform/DynScale.h"
 #include "Transform/DynamicTransform/DynTranslate.h"
 #include "Transform/EffectTransform/PulseScale.h"
+
+#include "Transform/MovementTransform/LineMovement.h"
+#include "Transform/MovementTransform/CircleMovement.h"
+#include "Transform/MovementTransform/BezierMovement.h"
 
 #include "Light/Light.h"
 #include "Light/AmbientLight.h"

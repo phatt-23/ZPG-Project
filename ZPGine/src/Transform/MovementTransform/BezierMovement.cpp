@@ -1,13 +1,10 @@
 #include "BezierMovement.h"
-#include "Core/Utility.h"
-#include "Debug/Asserter.h"
-
 
 namespace ZPG
 {
 
-    BezierMovement::BezierMovement(const vec<v3>& controlPoints, float duration)
-        : Movement(duration)    
+    BezierMovement::BezierMovement(const vec<v3>& controlPoints, float duration, MovementMode mode)
+        : Movement(duration, mode)    
         , m_ControlPoints(controlPoints) 
     {
     }
@@ -20,15 +17,14 @@ namespace ZPG
     {
         float r = 1.0f;
         for (int i = 1; i <= k; i++)
+        {
             r = r * (n - (k - i)) / float(i);
+        }
         return r;
     }
 
-    void BezierMovement::Update(Timestep &ts)
+    v3 BezierMovement::GetCurrentPosition() 
     {
-        Movement::Update(ts);
-        m_CurrentTime = Utility::Wrap(m_CurrentTime, 0.0f, m_Duration);
-
         int n = m_ControlPoints.size() - 1;  // degree
         float t = m_CurrentTime / m_Duration;
 
@@ -40,7 +36,14 @@ namespace ZPG
             accum += b * m_ControlPoints[i];
         }
 
-        m_Matrix = glm::translate(m4(1.0f), accum);
+        return accum;
+    }
+
+    void BezierMovement::Update(Timestep &ts)
+    {
+        Movement::Update(ts);
+        v3 currentPoint = GetCurrentPosition();
+        m_Matrix = glm::translate(m4(1.0f), currentPoint);
     }
 
 

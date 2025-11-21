@@ -15,6 +15,7 @@ public:
 
     const glm::mat4& GetTransformMatrix() const;
     const ref<Transform>& GetTransform() const;
+    ref<Transform>& GetTransform();
     const ref<Model>& GetModel() const;
 
     i32 GetEntityID() const;
