@@ -38,6 +38,25 @@ namespace ZPG
         return m_Entities;
     }
 
+    ref<Entity> EntityManager::GetEntity(int entityID) const
+    {
+        auto it = std::ranges::find_if(m_Entities, [entityID](const ref<Entity>& e){
+            return e->GetEntityID() == entityID;
+        });
+    
+        if (it != m_Entities.end())
+            return *it;
+
+        it = std::ranges::find_if(m_StaticEntities, [entityID](const ref<Entity>& e){
+            return e->GetEntityID() == entityID;
+        });
+        
+        if (it != m_StaticEntities.end())
+            return *it;
+
+        return nullptr;
+    }
+
     void EntityManager::RemoveEntity(int entityID)
     {
         auto it = std::ranges::find_if(m_Entities, [entityID](const ref<Entity>& entity)

@@ -17,8 +17,9 @@ namespace ZPG
 
     v3 CircleMovement::GetCurrentPosition()
     {
+        float t = m_Elapsed / m_Duration;
         constexpr float TWO_PI = 2.0f * glm::pi<float>();
-        float alpha = TWO_PI * (m_CurrentTime / m_Duration);
+        float alpha = TWO_PI * t;
         v3 position = m_Radius * v3(glm::cos(alpha), glm::sin(alpha), 0.0f);
 
         // choose a up-vector

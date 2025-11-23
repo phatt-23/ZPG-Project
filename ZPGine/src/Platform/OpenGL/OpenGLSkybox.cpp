@@ -7,6 +7,7 @@
 #include "OpenGLCore.h"
 #include "Buffer/VertexArray.h"
 #include "Debug/Asserter.h"
+#include "Platform/OpenGL/OpenGLMapper.h"
 #include "Profiling/Instrumentor.h"
 #include "Resource/ResourceManager.h"
 #include "Shader/ShaderProgram.h"
@@ -36,11 +37,13 @@ OpenGLSkybox::OpenGLSkybox(const SkyboxSpecification& spec)
 
         ZPG_CORE_ASSERT(data, "Cube map texture failed to load: {}", directory.c_str());
 
+        auto gl = OpenGLMapper::ToGL(m_Specification.DataFormat);
+
         ZPG_OPENGL_CALL(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
         ZPG_OPENGL_CALL(glTexImage2D(
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-            0, GL_RGB, width, height,
-            0, GL_RGB, GL_UNSIGNED_BYTE, data));
+            0, gl.Format, width, height,
+            0, gl.Format, GL_UNSIGNED_BYTE, data));
 
         stbi_image_free(data);
     }

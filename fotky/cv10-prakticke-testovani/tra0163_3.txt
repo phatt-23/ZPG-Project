@@ -1,0 +1,53 @@
+Ve scene s planetami jsou 3 planety - Slunce, Zeme a Mesic.
+         
+    auto sun = new Entity(
+        m_Res.GetModel("Sun"),
+        TransformGroup::Build()
+            .Add<Scale>(2.0f)
+            // full rotation in 27 days
+            .Add<DynRotate>(0.0f, 360.f/27.f, v3(0,1,0))  
+            .Compose()
+    );
+
+Transformace Slunce nema zadneho rodice. Jen se scalne a dynamicky rotuje.
+Rotuje s rychlosti 360/27 stupnu za sekundu (jedna rotace okolo vlastni osy trva zhruba 27 dni) 
+okolo osy (0,1,0).
+
+    auto earth = new Entity(
+        m_Res.GetModel("Earth"),
+        TransformGroup::Build()
+            .WithParent(sun->GetTransform())
+            // full rotation in 1 day
+            .Add<DynRotate>(0.0f, 360.f/1.f, v3(0,0.9,0.2))  
+            // full orbit in 365 days
+            .Add<CircleMovement>(v3(0.0f), 5.0f, v3(0,1,0), 365, MovementMode::Repeat)  
+            .Compose()
+    );
+
+Zeme zavisi na transformaci Slunce (jen na jeji pozici).
+Sama Zeme rotuje rychlosti 360/1 stupnu za sekundu (jednou za den) 
+okolo osy (0,0.9,0.2). Rotacni osa je lehce naklonena.
+Zeme obiha na kruznici s polomerem 5 okolo bodu (0,0,0) okolo osy (0,1,0). 
+Cely orbit vykona za 365 sekund. 
+
+    auto moon = new Entity(
+        m_Res.GetModel("Moon"),
+        TransformGroup::Build()
+            .WithParent(earth->GetTransform())
+            .Add<Scale>(0.4f)
+            // rotates around its axis in 27 days
+            .Add<DynRotate>(0.0f, -360.f/27.f, v3(0,1,0))  
+            // full orbit in 27 days
+            .Add<CircleMovement>(v3(0.0f), 2.0f, v3(0,1,0), 27.f, MovementMode::Repeat) 
+            .Compose()
+    );
+
+Mesic zavisi na transformaci Zeme (opet pouze na jeji pozici).
+Sama rotuje rycholosti -360/27 stupnu za sekundu (jedna rotace za 27 dni) 
+okolo osy (0,1,0) a obiha kruznici se stredem v (0,0,0) s polomerem 2 okolo osy (0,1,0).
+Jeden orbit vykona za 27 sekund (27 dni).
+
+Jelikoz jeden cely orbit okolo zeme trva 27 sekund (dni)
+a Mesic rotuje okolo sve osy rychlosti -360/27 stupnu za sekundu (1 rotace za 27 dni),
+bude Mesic celit vuci Zemi vzdy stejnou stranou.
+ 

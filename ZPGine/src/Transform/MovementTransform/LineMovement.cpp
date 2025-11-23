@@ -15,7 +15,7 @@ namespace ZPG
 
     v3 LineMovement::GetCurrentPosition()
     {
-        float t = m_CurrentTime / m_Duration;
+        float t = m_Elapsed / m_Duration;
         v3 currentPoint = ((1.0f - t) * m_StartPoint) + (t * m_EndPoint);
         return currentPoint;
     }

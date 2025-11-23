@@ -22,6 +22,7 @@
 #include "RenderPass/ForwardBlinnPhongRenderPass.h"
 #include "RenderPass/LightVolumeDeferredLightingBlinnPhongRenderPass.h"
 #include "RenderPass/SkyRenderPass.h"
+#include "Resource/CommonResources.h"
 #include "Scene/Scene.h"
 #include "Texture/Texture2D.h"
 
@@ -95,6 +96,7 @@ namespace ZPG
         s->m_RenderContext.ActiveSky = nullptr;
         s->m_RenderContext.ActiveCamera = nullptr;
         s->m_RenderContext.Statistics.Reset();
+
     }
 
     void AddCommands(vec<DrawCommand>& queue, umap<DrawBatchKey, DrawBatch>& batches, const vec<DrawCommand>& drawCommands)
@@ -117,6 +119,7 @@ namespace ZPG
         ZPG_PROFILE_FUNCTION();
         s->m_RenderContext.ActiveCamera = (Camera*)&camera;
         s->m_RenderContext.SSBO.CameraSSBO.SetCamera(camera);
+        s->m_RenderContext.ViewingFrustum.SetCamera(camera);
     }
 
     void Renderer::SetLights(const std::vector<ref<Light>>& lights)
@@ -191,11 +194,13 @@ namespace ZPG
 
         ZPG_CORE_ASSERT(flags.IsValid());
 
-        s->m_RenderContext.Statistics.Submissions++;
-
         auto entityID = entity.GetEntityID();
         auto model = entity.GetModel();
         auto transform = entity.GetTransformMatrix();
+
+
+
+        s->m_RenderContext.Statistics.Submissions++;
 
         vec<DrawCommand> drawCommands;
 
@@ -205,6 +210,10 @@ namespace ZPG
             command.entityID = entityID;
             command.mesh = mesh.get();
             command.transform = transform * mesh->GetLocalTransform();
+
+            v3 entityPosition = v3(command.transform[3]) / command.transform[3].w;
+            if (s->m_RenderContext.ViewingFrustum.IsPointInside(entityPosition) == FrustumHitOutside)
+                continue;
 
             drawCommands.push_back(command);
         }

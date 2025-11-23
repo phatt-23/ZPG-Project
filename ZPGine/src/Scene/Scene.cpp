@@ -346,7 +346,7 @@ namespace ZPG
             auto* line = (LineMovement*)transform;
 
             ImGui::Text("CircleMovement"); 
-            ImGui::Text("CurrentTime: %f", line->GetCurrentTime()); 
+            ImGui::Text("CurrentTime: %f", line->GetElapsed()); 
 
             float d = line->GetDuration();
             if (ImGui::DragFloat("Duration", &d, 0.1))
@@ -371,7 +371,7 @@ namespace ZPG
             auto* circle = (CircleMovement*)transform;
 
             ImGui::Text("CircleMovement"); 
-            ImGui::Text("CurrentTime: %f", circle->GetCurrentTime()); 
+            ImGui::Text("CurrentTime: %f", circle->GetElapsed()); 
 
             float d = circle->GetDuration();
             if (ImGui::DragFloat("Duration", &d, 0.1))

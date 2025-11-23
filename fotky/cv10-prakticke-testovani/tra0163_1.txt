@@ -19,9 +19,9 @@ Necht uniformni scale slozka omega = 20.
 [0 0 1 0    ] [wz]
 [0 0 0 omega] [w ]
 
-[1 0 0 0]  [500x]    [500x]
-[0 1 0 0]  [500y] => [500y]
-[0 0 1 0]  [500z]    [500z]
+[1 0 0 0 ] [500x]    [500x]
+[0 1 0 0 ] [500y] => [500y]
+[0 0 1 0 ] [500z]    [500z]
 [0 0 0 20] [500 ]    [10000]
 
 Vektor Ah prevedeme z projektivniho prostoru do kartezskeho:
@@ -58,10 +58,9 @@ a modelova matice je poskladana takto:
         .Compose()
 ```
 
-Spravnou funkcnost poznam tim, ze:
-    - s nastavenim w != 1 (a w != 0)
-    - a [3][3] prvku matice 
+Spravnou funkcnost poznam tim, ze s:
+    - nastavenim homogenni slozky w na hodnotu mimo 1 (a 0)
+    - nastavenim [3][3] prvku matice na hodnotu 20 
 se objekt pouze scalne o 1/20. 
 Nebude afektovana translace ani rotace.
-
 

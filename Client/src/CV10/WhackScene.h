@@ -1,6 +1,7 @@
 #include "Transform/MovementTransform/LineMovement.h"
 #include "ZPGine.h"
 #include <chrono>
+#include <random>
 
 namespace CV10
 {
@@ -19,8 +20,8 @@ namespace CV10
 
         struct PendingRemoval
         {
-            int entityID;
-            std::chrono::steady_clock::time_point removeAt;
+            int EntityID;
+            std::chrono::steady_clock::time_point RemoveAt;
         };
 
 
@@ -93,8 +94,8 @@ namespace CV10
 
             // schedule removal
             PendingRemoval pr;
-            pr.entityID = entityID;
-            pr.removeAt = std::chrono::steady_clock::now() + std::chrono::milliseconds((int)(duration * 1000));
+            pr.EntityID = entityID;
+            pr.RemoveAt = std::chrono::steady_clock::now() + std::chrono::milliseconds((int)(duration * 1000));
             m_PendingRemovals.push_back(pr);
 
             return false;
@@ -118,50 +119,45 @@ namespace CV10
                 // Spawn new moles
                 if (m_Moles.size() < m_MaxMoleCount)
                 {
-                    float x = (Utility::GetRandomFloat() - 0.5f) * 10.0f;
-                    float z = (Utility::GetRandomFloat() - 0.5f) * 10.0f;
+                    Utility::GetRandomFloat();
+                    float x = Utility::GetRandomFloat(-10.0f, 10.0f);
+                    float z = Utility::GetRandomFloat(-10.0f, 10.0f);
 
                     auto transform = TransformGroup::Build()
                         .Add<LineMovement>(v3(x, -3.0f, z), v3(x, 2.0f, z), 0.6f, MovementMode::Once)
                         .Compose();
 
+                    static int choice = 0;
+                    choice++;
+
                     Mole mole;
                     mole.transform = transform;
-                    static int choice = 0;
-                    mole.entity = MakeRef(new Entity(m_Res.GetModel((choice++ % 2) ? "Shrek" : "Fiona"), transform));
-                    mole.loot = 100;
+                    mole.entity = MakeRef(new Entity(m_Res.GetModel((choice % 2) ? "Shrek" : "Fiona"), transform));
+                    mole.loot = 100 * ((choice % 2) ? 1 : 2);
 
                     m_Moles.push_back(std::move(mole));
                 }
 
                 // handle scheduled removals
                 auto now = std::chrono::steady_clock::now();
-                for (auto it = m_PendingRemovals.begin(); 
-                     it != m_PendingRemovals.end();
-                )
+                for (auto it = m_PendingRemovals.begin(); it != m_PendingRemovals.end();)
                 {
-                    if (it->removeAt <= now)
+                    if (it->RemoveAt <= now)
                     {
-                        int id = it->entityID;
+                        int id = it->EntityID;
 
-                        auto found = std::ranges::find_if(
-                            m_Moles, [id](const Mole& m)
-                            {
-                                return m.entity->GetEntityID() == id;
-                            }
-                        );
-
+                        auto found = std::ranges::find_if(m_Moles, [id](const Mole& m){ return m.entity->GetEntityID() == id; });
                         if (found != m_Moles.end())
                         {
                             m_Moles.erase(found);
                         }
 
                         it = m_PendingRemovals.erase(it);
+
+                        continue;
                     }
-                    else
-                    {
-                        ++it;
-                    }
+
+                    ++it;
                 }
             }
 

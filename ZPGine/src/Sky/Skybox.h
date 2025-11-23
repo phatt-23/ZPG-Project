@@ -5,6 +5,7 @@
 #ifndef SKYBOX_H
 #define SKYBOX_H
 #include "Sky.h"
+#include "Texture/TextureDataFormat.h"
 
 namespace ZPG {
 
@@ -22,6 +23,7 @@ namespace ZPG {
             "front.jpg",    // pz
             "back.jpg"      // nz
         };
+        TextureDataFormat DataFormat = TextureDataFormat::RGB8;
     };
 
     class Skybox : public Sky

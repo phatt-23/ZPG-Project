@@ -21,7 +21,9 @@
 #include "Texture/TextureCubeMapArray.h"
 #include "Renderer/DrawCommand.h"
 #include "CV10/MovementScene.h"
+#include "CV10/HomoScene.h"
 #include "CV10/WhackScene.h"
+#include "CV10/PlanetScene.h"
 
 
 using namespace ZPG;
@@ -42,14 +44,16 @@ ClientApp::ClientApp()
 
 void ClientApp::AttachScenes()
 {
-    m_SceneManager.AddScene("10-Movement", []{ return new CV10::MovementScene(); });
-    m_SceneManager.AddScene("10-Whack", []{ return new CV10::WhackScene(); });
-    m_SceneManager.AddScene("8-Shadow",  []{ return new CV8::ShadowScene(); },             SceneLifetime::Transient);
-    m_SceneManager.AddScene("8-Skydome", []{ return new CV8::SkydomeScene(); },            SceneLifetime::Transient);
-    m_SceneManager.AddScene("8-Forest",  []{ return new CV8::ForestScene(); },             SceneLifetime::Transient);
-    m_SceneManager.AddScene("Revolver",  []{ return new RevolverScene::RevolverScene(); }, SceneLifetime::Transient);
-    m_SceneManager.AddScene("Hyena",     []{ return new HyenaScene::HyenaScene(); },       SceneLifetime::Transient);
-    m_SceneManager.SetActiveScene("10-Whack");
+    m_SceneManager.AddScene("10-Movement",  []{ return new CV10::MovementScene(); });
+    m_SceneManager.AddScene("10-Homo",      []{ return new CV10::HomoScene(); });
+    m_SceneManager.AddScene("10-Whack",     []{ return new CV10::WhackScene(); });
+    m_SceneManager.AddScene("10-Planets",   []{ return new CV10::PlanetScene(); });
+    m_SceneManager.AddScene("8-Shadow",     []{ return new CV8::ShadowScene(); });
+    m_SceneManager.AddScene("8-Skydome",    []{ return new CV8::SkydomeScene(); });
+    m_SceneManager.AddScene("8-Forest",     []{ return new CV8::ForestScene(); });
+    m_SceneManager.AddScene("Revolver",     []{ return new RevolverScene::RevolverScene(); });
+    m_SceneManager.AddScene("Hyena",        []{ return new HyenaScene::HyenaScene(); });
+    m_SceneManager.SetActiveScene("10-Planets");
 }
 
 void ClientApp::OnImGuiRender()
@@ -263,6 +267,11 @@ void ClientApp::ShowCameraInfo()
     if (ImGui::DragFloat("CameraFOV", &fov, 0.5, 0.0, 180.0)) {
         camera.SetFOV(fov);
         camera.CalcPerspectiveProjection();
+    }
+
+    for (auto& corner : Renderer::GetRenderContext().ViewingFrustum.GetCorners())
+    {
+        ImGui::Text("Corner x: %f y: %f z: %f", corner.x, corner.y, corner.z);
     }
 
     ImGui::End();

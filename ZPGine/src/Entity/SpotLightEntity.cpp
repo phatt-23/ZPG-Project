@@ -27,8 +27,8 @@ SpotLightEntity::~SpotLightEntity() {
 void SpotLightEntity::Update(Timestep& ts) {
     ZPG_PROFILE_FUNCTION();
     Entity::Update(ts);
-    m_SpotLight->Position.Set(GetTransformMatrix()[3]);
-    // m_SpotLight->Direction.Set(GetTransformMatrix()[2]);
+    m4 transform = GetTransformMatrix();
+    m_SpotLight->Position.Set(v3(transform[3]) / transform[3].w);
 }
 
 }

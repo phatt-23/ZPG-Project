@@ -20,7 +20,7 @@ void main()
 {
     mat4 model = ssbo_Model.Models[gl_InstanceID];
         
-    float w = 500.0f;
+    float w = 500.0f;  // <---- homogenni slozka
 
     vec4 worldPos = model * vec4(w * a_Pos, w);
     mat3 normalMat = transpose(inverse(mat3(model)));

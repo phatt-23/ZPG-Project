@@ -1,0 +1,18 @@
+Mole je reprezentovan nasledujici strukturou:
+
+	struct Mole
+	{
+	    ref<Entity>         Entity;
+	    ref<TransformGroup> Transform;
+	    int                 Loot;
+	};
+
+Scena pri kazdem OnUpdate checkne aktualni pocet objektu.
+Pokud je pocet nizsi nez m_MaxMoleCount, prida se novy objekt 
+na nahodne pozici v (x,0,z), kde x,z <- [-10, 10].
+
+Pri kliknuti na objekt se do mole.transform prida LineMovement transformace,
+ktera posune objekt dolu pod plane. Vytvori se novy thread, ktery objekt vymaze
+po urcite dobe (az bude pod plane). Do m_GameState.Score se prida mole.loot.
+
+Aktualni m_GameState.Score se zobrazi na ImGui GUI prvku.

@@ -75,6 +75,7 @@
 #include "Transform/MovementTransform/LineMovement.h"
 #include "Transform/MovementTransform/CircleMovement.h"
 #include "Transform/MovementTransform/BezierMovement.h"
+#include "Transform/MovementTransform/PolyLineMovement.h"
 
 #include "Light/Light.h"
 #include "Light/AmbientLight.h"

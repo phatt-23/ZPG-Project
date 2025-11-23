@@ -30,7 +30,11 @@ namespace CV10
                 GetResourceManager().GetModel(CommonResources::MODEL_CUBE),
                 TransformGroup::Build()
                     .Add<Scale>(1.0)
-                    .Add<LineMovement>(v3(0.0, 2.0, 0.0), v3(4.0, 4.0, -4.0), 2)
+                    .Add<LineMovement>( 
+                        v3(0.0, 2.0, 0.0), 
+                        v3(4.0, 4.0, -4.0), 
+                        2.f,
+                        MovementMode::Repeat)
                     .Compose()
             ));
 
@@ -38,7 +42,10 @@ namespace CV10
                 GetResourceManager().GetModel(CommonResources::MODEL_SPHERE),
                 TransformGroup::Build()
                     .Add<Scale>(1.0)
-                    .Add<LineMovement>(v3(-2.0, 2.0, 0.0), v3(-2.0, 8.0, 0.0), 2)
+                    .Add<LineMovement>(
+                        v3(-2.0, 2.0, 0.0), 
+                        v3(-2.0, 8.0, 0.0), 2, 
+                        MovementMode::Repeat)
                     .Compose()
             ));
 
@@ -46,7 +53,12 @@ namespace CV10
                 GetResourceManager().GetModel(CommonResources::MODEL_SPHERE),
                 TransformGroup::Build()
                     .Add<Scale>(1.0)
-                    .Add<CircleMovement>(v3(0.0, 6.0, 6.0), 5, v3(0.0, 1.0, 0.0), 4)
+                    .Add<CircleMovement>(
+                        v3(0.0, 6.0, 6.0), 
+                        5.f, 
+                        v3(0.0, 1.0, 0.0), 
+                        4.f,
+                        MovementMode::Repeat)
                     .Compose()
             ));
 
@@ -61,7 +73,22 @@ namespace CV10
                         v3(-20.0, -20.0, -20.0),
                         v3(0.0, 40.0, -60.0),
                         v3(20.0, 2.0, -20.0),
-                    }, 4.0f)
+                    }, 4.0f, MovementMode::Repeat)
+                    .Compose()
+            ));
+
+            GetEntityManager().AddEntity(new Entity(
+                GetResourceManager().GetModel(CommonResources::MODEL_SPHERE),
+                TransformGroup::Build()
+                    .Add<Scale>(1.0)
+                    .Add<DynRotate>(0.0, 90.0, v3(1.0, 1.0, 0.0))
+                    .Add<PolyLineMovement>(vec<v3>{
+                        v3(20.0, 2.0, -20.0),
+                        v3(0.0, 20.0, 20.0),
+                        v3(-20.0, -20.0, -20.0),
+                        v3(0.0, 40.0, -60.0),
+                        v3(20.0, 2.0, -20.0),
+                    }, 4.0f, MovementMode::Repeat)
                     .Compose()
             ));
         }

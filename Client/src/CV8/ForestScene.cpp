@@ -61,7 +61,8 @@ namespace CV8
                              .Add<Translate>(x, 0.0, z)
                              .Compose();
 
-            GetEntityManager().AddStaticEntity(new Entity(m_LocalRes.GetModel("Tree"), transform));
+            // GetEntityManager().AddStaticEntity(new Entity(m_LocalRes.GetModel("Tree"), transform));
+            GetEntityManager().AddEntity(new Entity(m_LocalRes.GetModel("Tree"), transform));
         }
 
         // Add bushes
@@ -75,7 +76,9 @@ namespace CV8
                              .Add<Translate>(x, 0.0, z)
                              .Compose();
 
-            GetEntityManager().AddStaticEntity(
+            // GetEntityManager().AddStaticEntity(
+            //     new Entity(m_LocalRes.GetModel(i % 2 == 0 ? "Bush" : "Bush2"), transform));
+            GetEntityManager().AddEntity(
                 new Entity(m_LocalRes.GetModel(i % 2 == 0 ? "Bush" : "Bush2"), transform));
         }
 
@@ -105,7 +108,7 @@ namespace CV8
         }
 
         // Add ground
-        int groundSize = 4;
+        int groundSize = 10;
         float groundDist = 12.0;
 
         for (int i = -groundSize; i < groundSize; i++) {
@@ -116,7 +119,9 @@ namespace CV8
                                  .Add<Translate>(v3(groundDist * i, -groundDist, groundDist * j))
                                  .Compose();
 
-                GetEntityManager().AddStaticEntity(
+                // GetEntityManager().AddStaticEntity(
+                //     new Entity(m_LocalRes.GetModel("GrassBlock"), transform));
+                GetEntityManager().AddEntity(
                     new Entity(m_LocalRes.GetModel("GrassBlock"), transform));
             }
         }
@@ -157,8 +162,27 @@ namespace CV8
 
         if (event.GetButtonCode() == ZPG_MOUSE_BUTTON_LEFT)
         {
-            ZPG_INFO("Removing Entity ID: {0}", entityID);
-            GetEntityManager().RemoveEntity(entityID);
+            // ZPG_INFO("Removing Entity ID: {0}", entityID);
+            // GetEntityManager().RemoveEntity(entityID);
+
+            ZPG_INFO("Clicked on Entity ID: {0}", entityID);
+            auto entity = GetEntityManager().GetEntity(entityID);
+            if (entity != nullptr)
+            {
+                const m4& tr = entity->GetTransformMatrix();
+                v3 pos = v3(tr[3]) / tr[3].w;
+                ZPG_INFO("World Position: {0}, {1}, {2}", pos.x, pos.y, pos.z);
+                
+                if (Renderer::GetRenderContext().ViewingFrustum.IsPointInside(pos) == FrustumHitOutside)
+                {
+                    ZPG_INFO("Object OUTSIDE frustum");
+                }
+                else 
+                {
+                    ZPG_INFO("Object INSIDE frustum");
+                }
+            }
+
         }
         else if (event.GetButtonCode() == ZPG_MOUSE_BUTTON_RIGHT)
         {

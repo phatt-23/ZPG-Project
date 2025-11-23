@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Camera/Frustum.h"
 #include "RenderStatistics.h"
 #include "Buffer/FrameBuffer.h"
 #include "Camera/Camera.h"
@@ -105,5 +106,7 @@ namespace ZPG
         } Lights;
 
         RenderStatistics Statistics;
+
+        Frustum ViewingFrustum;
     };
 }

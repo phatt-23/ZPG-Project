@@ -26,7 +26,7 @@ namespace ZPG
     v3 BezierMovement::GetCurrentPosition() 
     {
         int n = m_ControlPoints.size() - 1;  // degree
-        float t = m_CurrentTime / m_Duration;
+        float t = m_Elapsed / m_Duration;
 
         v3 accum(0.0f);
 

@@ -7,7 +7,9 @@ namespace ZPG
     class BezierMovement : public Movement
     {
     public:
-        BezierMovement(const vec<v3>& controlPoints, float duration, MovementMode mode = MovementMode::Once);
+        BezierMovement(const vec<v3>& controlPoints, 
+                       float duration, 
+                       MovementMode mode = MovementMode::Once);
         virtual ~BezierMovement() override;
         void Update(Timestep &ts) override;
     

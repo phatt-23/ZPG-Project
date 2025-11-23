@@ -10,53 +10,76 @@ ref<TransformGroup> TransformGroup::Create(ref<Transform> parent) {
 }
 
 TransformGroup::TransformGroup(const ref<Transform>& parent)
-: m_Parent(parent)
-, m_Transformations() {
+    : m_Parent(parent)
+    , m_Transformations()
+{
     ZPG_PROFILE_FUNCTION();
 }
 
-TransformGroup::TransformGroup(TransformGroup& other) {
+TransformGroup::TransformGroup(TransformGroup& other)
+{
     ZPG_PROFILE_FUNCTION();
     this->m_Transformations = other.m_Transformations;
 }
 
-TransformGroup::Self TransformGroup::WithParent(ref<Transform> parent) {
+TransformGroup::Self TransformGroup::WithParent(const ref<Transform>& parent, bool onlyPosition)
+{
     ZPG_PROFILE_FUNCTION();
+    m_OnlyParentPosition = onlyPosition;
     m_Parent = parent;
     return *this; 
 }
 
-const glm::mat4& TransformGroup::GetMatrix() {
+const glm::mat4& TransformGroup::GetMatrix()
+{
     ZPG_PROFILE_FUNCTION();
     return m_Matrix;
 }
-void TransformGroup::Update(Timestep& ts) {
+
+void TransformGroup::Update(Timestep& ts)
+{
     ZPG_PROFILE_FUNCTION();
-    for (auto& t : m_Transformations) {
+    for (auto& t : m_Transformations)
+    {
         t->Update(ts);
     }
     ComputeMatrix();
 }
-void TransformGroup::ComputeMatrix() {
+void TransformGroup::ComputeMatrix()
+{
     ZPG_PROFILE_FUNCTION();
+
     m4 m(1.0f);
-    for (auto& t : m_Transformations) {
+    for (auto& t : m_Transformations)
+    {
         m = t->GetMatrix() * m;
     }
-    if (m_Parent != nullptr) {
-        m = m_Parent->GetMatrix() * m;
+
+    if (m_Parent != nullptr)
+    {
+        if (m_OnlyParentPosition) {
+            v4 col4 = m_Parent->GetMatrix()[3];
+            v3 position = v3(col4) / col4.w;
+            m = glm::translate(m4(1.0f), position) * m;
+        }
+        else {
+            m = m_Parent->GetMatrix() * m;
+        }
     }
+
     m_Matrix = m;
 }
 
-TransformGroup::Self TransformGroup::Include(const ref<Transform>& transformation) {
+TransformGroup::Self TransformGroup::Include(const ref<Transform>& transformation)
+{
     ZPG_PROFILE_FUNCTION();
     m_Transformations.push_back(std::move(transformation));
     return *this;
 }
 
 
-TransformGroup::Self TransformGroup::Build() {
+TransformGroup::Self TransformGroup::Build()
+{
     ZPG_PROFILE_FUNCTION();
     return *(new TransformGroup());
 }

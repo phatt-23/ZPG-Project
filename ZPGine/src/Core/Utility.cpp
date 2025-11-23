@@ -3,6 +3,8 @@
 //
 #include "Utility.h"
 
+#include <random>
+
 #include "Core/Core.h"
 #include "Debug/Logger.h"
 #include "Debug/Asserter.h"
@@ -48,7 +50,11 @@ namespace ZPG
         f32 GetRandomFloat(f32 min, f32 max) 
         {
             ZPG_PROFILE_FUNCTION();
-            return (max - min) * (f32)rand() / (f32)RAND_MAX + min;
+
+            std::uniform_int_distribution dist(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+            std::mt19937 rng(std::random_device{}());
+            float r = (float)dist(rng) / (float)std::numeric_limits<int>::max();
+            return (max - min) * r + min;
         }
     }
 }

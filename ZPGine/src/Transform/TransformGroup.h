@@ -28,12 +28,13 @@ public:
 
     template<typename T, typename... Args>
     requires(std::is_base_of_v<Transform, T>)  // T derives form Transformation
-    Self Add(Args&& ...args) {
+    Self Add(Args&& ...args)
+    {
         m_Transformations.push_back(MakeRef<T>(std::forward<Args>(args)...));
         return *this;
     }
     Self Include(const ref<Transform>& transformation);
-    Self WithParent(ref<Transform> parent);
+    Self WithParent(const ref<Transform>& parent, bool onlyPosition = true);
 
     const std::vector<ref<Transform>>& GetChildren() const;
 
@@ -45,6 +46,8 @@ public:
     static ref<TransformGroup> Create(ref<Transform> parent = nullptr);
 private:
     ref<Transform> m_Parent;
+    bool m_OnlyParentPosition = true;
+
     std::vector<ref<Transform>> m_Transformations;
 };
 

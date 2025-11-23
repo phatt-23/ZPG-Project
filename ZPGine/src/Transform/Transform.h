@@ -1,28 +1,36 @@
 #pragma once
 
-namespace ZPG {
+namespace ZPG 
+{
+    class Timestep;
 
-class Timestep;
+    class Transform 
+    {
+    public:
+        Transform();
+        Transform(const m4& matrix);
 
-class Transform {
-public:
-    Transform() : m_Matrix(glm::mat4(1.0f)) {}
-    Transform(const glm::mat4& matrix) : m_Matrix(matrix) {}
-    virtual ~Transform() = default;
+        virtual ~Transform();
 
-    // Gets the computed m_Matrix.
-    // User must call either Update or ComputeMatrix to update/compute the m_Matrix.
-    // (should be const, but left un-const for flexibility)
-    virtual const glm::mat4& GetMatrix() { return m_Matrix; }
+        /*
+        * Gets the computed m_Matrix.
+        * User must call either Update or ComputeMatrix to update/compute the m_Matrix.
+        *
+        * (should be const, but left un-const for flexibility - this shit was a mistake fuuuuuuuuuuuuuuck)
+        */
+        virtual const m4& GetMatrix();
 
-    // Called in every iteration of OnUpdate() in a Scene
-    virtual void Update([[maybe_unused]] Timestep& ts) {}
+        // Called in every iteration of OnUpdate() in a Scene
+        virtual void Update([[maybe_unused]] Timestep& ts);
 
-    // Computes the m_Matrix.
-    virtual void ComputeMatrix() {}
-protected:
-    glm::mat4 m_Matrix;
-};
+        virtual v3 GetScaleVector() const;
+        virtual v3 GetPositionVector() const;
 
+        // Computes the m_Matrix.
+        virtual void ComputeMatrix() = 0;
+
+    protected:
+        m4 m_Matrix;
+    };
 }
 
