@@ -46,6 +46,9 @@ namespace ZPG
         bool IsInFrontHalfspace(const v3& point) const;
         bool IsInBackHalfspace(const v3& point) const;
         bool IsOnPlane(const v3& point) const;
+
+        const v3& GetNormal() const { return m_Normal; }
+        float GetD() const { return m_D; }
     
     private:
         v3 m_Normal; 

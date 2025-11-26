@@ -13,7 +13,7 @@ namespace ZPG
     {
     public:
         virtual ~Volume() = default;
-        virtual bool IsInFrustum(const Frustum& frustum, Transform& modelTransform) const = 0;
+        virtual bool IsInFrustum(const Frustum& frustum, Transform& modelTransform, float tolerance = 0.0f) const = 0;
 
     private:
 
@@ -25,7 +25,7 @@ namespace ZPG
     public:
         SphereVolume(const v3& center, float radius);
         virtual ~SphereVolume() override;
-        bool IsInFrustum(const Frustum& frustum, Transform& modelTransform) const override;
+        bool IsInFrustum(const Frustum& frustum, Transform& modelTransform, float tolerance = 0.0f) const override;
     private:
         v3 m_Center;
         float m_Radius;
@@ -38,12 +38,13 @@ namespace ZPG
     class AABB : public Volume
     {
     public:
-        AABB(const v3& center, v3 dimensions);
+        AABB(const v3& center, float halfExtentX, float halfExtentY, float halfExtentZ);
+        AABB(const v3& minBound, const v3& maxBound);
         virtual ~AABB() override;
-        bool IsInFrustum(const Frustum &frustum, Transform& modelTransform) const override;
+        bool IsInFrustum(const Frustum &frustum, Transform& modelTransform, float tolerance = 0.0f) const override;
     private:
         v3 m_Center;
-        v3 m_Dimensions;
+        v3 m_HalfExtents;
     };
 
 }

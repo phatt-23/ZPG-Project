@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Camera/Frustum.h"
+#include "Culling/Frustum.h"
 #include "RenderStatistics.h"
 #include "Buffer/FrameBuffer.h"
 #include "Camera/Camera.h"
@@ -62,7 +62,7 @@ namespace ZPG
             // shadow map attachments
             ref<Texture2DArray> SpotLightShadowMapArray = nullptr;
             ref<TextureCubeMapArray> PointLightShadowCubeMapArray = nullptr;
-            ref<Texture2D> DirectionalLightShadowMap = nullptr;
+            ref<Texture2DArray> DirectionalLightShadowMapArray = nullptr;
 
             // geometry buffer attachments
             ref<FrameBuffer> GeometryFrameBuffer = nullptr;

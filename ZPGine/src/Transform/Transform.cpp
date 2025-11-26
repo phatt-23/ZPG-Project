@@ -25,13 +25,30 @@ namespace ZPG
     {
     }
 
+    void Transform::ComputeMatrix()
+    {
+    }
+
     v3 Transform::GetScaleVector() const
     {
-        return v3(m_Matrix[3]) / m_Matrix[3].w;
+        return v3(m_Matrix[0][0], m_Matrix[1][1], m_Matrix[2][2]) / m_Matrix[3][3];
     }
 
     v3 Transform::GetPositionVector() const
     {
-        return v3(m_Matrix[0][0], m_Matrix[1][1], m_Matrix[2][2]) / m_Matrix[4][4];
+        return v3(m_Matrix[3]) / m_Matrix[3].w;
+    }
+
+    v3 Transform::GetUpVector() const
+    {
+        return v3(m_Matrix[1]);
+    }
+    v3 Transform::GetRightVector() const
+    {
+        return v3(m_Matrix[0]);
+    }
+    v3 Transform::GetFrontVector() const
+    {
+        return v3(m_Matrix[2]);
     }
 }

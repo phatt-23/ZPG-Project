@@ -25,9 +25,12 @@ namespace ZPG
 
         virtual v3 GetScaleVector() const;
         virtual v3 GetPositionVector() const;
+        virtual v3 GetUpVector() const;
+        virtual v3 GetRightVector() const;
+        virtual v3 GetFrontVector() const;
 
         // Computes the m_Matrix.
-        virtual void ComputeMatrix() = 0;
+        virtual void ComputeMatrix();
 
     protected:
         m4 m_Matrix;

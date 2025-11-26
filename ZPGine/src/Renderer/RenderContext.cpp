@@ -46,7 +46,7 @@ namespace ZPG
 
         Targets.SpotLightShadowMapArray = Texture2DArray::Create( 1024, 1024, 64, TextureDataFormat::Depth32F );
         Targets.PointLightShadowCubeMapArray = TextureCubeMapArray::Create( 1024, 6 * 10, TextureDataFormat::Depth32F );
-        Targets.DirectionalLightShadowMap = Texture2D::Create( "DirectionalShadow.texture2d", 4 * 1024, 4 * 1024, TextureDataFormat::Depth32F );
+        Targets.DirectionalLightShadowMapArray = Texture2DArray::Create( 1024, 1024, 4, TextureDataFormat::Depth32F );
 
         FrameBufferSpecification mainFramebufferSpec;
         mainFramebufferSpec.Width = 1024;

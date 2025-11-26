@@ -4,6 +4,17 @@
 
 namespace ZPG
 {
+    const static umap<Frustum::Corner, v3> NDCCorners{
+        { Frustum::NearTopRight,        v3(1,1,-1) },
+        { Frustum::NearTopLeft,         v3(-1,1,-1) },
+        { Frustum::NearBottomRight,     v3(1,-1,-1) },
+        { Frustum::NearBottomLeft,      v3(-1,-1,-1) },
+        { Frustum::FarTopRight,         v3(1,1,1) },
+        { Frustum::FarTopLeft,          v3(-1,1,1) },
+        { Frustum::FarBottomRight,      v3(1,-1,1) },
+        { Frustum::FarBottomLeft,       v3(-1,-1,1) },
+    };
+
     Frustum::Frustum() 
     {
         for (int i = 0; i < m_Planes.size(); i++)
@@ -20,9 +31,23 @@ namespace ZPG
     Frustum::~Frustum() 
     {
     }
-    
-    void Frustum::SetCamera(const Camera& camera)
+   
+    void Frustum::Set(const Camera& camera)
     {
+        this->Set(camera.GetViewMatrix(), camera.GetProjMatrix());
+    }
+
+    void Frustum::Set(const m4& viewMatrix, const m4& projMatrix)
+    {
+        m4 viewProjI = glm::inverse(projMatrix * viewMatrix);
+
+        std::array<v3, 6> corners;
+        for (const auto& [k, v] : NDCCorners) {
+            v4 cornerWorldSpace = viewProjI * v4(v, 1.0);
+            m_Corners[k] = v3(cornerWorldSpace) / cornerWorldSpace.w;
+        }
+
+    #if 0
         float fov = camera.GetFOV();
         float aspectRatio = camera.GetAspectRatio();
         float farPlane = camera.GetZFar();
@@ -75,6 +100,7 @@ namespace ZPG
         m_Corners[FarTopRight]     = farCenter + y * farHeight + x * farWidth;
         m_Corners[FarBottomLeft]   = farCenter - y * farHeight - x * farWidth;
         m_Corners[FarBottomRight]  = farCenter - y * farHeight + x * farWidth;
+    #endif
 
         // create planes with INWARD-facing normals (pointing into the frustum)
         // winding order reversed from original to flip normals

@@ -5,21 +5,16 @@
 #pragma once
 
 #include "Renderer/RenderPass.h"
+#include "Renderer/RenderPass/LightVolume/LightRenderPass.h"
 
 namespace ZPG
 {
     class VertexArray;
 
-    class DeferredLightingBlinnPhongRenderPass : public RenderPass
+    class DeferredLightingBlinnPhongRenderPass : public LightRenderPass
     {
     public:
         void Init(RenderContext& context) override;
         void Execute(RenderContext& context) override;
-
-    private:
-        void BindGeometryMaps(RenderContext& context);
-        void BindLightMaps(RenderContext& context);
-
-        ref<VertexArray> m_QuadVAO;
     };
 }

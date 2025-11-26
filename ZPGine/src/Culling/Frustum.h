@@ -1,10 +1,12 @@
+#pragma once
+
 #include "Camera/Camera.h"
 #include "Culling/Plane3D.h"
 
 namespace ZPG
 {
     class SphereVolume;
-    class CubeVolume;
+    class AABB;
 
     enum FrustumHit
     {
@@ -12,6 +14,7 @@ namespace ZPG
         FrustumHitInside = 1,
         FrustumHitIntersect = 2,
     };
+
 
     class Frustum
     {   
@@ -41,7 +44,8 @@ namespace ZPG
         Frustum();
         ~Frustum();
         
-        void SetCamera(const Camera& camera);
+        void Set(const Camera& camera);
+        void Set(const m4& viewMatrix, const m4& projMatrix);
 
         FrustumHit ClassifyPoint(const v3& point) const;
 

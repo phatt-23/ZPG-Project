@@ -23,7 +23,7 @@ namespace ZPG
         constexpr int SKYBOX_TEXTURE_SLOT = 10;
         constexpr int SKYDOME_TEXTURE_SLOT = 11;
 
-        constexpr int DIRECTIONAL_LIGHT_SHADOW_MAP = 12;
+        constexpr int DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY = 12;
         constexpr int SPOTLIGHT_SHADOW_MAP_ARRAY = 13;
         constexpr int POINTLIGHT_SHADOW_CUBE_MAP_ARRAY = 14;
 

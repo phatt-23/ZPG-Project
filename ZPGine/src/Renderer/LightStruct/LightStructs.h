@@ -12,8 +12,14 @@ namespace ZPG
     {
         v4 Color;  // 16
         v3 Direction;
-        f32 _pad0{};  // 16
-        m4 ViewProj;
+        f32 _pad0[1];  // 16
+    
+        int CascadeCount;
+        f32 _pad1[3];  // 16
+
+        f32 PlaneDistance[4];  // 16
+
+        m4 ViewProj[4]; // max cascade count
 
     public:
         DirectionalLightStruct() = default;

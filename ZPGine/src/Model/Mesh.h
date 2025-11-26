@@ -7,47 +7,34 @@ namespace ZPG
     class Vertex;
     class VertexArray;
     class Material;
+    class Volume;
 
     class Mesh 
     {
     public:
         Mesh(const std::vector<Vertex>& vertices, 
-            const std::vector<u32>& indices, 
-            const m4& localTransform = m4(1.0f));
-
-        Mesh(const ref<VertexArray>& vertexArray, 
+             const std::vector<u32>& indices, 
              const m4& localTransform = m4(1.0f));
 
         void SetMaterial(const ref<Material>& material);
 
-        // void Bind();
-        // void Unbind();
-
+        u32 GetID() const { return m_ID; }
         const m4& GetLocalTransform() const { return m_LocalTransform; }
         const ref<VertexArray>& GetVertexArray() const { return m_VAO; }
-        const ref<Material>& GetMaterial() const { ZPG_CORE_ASSERT(m_Material != nullptr); return m_Material; }
-
-        u32 GetID() const { return m_ID; }
+        const ref<Material>& GetMaterial() const { return m_Material; }
+        const ref<Volume> GetVolume() const { return m_Volume; }
 
         static ref<Mesh> Create(
             const std::vector<Vertex>& vertices,
             const std::vector<u32>& indices, 
             const m4& localTransform = m4(1.0f));
-
-        static ref<Mesh> Create(
-            const ref<VertexArray>& vertexArray,
-            const m4& localTransform = m4(1.0f));
-
-        static ref<Mesh> Create(
-            const ref<VertexArray>& vertexArray,
-            const ref<Material>& material,
-            const m4& localTransform = m4(1.0f));
-
+   
     private:
         u32 m_ID = -1;
         ref<VertexArray> m_VAO;
         m4 m_LocalTransform;
-        ref<Material> m_Material = nullptr;
+        ref<Material> m_Material;
+        ref<Volume> m_Volume;
 
         inline static u32 s_NextID = 0;
     };

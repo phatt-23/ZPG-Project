@@ -30,8 +30,8 @@ namespace ZPG
                                 RenderBindingPoints::GEOMETRY_ALBEDO_METALLIC_MAP);
         m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_EMISSIVE_ROUGHNESS_MAP, 
                                 RenderBindingPoints::GEOMETRY_EMISSIVE_ROUGHNESS_MAP);
-        m_ShaderProgram->SetInt(CommonShaderUniforms::DIRECTIONAL_LIGHT_SHADOW_MAP, 
-                                RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY, 
+                                RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY);
         m_ShaderProgram->Unbind();
     }
     

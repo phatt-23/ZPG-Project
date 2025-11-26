@@ -47,7 +47,7 @@ namespace ZPG
         m_EnvironmentLightShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_NORMAL_MAP, RenderBindingPoints::GEOMETRY_NORMAL_MAP);
         m_EnvironmentLightShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_ALBEDO_METALLIC_MAP, RenderBindingPoints::GEOMETRY_ALBEDO_METALLIC_MAP);
         m_EnvironmentLightShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_EMISSIVE_ROUGHNESS_MAP, RenderBindingPoints::GEOMETRY_EMISSIVE_ROUGHNESS_MAP);
-        m_EnvironmentLightShaderProgram->SetInt(CommonShaderUniforms::DIRECTIONAL_LIGHT_SHADOW_MAP, RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP);
+        m_EnvironmentLightShaderProgram->SetInt(CommonShaderUniforms::DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY, RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY);
         m_EnvironmentLightShaderProgram->Unbind();
 
         m_PointLightShaderProgram = ShaderProgram::Create("point_light.program",
@@ -77,7 +77,6 @@ namespace ZPG
         m_SpotLightShaderProgram->Unbind();
 
         m_FrameBuffer = context.Targets.MainFrameBuffer;
-
     }
 
     void LightVolumeDeferredLightingBlinnPhongRenderPass::Execute(RenderContext& context)
@@ -184,21 +183,5 @@ namespace ZPG
 
         m_FrameBuffer->Unbind();
         RenderCommand::Clear();
-    }
-
-    void LightVolumeDeferredLightingBlinnPhongRenderPass::BindGeometryMaps(RenderContext& context)
-    {
-        context.Targets.GeometryPositionMap->BindToSlot(RenderBindingPoints::GEOMETRY_POSITION_MAP);
-        context.Targets.GeometryNormalMap->BindToSlot(RenderBindingPoints::GEOMETRY_NORMAL_MAP);
-        context.Targets.GeometryAlbedoMetallicMap->BindToSlot(RenderBindingPoints::GEOMETRY_ALBEDO_METALLIC_MAP);
-        context.Targets.GeometryEmissiveRoughnessMap->BindToSlot(RenderBindingPoints::GEOMETRY_EMISSIVE_ROUGHNESS_MAP);
-        context.Targets.GeometryEntityIDMap->BindToSlot(RenderBindingPoints::GEOMETRY_ENTITY_ID_MAP);
-    }
-
-    void LightVolumeDeferredLightingBlinnPhongRenderPass::BindLightMaps(RenderContext& context)
-    {
-        context.Targets.DirectionalLightShadowMap->BindToSlot(RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP);
-        context.Targets.SpotLightShadowMapArray->BindToSlot(RenderBindingPoints::SPOTLIGHT_SHADOW_MAP_ARRAY);
-        context.Targets.PointLightShadowCubeMapArray->BindToSlot(RenderBindingPoints::POINTLIGHT_SHADOW_CUBE_MAP_ARRAY);
     }
 }

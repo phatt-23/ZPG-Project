@@ -12,6 +12,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderGroups.h"
 #include "Texture/Texture2D.h"
+#include "Texture/Texture2DArray.h"
 
 namespace ZPG
 {
@@ -20,15 +21,16 @@ namespace ZPG
         ZPG_PROFILE_FUNCTION();
 
         FrameBufferSpecification directionalLightFramebufferSpec;
-        directionalLightFramebufferSpec.Width = context.Targets.DirectionalLightShadowMap->GetWidth();
-        directionalLightFramebufferSpec.Height = context.Targets.DirectionalLightShadowMap->GetHeight();
+        directionalLightFramebufferSpec.Width = context.Targets.DirectionalLightShadowMapArray->GetWidth();
+        directionalLightFramebufferSpec.Height = context.Targets.DirectionalLightShadowMapArray->GetHeight();
         directionalLightFramebufferSpec.Resizable = false;
         directionalLightFramebufferSpec.Attachments = {
             {
                 .AttachType = FrameBufferAttachmentType::Depth,
+                .TexType = TextureType::Texture2DArray,
                 .DataFormat = TextureDataFormat::Depth32F,
                 .Index = 0,
-                .TextureAttachment = context.Targets.DirectionalLightShadowMap,
+                .TextureAttachment = context.Targets.DirectionalLightShadowMapArray,
             },
         };
 
@@ -37,7 +39,7 @@ namespace ZPG
         m_ShaderProgram = ShaderProgram::Create("DirectionalShadow.program",
         {
             Shader::Create("./assets/shaders/shadow-mapping/directional/DirectionalShadow.vert"),
-            // Shader::Create("./assets/shaders/shadow-mapping/directional/DirectionalShadow.geom"),
+            Shader::Create("./assets/shaders/shadow-mapping/directional/DirectionalShadow.geom"),
             Shader::Create("./assets/shaders/shadow-mapping/directional/DirectionalShadow.frag"),
         });
     }

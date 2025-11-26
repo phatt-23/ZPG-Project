@@ -1,5 +1,6 @@
 #include "Renderer.h"
 
+#include "Culling/Volume.h"
 #include "RenderCommand.h"
 #include "Debug/Asserter.h"
 #include "Model/Model.h"
@@ -119,7 +120,7 @@ namespace ZPG
         ZPG_PROFILE_FUNCTION();
         s->m_RenderContext.ActiveCamera = (Camera*)&camera;
         s->m_RenderContext.SSBO.CameraSSBO.SetCamera(camera);
-        s->m_RenderContext.ViewingFrustum.SetCamera(camera);
+        s->m_RenderContext.ViewingFrustum.Set(camera);
     }
 
     void Renderer::SetLights(const std::vector<ref<Light>>& lights)
@@ -196,9 +197,7 @@ namespace ZPG
 
         auto entityID = entity.GetEntityID();
         auto model = entity.GetModel();
-        auto transform = entity.GetTransformMatrix();
-
-
+        auto entityTransformMatrix = entity.GetTransformMatrix();
 
         s->m_RenderContext.Statistics.Submissions++;
 
@@ -206,15 +205,22 @@ namespace ZPG
 
         for (const auto& mesh : model->GetMeshes())
         {
+            const auto& volume = mesh->GetVolume();
+            Transform meshTransform(entityTransformMatrix * mesh->GetLocalTransform());
+            float tolerance = 10.0f;  // less agressive culling, but distant objects don't have shadows
+            if (!volume->IsInFrustum(s->m_RenderContext.ViewingFrustum, meshTransform, tolerance))
+            {
+                continue;
+            }
+
+            // v3 entityPosition = v3(command.transform[3]) / command.transform[3].w;
+            // if (s->m_RenderContext.ViewingFrustum.ClassifyPoint(entityPosition) == FrustumHitOutside)
+            //     continue;
+
             DrawCommand command;
             command.entityID = entityID;
             command.mesh = mesh.get();
-            command.transform = transform * mesh->GetLocalTransform();
-
-            v3 entityPosition = v3(command.transform[3]) / command.transform[3].w;
-            if (s->m_RenderContext.ViewingFrustum.IsPointInside(entityPosition) == FrustumHitOutside)
-                continue;
-
+            command.transform = meshTransform.GetMatrix();
             drawCommands.push_back(command);
         }
 

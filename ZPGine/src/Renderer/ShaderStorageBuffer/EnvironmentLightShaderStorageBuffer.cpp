@@ -30,7 +30,15 @@ namespace ZPG
             sizeof(DirectionalLightStruct::Direction),
             offsetof(InternalLayout, DirectionalLight) + offsetof(DirectionalLightStruct, Direction));
 
-        SetData(glm::value_ptr(directionalLightStruct.ViewProj),
+        SetData(&directionalLightStruct.CascadeCount,
+            sizeof(DirectionalLightStruct::CascadeCount),
+            offsetof(InternalLayout, DirectionalLight) + offsetof(DirectionalLightStruct, CascadeCount));
+
+        SetData(&directionalLightStruct.PlaneDistance,
+            sizeof(DirectionalLightStruct::PlaneDistance),
+            offsetof(InternalLayout, DirectionalLight) + offsetof(DirectionalLightStruct, PlaneDistance));
+
+        SetData(directionalLightStruct.ViewProj,
             sizeof(DirectionalLightStruct::ViewProj),
             offsetof(InternalLayout, DirectionalLight) + offsetof(DirectionalLightStruct, ViewProj));
     }

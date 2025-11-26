@@ -173,7 +173,7 @@ namespace CV8
                 v3 pos = v3(tr[3]) / tr[3].w;
                 ZPG_INFO("World Position: {0}, {1}, {2}", pos.x, pos.y, pos.z);
                 
-                if (Renderer::GetRenderContext().ViewingFrustum.IsPointInside(pos) == FrustumHitOutside)
+                if (Renderer::GetRenderContext().ViewingFrustum.ClassifyPoint(pos) == FrustumHitOutside)
                 {
                     ZPG_INFO("Object OUTSIDE frustum");
                 }

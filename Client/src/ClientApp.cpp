@@ -12,8 +12,6 @@
 #include "CV8/ForestScene.h"
 #include "CV8/SkydomeScene.h"
 #include "CV8/ShadowScene.h"
-#include "HyenaScene/Scene.h"
-#include "RevolverScene/Scene.h"
 #include "implot/implot.h"
 #include "Platform/OpenGL/OpenGLTexture2D.h"
 #include "Renderer/Renderer.h"
@@ -51,8 +49,6 @@ void ClientApp::AttachScenes()
     m_SceneManager.AddScene("8-Shadow",     []{ return new CV8::ShadowScene(); });
     m_SceneManager.AddScene("8-Skydome",    []{ return new CV8::SkydomeScene(); });
     m_SceneManager.AddScene("8-Forest",     []{ return new CV8::ForestScene(); });
-    m_SceneManager.AddScene("Revolver",     []{ return new RevolverScene::RevolverScene(); });
-    m_SceneManager.AddScene("Hyena",        []{ return new HyenaScene::HyenaScene(); });
     m_SceneManager.SetActiveScene("10-Planets");
 }
 
@@ -193,7 +189,7 @@ void ClientApp::ShowDirectionalShadowMap()
     ImGui::Begin("Directional Light Framebuffer");
 
     v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
-    auto texture = Renderer::GetRenderContext().Targets.DirectionalLightShadowMap;
+    auto texture = Renderer::GetRenderContext().Targets.DirectionalLightShadowMapArray;
     f32 aspect = (f32)texture->GetWidth() / (f32)texture->GetHeight();
 
     ImGui::Text("%s", texture->GetName().c_str());

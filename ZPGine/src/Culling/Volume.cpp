@@ -13,7 +13,7 @@ namespace ZPG
     {
     }
 
-    bool SphereVolume::IsInFrustum(const Frustum& frustum, Transform& modelTransform) const
+    bool SphereVolume::IsInFrustum(const Frustum& frustum, Transform& modelTransform, float tolerance) const
     {
         m4 model = modelTransform.GetMatrix();
         
@@ -24,12 +24,13 @@ namespace ZPG
 
         float maxScale = std::max({ scale.x, scale.y, scale.z });
 
-        SphereVolume worldSphere = SphereVolume(position, (maxScale * 0.5) * m_Radius);
+        SphereVolume worldSphere = SphereVolume(position, maxScale * m_Radius);
 
         for (const auto& plane : frustum.GetPlanes())
         {
             // is positive, then it is on the front halfspace, must be at least greater than its -radius 
-            if (plane.SignedDistance(worldSphere.m_Center) > -worldSphere.m_Radius)
+            // otherwise if it's less then the -radius, it's out of the frustum completely
+            if (plane.SignedDistance(worldSphere.m_Center) <= -(worldSphere.m_Radius + tolerance))
             {
                 return false;
             }
@@ -38,9 +39,15 @@ namespace ZPG
         return true;
     }
 
-    AABB::AABB(const v3& center, v3 dimensions)
+    AABB::AABB(const v3& center, float halfExtentX, float halfExtentY, float halfExtentZ)
         : m_Center(center)
-        , m_Dimensions(dimensions)
+        , m_HalfExtents(halfExtentX, halfExtentY, halfExtentZ)
+    {
+    }
+
+    AABB::AABB(const v3& minBound, const v3& maxBound)
+        : m_Center(0.5f * (maxBound + minBound))
+        , m_HalfExtents(0.5f * (maxBound - minBound))
     {
     }
 
@@ -48,10 +55,35 @@ namespace ZPG
     {
     }
 
-    bool AABB::IsInFrustum(const Frustum& frustum, Transform& modelTransform) const
+    bool AABB::IsInFrustum(const Frustum& frustum, Transform& modelTransform, float tolerance) const
     {
-        
+        using namespace std;
+        using namespace glm;
 
-        return FrustumHitInside;
+        v4 position4( modelTransform.GetMatrix() * glm::vec4(v3(m_Center), 1.f) );
+        v3 position = v3(position4) / position4.w;
+
+        // Scaled orientation
+        v3 right = modelTransform.GetRightVector() * m_HalfExtents.x;
+        v3 up    = modelTransform.GetUpVector()    * m_HalfExtents.y;
+        v3 front = modelTransform.GetFrontVector() * m_HalfExtents.z;
+
+        float dimX = abs(dot(v3(1,0,0), right)) + abs(dot(v3(1,0,0), up)) + abs(dot(v3(1,0,0), front));
+        float dimY = abs(dot(v3(0,1,0), right)) + abs(dot(v3(0,1,0), up)) + abs(dot(v3(0,1,0), front));
+        float dimZ = abs(dot(v3(0,0,1), right)) + abs(dot(v3(0,0,1), up)) + abs(dot(v3(0,0,1), front));
+
+        AABB worldAABB(position, dimX, dimY, dimZ);
+
+        for (const auto& plane : frustum.GetPlanes())
+        {
+            float radius = dot(worldAABB.m_HalfExtents, glm::abs(plane.GetNormal()));
+
+            if (plane.SignedDistance(worldAABB.m_Center) <= -(radius + tolerance))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

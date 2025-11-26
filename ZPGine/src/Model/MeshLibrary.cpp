@@ -8,13 +8,13 @@ namespace ZPG {
 
 void MeshLibrary::AddMesh(const std::string& name, const ref<Mesh>& mesh) {
     ZPG_PROFILE_FUNCTION();
-    ZPG_CORE_ASSERT(!Exists(name), "Mesh library already contains a mesh with the name: %s", name);
+    ZPG_CORE_ASSERT(!Exists(name), "Mesh library already contains a mesh with the name: {}", name);
     m_Meshes[name] = mesh;
 }
 
 ref<Mesh> const& MeshLibrary::GetMesh(const std::string& name) const {
     ZPG_PROFILE_FUNCTION();
-    ZPG_CORE_ASSERT(Exists(name), "Mesh library doesn't contain a mesh with the name: %s", name.c_str());
+    ZPG_CORE_ASSERT(Exists(name), "Mesh library doesn't contain a mesh with the name: {}", name.c_str());
     return m_Meshes.at(name);
 }
 

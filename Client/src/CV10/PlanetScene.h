@@ -58,7 +58,8 @@ namespace CV10
                 TransformGroup::Build()
                     .WithParent(sun->GetTransform())
                     // full rotation in 1 day
-                    .Add<DynRotate>(0.0f, 360.f/1.f, v3(0,0.9,0.2))  
+                    .Add<DynRotate>(0.0f, 360.f/1.f, v3(0,1,0))  
+                    .Add<Rotate>(23.5f, v3(1,0,0))  
                     // full orbit in 365 days
                     .Add<CircleMovement>(v3(0.0f), 5.0f, v3(0,1,0), 365, MovementMode::Repeat)  
                     .Compose()
@@ -67,7 +68,7 @@ namespace CV10
             auto moon = new Entity(
                 m_Res.GetModel("Moon"),
                 TransformGroup::Build()
-                    .WithParent(earth->GetTransform())
+                    .WithParent(earth->GetTransform(), TransformChainComplete)
                     .Add<Scale>(0.4f)
                     // rotates around its axis in 27 days
                     .Add<DynRotate>(0.0f, -360.f/27.f, v3(0,1,0))  
@@ -102,7 +103,10 @@ namespace CV10
         {
             Scene::OnImGuiRender();
             ImGui::Begin("Planet Scene");
-            ImGui::DragFloat("Speed", &m_TimeScale, 0.01f);
+            float scale = m_TimeScale;
+            if (ImGui::DragFloat("Time Scale", &scale, 0.01f, 0.01f, 3.0f)) {
+                m_TimeScale = scale;
+            }
             ImGui::End();
         }
 

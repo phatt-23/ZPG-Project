@@ -39,11 +39,12 @@ constexpr static u32 skyboxIndices[] = {
 };
 
 ResourceManager::ResourceManager()
-: m_ModelLib(), m_ShaderProgramLib() {
-
+    : m_ModelLib(), m_ShaderProgramLib() 
+{
 }
-ResourceManager::~ResourceManager() {
 
+ResourceManager::~ResourceManager() 
+{
 }
 
 /**
@@ -55,7 +56,8 @@ ResourceManager::~ResourceManager() {
  * Mesh system expects these resources:
  * - Null Material
  */
-void ResourceManager::Init() {
+void ResourceManager::Init() 
+{
     ZPG_PROFILE_FUNCTION();
     ZPG_CORE_ASSERT(s_Instance == nullptr, "The global resource manager was already instantiated.");
     s_Instance = MakeRef<ResourceManager>();
@@ -71,8 +73,10 @@ void ResourceManager::Init() {
     InitDefaultModels();
 }
 
-void ResourceManager::InitDefaultModels() {
+void ResourceManager::InitDefaultModels() 
+{
     ZPG_PROFILE_FUNCTION();
+
     ref<Model> sphereModel = ModelLoader("./assets/models/sphere/scene.gltf").Load();
     sphereModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
     sphereModel->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0,1,0,1));
@@ -80,10 +84,12 @@ void ResourceManager::InitDefaultModels() {
     s_Instance->AddMesh(CommonResources::MESH_SPHERE, sphereModel->GetMeshes().front());
     s_Instance->AddVAO(CommonResources::VAO_SPHERE, sphereModel->GetMeshes().front()->GetVertexArray());
 
-    ref<Model> boxModel = Model::Create({ s_Instance->GetMesh(CommonResources::MESH_BOX) });
+    ref<Model> boxModel = ModelLoader("./assets/models/cube/cube.gltf").Load();
     boxModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
     boxModel->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(1,0,0,1));
     s_Instance->AddModel(CommonResources::MODEL_BOX, boxModel);
+    s_Instance->AddMesh(CommonResources::MESH_BOX, boxModel->GetMeshes().front());
+    s_Instance->AddVAO(CommonResources::VAO_BOX, boxModel->GetMeshes().front()->GetVertexArray());
 
     ref<Model> skydomeModel = ModelLoader("./assets/models/skydome/skydome.obj").Load();
     skydomeModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
@@ -198,19 +204,19 @@ void ResourceManager::InitDefaultMaterials() {
 
 void ResourceManager::InitDefaultVAOs() {
     ZPG_PROFILE_FUNCTION();
-    BufferLayout phattLayout = {
-        {ShaderDataType::Float3, "a_Pos"},
-        {ShaderDataType::Float3, "a_Normal"},
-        {ShaderDataType::Float2, "a_TexCoord"},
-    };
-
-    s_Instance->AddVAO(
-        CommonResources::VAO_BOX,
-        VertexArray::Create(
-            { VertexBuffer::Create(phatt::boxVertices, sizeof(phatt::boxVertices), phattLayout) },
-            IndexBuffer::Create(phatt::boxIndices, ZPG_ARRAY_LENGTH(phatt::boxIndices))
-        )
-    );
+    // BufferLayout phattLayout = {
+    //     {ShaderDataType::Float3, "a_Pos"},
+    //     {ShaderDataType::Float3, "a_Normal"},
+    //     {ShaderDataType::Float2, "a_TexCoord"},
+    // };
+    //
+    // s_Instance->AddVAO(
+    //     CommonResources::VAO_BOX,
+    //     VertexArray::Create(
+    //         { VertexBuffer::Create(phatt::boxVertices, sizeof(phatt::boxVertices), phattLayout) },
+    //         IndexBuffer::Create(phatt::boxIndices, ZPG_ARRAY_LENGTH(phatt::boxIndices))
+    //     )
+    // );
 
     constexpr static float quadVertices[] =
     {
@@ -236,9 +242,7 @@ void ResourceManager::InitDefaultVAOs() {
 
 void ResourceManager::InitDefaultMeshes() {
     ZPG_PROFILE_FUNCTION();
-    s_Instance->AddMesh(
-        CommonResources::MESH_BOX,
-        Mesh::Create(s_Instance->GetVAO(CommonResources::VAO_BOX)));
+    // s_Instance->AddMesh( CommonResources::MESH_BOX, Mesh::Create(s_Instance->GetVAO(CommonResources::VAO_BOX)));
 }
 
 void ResourceManager::Shutdown() {

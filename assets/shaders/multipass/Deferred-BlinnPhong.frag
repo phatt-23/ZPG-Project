@@ -25,7 +25,7 @@ uniform sampler2D g_Color2; // albedo and metallic
 uniform sampler2D g_Color3; // emissive and roughness
 uniform isampler2D g_Color4; // entityID
 
-uniform sampler2D u_DirectionalLightShadowMap;
+uniform sampler2DArray u_DirectionalLightShadowMapArray;
 uniform sampler2DArray u_SpotLightShadowMapArray;
 uniform samplerCubeArray u_PointLightShadowCubeMapArray;
 
@@ -63,7 +63,12 @@ void main()
     {
         DirectionalLight light = ssbo_EnvironmentLight.DirLight;
 
-        float shadow = 1.0 - CalcShadowDirectional(u_DirectionalLightShadowMap, worldPos, worldNormal, light);
+        float shadow = 1.0 - CalcShadowDirectional(
+            u_DirectionalLightShadowMapArray, 
+            worldPos, 
+            worldNormal, 
+            light, 
+            ssbo_Camera.View);
 
         vec3 L = normalize(-light.Direction);
         vec3 H = normalize(L + V);
@@ -83,14 +88,14 @@ void main()
         PointLight light = ssbo_PointLight.LightArray[i];
 
         vec3 L = normalize(light.Position - worldPos);
-        vec3 R = reflect(-L, N);
-        // vec3 H = normalize(V + L);
+        // vec3 R = reflect(-L, N);
+        vec3 H = normalize(V + L);
         float dist = length(light.Position - worldPos);
         float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z + 0.0001), 1.0);
 
         float NdotL = max(dot(N, L), 0.0);
-        // float NdotH = max(dot(N, H), 0.0);
-        float NdotH = max(dot(V, R), 0.0);
+        float NdotH = max(dot(N, H), 0.0);
+        // float NdotH = max(dot(V, R), 0.0);
 
         vec3 diffuse = NdotL * diffuseColor;
         vec3 specular = pow(NdotH, shininess) * specularColor;
@@ -104,8 +109,8 @@ void main()
         SpotLight light = ssbo_SpotLight.LightArray[i];
 
         vec3 L = normalize(light.Position - worldPos);
-        vec3 R = reflect(-L, N);
-        // vec3 H = normalize(V + L);
+        // vec3 R = reflect(-L, N);
+        vec3 H = normalize(V + L);
         float dist = length(light.Position - worldPos);
         float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z + 0.00001), 1.0);
 
@@ -124,8 +129,8 @@ void main()
         float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
 
         float NdotL = max(dot(N, L), 0.0);
-        // float NdotH = max(dot(N, H), 0.0);
-        float NdotH = max(dot(V, R), 0.0);
+        float NdotH = max(dot(N, H), 0.0);
+        // float NdotH = max(dot(V, R), 0.0);
 
         vec3 diffuse = NdotL * diffuseColor;
         vec3 specular = pow(NdotH, shininess) * specularColor;
@@ -137,6 +142,38 @@ void main()
 
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0 / 2.2));
+
+
+
+
+    // select cascade layer (debug view)
+    /*
+    vec4 worldPosViewSpace4 = ssbo_Camera.View * vec4(worldPos, 1.0);
+    vec3 worldPosViewSpace = worldPosViewSpace4.xyz / worldPosViewSpace4.w;
+    float depthValue = abs(worldPosViewSpace.z);
+        
+    DirectionalLight dirlight = ssbo_EnvironmentLight.DirLight;
+
+    int sliceIndex = dirlight.CascadeCount - 1;
+    for (int i = 0; i < dirlight.CascadeCount; ++i)
+    {
+        if (depthValue < dirlight.PlaneDistance[i])
+        {
+            sliceIndex = i;
+            break;
+        }
+    }
+
+    if (sliceIndex == 0)
+        color = vec3(1, 0, 0);
+    else if (sliceIndex == 1)
+        color = vec3(0, 1, 0);
+    else if (sliceIndex == 2)
+        color = vec3(0, 0, 1);
+    else if (sliceIndex == 3)
+        color = vec3(1, 0, 1);
+    */
+
 
     f_Color0 = vec4(color, 1.0);
 

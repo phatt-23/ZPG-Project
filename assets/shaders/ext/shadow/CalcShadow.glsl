@@ -5,7 +5,14 @@
 #include "ext/light/SpotLight.glsl"
 #include "ext/light/DirectionalLight.glsl"
 
-float CalcShadowDirectional(sampler2D sampler, vec3 worldPos, vec3 worldNormal, DirectionalLight dirLight);
+float CalcShadowDirectional(
+    sampler2DArray sampler, 
+    vec3 worldPos, 
+    vec3 worldNormal, 
+    DirectionalLight light,
+    mat4 cameraView
+);
+
 float CalcShadowSpotLight(sampler2DArray sampler, vec3 worldPos, vec3 worldNormal, SpotLight light);
 float CalcShadowPointLight(samplerCubeArray sampler, vec3 worldPos, vec3 worldNormal, PointLight light);
 
@@ -19,21 +26,54 @@ float CalcShadowPointLight(samplerCubeArray sampler, vec3 worldPos, vec3 worldNo
 #define SHADOW_PCF_GLSL_IMPLEMENTATION
 #include "ext/shadow/PCF.glsl"
 
-float CalcShadowDirectional(sampler2D sampler, vec3 worldPos, vec3 worldNormal, DirectionalLight light)
+float CalcShadowDirectional(
+    sampler2DArray sampler, 
+    vec3 worldPos, 
+    vec3 worldNormal, 
+    DirectionalLight light,
+    mat4 cameraView
+)
 {
+    // select cascade layer
+    int sliceIndex = -1;
+    vec4 worldPosViewSpace4 = cameraView * vec4(worldPos, 1.0);
+    vec3 worldPosViewSpace = worldPosViewSpace4.xyz / worldPosViewSpace4.w;
+    float depthValue = abs(worldPosViewSpace.z);
+        
+    for (int i = 0; i < light.CascadeCount; ++i)
+    {
+        if (depthValue < light.PlaneDistance[i])
+        {
+            sliceIndex = i;
+            break;
+        }
+    }
+
+    if (sliceIndex == -1)
+    {
+        sliceIndex = light.CascadeCount - 1;
+    }
+        
     vec3 lightDir = light.Direction;
-    vec4 worldPosLightSpace = light.ViewProj * vec4(worldPos, 1.0);
+    vec4 worldPosLightSpace = light.ViewProj[sliceIndex] * vec4(worldPos, 1.0);
 
     vec3 projCoord = worldPosLightSpace.xyz / worldPosLightSpace.w;
     projCoord = 0.5 * projCoord + 0.5;
 
     if (projCoord.z > 1.0 || projCoord.x > 1.0 || projCoord.y > 1.0 || projCoord.x < 0.0 || projCoord.y < 0.0 || projCoord.z < 0.0)
+    {
         return 0.0; // when oversampling, return no shadow
+    }
 
     float bias = ShadowBias(worldNormal, lightDir);
     int size = 4;
 
-    float shadow = PCF(sampler, projCoord, bias, size);
+
+    // float currentDepth = projCoord.z;
+    // float texDepth = texture(sampler, vec3(projCoord.xy, sliceIndex)).r;
+    // float shadow = (currentDepth - bias > texDepth) ? 1.0 : 0.0;
+    float shadow = PCF(sampler, sliceIndex, projCoord, bias, size);
+
     return shadow;
 }
 
