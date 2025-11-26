@@ -26,4 +26,10 @@ namespace ZPG
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(glm::value_ptr(cameraPosition), InternalLayout, CameraPosition);
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&farPlane, InternalLayout, FarPlane);
     }
+
+    void CameraShaderStorageBuffer::Null() 
+    {
+        byte data[sizeof(InternalLayout)] = {0};
+        SetData(data, sizeof(InternalLayout));
+    }
 }

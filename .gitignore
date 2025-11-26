@@ -11,3 +11,5 @@ build-release/
 assets/models/
 assets/textures/
 *.zip
+assets-archive/
+

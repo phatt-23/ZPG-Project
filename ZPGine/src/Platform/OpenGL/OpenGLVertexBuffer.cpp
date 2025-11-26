@@ -8,7 +8,7 @@ OpenGLVertexBuffer::OpenGLVertexBuffer(u32 size) : m_Layout(), m_Size(size) {
     ZPG_PROFILE_FUNCTION();
     ZPG_OPENGL_CALL(glCreateBuffers(1, &m_RendererID));
     Bind();
-    ZPG_OPENGL_CALL(glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW));
+    ZPG_OPENGL_CALL(glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_STATIC_DRAW));
     Unbind();
 }
 OpenGLVertexBuffer::OpenGLVertexBuffer(const void* vertices, u32 size) : m_Layout(), m_Size(size) {

@@ -68,9 +68,9 @@ namespace ZPG
         v3 up    = modelTransform.GetUpVector()    * m_HalfExtents.y;
         v3 front = modelTransform.GetFrontVector() * m_HalfExtents.z;
 
-        float dimX = abs(dot(v3(1,0,0), right)) + abs(dot(v3(1,0,0), up)) + abs(dot(v3(1,0,0), front));
-        float dimY = abs(dot(v3(0,1,0), right)) + abs(dot(v3(0,1,0), up)) + abs(dot(v3(0,1,0), front));
-        float dimZ = abs(dot(v3(0,0,1), right)) + abs(dot(v3(0,0,1), up)) + abs(dot(v3(0,0,1), front));
+        float dimX = abs(right.x) + abs(up.x) + abs(front.x);
+        float dimY = abs(right.y) + abs(up.y) + abs(front.y);
+        float dimZ = abs(right.z) + abs(up.z) + abs(front.z);
 
         AABB worldAABB(position, dimX, dimY, dimZ);
 

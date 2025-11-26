@@ -391,10 +391,10 @@ namespace ZPG
                 circle->SetCenter(c);
             }
 
-            v3 dir = circle->GetDirection();
+            v3 dir = circle->GetRotationAxis();
             if (ImGui::DragFloat3("Direction", glm::value_ptr(dir), 0.1, -1.0, 1.0))
             {
-                circle->SetDirection(dir);
+                circle->SetRotationAxis(dir);
             }
         }
 

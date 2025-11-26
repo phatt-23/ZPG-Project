@@ -77,7 +77,7 @@ void ResourceManager::InitDefaultModels()
 {
     ZPG_PROFILE_FUNCTION();
 
-    ref<Model> sphereModel = ModelLoader("./assets/models/sphere/scene.gltf").Load();
+    ref<Model> sphereModel = ModelLoader("./assets/models/sphere/sphere.gltf").Load();
     sphereModel->GetMeshes().front()->GetMaterial()->SetMetallic(0);
     sphereModel->GetMeshes().front()->GetMaterial()->SetAlbedo(v4(0,1,0,1));
     s_Instance->AddModel(CommonResources::MODEL_SPHERE, sphereModel);

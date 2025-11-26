@@ -43,4 +43,9 @@ namespace ZPG
             offsetof(InternalLayout, DirectionalLight) + offsetof(DirectionalLightStruct, ViewProj));
     }
 
+    void EnvironmentLightShaderStorageBuffer::Null() 
+    {
+        byte data[sizeof(InternalLayout)] = {0};
+        SetData(data, sizeof(InternalLayout));
+    }
 } // namespace ZPG

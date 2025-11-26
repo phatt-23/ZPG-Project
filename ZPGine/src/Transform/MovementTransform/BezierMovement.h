@@ -14,6 +14,7 @@ namespace ZPG
         void Update(Timestep &ts) override;
     
         v3 GetCurrentPosition() override;
+        v3 GetCurrentHeading() override;
 
         const vec<v3>& GetControlPoints() const { return m_ControlPoints; }
         void SetControlPoints(const vec<v3>& controlPoints) { m_ControlPoints = controlPoints; }

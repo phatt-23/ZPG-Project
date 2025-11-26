@@ -19,6 +19,7 @@ namespace ZPG
         };
         
         CameraShaderStorageBuffer(u32 bindingPoint);
+        virtual void Null() override;
 
         void SetCamera(const Camera& camera);
     };

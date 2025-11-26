@@ -23,6 +23,11 @@ namespace ZPG
         return r;
     }
 
+    v3 BezierMovement::GetCurrentHeading()
+    {
+        return v3(0,0,-1);
+    }
+
     v3 BezierMovement::GetCurrentPosition() 
     {
         int n = m_ControlPoints.size() - 1;  // degree

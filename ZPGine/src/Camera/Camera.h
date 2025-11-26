@@ -42,6 +42,7 @@ public:
     const v3& GetForward() const { return m_Forward; }
     const v3& GetRight() const { return m_Right; }
     const v3& GetWorldUp() const { return s_WorldUp; }
+
 private:
     void Recalculate();
 

@@ -3,7 +3,7 @@
 
 #include "ext/ssbo/EnvironmentLightSSBO.glsl"
 
-layout(triangles, invocations = 3) in; // cascade count = 3
+layout(triangles, invocations = 4) in; // cascade count 
 layout(triangle_strip, max_vertices=3) out;
 
 void main()

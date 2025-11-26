@@ -91,6 +91,23 @@ namespace CV10
                     }, 4.0f, MovementMode::Repeat)
                     .Compose()
             ));
+
+
+            // splines
+            GetEntityManager().AddEntity(new Entity(
+                GetResourceManager().GetModel(CommonResources::MODEL_CUBE),
+                TransformGroup::Build()
+                    .Add<Scale>(1.0)
+                    .Add<DynRotate>(0.0, 90.0, v3(1.0, 1.0, 0.0))
+                    .Add<BezierMovement>(vec<v3>{
+                        v3(20.0, 2.0, -20.0),
+                        v3(0.0, 20.0, 20.0),
+                        v3(-20.0, -20.0, -20.0),
+                        v3(0.0, 40.0, -60.0),
+                        v3(20.0, 2.0, -20.0),
+                    }, 4.0f, MovementMode::Repeat)
+                    .Compose()
+            ));
         }
     };
 }

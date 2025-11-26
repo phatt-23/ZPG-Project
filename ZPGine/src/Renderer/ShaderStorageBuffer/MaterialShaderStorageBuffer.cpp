@@ -60,4 +60,9 @@ namespace ZPG
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&metallic, InternalLayout, Metallic);
         Unbind();
     }
-}
+    void MaterialShaderStorageBuffer::Null() 
+    {
+        byte data[sizeof(InternalLayout)] = {0};
+        SetData(data, sizeof(InternalLayout));
+    }
+} // namespace ZPG

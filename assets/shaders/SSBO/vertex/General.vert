@@ -24,7 +24,8 @@ layout (std430, binding = 4) buffer ModelStorageBuffer {
 
 uniform mat4 u_Model;
 
-void main() {
+void main() 
+{
     // mat4 model = u_Model;
     mat4 model = ssbo_Models.Models[gl_InstanceID];
     vec4 worldPos = model * vec4(a_Pos, 1.f);

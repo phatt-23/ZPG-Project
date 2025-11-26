@@ -56,7 +56,7 @@ void main()
     vec3 V = normalize(ssbo_Camera.CameraPosition - worldPos);
 
     vec3 Lo = vec3(0.0);
-    vec3 Le = emissive * albedo;
+    vec3 Le = albedo * emissive;
     vec3 La = albedo * ssbo_EnvironmentLight.AmbientColor.rgb * ssbo_EnvironmentLight.AmbientColor.a * ao;
 
     // directional light
@@ -73,11 +73,11 @@ void main()
         vec3 L = normalize(-light.Direction);
         vec3 H = normalize(L + V);
 
-        float NdotL = max(dot(N, L), 0.0);
+        float NdotL = dot(N, L);
         float NdotH = max(dot(N, H), 0.0);
 
-        vec3 diffuse = NdotL * diffuseColor;
-        vec3 specular = pow(NdotH, shininess) * specularColor;
+        vec3 diffuse = max(NdotL, 0.0) * diffuseColor;
+        vec3 specular = pow(NdotH, shininess) * specularColor * int(NdotL >= 0.0);
 
         Lo += (diffuse + specular) * (light.Color.rgb * light.Color.a) * shadow;
     }
@@ -88,17 +88,15 @@ void main()
         PointLight light = ssbo_PointLight.LightArray[i];
 
         vec3 L = normalize(light.Position - worldPos);
-        // vec3 R = reflect(-L, N);
         vec3 H = normalize(V + L);
         float dist = length(light.Position - worldPos);
         float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z + 0.0001), 1.0);
 
-        float NdotL = max(dot(N, L), 0.0);
+        float NdotL = dot(N, L);
         float NdotH = max(dot(N, H), 0.0);
-        // float NdotH = max(dot(V, R), 0.0);
 
-        vec3 diffuse = NdotL * diffuseColor;
-        vec3 specular = pow(NdotH, shininess) * specularColor;
+        vec3 diffuse = max(NdotL, 0.0) * diffuseColor;
+        vec3 specular = pow(NdotH, shininess) * specularColor * int(NdotL >= 0.0);
 
         Lo += (diffuse + specular) * (light.Color.rgb * light.Color.a) * atten;
     }
@@ -109,7 +107,6 @@ void main()
         SpotLight light = ssbo_SpotLight.LightArray[i];
 
         vec3 L = normalize(light.Position - worldPos);
-        // vec3 R = reflect(-L, N);
         vec3 H = normalize(V + L);
         float dist = length(light.Position - worldPos);
         float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z + 0.00001), 1.0);
@@ -128,12 +125,11 @@ void main()
         float beamDenominator = beamBlendCos - beamSizeCos;
         float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
 
-        float NdotL = max(dot(N, L), 0.0);
+        float NdotL = dot(N, L);
         float NdotH = max(dot(N, H), 0.0);
-        // float NdotH = max(dot(V, R), 0.0);
 
-        vec3 diffuse = NdotL * diffuseColor;
-        vec3 specular = pow(NdotH, shininess) * specularColor;
+        vec3 diffuse = max(NdotL, 0.0) * diffuseColor;
+        vec3 specular = pow(NdotH, shininess) * specularColor * int(NdotL >= 0.0);
 
         Lo += (diffuse + specular) * (light.Color.rgb * light.Color.a) * beamContrib * atten;
     }

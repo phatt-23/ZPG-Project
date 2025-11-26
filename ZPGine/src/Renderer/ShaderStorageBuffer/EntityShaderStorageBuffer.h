@@ -20,7 +20,9 @@ namespace ZPG
         void SetEntityIDs(const std::vector<i32>& entityIDs);
         void SetEntityIDs(const i32* entityIDs, u32 count);
 
-    private:
+        void Null() override;
+
+      private:
         u32 m_Capacity;
     };
 }

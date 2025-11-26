@@ -21,7 +21,10 @@ namespace ZPG
         void SetCount(i32 count);
         void SetLightArray(const std::vector<SpotLightStruct>& lights);
         void SetShadowLayer(int i);
-    private:
+
+        void Null() override;
+
+      private:
         u32 m_Capacity;
     };
 }

@@ -44,9 +44,9 @@ namespace ZPG
         Targets.MainColorMap = Texture2D::Create("main_color_map.texture2d", width, height, TextureDataFormat::RGBA8);
         Targets.MainEntityIDMap = Texture2D::Create("main_entity_id_map.texture2d", width, height, TextureDataFormat::RedInteger);
 
-        Targets.SpotLightShadowMapArray = Texture2DArray::Create( 1024, 1024, 64, TextureDataFormat::Depth32F );
-        Targets.PointLightShadowCubeMapArray = TextureCubeMapArray::Create( 1024, 6 * 10, TextureDataFormat::Depth32F );
-        Targets.DirectionalLightShadowMapArray = Texture2DArray::Create( 1024, 1024, 4, TextureDataFormat::Depth32F );
+        Targets.SpotLightShadowMapArray = Texture2DArray::Create( 1024, 1024, 8, TextureDataFormat::Depth32F );
+        Targets.PointLightShadowCubeMapArray = TextureCubeMapArray::Create( 1024, 8, TextureDataFormat::Depth32F );
+        Targets.DirectionalLightShadowMapArray = Texture2DArray::Create( 1024 << 2, 1024 << 2, 4, TextureDataFormat::Depth32F );
 
         FrameBufferSpecification mainFramebufferSpec;
         mainFramebufferSpec.Width = 1024;

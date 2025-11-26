@@ -20,7 +20,9 @@ namespace ZPG
         void SetModels(const std::vector<m4>& models);
         void SetModels(const m4* modelsData, u32 count);
 
-    private:
+        void Null() override;
+
+      private:
         u32 m_Capacity;
     };
 }

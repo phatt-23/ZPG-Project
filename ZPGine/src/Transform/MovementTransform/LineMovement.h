@@ -17,6 +17,7 @@ namespace ZPG
         void Update(Timestep& ts) override;
 
         virtual v3 GetCurrentPosition() override;
+        virtual v3 GetCurrentHeading() override;
         const v3& GetStartPoint() const { return m_StartPoint; }
         const v3& GetEndPoint() const { return m_EndPoint; }
         void SetStartPoint(const v3& startPoint) { m_StartPoint = startPoint; }

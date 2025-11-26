@@ -20,7 +20,8 @@ namespace ZPG
         EnvironmentLightShaderStorageBuffer(u32 bindingPoint);
 
         void SetAmbient(const AmbientLight &ambientLight);
-
         void SetDirectionalLight(const DirectionalLight &directionalLight, const Camera& camera);
+
+        void Null() override;
     };
 }

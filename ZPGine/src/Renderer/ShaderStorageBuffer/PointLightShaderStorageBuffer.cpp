@@ -31,4 +31,10 @@ namespace ZPG
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA_ARRAY((void*)lights.data(), count, InternalLayout, LightArray);
         Unbind();
     }
-}
+
+    void PointLightShaderStorageBuffer::Null() 
+    {
+        byte data[sizeof(InternalLayout)] = {0};
+        SetData(data, sizeof(InternalLayout));
+    }
+} // namespace ZPG

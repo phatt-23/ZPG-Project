@@ -10,7 +10,7 @@ namespace ZPG
     public:
         CircleMovement(const v3& center, 
                        float radius, 
-                       const v3& axis, 
+                       const v3& rotationAxis, 
                        float duration, 
                        MovementMode mode = MovementMode::Once);
 
@@ -19,16 +19,24 @@ namespace ZPG
         void Update(Timestep& ts) override;
 
         v3 GetCurrentPosition() override;
+        v3 GetCurrentHeading() override;
+
         float GetRadius() const { return m_Radius; }
         const v3& GetCenter() const { return m_Center; }
-        const v3& GetDirection() const { return m_Direction; }
+        const v3& GetRotationAxis() const { return m_RotationAxis; }
         void SetRadius(float radius) { m_Radius = radius; }
         void SetCenter(const v3& center) { m_Center = center; }
-        void SetDirection(const v3& direction) { m_Direction = normalize(direction); }
+        void SetRotationAxis(const v3& direction) { m_RotationAxis = normalize(direction); }
         
+    private:
+        float GetCurrentAlpha() const;
+
     private:
         float m_Radius;
         v3 m_Center;
-        v3 m_Direction;
+        v3 m_RotationAxis;
+
+    private:
+        m4 m_RotationMatrix;
     };
 }

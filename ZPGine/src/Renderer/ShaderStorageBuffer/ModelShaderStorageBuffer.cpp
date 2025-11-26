@@ -41,4 +41,10 @@ namespace ZPG
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA_ARRAY((void*)modelsData, count, InternalLayout, Models);
         Unbind();
     }
-}
+
+    void ModelShaderStorageBuffer::Null() 
+    {
+        byte data[sizeof(InternalLayout)] = {0};
+        SetData(data, sizeof(InternalLayout));
+    }
+} // namespace ZPG

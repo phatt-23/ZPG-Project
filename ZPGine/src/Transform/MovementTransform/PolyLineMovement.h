@@ -13,8 +13,14 @@ namespace ZPG
         void Update(Timestep &ts) override;
         
         v3 GetCurrentPosition() override;
+        v3 GetCurrentHeading() override;
+
         const vec<v3>& GetPoints() const { return m_Points; }
         void SetPoints(const vec<v3>& points) { m_Points = points; }
+
+    private:
+        // indices of points and the local t
+        std::tuple<u32, u32, f32> GetCurrentSegment();
 
     private:
         vec<v3> m_Points;

@@ -23,7 +23,10 @@ namespace ZPG
 
         virtual void Update(Timestep &ts) override;
 
+        virtual f32 GetNormalizedTime() const { return m_Elapsed / m_Duration; }
         virtual v3 GetCurrentPosition() = 0;
+        virtual v3 GetCurrentHeading() = 0;
+
         float GetElapsed() const { return m_Elapsed; }
         float GetDuration() const { return m_Duration; }
         void SetDuration(float duration) { m_Duration = duration; }

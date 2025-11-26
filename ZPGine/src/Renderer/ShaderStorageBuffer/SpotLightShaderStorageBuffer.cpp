@@ -32,9 +32,16 @@ namespace ZPG
         Unbind();
     }
 
-    void SpotLightShaderStorageBuffer::SetShadowLayer(int i) {
+    void SpotLightShaderStorageBuffer::SetShadowLayer(int i) 
+    {
         Bind();
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&i, InternalLayout, ShadowLayer);
         Unbind();
     }
-}
+
+    void SpotLightShaderStorageBuffer::Null() 
+    {
+        byte data[sizeof(InternalLayout)] = {0};
+        SetData(data, sizeof(InternalLayout));
+    }
+} // namespace ZPG

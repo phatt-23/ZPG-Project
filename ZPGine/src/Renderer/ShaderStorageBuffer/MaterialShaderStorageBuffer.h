@@ -25,5 +25,7 @@ namespace ZPG
         void SetEmissive(const v4& emissive);
         void SetRoughness(f32 roughness);
         void SetMetallic(f32 metallic);
+
+        void Null() override;
     };
 }   

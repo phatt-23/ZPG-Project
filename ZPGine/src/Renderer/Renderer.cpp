@@ -298,6 +298,13 @@ namespace ZPG
         Renderer::BeginFrame();
         s->m_RenderContext.StaticBatches.Clear();
         s->m_RenderContext.StaticQueues.Clear();
+        s->m_RenderContext.SSBO.PointLightSSBO.Null();
+        s->m_RenderContext.SSBO.EnvironmentLightSSBO.Null();
+        s->m_RenderContext.SSBO.SpotLightSSBO.Null();
+        s->m_RenderContext.SSBO.EntitySSBO.Null();
+        s->m_RenderContext.SSBO.CameraSSBO.Null();
+        s->m_RenderContext.SSBO.ModelSSBO.Null();
+        s->m_RenderContext.SSBO.MaterialSSBO.Null();
     }
 
     void Renderer::OnResize(u32 width, u32 height)
