@@ -12,4 +12,8 @@ assets/models/
 assets/textures/
 *.zip
 assets-archive/
+compile_commands.json
+imgui.ini
+Makefile
+.vscode/
 
