@@ -29,12 +29,13 @@ namespace ZPG
 
         float GetElapsed() const { return m_Elapsed; }
         float GetDuration() const { return m_Duration; }
+        float GetSpeedPerSecond() const { return m_SpeedPerSecond; }
         void SetDuration(float duration) { m_Duration = duration; }
 
     protected:
         MovementMode m_Mode;
         float m_Elapsed;     // in seconds
         float m_Duration;    // in seconds
-        float m_TimeSpeed = 1.0; // 1, -1, 0
+        float m_SpeedPerSecond = 1.0; // 1, -1, 0
     };
 }

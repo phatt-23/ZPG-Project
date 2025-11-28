@@ -7,18 +7,14 @@ namespace ZPG
 
     void Movement::Update(Timestep &ts)
     {
-        m_Elapsed += m_TimeSpeed * ts.AsSeconds();
+        m_Elapsed += m_SpeedPerSecond * ts.AsSeconds();
 
         switch (m_Mode)
         {
             case MovementMode::PingPong:
-                if (m_Elapsed >= m_Duration) 
+                if (m_Elapsed >= m_Duration || m_Elapsed < 0) 
                 {
-                    m_TimeSpeed = -1.0f;
-                }
-                else if (m_Elapsed < 0)
-                {
-                    m_TimeSpeed = 1.0f;
+                    m_SpeedPerSecond = -m_SpeedPerSecond;
                 }
                 break;
             case MovementMode::Repeat:
@@ -31,7 +27,7 @@ namespace ZPG
                 if (m_Elapsed >= m_Duration)
                 {
                     m_Elapsed = m_Duration;
-                    m_TimeSpeed = 0.0f;
+                    m_SpeedPerSecond = 0.0f;
                 }
                 break;
             case MovementMode::Uncapped:

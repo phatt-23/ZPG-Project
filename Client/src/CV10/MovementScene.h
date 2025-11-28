@@ -1,6 +1,3 @@
-#include "Transform/MovementTransform/BezierMovement.h"
-#include "Transform/MovementTransform/CircleMovement.h"
-#include "Transform/MovementTransform/LineMovement.h"
 #include "ZPGine.h"
 
 namespace CV10
@@ -12,6 +9,8 @@ namespace CV10
     public:
         void OnAttach() override
         {
+            m_Res.LoadModel("Shrek", "./assets/models/vendor/shrek/shrek.obj");
+
             GetLightManager().AddLight(new AmbientLight(v4(0.1)));
             GetLightManager().AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.8), v3(-1,-1,-1)));
 
@@ -92,22 +91,32 @@ namespace CV10
                     .Compose()
             ));
 
-
             // splines
             GetEntityManager().AddEntity(new Entity(
-                GetResourceManager().GetModel(CommonResources::MODEL_CUBE),
+                m_Res.GetModel("Shrek"),
                 TransformGroup::Build()
-                    .Add<Scale>(1.0)
-                    .Add<DynRotate>(0.0, 90.0, v3(1.0, 1.0, 0.0))
-                    .Add<BezierMovement>(vec<v3>{
-                        v3(20.0, 2.0, -20.0),
-                        v3(0.0, 20.0, 20.0),
-                        v3(-20.0, -20.0, -20.0),
-                        v3(0.0, 40.0, -60.0),
-                        v3(20.0, 2.0, -20.0),
-                    }, 4.0f, MovementMode::Repeat)
+                    .Add<Scale>(2.0)
+                    .Add<SplineMovement>(
+                        v3(20.0, 2.0, -20.0),               // beginning
+                        vec<SplineSegment>{
+                            {
+                                { 0.0, 20.0, 20.0 },        // control point 1
+                                { -20.0, -20.0, -20.0 },    // control point 2
+                                { 0.0, 40.0, -60.0 },       // end
+                            },
+                            {
+                                { 20.0, 2.0, -20.0 },       // control point 1
+                                { 20.0, 2.0, -20.0 },       // control point 2
+                                { 20.0, 2.0, -20.0 },       // end
+                            },
+                        }, 
+                        4.0f, 
+                        MovementMode::Repeat)
                     .Compose()
             ));
         }
+
+    private:
+        ResourceManager m_Res;
     };
 }

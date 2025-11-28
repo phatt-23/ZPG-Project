@@ -68,6 +68,7 @@ namespace ZPG
         v3 up    = modelTransform.GetUpVector()    * m_HalfExtents.y;
         v3 front = modelTransform.GetFrontVector() * m_HalfExtents.z;
 
+        // leaving it like this for clarity
         float dimX = abs(right.x) + abs(up.x) + abs(front.x);
         float dimY = abs(right.y) + abs(up.y) + abs(front.y);
         float dimZ = abs(right.z) + abs(up.z) + abs(front.z);

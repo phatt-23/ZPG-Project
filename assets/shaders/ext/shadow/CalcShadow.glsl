@@ -65,7 +65,7 @@ float CalcShadowDirectional(
         return 0.0; // when oversampling, return no shadow
     }
 
-    float bias = max(0.05 * (1.0 - dot(worldNormal, lightDir)), 0.005) * 1.0f/(1.0f * light.PlaneDistance[sliceIndex]);
+    float bias = max(0.05 * (1.0 - dot(worldNormal, lightDir)), 0.005) * 1.0f/(0.5f * light.PlaneDistance[sliceIndex]);
 
     // float bias = ShadowBias(worldNormal, lightDir);
     int size = 4;

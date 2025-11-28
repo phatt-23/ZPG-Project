@@ -32,6 +32,7 @@
 #include "Renderer/RenderCommand.h"
 #include "Renderer/RenderStatistics.h"
 #include "Renderer/Renderer.h"
+#include "Renderer/DrawCommand.h"
 
 #include "Buffer/VertexArray.h"
 #include "Buffer/VertexBuffer.h"
@@ -46,6 +47,8 @@
 
 #include "Texture/Texture2D.h"
 #include "Texture/TextureLibrary.h"
+#include "Texture/Texture2DArray.h"
+#include "Texture/TextureCubeMapArray.h"
 
 #include "Shader/ShaderDataType.h"
 #include "Shader/Shader.h"
@@ -76,6 +79,7 @@
 #include "Transform/MovementTransform/CircleMovement.h"
 #include "Transform/MovementTransform/BezierMovement.h"
 #include "Transform/MovementTransform/PolyLineMovement.h"
+#include "Transform/MovementTransform/SplineMovement.h"
 
 #include "Light/Light.h"
 #include "Light/AmbientLight.h"

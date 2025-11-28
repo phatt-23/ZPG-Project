@@ -18,6 +18,8 @@ namespace ZPG
         const vec<v3>& GetPoints() const { return m_Points; }
         void SetPoints(const vec<v3>& points) { m_Points = points; }
 
+        const std::vector<float>& GetLengths() const { return m_Lengths; }
+
     private:
         // indices of points and the local t
         std::tuple<u32, u32, f32> GetCurrentSegment();
