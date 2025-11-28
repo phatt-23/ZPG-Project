@@ -49,15 +49,17 @@ bool Observable::DetachCallback(u32 callbackID) {
 
 void Observable::NotifyWith(Payload& payload) const {
     ZPG_PROFILE_FUNCTION();
+
+/*
     // because observer could kill themselves while iterating through them
     std::vector<Observer*> observersCopy = m_Observers;
     std::unordered_map<u32, std::function<void(Payload& payload)>> callbacksCopy = m_Callbacks;
-
-    for (Observer* observer : observersCopy) {
+*/
+    for (Observer* observer : m_Observers) {
         observer->OnNotify(payload);
     }
 
-    for (const std::function<void(Payload&)>& fn : callbacksCopy | std::views::values) {
+    for (const std::function<void(Payload&)>& fn : m_Callbacks | std::views::values) {
         fn(payload);
     }
 }
