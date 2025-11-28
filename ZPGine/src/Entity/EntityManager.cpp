@@ -70,4 +70,9 @@ namespace ZPG
         }
     }
 
+    void EntityManager::Clear()
+    {
+        m_Entities.clear();
+    }
+
 }

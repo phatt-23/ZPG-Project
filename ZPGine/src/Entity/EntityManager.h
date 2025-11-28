@@ -21,6 +21,8 @@ namespace ZPG
         ref<Entity> GetEntity(int entityID) const;
         void RemoveEntity(int entityID);
 
+        void Clear();
+
     private:
         std::vector<ref<Entity>> m_Entities;
         std::vector<ref<Entity>> m_StaticEntities;

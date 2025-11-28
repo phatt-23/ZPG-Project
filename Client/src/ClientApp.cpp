@@ -4,6 +4,7 @@
 
 #include "ClientApp.h"
 
+#include "CV11/SplineBuildingScene.h"
 #include "ZPGine.h"
 
 #include <imgui.h>
@@ -39,16 +40,17 @@ ClientApp::ClientApp()
 
 void ClientApp::AttachScenes()
 {
-    m_SceneManager.AddScene("8-Shadow",     []{ return new CV8::ShadowScene(); });
-    m_SceneManager.AddScene("8-Skydome",    []{ return new CV8::SkydomeScene(); });
-    m_SceneManager.AddScene("8-Forest",     []{ return new CV8::ForestScene(); });
-    m_SceneManager.AddScene("10-Movement",  []{ return new CV10::MovementScene(); });
-    m_SceneManager.AddScene("10-Homo",      []{ return new CV10::HomoScene(); });
-    m_SceneManager.AddScene("10-Whack",     []{ return new CV10::WhackScene(); });
-    m_SceneManager.AddScene("10-Planets",   []{ return new CV10::PlanetScene(); });
-    m_SceneManager.AddScene("10-Spheres",   []{ return new CV10::SphereScene(); });
-    m_SceneManager.AddScene("11-Splines",   []{ return new CV11::SplineScene(); });
-    m_SceneManager.SetActiveScene("11-Splines");
+    m_SceneManager.AddScene("8-Shadow",         []{ return new CV8::ShadowScene(); });
+    m_SceneManager.AddScene("8-Skydome",        []{ return new CV8::SkydomeScene(); });
+    m_SceneManager.AddScene("8-Forest",         []{ return new CV8::ForestScene(); });
+    m_SceneManager.AddScene("10-Movement",      []{ return new CV10::MovementScene(); });
+    m_SceneManager.AddScene("10-Homo",          []{ return new CV10::HomoScene(); });
+    m_SceneManager.AddScene("10-Whack",         []{ return new CV10::WhackScene(); });
+    m_SceneManager.AddScene("10-Planets",       []{ return new CV10::PlanetScene(); });
+    m_SceneManager.AddScene("10-Spheres",       []{ return new CV10::SphereScene(); });
+    m_SceneManager.AddScene("11-Splines",       []{ return new CV11::SplineScene(); });
+    m_SceneManager.AddScene("11-SplineBuild",   []{ return new CV11::SplineBuildingScene(); });
+    m_SceneManager.SetActiveScene("11-SplineBuild");
 }
 
 void ClientApp::OnImGuiRender()
@@ -83,8 +85,10 @@ void ClientApp::OnImGuiRender()
     ImGui::End();
 
     ImGui::Begin("Scene Switcher");
-    for (const auto& sceneName : m_SceneManager | std::views::keys) {
-        if (ImGui::Button(sceneName.c_str())) {
+    for (const auto& sceneName : m_SceneManager | std::views::keys) 
+    {
+        if (ImGui::RadioButton(sceneName.c_str(), m_SceneManager.GetActiveSceneName() == sceneName)) 
+        {
             m_SceneManager.SetActiveScene(sceneName);
         }
     }
