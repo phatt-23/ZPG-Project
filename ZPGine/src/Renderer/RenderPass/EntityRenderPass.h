@@ -15,8 +15,6 @@ namespace ZPG
     public:
         void Init(RenderContext& context) override;
         void Execute(RenderContext& context) override;
-    private:
-        ref<VertexArray> m_QuadVAO;
     };
 
 } // ZPG

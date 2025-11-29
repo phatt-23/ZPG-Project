@@ -60,6 +60,10 @@ namespace ZPG
             ref<Texture2D> MainDepthMap = nullptr;
             ref<Texture2D> MainColorMap = nullptr;
             ref<Texture2D> MainEntityIDMap = nullptr;
+            ref<Texture2D> BrightnessMap = nullptr;
+
+            // image processing attachment
+            ref<Texture2D> BloomMap = nullptr;
 
             // shadow map attachments
             ref<Texture2DArray> SpotLightShadowMapArray = nullptr;
@@ -67,7 +71,7 @@ namespace ZPG
             ref<Texture2DArray> DirectionalLightShadowMapArray = nullptr;
 
             // geometry buffer attachments
-            ref<FrameBuffer> GeometryFrameBuffer = nullptr;
+            ref<FrameBuffer> GeometryFrameBuffer = nullptr;   // only for debugging
             ref<Texture2D> GeometryDepthMap = nullptr;
             ref<Texture2D> GeometryPositionMap = nullptr;
             ref<Texture2D> GeometryNormalMap = nullptr;

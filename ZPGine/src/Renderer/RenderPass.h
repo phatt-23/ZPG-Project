@@ -5,10 +5,12 @@ namespace ZPG
     class ShaderProgram;
     class FrameBuffer;
     class RenderContext;
+    class VertexArray;
 
     class RenderPass
     {
     public:
+        RenderPass();
         virtual ~RenderPass() = default;
 
         virtual void Init(RenderContext& context) = 0;
@@ -18,6 +20,7 @@ namespace ZPG
     protected:
         ref<FrameBuffer> m_FrameBuffer = nullptr;
         ref<ShaderProgram> m_ShaderProgram = nullptr;
+        ref<VertexArray> m_ScreenQuadVAO = nullptr;
     };
 
 }

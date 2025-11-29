@@ -550,6 +550,11 @@ namespace ZPG
                     light->Position.Set(pos);
                 }
 
+                f32 intensity = light->Atten.GetIntensity();
+                if (ImGui::DragFloat("Intensity", &intensity, 0.01)) {
+                    light->Atten.SetIntensity(intensity);
+                }
+
                 v3 atten = light->Atten.GetAttenuation();
                 if (ImGui::DragFloat3("Attenuation", glm::value_ptr(atten), 0.01)) {
                     light->Atten.SetAttenuation(atten);
@@ -574,6 +579,11 @@ namespace ZPG
                 v3 dir = light->Direction.Get();
                 if (ImGui::DragFloat3("Direction", glm::value_ptr(dir), 0.01, -1.0, 1.0)) {
                     light->Direction.Set(dir);
+                }
+
+                f32 intensity = light->Atten.GetIntensity();
+                if (ImGui::DragFloat("Intensity", &intensity, 0.01)) {
+                    light->Atten.SetIntensity(intensity);
                 }
 
                 v3 atten = light->Atten.GetAttenuation();

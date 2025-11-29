@@ -7,6 +7,7 @@
 #include "Renderer/DrawBatch.h"
 #include "Renderer/DrawCommand.h"
 #include "Renderer/RenderPass.h"
+#include "Renderer/RenderPass/BloomRenderPass.h"
 #include "Renderer/RenderPass/DirectionalLightShadowRenderPass.h"
 #include "Renderer/RenderPass/LightVolume/EnvironmentLightRenderPass.h"
 #include "Renderer/RenderPass/LightVolume/PointLightRenderPass.h"
@@ -78,6 +79,7 @@ namespace ZPG
         // PushRenderPass(new SpotLightRenderPass());
         // PushRenderPass(new EntityRenderPass());
         PushRenderPass(new SkyRenderPass());
+        PushRenderPass(new BloomRenderPass());
 
 
         // this doesn't fit anywhere else
@@ -285,6 +287,12 @@ namespace ZPG
     }
 
     const RenderContext& Renderer::GetRenderContext()
+    {
+        ZPG_PROFILE_FUNCTION();
+        return s->m_RenderContext;
+    }
+
+    RenderContext& Renderer::GetRenderContextMut()
     {
         ZPG_PROFILE_FUNCTION();
         return s->m_RenderContext;

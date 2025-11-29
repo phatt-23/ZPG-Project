@@ -7,36 +7,38 @@
 #include "Light/PositionComponent.h"
 #include "Light/Light.h"
 
-namespace ZPG {
+namespace ZPG 
+{
+    class ShaderProgram;
 
-class ShaderProgram;
+    class SpotLight : public Light 
+    {
+    public:
+        SpotLight(v4 const& color, 
+                  v3 const& position, 
+                  v3 const& direction, 
+                  f32 beamSize, 
+                  f32 beamBlend, 
+                  const AttenComponent& atten = AttenComponent());
 
-class SpotLight : public Light {
-public:
-    SpotLight(
-        v4 const& color,
-        v3 const& position,
-        v3 const& direction,
-        f32 beamSize,
-        f32 beamBlend,
-        const AttenComponent& atten = AttenComponent());
+        SpotLight(const ColorComponent& color, 
+                  const PositionComponent& position, 
+                  const DirectionComponent& direction, 
+                  const BeamShapeComponent& beamShape, 
+                  const AttenComponent& atten = AttenComponent());
 
-    SpotLight(
-        const ColorComponent& color,
-        const PositionComponent& position,
-        const DirectionComponent& direction,
-        const BeamShapeComponent& beamShape,
-        const AttenComponent& atten = AttenComponent());
+        [[deprecated]]
+        void SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) override;
 
-    void SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) override;
-    LightStruct MapToLightStruct() override;
+        [[deprecated]]
+        LightStruct MapToLightStruct() override;
 
-public:
-    ColorComponent Color;
-    PositionComponent Position;
-    DirectionComponent Direction;
-    BeamShapeComponent BeamShape;
-    AttenComponent Atten;
-};
+    public:
+        ColorComponent Color;
+        PositionComponent Position;
+        DirectionComponent Direction;
+        BeamShapeComponent BeamShape;
+        AttenComponent Atten;
+    };
 
 }

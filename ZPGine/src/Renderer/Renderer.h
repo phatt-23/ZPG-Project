@@ -30,6 +30,7 @@ namespace ZPG
         static void PushRenderPass(RenderPass* renderPass);
 
         static const RenderContext& GetRenderContext();
+        static RenderContext& GetRenderContextMut();
         static const RenderStatistics& GetStats();
 
         static void Clear();

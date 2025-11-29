@@ -11,12 +11,17 @@ namespace ZPG
         {
             float Exposure = 1.0f;
             float Gamma = 2.2f;
+            int BloomAmount = 2;
         };
 
         ProcessingShaderStorageBuffer(int bindingPoint);
 
-        void SetExposure(float exposure) const;
-        void SetGamma(float gamma) const;
+        float GetExposure() const;
+        float GetGamma() const;
+        int GetBloomAmount() const;
+        void SetExposure(float exposure);
+        void SetGamma(float gamma);
+        void SetBloomAmount(int bloomAmount);
 
         const InternalLayout& GetData() const { return m_Data; };
 

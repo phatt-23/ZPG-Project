@@ -4,7 +4,8 @@
 
 namespace ZPG
 {
-    PointLightShaderStorageBuffer::PointLightShaderStorageBuffer(u32 bindingPoint, u32 capacity)
+    PointLightShaderStorageBuffer::PointLightShaderStorageBuffer(u32 bindingPoint, 
+                                                                 u32 capacity)
         : ShaderStorageBuffer(bindingPoint, 
             sizeof(InternalLayout::Count) + 
             sizeof(InternalLayout::_pad) + 

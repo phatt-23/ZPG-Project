@@ -55,14 +55,14 @@ namespace ZPG
         m_FrameBuffer->Bind();
         RenderCommand::Clear();
         m_ShaderProgram->Bind();
-        m_QuadVAO->Bind();
+        m_ScreenQuadVAO->Bind();
 
         BindGeometryMaps(context);
         BindLightMaps(context);
 
-        RenderCommand::Draw(*m_QuadVAO);
+        RenderCommand::Draw(*m_ScreenQuadVAO);
 
-        m_QuadVAO->Unbind();
+        m_ScreenQuadVAO->Unbind();
         m_ShaderProgram->Unbind();
         m_FrameBuffer->Unbind();
         m_FrameBuffer->CopyAttachment(context.Targets.GeometryFrameBuffer, FrameBufferAttachmentType::Depth);

@@ -148,6 +148,7 @@ void ClientApp::ShowMainMaps()
         renderContext.Targets.MainColorMap,
         renderContext.Targets.MainDepthMap,
         renderContext.Targets.MainEntityIDMap,
+        renderContext.Targets.BrightnessMap,
     };
 
     for (auto& texture : attachments)
@@ -244,14 +245,18 @@ void ClientApp::ShowSceneViewportInfo()
             auto& mainFrameBuffer = Renderer::GetRenderContext().Targets.MainFrameBuffer;
             v2 mouse = m_SceneViewportInfo.MousePosition;
 
-            auto pixelColor = mainFrameBuffer->ReadPixelByte4(mouse.x, mouse.y, FrameBufferAttachmentType::Color, 0);
+            // auto pixelColor = mainFrameBuffer->ReadPixelByte4(mouse.x, mouse.y, FrameBufferAttachmentType::Color, 0);
+            auto pixelColor = mainFrameBuffer->ReadPixelFloat4(mouse.x, mouse.y, FrameBufferAttachmentType::Color, 0);
             i32 entityID = mainFrameBuffer->ReadPixelInt(mouse.x, mouse.y, FrameBufferAttachmentType::Color, 1);
             f32 depth = mainFrameBuffer->ReadPixelFloat(mouse.x, mouse.y, FrameBufferAttachmentType::Depth, 0);
+            auto brightness = mainFrameBuffer->ReadPixelFloat4(mouse.x, mouse.y, FrameBufferAttachmentType::Color, 2);
 
             ImGui::Separator();
-            ImGui::Text("Pixel Data - color     (main 0) : %d %d %d %d", pixelColor.x, pixelColor.y, pixelColor.z, pixelColor.w);
-            ImGui::Text("Pixel Data - entity id (main 1) : %d", entityID);
-            ImGui::Text("Pixel Data - depth     (main 2) : %f", depth);
+            // ImGui::Text("Pixel Data - color     (main 0) : %d %d %d %d", pixelColor.x, pixelColor.y, pixelColor.z, pixelColor.w);
+            ImGui::Text("Pixel Data - color         (main 0) : %.4f %.4f %.4f %.4f", pixelColor.x, pixelColor.y, pixelColor.z, pixelColor.w);
+            ImGui::Text("Pixel Data - entity id     (main 1) : %d", entityID);
+            ImGui::Text("Pixel Data - depth         (depth)  : %f", depth);
+            ImGui::Text("Pixel Data - brightness    (main 4) : %.4f %.4f %.4f %.4f", brightness.x, brightness.y, brightness.z, brightness.w);
         }
     ImGui::End();
 
@@ -281,17 +286,30 @@ void ClientApp::ShowProcessingInfo()
 {
     ImGui::Begin("Processing");
 
-    // this is shit 
-    static float gamma = 2.2;
-    if (ImGui::DragFloat("Gamma", &gamma, 0.01f, 0.001f))
+    auto& ssbo = Renderer::GetRenderContextMut().SSBO.ProcessingSSBO;
+
+    float gamma = ssbo.GetGamma();
+    if (ImGui::DragFloat("Gamma", &gamma, 0.01f))
     {
-        Renderer::GetRenderContext().SSBO.ProcessingSSBO.SetGamma(gamma);
+        ssbo.SetGamma(gamma);
     }
 
-    static float exposure = 1.0;
-    if (ImGui::DragFloat("Exposure", &exposure, 0.01f, 0.001f))
+    float exposure = ssbo.GetExposure();;
+    if (ImGui::DragFloat("Exposure", &exposure, 0.01f))
     {
-        Renderer::GetRenderContext().SSBO.ProcessingSSBO.SetExposure(exposure);
+        ssbo.SetExposure(exposure);
     }
+
+    int bloom = ssbo.GetBloomAmount();
+    if (ImGui::DragInt("Bloom", &bloom))
+    {
+        ssbo.SetBloomAmount(bloom);
+    }
+
+    auto texture = Renderer::GetRenderContext().Targets.BloomMap;
+    v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
+    f32 aspect = (f32)texture->GetWidth() / (f32)texture->GetHeight();
+    ImGui::Image(texture->GetRendererID(), ImVec2(size.x, size.x * 1.0/aspect), ImVec2(0, 1), ImVec2(1, 0));
+
     ImGui::End();
 }

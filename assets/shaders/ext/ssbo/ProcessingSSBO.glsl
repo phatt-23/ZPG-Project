@@ -7,6 +7,7 @@ layout (std430, binding = BINDING_POINT_PROCESSING_SSBO) buffer ProcessingShader
 {
     float Exposure;
     float Gamma;
+    int BloomAmount;
 } ssbo_Processing;
 
 #endif

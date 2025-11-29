@@ -64,9 +64,9 @@ namespace ZPG
         BindGeometryMaps(context); 
         BindLightMaps(context);
 
-        m_QuadVAO->Bind(); // bind the uv quad that fills up the NDC
-        RenderCommand::Draw(*m_QuadVAO);
-        m_QuadVAO->Unbind();
+        m_ScreenQuadVAO->Bind(); // bind the uv quad that fills up the NDC
+        RenderCommand::Draw(*m_ScreenQuadVAO);
+        m_ScreenQuadVAO->Unbind();
 
         m_ShaderProgram->Unbind();
         m_FrameBuffer->Unbind();

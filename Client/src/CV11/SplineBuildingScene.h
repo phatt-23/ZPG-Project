@@ -16,7 +16,7 @@ namespace CV11
             auto formulaMaterial = MakeRef<Material>();
             formulaMaterial->SetAlbedo({1,0,0,1});  
             formulaMaterial->SetRoughness(0);        
-            formulaMaterial->SetMetallic(0.8);
+            formulaMaterial->SetMetallic(0);
 
             m_Resource.GetModel("Formula")->GetMeshes().front()->SetMaterial(formulaMaterial);
 

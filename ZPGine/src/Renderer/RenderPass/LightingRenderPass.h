@@ -5,8 +5,8 @@
 
 namespace ZPG
 {
-class VertexArray;
-class TextureCubeMap;
+    class VertexArray;
+    class TextureCubeMap;
     class Texture2D;
 
     class LightingRenderPass : public LightRenderPass 

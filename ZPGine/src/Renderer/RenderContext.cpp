@@ -42,12 +42,16 @@ namespace ZPG
         Targets.GeometryEntityIDMap = Texture2D::Create("geometry_entity_id_map.texture2d", width, height, TextureDataFormat::RedInteger);
 
         Targets.MainDepthMap = Texture2D::Create("main_depth_map.texture2d", width, height, TextureDataFormat::Depth32F);
-        Targets.MainColorMap = Texture2D::Create("main_color_map.texture2d", width, height, TextureDataFormat::RGBA8);
+        Targets.MainColorMap = Texture2D::Create("main_color_map.texture2d", width, height, TextureDataFormat::RGBA16F);
         Targets.MainEntityIDMap = Texture2D::Create("main_entity_id_map.texture2d", width, height, TextureDataFormat::RedInteger);
+        Targets.BrightnessMap = Texture2D::Create("main_brightnes_map.texture2d", width, height, TextureDataFormat::RGBA16F);
+
+        Targets.BloomMap = Texture2D::Create("img_processing_bloom_map.texture2d", width, height, TextureDataFormat::RGBA16F);
 
         Targets.SpotLightShadowMapArray = Texture2DArray::Create( 1024, 1024, 8, TextureDataFormat::Depth32F );
         Targets.PointLightShadowCubeMapArray = TextureCubeMapArray::Create( 1024, 8, TextureDataFormat::Depth32F );
         Targets.DirectionalLightShadowMapArray = Texture2DArray::Create( 1024 << 2, 1024 << 2, 4, TextureDataFormat::Depth32F );
+
 
         FrameBufferSpecification mainFramebufferSpec;
         mainFramebufferSpec.Width = 1024;
@@ -62,7 +66,7 @@ namespace ZPG
             },
             {
                 .AttachType = FrameBufferAttachmentType::Color,
-                .DataFormat = TextureDataFormat::RGBA8,
+                .DataFormat = TextureDataFormat::RGBA16F,
                 .Index = 0,
                 .TextureAttachment = Targets.MainColorMap,
             }, // viewing result
@@ -72,6 +76,12 @@ namespace ZPG
                 .Index = 1,
                 .TextureAttachment = Targets.MainEntityIDMap,
             }, // entity id
+            {
+                .AttachType = FrameBufferAttachmentType::Color,
+                .DataFormat = TextureDataFormat::RGBA16F,
+                .Index = 2,
+                .TextureAttachment = Targets.BrightnessMap,
+            },
         };
 
         ZPG_CORE_INFO("Creating main framebuffer");

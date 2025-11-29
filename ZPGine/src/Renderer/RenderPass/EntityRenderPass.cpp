@@ -22,8 +22,6 @@ namespace ZPG
     {
         m_FrameBuffer = context.Targets.MainFrameBuffer;
 
-        m_QuadVAO = ResourceManager::GetGlobal().GetVAO(CommonResources::VAO_QUAD);
-
         m_ShaderProgram = ShaderProgram::Create("entity_render_pass.program",
         {
 
@@ -69,9 +67,9 @@ namespace ZPG
 
         m_FrameBuffer->Bind();
         m_ShaderProgram->Bind();
-        m_QuadVAO->Bind();
-        RenderCommand::Draw(*m_QuadVAO);
-        m_QuadVAO->Unbind();
+        m_ScreenQuadVAO->Bind();
+        RenderCommand::Draw(*m_ScreenQuadVAO);
+        m_ScreenQuadVAO->Unbind();
         m_ShaderProgram->Unbind();
         m_FrameBuffer->Unbind();
 

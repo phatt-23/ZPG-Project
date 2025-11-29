@@ -41,6 +41,8 @@ namespace ZPG
         v3  Position;
         i32 Index = -1;     // 16
         v3  Attenuation;
+        f32 Intensity;
+        f32 _pad[3];        // 16
         f32 Radius;         // 16
         m4  ViewProj[6];    // 16
 
@@ -57,9 +59,10 @@ namespace ZPG
         v3  Direction;
         f32 BeamSize;   // 16
         v3  Attenuation;
+        f32 Intensity;  // 16
         f32 BeamBlend;  // 16
         f32 Radius;
-        f32 _pad0[3];   // 16
+        f32 _pad0[2];   // 16
         m4 ViewProj;    // 64
 
     public:

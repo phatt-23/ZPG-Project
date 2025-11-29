@@ -9,9 +9,10 @@ struct SpotLight
     vec3    Direction;
     float   BeamSize;
     vec3    Attenuation;
+    float   Intensity;
     float   BeamBlend;
     float   Radius;
-    float   _pad0[3];
+    float   _pad0[2];
     mat4    ViewProj;
 };
 

@@ -112,7 +112,6 @@ namespace ZPG
 
         // pointlight
         m_PointLightShaderProgram->Bind();
-        m_PointLightShaderProgram->SetFloat2("u_ScreenSizeInv", 1.0f / v2(m_FrameBuffer->GetSpecification().Width, m_FrameBuffer->GetSpecification().Height));
         m_SphereVAO->Bind();
 
         int index = 0;
@@ -134,7 +133,6 @@ namespace ZPG
 
         // spotlight
         m_SpotLightShaderProgram->Bind();
-        m_SpotLightShaderProgram->SetFloat2("u_ScreenSizeInv", 1.0f / v2(m_FrameBuffer->GetSpecification().Width, m_FrameBuffer->GetSpecification().Height));
         m_ConeVAO->Bind();
 
         // glEnable(GL_DEPTH_TEST);
@@ -183,5 +181,22 @@ namespace ZPG
 
         m_FrameBuffer->Unbind();
         RenderCommand::Clear();
+    }
+
+    void LightVolumeDeferredLightingBlinnPhongRenderPass::UpdateUniforms()
+    {
+        m_PointLightShaderProgram->Bind();
+        m_PointLightShaderProgram->SetFloat2("u_ScreenSizeInv", 1.0f / v2(m_FrameBuffer->GetSpecification().Width, m_FrameBuffer->GetSpecification().Height));
+        m_PointLightShaderProgram->Unbind();
+
+        m_SpotLightShaderProgram->Bind();
+        m_SpotLightShaderProgram->SetFloat2("u_ScreenSizeInv", 1.0f / v2(m_FrameBuffer->GetSpecification().Width, m_FrameBuffer->GetSpecification().Height));
+        m_SpotLightShaderProgram->Unbind();
+    }
+
+    void LightVolumeDeferredLightingBlinnPhongRenderPass::OnResize(u32 width, u32 height)
+    {
+        RenderPass::OnResize(width, height);
+        UpdateUniforms();
     }
 }

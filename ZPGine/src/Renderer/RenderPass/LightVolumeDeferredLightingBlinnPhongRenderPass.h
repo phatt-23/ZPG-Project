@@ -18,7 +18,9 @@ namespace ZPG
     public:
         void Init(RenderContext& context) override;
         void Execute(RenderContext& context) override;
-
+        void OnResize(u32 width, u32 height) override;
+    private:
+        void UpdateUniforms();
     private:
         ref<ShaderProgram> m_EnvironmentLightShaderProgram;
         ref<ShaderProgram> m_PointLightShaderProgram;

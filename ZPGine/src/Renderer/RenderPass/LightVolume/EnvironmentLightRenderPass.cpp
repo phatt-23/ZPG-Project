@@ -14,7 +14,6 @@ namespace ZPG
     {
         m_FrameBuffer = context.Targets.MainFrameBuffer;
 
-
         m_ShaderProgram = ShaderProgram::Create("environment_light.program",
         {
             Shader::Create("./assets/shaders/multipass/light-volume/EnvironmentLight.vert"),
@@ -22,16 +21,11 @@ namespace ZPG
         });
 
         m_ShaderProgram->Bind();
-        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_POSITION_MAP, 
-                                RenderBindingPoints::GEOMETRY_POSITION_MAP);
-        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_NORMAL_MAP, 
-                                RenderBindingPoints::GEOMETRY_NORMAL_MAP);
-        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_ALBEDO_METALLIC_MAP, 
-                                RenderBindingPoints::GEOMETRY_ALBEDO_METALLIC_MAP);
-        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_EMISSIVE_ROUGHNESS_MAP, 
-                                RenderBindingPoints::GEOMETRY_EMISSIVE_ROUGHNESS_MAP);
-        m_ShaderProgram->SetInt(CommonShaderUniforms::DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY, 
-                                RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_POSITION_MAP, RenderBindingPoints::GEOMETRY_POSITION_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_NORMAL_MAP, RenderBindingPoints::GEOMETRY_NORMAL_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_ALBEDO_METALLIC_MAP, RenderBindingPoints::GEOMETRY_ALBEDO_METALLIC_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_EMISSIVE_ROUGHNESS_MAP, RenderBindingPoints::GEOMETRY_EMISSIVE_ROUGHNESS_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY, RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY);
         m_ShaderProgram->Unbind();
     }
     
@@ -50,9 +44,9 @@ namespace ZPG
         BindLightMaps(context);
 
         m_ShaderProgram->Bind();
-        m_QuadVAO->Bind();
-        RenderCommand::Draw(*m_QuadVAO);
-        m_QuadVAO->Unbind();
+        m_ScreenQuadVAO->Bind();
+        RenderCommand::Draw(*m_ScreenQuadVAO);
+        m_ScreenQuadVAO->Unbind();
         m_ShaderProgram->Unbind();
 
         // restore

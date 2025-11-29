@@ -64,6 +64,10 @@ public:
     inline static NameType GEOMETRY_EMISSIVE_ROUGHNESS_MAP {"g_EmissiveRoughnessMap", T::Int};
     inline static NameType GEOMETRY_ENTITY_ID_MAP {"g_EntityIDMap", T::Int};
 
+    inline static NameType SCENE_MAP {"u_SceneMap", T::Int};
+    inline static NameType BRIGHTNESS_MAP {"u_BrightnessMap", T::Int};
+    inline static NameType BLOOM_MAP {"u_BloomMap", T::Int};
+
     // helper to map correct uniform names regarding the light array in fragment shaders
     class LightArray {
     public:

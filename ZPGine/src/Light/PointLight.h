@@ -7,26 +7,27 @@
 
 namespace ZPG {
 
-class PointLight : public Light
-{
-public:
-    PointLight(
-        const v4& color,
-        const v3& position,
-        const AttenComponent& atten = AttenComponent());
+    class PointLight : public Light
+    {
+    public:
+        PointLight(const v4& color, 
+                   const v3& position, 
+                   const AttenComponent& atten = AttenComponent());
 
-    PointLight(
-        const ColorComponent& color,
-        const PositionComponent& position,
-        const AttenComponent& atten = AttenComponent());
+        PointLight(const ColorComponent& color, 
+                   const PositionComponent& position, 
+                   const AttenComponent& atten = AttenComponent());
 
-    void SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) override;
+        [[deprecated]]
+        void SendToShaderProgram(ShaderProgram &shaderProgram, u32 index) override;
 
-    LightStruct MapToLightStruct() override;
-public:
-    ColorComponent Color;
-    PositionComponent Position;
-    AttenComponent Atten;
-};
+        [[deprecated]]
+        LightStruct MapToLightStruct() override;
+
+    public:
+        ColorComponent Color;
+        PositionComponent Position;
+        AttenComponent Atten;
+    };
 
 }

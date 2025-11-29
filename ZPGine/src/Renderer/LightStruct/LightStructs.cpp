@@ -35,6 +35,7 @@ namespace ZPG
         , BeamSize(spotlight.BeamShape.GetSize())
         , Attenuation(spotlight.Atten.GetAttenuation())
         , BeamBlend(spotlight.BeamShape.GetBlend())
+        , Intensity(spotlight.Atten.GetIntensity())
     {
         f32 near = 0.1f;
         f32 far = 100.0f;
@@ -53,6 +54,7 @@ namespace ZPG
         : Color(pointLight.Color.Get())
         , Position(pointLight.Position.Get())
         , Attenuation(pointLight.Atten.GetAttenuation())
+        , Intensity(pointLight.Atten.GetIntensity())
     {
         Radius = Utils::CalculateRadius(Color, Attenuation);
 

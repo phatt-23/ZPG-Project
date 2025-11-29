@@ -15,7 +15,6 @@ namespace ZPG
     LightRenderPass::LightRenderPass()
     {
         m_SphereVAO = ResourceManager::GetGlobal().GetVAO(CommonResources::VAO_SPHERE);
-        m_QuadVAO = ResourceManager::GetGlobal().GetVAO(CommonResources::VAO_QUAD);
         m_ConeVAO = ResourceManager::GetGlobal().GetVAO(CommonResources::VAO_CONE);
 
         m_NullSkyboxCubeMap = TextureCubeMap::Create("NullSkyboxCubeMap", 1, TextureDataFormat::RGBA8);
@@ -32,7 +31,7 @@ namespace ZPG
     {
     }
 
-    void LightRenderPass::BindGeometryMaps(const RenderContext &context) 
+    void LightRenderPass::BindGeometryMaps(const RenderContext& context) 
     {
         using namespace RenderBindingPoints;
         context.Targets.GeometryPositionMap->BindToSlot(GEOMETRY_POSITION_MAP);
@@ -42,7 +41,7 @@ namespace ZPG
         context.Targets.GeometryEntityIDMap->BindToSlot(GEOMETRY_ENTITY_ID_MAP);
     }
 
-    void LightRenderPass::BindLightMaps(const RenderContext &context) 
+    void LightRenderPass::BindLightMaps(const RenderContext& context) 
     {
         using namespace RenderBindingPoints;
         context.Targets.DirectionalLightShadowMapArray->BindToSlot(DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY);

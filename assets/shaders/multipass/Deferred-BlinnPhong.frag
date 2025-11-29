@@ -36,8 +36,9 @@ uniform sampler2DArray u_DirectionalLightShadowMapArray;
 uniform sampler2DArray u_SpotLightShadowMapArray;
 uniform samplerCubeArray u_PointLightShadowCubeMapArray;
 
-layout(location = 0) out vec4 f_Color0;
-layout(location = 1) out int f_Color1;
+layout(location = 0) out vec4 f_Color0;  // viewing result
+layout(location = 1) out int f_Color1;   // entityID
+layout(location = 2) out vec4 f_Color2;  // brightness
 
 void main()
 {
@@ -91,7 +92,7 @@ void main()
 
         vec3 L = normalize(light.Position - worldPos);
         vec3 H = normalize(V + L);
-        float atten = Attenuate(length(light.Position - worldPos), light.Attenuation);
+        float atten = Attenuate(length(light.Position - worldPos), light.Intensity, light.Attenuation);
 
         float NdotL = dot(N, L);
         float NdotH = max(dot(N, H), 0.0);
@@ -109,7 +110,7 @@ void main()
 
         vec3 L = normalize(light.Position - worldPos);
         vec3 H = normalize(V + L);
-        float atten = Attenuate(length(light.Position - worldPos), light.Attenuation);
+        float atten = Attenuate(length(light.Position - worldPos), light.Intensity, light.Attenuation);
 
         float lightBeamSize = light.BeamSize;
         float lightBeamBlend = max(light.BeamBlend, 0.01);
@@ -135,44 +136,14 @@ void main()
 
     vec3 color = Lo + La + Le;
 
-    // exposure tone mapping
-    color = vec3(1.0) - exp(-color * ssbo_Processing.Exposure);
-    // gamma correct
-    color = pow(color, vec3(1.0 / ssbo_Processing.Gamma));
-
-
-    // select cascade layer (debug view)
-    /*
-    vec4 worldPosViewSpace4 = ssbo_Camera.View * vec4(worldPos, 1.0);
-    vec3 worldPosViewSpace = worldPosViewSpace4.xyz / worldPosViewSpace4.w;
-    float depthValue = abs(worldPosViewSpace.z);
-        
-    DirectionalLight dirlight = ssbo_EnvironmentLight.DirLight;
-
-    int sliceIndex = dirlight.CascadeCount - 1;
-    for (int i = 0; i < dirlight.CascadeCount; ++i)
-    {
-        if (depthValue < dirlight.PlaneDistance[i])
-        {
-            sliceIndex = i;
-            break;
-        }
-    }
-
-    if (sliceIndex == 0)
-        color = vec3(1, 0, 0);
-    else if (sliceIndex == 1)
-        color = vec3(0, 1, 0);
-    else if (sliceIndex == 2)
-        color = vec3(0, 0, 1);
-    else if (sliceIndex == 3)
-        color = vec3(1, 0, 1);
-    */
-
-
-    f_Color0 = vec4(color, 1.0);
-
     int entityID = texture(g_Color4, v_TexCoord).r;
+    float brightness = dot(color, vec3(0.7, 0.7, 0.7));
+
+    // f_Color0 = vec4(gammaCorrectedColor, 1.0);
+    f_Color0 = vec4(color, 1.0);
     f_Color1 = entityID;
+    f_Color2 = vec4((brightness > 1.0) ? color : vec3(0.0), 1.0);
+    // f_Color2 = vec4(color, 1.0);
+
 }
 
