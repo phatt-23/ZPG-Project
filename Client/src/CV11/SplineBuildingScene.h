@@ -47,8 +47,6 @@ namespace CV11
             EventDispatcher dispatcher(event);
             dispatcher.Dispatch<MouseButtonPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(SplineBuildingScene::OnMouseButtonPressed));
             dispatcher.Dispatch<KeyPressedEvent>(ZPG_FORWARD_EVENT_TO_MEMBER_FN(SplineBuildingScene::OnKeyPressed));
-
-
         }
 
         void InvalidateTracingEntity() 
@@ -97,6 +95,9 @@ namespace CV11
 
         bool OnKeyPressed(KeyPressedEvent& event)
         {
+            if (!Application::Get().GetSceneViewportInfo().IsActive()) {
+                return false;
+            }
 
             switch (event.GetKeyCode())
             {
@@ -127,6 +128,10 @@ namespace CV11
 
         bool OnMouseButtonPressed(MouseButtonPressedEvent& event)
         {
+            if (!Application::Get().GetSceneViewportInfo().IsActive()) {
+                return false;
+            }
+
             auto& renderContext = Renderer::GetRenderContext();
             auto& viewportInfo = Application::Get().GetSceneViewportInfo();
 

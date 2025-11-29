@@ -78,6 +78,11 @@ namespace ZPG
         // PushRenderPass(new SpotLightRenderPass());
         // PushRenderPass(new EntityRenderPass());
         PushRenderPass(new SkyRenderPass());
+
+
+        // this doesn't fit anywhere else
+        s->m_RenderContext.SSBO.ProcessingSSBO.SetGamma(2.2f);
+        s->m_RenderContext.SSBO.ProcessingSSBO.SetExposure(1.0f);
     }
 
     void Renderer::Shutdown()
@@ -97,7 +102,6 @@ namespace ZPG
         s->m_RenderContext.ActiveSky = nullptr;
         s->m_RenderContext.ActiveCamera = nullptr;
         s->m_RenderContext.Statistics.Reset();
-
     }
 
     void AddCommands(vec<DrawCommand>& queue, umap<DrawBatchKey, DrawBatch>& batches, const vec<DrawCommand>& drawCommands)
@@ -248,6 +252,7 @@ namespace ZPG
     void Renderer::EndFrame()
     {
         ZPG_PROFILE_FUNCTION();
+
 
         for (const auto& renderPass : s->m_RenderPasses)
         {

@@ -41,6 +41,7 @@ namespace ZPG
         constexpr int MATERIAL_SSBO = 4;
         constexpr int MODEL_SSBO = 5;
         constexpr int ENTITY_SSBO = 6;
+        constexpr int PROCESSING_SSBO = 7;
     };
 
 }

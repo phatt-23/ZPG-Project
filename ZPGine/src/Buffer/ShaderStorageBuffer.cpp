@@ -40,20 +40,21 @@ namespace ZPG
         ZPG_OPENGL_CALL(glDeleteBuffers(1, &m_RendererID));
     }
 
-    void ShaderStorageBuffer::Bind() 
+    void ShaderStorageBuffer::Bind() const
     {
         ZPG_PROFILE_FUNCTION();
         ZPG_OPENGL_CALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_RendererID));
     }
 
-    void ShaderStorageBuffer::Unbind() 
+    void ShaderStorageBuffer::Unbind() const
     {
         ZPG_PROFILE_FUNCTION();
         ZPG_OPENGL_CALL(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
     }
 
 #if 1
-    void* ShaderStorageBuffer::Map(u32 offset, u32 length) {
+    void* ShaderStorageBuffer::Map(u32 offset, u32 length) const 
+    {
         Bind();
         u32 len = length ? length : m_Size - offset;
         
@@ -67,27 +68,20 @@ namespace ZPG
         return mapped;
     }
 
-    void ShaderStorageBuffer::Unmap() {
+    void ShaderStorageBuffer::Unmap() const 
+    {
         ZPG_OPENGL_CALL(glUnmapBuffer(GL_SHADER_STORAGE_BUFFER));
     }
 #endif
 
-    void ShaderStorageBuffer::SetData(void* data, u32 size, u32 offset) 
+    void ShaderStorageBuffer::SetData(void* data, u32 size, u32 offset) const
     {
         ZPG_PROFILE_FUNCTION();
         ZPG_CORE_ASSERT(offset + size <= m_Size,
             "Cannot write {} bytes at an offset of {} into a UBO with size of {} bytes",
             size, offset, m_Size);
 
-        Bind();
-        ZPG_OPENGL_CALL(glBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, size, data));
-
-        #if 0
-        void* handle = Map();
-        handle = ((char*)handle + offset);
-        memcpy(handle, data, size);
-        Unmap();
-        #endif
+        ZPG_OPENGL_CALL(glNamedBufferSubData(m_RendererID, offset, size, data));
     }
 
 } // ZPG

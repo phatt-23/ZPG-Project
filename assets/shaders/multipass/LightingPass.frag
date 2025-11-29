@@ -39,7 +39,7 @@ void main()
 {
     // extract material properties from maps
     vec3 worldPos = texture(g_Color0, v_TexCoord).rgb;
-    vec3 worldNormal = texture(g_Color1, v_TexCoord).rgb * 2.0 - 1.0;
+    vec3 worldNormal = texture(g_Color1, v_TexCoord).rgb; 
 
     vec3 albedo = texture(g_Color2, v_TexCoord).rgb;
     albedo = pow(albedo, vec3(2.2));

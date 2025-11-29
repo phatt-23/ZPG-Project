@@ -7,7 +7,8 @@
 
 #include "Core/Application.h"
 
-class ClientApp : public ZPG::Application {
+class ClientApp : public ZPG::Application 
+{
 public:
     ClientApp();
 
@@ -22,6 +23,7 @@ public:
     void ShowPointShadowFramebuffer();
     void ShowSceneViewportInfo();
     void ShowCameraInfo();
+    void ShowProcessingInfo();
 
 private:
     std::vector<float> fpsDataY;

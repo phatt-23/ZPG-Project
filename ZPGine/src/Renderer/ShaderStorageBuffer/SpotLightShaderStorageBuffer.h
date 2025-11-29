@@ -24,7 +24,7 @@ namespace ZPG
 
         void Null() override;
 
-      private:
+    private:
         u32 m_Capacity;
     };
 }

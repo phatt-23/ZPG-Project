@@ -5,9 +5,16 @@
 #include "ext/ssbo/EnvironmentLightSSBO.glsl"
 #include "ext/ssbo/PointLightSSBO.glsl"
 #include "ext/ssbo/SpotLightSSBO.glsl"
+#include "ext/ssbo/ProcessingSSBO.glsl"
+
+#define ATTENUATE_GLSL_IMPLEMENTATION
+#include "ext/light/Attenuate.glsl"
 
 #define CALC_SHADOW_GLSL_IMPLEMENTATION
 #include "ext/shadow/CalcShadow.glsl"
+
+#define CONVERSIONS_GLSL_IMPLEMENTATION
+#include "ext/conversions.glsl"
 
 in vec2 v_TexCoord;
 
@@ -36,28 +43,23 @@ void main()
 {
     // extract material properties from maps
     vec3 worldPos = texture(g_Color0, v_TexCoord).rgb;
-    vec3 worldNormal = texture(g_Color1, v_TexCoord).rgb * 2.0 - 1.0;
+    vec3 worldNormal = texture(g_Color1, v_TexCoord).rgb;
 
-    vec3 albedo = texture(g_Color2, v_TexCoord).rgb; albedo = pow(albedo, vec3(2.2));
-    float metallic = texture(g_Color2, v_TexCoord).a;
-    vec3 emissive = texture(g_Color3, v_TexCoord).rgb;
-    float roughness = texture(g_Color3, v_TexCoord).a;
-    float ao = 1.0;
+    PBRProps pbr;
+    pbr.Albedo = texture(g_Color2, v_TexCoord).rgb; 
+    pbr.Metallic = texture(g_Color2, v_TexCoord).a;
+    pbr.Emissive = texture(g_Color3, v_TexCoord).rgb;
+    pbr.Roughness = texture(g_Color3, v_TexCoord).a;
 
-    vec3 diffuseColor = albedo * clamp(1.0 - metallic, 0.01, 1.0);
-    float shininess = max(pow(1.0 - roughness, 4.0) * 512.0, 16.0);
-    vec3 baseSpecColor = mix(vec3(0.04), albedo, metallic);
-    float specIntensity = mix(0.5, 2.0, metallic) * mix(0.2, 1.0, pow(1.0 - roughness + 0.001, 2.0));
-    vec3 specularColor = baseSpecColor * specIntensity;
-
-    vec3 F0 = mix(vec3(0.04), albedo, metallic);
+    PhongProps phong = ConvertPBRToPhong(pbr);
+    phong.DiffuseColor = pow(phong.DiffuseColor, vec3(ssbo_Processing.Gamma));  // compensate because of gamma correction
 
     vec3 N = normalize(worldNormal);
     vec3 V = normalize(ssbo_Camera.CameraPosition - worldPos);
 
     vec3 Lo = vec3(0.0);
-    vec3 Le = albedo * emissive;
-    vec3 La = albedo * ssbo_EnvironmentLight.AmbientColor.rgb * ssbo_EnvironmentLight.AmbientColor.a * ao;
+    vec3 Le = phong.DiffuseColor * phong.EmissiveColor;
+    vec3 La = phong.DiffuseColor * ssbo_EnvironmentLight.AmbientColor.rgb * ssbo_EnvironmentLight.AmbientColor.a;
 
     // directional light
     {
@@ -76,8 +78,8 @@ void main()
         float NdotL = dot(N, L);
         float NdotH = max(dot(N, H), 0.0);
 
-        vec3 diffuse = max(NdotL, 0.0) * diffuseColor;
-        vec3 specular = pow(NdotH, shininess) * specularColor * int(NdotL >= 0.0);
+        vec3 diffuse = max(NdotL, 0.0) * phong.DiffuseColor;
+        vec3 specular = pow(NdotH, phong.Shininess) * phong.SpecularColor * int(NdotL >= 0.0);
 
         Lo += (diffuse + specular) * (light.Color.rgb * light.Color.a) * shadow;
     }
@@ -89,14 +91,13 @@ void main()
 
         vec3 L = normalize(light.Position - worldPos);
         vec3 H = normalize(V + L);
-        float dist = length(light.Position - worldPos);
-        float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z + 0.0001), 1.0);
+        float atten = Attenuate(length(light.Position - worldPos), light.Attenuation);
 
         float NdotL = dot(N, L);
         float NdotH = max(dot(N, H), 0.0);
 
-        vec3 diffuse = max(NdotL, 0.0) * diffuseColor;
-        vec3 specular = pow(NdotH, shininess) * specularColor * int(NdotL >= 0.0);
+        vec3 diffuse = max(NdotL, 0.0) * phong.DiffuseColor;
+        vec3 specular = pow(NdotH, phong.Shininess) * phong.SpecularColor * int(NdotL >= 0.0);
 
         Lo += (diffuse + specular) * (light.Color.rgb * light.Color.a) * atten;
     }
@@ -108,8 +109,7 @@ void main()
 
         vec3 L = normalize(light.Position - worldPos);
         vec3 H = normalize(V + L);
-        float dist = length(light.Position - worldPos);
-        float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z + 0.00001), 1.0);
+        float atten = Attenuate(length(light.Position - worldPos), light.Attenuation);
 
         float lightBeamSize = light.BeamSize;
         float lightBeamBlend = max(light.BeamBlend, 0.01);
@@ -117,29 +117,28 @@ void main()
         float beamSizeCos = cos(radians(lightBeamSize));
         float beamBlendCos = cos(radians(lightBeamSize * (1.0 - lightBeamBlend)));
 
-        if (beamBlendCos <= beamSizeCos)
+        if (beamBlendCos <= beamSizeCos) {
             continue;
+        }
 
         float alpha = dot(normalize(light.Direction), -L);
-        float beamNumerator = alpha - beamSizeCos;
-        float beamDenominator = beamBlendCos - beamSizeCos;
-        float beamContrib = clamp(beamNumerator / beamDenominator, 0.0, 1.0);
+        float beamContrib = clamp((alpha - beamSizeCos) / (beamBlendCos - beamSizeCos), 0.0, 1.0);
 
         float NdotL = dot(N, L);
         float NdotH = max(dot(N, H), 0.0);
 
-        vec3 diffuse = max(NdotL, 0.0) * diffuseColor;
-        vec3 specular = pow(NdotH, shininess) * specularColor * int(NdotL >= 0.0);
+        vec3 diffuse = max(NdotL, 0.0) * phong.DiffuseColor;
+        vec3 specular = pow(NdotH, phong.Shininess) * phong.SpecularColor * int(NdotL >= 0.0);
 
         Lo += (diffuse + specular) * (light.Color.rgb * light.Color.a) * beamContrib * atten;
     }
 
     vec3 color = Lo + La + Le;
 
-    color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0 / 2.2));
-
-
+    // exposure tone mapping
+    color = vec3(1.0) - exp(-color * ssbo_Processing.Exposure);
+    // gamma correct
+    color = pow(color, vec3(1.0 / ssbo_Processing.Gamma));
 
 
     // select cascade layer (debug view)

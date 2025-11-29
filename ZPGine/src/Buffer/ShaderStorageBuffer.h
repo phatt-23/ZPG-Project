@@ -14,13 +14,13 @@ namespace ZPG
         ShaderStorageBuffer(u32 bindingPoint, u32 size);
         virtual ~ShaderStorageBuffer();
 
-        void Bind();
-        void Unbind();
+        void Bind() const;
+        void Unbind() const;
 
-        void* Map(u32 offset = 0, u32 length = 0);
-        void Unmap();
+        void* Map(u32 offset = 0, u32 length = 0) const;
+        void Unmap() const;
 
-        void SetData(void* data, u32 size, u32 offset = 0);
+        void SetData(void* data, u32 size, u32 offset = 0) const;
 
         virtual void Null() = 0;
     private:

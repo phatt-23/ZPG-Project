@@ -20,6 +20,7 @@ namespace ZPG
             .PointLightSSBO = PointLightShaderStorageBuffer(RenderBindingPoints::POINTLIGHT_SSBO, spec.PointLightCapacity),
             .SpotLightSSBO = SpotLightShaderStorageBuffer(RenderBindingPoints::SPOTLIGHT_SSBO, spec.SpotLightCapacity),
             .MaterialSSBO = MaterialShaderStorageBuffer(RenderBindingPoints::MATERIAL_SSBO),
+            .ProcessingSSBO = ProcessingShaderStorageBuffer(RenderBindingPoints::PROCESSING_SSBO),
         }
         , Targets{}
         , Queues{}

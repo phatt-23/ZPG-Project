@@ -5,6 +5,7 @@
 #include "Buffer/FrameBuffer.h"
 #include "Camera/Camera.h"
 #include "Renderer/DrawBatch.h"
+#include "Renderer/ShaderStorageBuffer/ProcessingShaderStorageBuffer.h"
 #include "Sky/Sky.h"
 #include "LightStruct/LightStructs.h"
 #include "Renderer/ShaderStorageBuffer/CameraShaderStorageBuffer.h"
@@ -49,6 +50,7 @@ namespace ZPG
             PointLightShaderStorageBuffer PointLightSSBO;
             SpotLightShaderStorageBuffer SpotLightSSBO;
             MaterialShaderStorageBuffer MaterialSSBO;
+            ProcessingShaderStorageBuffer ProcessingSSBO;
         } SSBO;
 
         struct RenderTargets

@@ -102,6 +102,7 @@ void ClientApp::OnImGuiRender()
     ShowSpotShadowFramebuffer();
     // ShowPointShadowFramebuffer();
     ShowCameraInfo();
+    ShowProcessingInfo();
 }
 
 void ClientApp::ShowPlots()
@@ -273,5 +274,24 @@ void ClientApp::ShowCameraInfo()
         ImGui::Text("Corner x: %f y: %f z: %f", corner.x, corner.y, corner.z);
     }
 
+    ImGui::End();
+}
+
+void ClientApp::ShowProcessingInfo()
+{
+    ImGui::Begin("Processing");
+
+    // this is shit 
+    static float gamma = 2.2;
+    if (ImGui::DragFloat("Gamma", &gamma, 0.01f, 0.001f))
+    {
+        Renderer::GetRenderContext().SSBO.ProcessingSSBO.SetGamma(gamma);
+    }
+
+    static float exposure = 1.0;
+    if (ImGui::DragFloat("Exposure", &exposure, 0.01f, 0.001f))
+    {
+        Renderer::GetRenderContext().SSBO.ProcessingSSBO.SetExposure(exposure);
+    }
     ImGui::End();
 }

@@ -35,11 +35,11 @@ void main()
     float roughness = clamp(texRoughness * ssbo_Material.Roughness, 0.0, 1.0);
 
     vec3 tangentNormal = texture(u_NormalMap, v_TexCoord).rgb * 2.0 - 1.0;
-    vec3 N = normalize(v_TBN * tangentNormal);
+    vec3 normal = normalize(v_TBN * tangentNormal);
 
     g_Color0 = vec4(v_WorldPos, 1.0);
 
-    g_Color1.rgb = N * 0.5 + 0.5;
+    g_Color1.rgb = normal;
     g_Color1.a = 1.0;
 
     g_Color2.rgb = albedo;
