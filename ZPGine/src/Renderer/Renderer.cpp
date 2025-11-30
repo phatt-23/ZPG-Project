@@ -9,6 +9,7 @@
 #include "Renderer/RenderPass.h"
 #include "Renderer/RenderPass/BloomRenderPass.h"
 #include "Renderer/RenderPass/DirectionalLightShadowRenderPass.h"
+#include "Renderer/RenderPass/ForwardTransparentRenderPass.h"
 #include "Renderer/RenderPass/LightVolume/EnvironmentLightRenderPass.h"
 #include "Renderer/RenderPass/LightVolume/PointLightRenderPass.h"
 #include "Renderer/RenderPass/LightVolume/SpotLightRenderPass.h"
@@ -79,6 +80,7 @@ namespace ZPG
         // PushRenderPass(new SpotLightRenderPass());
         // PushRenderPass(new EntityRenderPass());
         PushRenderPass(new SkyRenderPass());
+        PushRenderPass(new ForwardTransparentRenderPass());
         PushRenderPass(new BloomRenderPass());
 
 
@@ -214,14 +216,10 @@ namespace ZPG
             const auto& volume = mesh->GetVolume();
             Transform meshTransform(entityTransformMatrix * mesh->GetLocalTransform());
             float tolerance = 10.0f;  // less agressive culling, but distant objects don't have shadows
-            if (!volume->IsInFrustum(s->m_RenderContext.ViewingFrustum, meshTransform, tolerance))
-            {
+
+            if (!volume->IsInFrustum(s->m_RenderContext.ViewingFrustum, meshTransform, tolerance)) {
                 continue;
             }
-
-            // v3 entityPosition = v3(command.transform[3]) / command.transform[3].w;
-            // if (s->m_RenderContext.ViewingFrustum.ClassifyPoint(entityPosition) == FrustumHitOutside)
-            //     continue;
 
             DrawCommand command;
             command.entityID = entityID;
@@ -235,7 +233,7 @@ namespace ZPG
             ADD_COMMANDS(flags & RenderFeatureStatic, Shadow, drawCommands);
         }
 
-        if (flags & RenderFeatureForward && flags & RenderFeatureTransparent)
+        if (flags & RenderFeatureForward && flags & RenderFeatureTransparent) 
         {
             ADD_COMMANDS(flags & RenderFeatureStatic, ForwardTransparent, drawCommands);
         }

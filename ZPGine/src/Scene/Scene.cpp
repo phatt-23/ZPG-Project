@@ -54,7 +54,6 @@ namespace ZPG
 
     void Scene::OnAttach()
     {
-        OnResume();
     }
 
     void Scene::OnResume()

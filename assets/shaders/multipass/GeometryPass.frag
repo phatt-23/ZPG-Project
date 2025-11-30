@@ -15,12 +15,6 @@ layout(location = 2) out vec4 g_Color2; // albedo, metallic
 layout(location = 3) out vec4 g_Color3; // emissive, roughness
 layout(location = 4) out int g_Color4;  // entityID
 
-uniform sampler2D u_AlbedoMap;
-uniform sampler2D u_RoughnessMap;
-uniform sampler2D u_MetalnessMap;
-uniform sampler2D u_NormalMap;
-uniform sampler2D u_EmissiveMap;
-
 void main()
 {
     vec3 texAlbedo = texture(u_AlbedoMap, v_TexCoord).rgb;

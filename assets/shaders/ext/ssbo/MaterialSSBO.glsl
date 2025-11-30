@@ -11,4 +11,10 @@ layout (std430, binding = BINDING_POINT_MATERIAL_SSBO) buffer MaterialStorageBuf
     float Metallic;
 } ssbo_Material;
 
+uniform sampler2D u_AlbedoMap;
+uniform sampler2D u_RoughnessMap;
+uniform sampler2D u_MetalnessMap;
+uniform sampler2D u_NormalMap;
+uniform sampler2D u_EmissiveMap;
+
 #endif

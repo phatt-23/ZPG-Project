@@ -13,7 +13,7 @@ namespace ZPG
     class Mesh;
     class Scene;
 
-    class Renderer 
+    class Renderer
     {
     public:
         static void BeginFrame();
