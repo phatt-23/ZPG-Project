@@ -30,7 +30,10 @@ namespace ZPG
     };
 } // ZPG
 
-#define ZPG_SHADER_STORAGE_BUFFER_SET_DATA(ptr, className, member) SetData(ptr, sizeof(className::member), offsetof(className, member))
-#define ZPG_SHADER_STORAGE_BUFFER_SET_DATA_ARRAY(ptr, count, className, member) SetData(ptr, count * sizeof(*className::member), offsetof(className, member))
+#define ZPG_SHADER_STORAGE_BUFFER_SET_DATA(ptr, className, member) \
+    SetData(ptr, sizeof(className::member), offsetof(className, member))
+
+#define ZPG_SHADER_STORAGE_BUFFER_SET_DATA_ARRAY(ptr, count, className, member) \
+    SetData(ptr, count * sizeof(*className::member), offsetof(className, member))
 
 #endif //WORKSPACE_SHADER_STORAGE_BUFFER_H

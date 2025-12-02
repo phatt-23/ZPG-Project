@@ -13,7 +13,7 @@ PhongProps ConvertPBRToPhong(PBRProps pbr)
 {
     PhongProps phong;
 
-    phong.DiffuseColor = pbr.Albedo * clamp(1.0 - pbr.Metallic, 0.01, 1.0);
+    phong.DiffuseColor = pbr.Albedo * clamp(1.0 - pbr.Metallic, 0.2, 1.0);
     phong.Shininess = max(pow(1.0 - pbr.Roughness, 4.0) * 512.0, 16.0);
 
     vec4 baseSpecColor = vec4(mix(vec3(0.04), pbr.Albedo.rgb, pbr.Metallic), pbr.Albedo.a);

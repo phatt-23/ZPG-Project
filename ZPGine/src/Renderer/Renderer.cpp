@@ -7,6 +7,7 @@
 #include "Renderer/DrawBatch.h"
 #include "Renderer/DrawCommand.h"
 #include "Renderer/RenderPass.h"
+#include "Renderer/RenderPass/BlendBloomRenderPass.h"
 #include "Renderer/RenderPass/BloomRenderPass.h"
 #include "Renderer/RenderPass/DirectionalLightShadowRenderPass.h"
 #include "Renderer/RenderPass/ForwardTransparentRenderPass.h"
@@ -25,6 +26,7 @@
 #include "RenderPass/ForwardBlinnPhongRenderPass.h"
 #include "RenderPass/LightVolumeDeferredLightingBlinnPhongRenderPass.h"
 #include "RenderPass/SkyRenderPass.h"
+#include "Renderer/RenderPass/ToneMapRenderPass.h"
 #include "Resource/CommonResources.h"
 #include "Scene/Scene.h"
 #include "Texture/Texture2D.h"
@@ -66,22 +68,18 @@ namespace ZPG
 
         s = new Renderer(renderContextSpec);
 
+        // Rendering pipeline 
+
         PushRenderPass(new DirectionalLightShadowRenderPass());
-        // PushRenderPass(new SpotLightShadowRenderPass());
-        // PushRenderPass(new PointLightShadowRenderPass());
         PushRenderPass(new GeometryRenderPass());
         PushRenderPass(new TransitionRenderPass());
-        // PushRenderPass(new LightingRenderPass());
-        // PushRenderPass(new ForwardBlinnPhongRenderPass());
         PushRenderPass(new DeferredLightingBlinnPhongRenderPass());
-        // PushRenderPass(new LightVolumeDeferredLightingBlinnPhongRenderPass());
-        // PushRenderPass(new EnvironmentLightRenderPass());
-        // PushRenderPass(new PointLightRenderPass());
-        // PushRenderPass(new SpotLightRenderPass());
-        // PushRenderPass(new EntityRenderPass());
-        PushRenderPass(new SkyRenderPass());
         PushRenderPass(new ForwardTransparentRenderPass());
+        PushRenderPass(new SkyRenderPass());
         PushRenderPass(new BloomRenderPass());
+        PushRenderPass(new ToneMapRenderPass());
+        PushRenderPass(new SkyRenderPass());
+        PushRenderPass(new BlendBloomRenderPass());
 
 
         // this doesn't fit anywhere else

@@ -11,6 +11,10 @@ namespace ZPG
 {
     class VertexArray;
 
+    /**
+     * Deferred lighting pass that lights up the scene using 
+     * the Blinn-Phong lighting model.
+    */
     class DeferredLightingBlinnPhongRenderPass : public LightRenderPass
     {
     public:

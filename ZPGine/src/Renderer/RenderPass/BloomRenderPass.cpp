@@ -72,57 +72,9 @@ static const char* bloomFragShader = R"(
 )";
 
 
-static const char* blendVertexShader = R"(
-
-    #version 460 core
-
-    layout(location = 0) in vec2 a_Pos;
-    layout(location = 1) in vec2 a_TexCoord;
-
-    out vec2 v_TexCoord;
-
-    void main(void)
-    {
-        v_TexCoord = a_TexCoord;
-        gl_Position = vec4(a_Pos, 0.0, 1.0);
-    }
-
-)";
-
-static const char* blendFragShader = R"(
-
-    #version 460 core
-    #include "ext/ssbo/ProcessingSSBO.glsl"
-
-    layout(location = 0) out vec4 f_Color0;
-
-    in vec2 v_TexCoord;
-
-    uniform sampler2D u_SceneMap;
-    uniform sampler2D u_BloomMap;
-
-    void main(void)
-    {
-        vec3 sceneTex = texture(u_SceneMap, v_TexCoord).rgb;
-        vec3 bloomTex = texture(u_BloomMap, v_TexCoord).rgb;
-        vec3 color = sceneTex + bloomTex;
-
-        // exposure tone mapping
-        color = vec3(1.0) - exp(-color * ssbo_Processing.Exposure);
-
-        // gamma correct
-        color = pow(color, vec3(1.0 / ssbo_Processing.Gamma));
-
-        f_Color0 = vec4(color, 1.0);
-    }
-
-)";
-
-
-
 namespace ZPG
 {
-    int I_DONT_KNOW_BINDING_POINT = 0;
+    static const int TARGET_MAP_BINDING_POINT = 0;
 
     void BloomRenderPass::Init(RenderContext& context) 
     {
@@ -173,27 +125,15 @@ namespace ZPG
             Shader::CreateFromCode("bloom.frag", Shader::Fragment, bloomFragShader),
         });
         m_ShaderProgram->Bind();
-        m_ShaderProgram->SetInt("u_Map", I_DONT_KNOW_BINDING_POINT);
+        m_ShaderProgram->SetInt("u_Map", TARGET_MAP_BINDING_POINT);
         m_ShaderProgram->Unbind();
-
-
-        m_BlendShaderProgram = ShaderProgram::Create("blend.program", 
-        {
-            Shader::CreateFromCode("blend.vert", Shader::Vertex, blendVertexShader),
-            Shader::CreateFromCode("blend.frag", Shader::Fragment, blendFragShader),
-        });
-        m_BlendShaderProgram->Bind();
-        m_BlendShaderProgram->SetInt(CommonShaderUniforms::SCENE_MAP, RenderBindingPoints::SCENE_MAP);
-        m_BlendShaderProgram->SetInt(CommonShaderUniforms::BLOOM_MAP, RenderBindingPoints::BLOOM_MAP);
-        m_BlendShaderProgram->Unbind();
     }
     
     void BloomRenderPass::Execute(RenderContext& context)
     {
         m_ShaderProgram->Bind();
-            m_ScreenQuadVAO->Bind();
+        m_ScreenQuadVAO->Bind();
 
-        // put this into processing SSBO
         int bloomAmount = 2 * context.SSBO.ProcessingSSBO.GetBloomAmount();
 
         for (int i = 0; i < bloomAmount; i++)
@@ -202,19 +142,18 @@ namespace ZPG
             {
                 m_PingPongFrameBuffer->Bind();
 
-                if (i == 0) 
-                {
-                    context.Targets.BrightnessMap->BindToSlot(I_DONT_KNOW_BINDING_POINT);
+                if (i == 0) {
+                    // first iteration
+                    context.Targets.BrightnessMap->BindToSlot(TARGET_MAP_BINDING_POINT);
                 } 
-                else    
-                {
-                    context.Targets.BloomMap->BindToSlot(I_DONT_KNOW_BINDING_POINT);
+                else {
+                    context.Targets.BloomMap->BindToSlot(TARGET_MAP_BINDING_POINT);
                 }
             }
             else 
             {
                 m_FrameBuffer->Bind();
-                m_PingPongTexture->BindToSlot(I_DONT_KNOW_BINDING_POINT);
+                m_PingPongTexture->BindToSlot(TARGET_MAP_BINDING_POINT);
             }
 
             m_ShaderProgram->SetInt("u_Iteration", i);
@@ -226,39 +165,11 @@ namespace ZPG
 
         m_FrameBuffer->Unbind();
         m_PingPongFrameBuffer->Unbind();
-
-
-        context.Targets.MainColorMap->BindToSlot(RenderBindingPoints::SCENE_MAP);
-        context.Targets.BrightnessMap->BindToSlot(RenderBindingPoints::BRIGHTNESS_MAP);
-        context.Targets.BloomMap->BindToSlot(RenderBindingPoints::BLOOM_MAP);
-
-        context.Targets.MainFrameBuffer->Bind();
-        m_BlendShaderProgram->Bind();
-
-        // additive blending
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);       
-        glBlendEquation(GL_FUNC_ADD);
-
-        m_ScreenQuadVAO->Bind();
-        RenderCommand::Draw(*m_ScreenQuadVAO);
-        m_ScreenQuadVAO->Unbind();
-
-        // restore
-        glEnable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
-
-
-        m_BlendShaderProgram->Unbind();
-        context.Targets.MainFrameBuffer->Unbind();
     }
-
 
     void BloomRenderPass::OnResize(u32 width, u32 height) 
     {
         RenderPass::OnResize(width, height);
         m_PingPongFrameBuffer->Resize(width, height);
     }
-
 }

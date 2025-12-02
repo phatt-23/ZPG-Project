@@ -4,7 +4,9 @@
 
 namespace ZPG
 {
-
+    /**
+     * Draws the sky, if some is active.
+    */
     class SkyRenderPass : public RenderPass
     {
     public:

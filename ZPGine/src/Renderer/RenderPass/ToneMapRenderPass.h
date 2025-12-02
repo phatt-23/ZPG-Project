@@ -1,19 +1,16 @@
 #pragma once
 
 #include "Renderer/RenderPass.h"
-
 namespace ZPG
 {
     /**
-     * Builds up cascades of shadow maps for the directional light. 
+     * Applies gamma correction and exposure to the main framebuffer's 
+     * main color attachment.
     */
-    class DirectionalLightShadowRenderPass : public RenderPass
+    class ToneMapRenderPass : public RenderPass
     {
     public:
         void Init(RenderContext& context) override;
         void Execute(RenderContext& context) override;
-
-    private:
-        ref<ShaderProgram> m_ShaderProgram;
     };
 }

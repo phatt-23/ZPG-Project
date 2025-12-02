@@ -19,6 +19,7 @@ namespace ZPG
 
         m_FrameBuffer->Bind();
 
+        // glDepthFunc(GL_LEQUAL);
         glDepthFunc(GL_LEQUAL);
         glDepthMask(GL_FALSE);
 

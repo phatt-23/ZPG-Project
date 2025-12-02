@@ -28,6 +28,7 @@ namespace CV10
             m_Res.LoadModel("Sun", "./assets/models/sphere/sphere.gltf");
             m_Res.LoadModel("Earth", "./assets/models/sphere/sphere.gltf");
             m_Res.LoadModel("Moon", "./assets/models/sphere/sphere.gltf");
+            m_Res.LoadModel("Login", "./assets/models/login.obj");
 
             m_Res.GetModel("Earth")->GetMeshes().front()->GetMaterial()->SetAlbedoMap(
                 Texture2D::Create("./assets/textures/planets/2k_earth_daymap.jpg")
@@ -48,7 +49,6 @@ namespace CV10
                 m_Res.GetModel("Sun"),
                 TransformGroup::Build()
                     .Add<Scale>(2.0f)
-                    // full rotation in 27 days
                     .Add<DynRotate>(0.0f, 360.f/27.f, v3(0,1,0))  
                     .Compose()
             );
@@ -57,11 +57,9 @@ namespace CV10
                 m_Res.GetModel("Earth"),
                 TransformGroup::Build()
                     .WithParent(sun->GetTransform())
-                    // full rotation in 1 day
                     .Add<DynRotate>(0.0f, 360.f/1.f, v3(0,1,0))  
-                    .Add<Rotate>(23.5f, v3(1,0,0))  
-                    // full orbit in 365 days
-                    .Add<CircleMovement>(v3(0.0f), 5.0f, v3(0,1,0), 365, MovementMode::Repeat)  
+                    .Add<Rotate>(23.0f, v3(1,0,0))  
+                    .Add<CircleMovement>(v3(0.0f), 10.0f, v3(0,1,0), 365, MovementMode::Repeat)  
                     .Compose()
             );
 
@@ -70,19 +68,26 @@ namespace CV10
                 TransformGroup::Build()
                     .WithParent(earth->GetTransform(), TransformChainComplete)
                     .Add<Scale>(0.4f)
-                    // rotates around its axis in 27 days
                     .Add<DynRotate>(0.0f, -360.f/27.f, v3(0,1,0))  
-                    // full orbit in 27 days
-                    .Add<CircleMovement>(v3(0.0f), 2.0f, v3(0,1,0), 27.f, MovementMode::Repeat) 
+                    .Add<CircleMovement>(v3(0.0f), 4.0f, v3(0,1,0), 27.f, MovementMode::Repeat) 
+                    .Compose()
+            );
+
+            auto login = new Entity(
+                m_Res.GetModel("Login"),
+                TransformGroup::Build()
+                    .WithParent(moon->GetTransform(), TransformChainComplete)
+                    .Add<CircleMovement>(v3(0.0f), 3.0f, v3(0,1,0), 0.2f, MovementMode::Repeat)
                     .Compose()
             );
 
             GetEntityManager().AddEntity(sun);
             GetEntityManager().AddEntity(earth);
             GetEntityManager().AddEntity(moon);
+            GetEntityManager().AddEntity(login);
 
             GetLightManager().AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.1)));
-            GetLightManager().AddLight(new PointLight(v4(1.0), v3(0.0), AttenComponent(0.001, 0.001, 0.01)));
+            GetLightManager().AddLight(new PointLight(v4(1.0), v3(0.0), AttenComponent(0.1, 0.0, 0.0)));
         }
 
         void OnUpdate(Timestep& ts) override
@@ -104,7 +109,7 @@ namespace CV10
             Scene::OnImGuiRender();
             ImGui::Begin("Planet Scene");
             float scale = m_TimeScale;
-            if (ImGui::DragFloat("Time Scale", &scale, 0.01f, 0.01f, 3.0f)) {
+            if (ImGui::DragFloat("Time Scale", &scale, 0.01f, 0.01f, 10.0f)) {
                 m_TimeScale = scale;
             }
             ImGui::End();

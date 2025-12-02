@@ -6,6 +6,11 @@ namespace ZPG
 {
     class Texture2D;
 
+    /**
+     * Populates the geometry framebuffer with informations about 
+     * positions, normals, albedo, metallic, roughness, emissive
+     * entityID and so on.
+    */
     class GeometryRenderPass : public RenderPass
     {
     public:

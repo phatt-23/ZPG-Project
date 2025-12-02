@@ -4,6 +4,10 @@
 
 namespace ZPG
 {
+    /**
+     * Using forward rendering, it draws draw calls specified
+     * as transparent while being submitted into the renderer.
+    */
     class ForwardTransparentRenderPass : public LightRenderPass
     {
     public:

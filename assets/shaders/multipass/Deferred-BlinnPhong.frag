@@ -5,7 +5,6 @@
 #include "ext/ssbo/EnvironmentLightSSBO.glsl"
 #include "ext/ssbo/PointLightSSBO.glsl"
 #include "ext/ssbo/SpotLightSSBO.glsl"
-#include "ext/ssbo/ProcessingSSBO.glsl"
 
 #define CALC_SHADOW_GLSL_IMPLEMENTATION
 #include "ext/shadow/CalcShadow.glsl"
@@ -55,7 +54,7 @@ void main()
     pbr.Emissive = vec4(texture(g_Color3, v_TexCoord).rgb, 1.0);
 
     PhongProps phong = ConvertPBRToPhong(pbr);
-    phong.DiffuseColor = pow(phong.DiffuseColor, vec4(vec3(ssbo_Processing.Gamma), 1.0));  // compensate because of gamma correction
+    // phong.DiffuseColor = pow(phong.DiffuseColor, vec4(vec3(ssbo_Processing.Gamma), 1.0));  // compensate because of gamma correction
 
     vec3 N = normalize(worldNormal);
     vec3 V = normalize(ssbo_Camera.CameraPosition - P);

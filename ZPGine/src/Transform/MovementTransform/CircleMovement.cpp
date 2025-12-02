@@ -1,5 +1,6 @@
 #include "CircleMovement.h"
 #include "Core/Timestep.h"
+#include "Core/Math.h"
 
 namespace ZPG
 {
@@ -26,6 +27,7 @@ namespace ZPG
     {
         float alpha = GetCurrentAlpha();
         v3 heading = m_Radius * v3(-glm::sin(alpha), glm::cos(alpha), 0.0f);
+        heading = v3(m_RotationMatrix * v4(heading, 1.0));
         return heading;
     }
 
@@ -49,7 +51,8 @@ namespace ZPG
     void CircleMovement::Update(Timestep& ts)
     {
         Movement::Update(ts);
-        v3 currentPoint = GetCurrentPosition();
-        m_Matrix = glm::translate(m4(1.0f), currentPoint);
+        m4 R = Math::RotationMatFromDirection(GetCurrentHeading());
+        m4 T = glm::translate(m4(1.0f), GetCurrentPosition());
+        m_Matrix = T * R;
     }
 }

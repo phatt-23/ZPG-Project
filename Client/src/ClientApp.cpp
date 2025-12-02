@@ -5,6 +5,7 @@
 #include "ClientApp.h"
 
 #include "CV11/SplineBuildingScene.h"
+#include "Objahoba/NormalMapShowcaseScene.h"
 #include "ZPGine.h"
 
 #include <imgui.h>
@@ -50,6 +51,7 @@ void ClientApp::AttachScenes()
     m_SceneManager.AddScene("10-Spheres",       []{ return new CV10::SphereScene(); });
     m_SceneManager.AddScene("11-Splines",       []{ return new CV11::SplineScene(); });
     m_SceneManager.AddScene("11-SplineBuild",   []{ return new CV11::SplineBuildingScene(); });
+    m_SceneManager.AddScene("obhajoba-normal-map", []{ return new Obhajoba::NormalMapShowcaseScene(); });
     m_SceneManager.SetActiveScene("11-SplineBuild");
 }
 

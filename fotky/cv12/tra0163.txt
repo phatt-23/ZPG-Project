@@ -1,0 +1,32 @@
+Zpracovaná témata
+
+    Phongův osvětlovací model
+    Modelovací transformace
+    Zobrazovací transformace
+    Projekční transformace
+    Skládání transformací
+    Afinní a projektivní prostor
+    Textury (UV souřadnice, mapování)
+    Skybox (skydome)
+    Základní typy světel (bodové, směrové, reflektor)
+    Reflektor (baterka)
+    Materiál
+    Více shader programů
+    Identifikace objektů (picking)
+    Unproject
+    Řešení viditelnosti (Z-buffer, malířův algoritmus)
+    Načítání modelů (OBJ formát)
+    Vlastní OBJ model loginu
+    Bézierová kubika (popř. Ferguson)
+    Splajn křivky
+
+
+Zpracovaná témata mimo probranou látku
+    
+    Shadow mapy 
+    Normal mapy 
+    Bloom
+    Transparentni objekty
+    Frustum Culling
+    Deferred Shading
+     
