@@ -21,16 +21,11 @@ namespace ZPG
         });
 
         m_ShaderProgram->Bind();
-        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_POSITION_MAP, 
-                                RenderBindingPoints::GEOMETRY_POSITION_MAP);
-        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_NORMAL_MAP, 
-                                RenderBindingPoints::GEOMETRY_NORMAL_MAP);
-        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_ALBEDO_METALLIC_MAP, 
-                                RenderBindingPoints::GEOMETRY_ALBEDO_METALLIC_MAP);
-        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_EMISSIVE_ROUGHNESS_MAP, 
-                                RenderBindingPoints::GEOMETRY_EMISSIVE_ROUGHNESS_MAP);
-        m_ShaderProgram->SetInt(CommonShaderUniforms::POINTLIGHT_SHADOW_CUBE_MAP_ARRAY, 
-                                RenderBindingPoints::POINTLIGHT_SHADOW_CUBE_MAP_ARRAY);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_POSITION_MAP, RenderBindingPoints::GEOMETRY_POSITION_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_NORMAL_MAP, RenderBindingPoints::GEOMETRY_NORMAL_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_ALBEDO_METALLIC_MAP, RenderBindingPoints::GEOMETRY_ALBEDO_METALLIC_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_EMISSIVE_ROUGHNESS_MAP, RenderBindingPoints::GEOMETRY_EMISSIVE_ROUGHNESS_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::POINTLIGHT_SHADOW_CUBE_MAP_ARRAY, RenderBindingPoints::POINTLIGHT_SHADOW_CUBE_MAP_ARRAY);
         m_ShaderProgram->Unbind();
     }
 

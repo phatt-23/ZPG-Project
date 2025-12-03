@@ -27,34 +27,34 @@ uniform int u_SkyType;
 uniform sampler2D u_SkydomeMap;
 uniform samplerCube u_SkyboxMap;
 
-uniform sampler2D g_Color0; // pos
-uniform sampler2D g_Color1; // normal
-uniform sampler2D g_Color2; // albedo and metallic
-uniform sampler2D g_Color3; // emissive and roughness
-uniform isampler2D g_Color4; // entityID
+uniform sampler2D g_PositionMap;
+uniform sampler2D g_NormalMap;
+uniform sampler2D g_AlbedoMetallicMap;
+uniform sampler2D g_EmissiveRoughnessMap;
+uniform isampler2D g_EntityIDMap;
 
 uniform sampler2DArray u_DirectionalLightShadowMapArray;
 uniform sampler2DArray u_SpotLightShadowMapArray;
 uniform samplerCubeArray u_PointLightShadowCubeMapArray;
 
-layout(location = 0) out vec4 f_Color0;  // viewing result
-layout(location = 1) out int f_Color1;   // entityID
-layout(location = 2) out vec4 f_Color2;  // brightness
+layout(location = 0) out vec4 f_Color;  // viewing result
+layout(location = 1) out int f_EntityID;   // entityID
+layout(location = 2) out vec4 f_Brightness;  // brightness
 
 void main()
 {
     // extract material properties from maps
-    vec3 P = texture(g_Color0, v_TexCoord).rgb;
-    vec3 worldNormal = texture(g_Color1, v_TexCoord).rgb;
+    vec3 P = texture(g_PositionMap, v_TexCoord).rgb;
+    vec3 worldNormal = texture(g_NormalMap, v_TexCoord).rgb;
+    int entityID = texture(g_EntityIDMap, v_TexCoord).r;
 
     PBRProps pbr;
-    pbr.Albedo = vec4(texture(g_Color2, v_TexCoord).rgb, 1.0);
-    pbr.Metallic = texture(g_Color2, v_TexCoord).a;
-    pbr.Roughness = texture(g_Color3, v_TexCoord).a;
-    pbr.Emissive = vec4(texture(g_Color3, v_TexCoord).rgb, 1.0);
+    pbr.Albedo = vec4(texture(g_AlbedoMetallicMap, v_TexCoord).rgb, 1.0);
+    pbr.Metallic = texture(g_AlbedoMetallicMap, v_TexCoord).a;
+    pbr.Roughness = texture(g_EmissiveRoughnessMap, v_TexCoord).a;
+    pbr.Emissive = vec4(texture(g_EmissiveRoughnessMap, v_TexCoord).rgb, 1.0);
 
     PhongProps phong = ConvertPBRToPhong(pbr);
-    // phong.DiffuseColor = pow(phong.DiffuseColor, vec4(vec3(ssbo_Processing.Gamma), 1.0));  // compensate because of gamma correction
 
     vec3 N = normalize(worldNormal);
     vec3 V = normalize(ssbo_Camera.CameraPosition - P);
@@ -88,11 +88,8 @@ void main()
 
     vec3 color = Lo + La + Le;
 
-    int entityID = texture(g_Color4, v_TexCoord).r;
-    float brightness = dot(color, vec3(0.7, 0.7, 0.7));
-
-    f_Color0 = vec4(color, 1.0);
-    f_Color1 = entityID;
-    f_Color2 = vec4((brightness > 1.0) ? color : vec3(0.0), 1.0);
+    f_Color = vec4(color, 1.0);
+    f_EntityID = entityID;
+    f_Brightness = vec4(CalcBrightnessSurpass(color), 1.0);
 }
 

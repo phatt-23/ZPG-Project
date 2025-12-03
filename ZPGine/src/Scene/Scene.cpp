@@ -5,8 +5,10 @@
 #include "Event/WindowEvent.h"
 #include "Light/Light.h"
 #include "Entity/Entity.h"
+#include "Transform/MovementTransform/BezierMovement.h"
 #include "Transform/MovementTransform/CircleMovement.h"
 #include "Transform/MovementTransform/LineMovement.h"
+#include "Transform/MovementTransform/SplineMovement.h"
 #include "Transform/StaticTransform/Rotate.h"
 #include "Transform/StaticTransform/Scale.h"
 #include "Transform/StaticTransform/Translate.h"
@@ -213,13 +215,16 @@ namespace ZPG
     /**
      * User interface
      */
+
     void TransformImGuiTreeNode(Transform* transform)
     {
         ZPG_PROFILE_FUNCTION();
 
         ImGui::PushID(transform);
+    
+        const auto& type = typeid(*transform);
 
-        if (typeid(*transform) == typeid(TransformGroup))
+        if (type == typeid(TransformGroup))
         {
             auto* group = (TransformGroup*)transform;
             auto& children = group->GetChildren();
@@ -233,7 +238,7 @@ namespace ZPG
                 ImGui::TreePop();
             }
         }
-        else if (typeid(*transform) == typeid(Translate))
+        else if (type == typeid(Translate))
         {
             auto* translate = (Translate*)transform;
             v3 translation = translate->GetTranslation();
@@ -244,7 +249,7 @@ namespace ZPG
                 translate->SetTranslation(translation);
             }
         }
-        else if (typeid(*transform) == typeid(Rotate))
+        else if (type == typeid(Rotate))
         {
             auto* rotate = (Rotate*)transform;
             qtr rotation = rotate->GetRotation();
@@ -255,7 +260,7 @@ namespace ZPG
                 rotate->SetRotation(rotation);
             }
         }
-        else if (typeid(*transform) == typeid(Scale))
+        else if (type == typeid(Scale))
         {
             auto* scale = (Scale*)transform;
             v3 scaleVec = scale->GetScale();
@@ -266,7 +271,7 @@ namespace ZPG
                 scale->SetScale(scaleVec);
             }
         }
-        else if (typeid(*transform) == typeid(DynRotate))
+        else if (type == typeid(DynRotate))
         {
             auto* dynRotate = (DynRotate*)transform;
 
@@ -287,7 +292,7 @@ namespace ZPG
                 dynRotate->SetRotationSpeedDeg(rotationSpeed);
             }
         }
-        else if (typeid(*transform) == typeid(DynScale))
+        else if (type == typeid(DynScale))
         {
             auto* dynScale = (DynScale*)transform;
 
@@ -314,7 +319,7 @@ namespace ZPG
                 dynScale->SetMaxScale(max);
             }
         }
-        else if (typeid(*transform) == typeid(DynTranslate))
+        else if (type == typeid(DynTranslate))
         {
             auto* dynTranslate = (DynTranslate*)transform;
             v3 current = dynTranslate->GetCurrentTranslation();
@@ -340,11 +345,11 @@ namespace ZPG
                 dynTranslate->SetMinTranslation(min);
             }
         }
-        else if (typeid(*transform) == typeid(LineMovement))
+        else if (type == typeid(LineMovement))
         {
             auto* line = (LineMovement*)transform;
 
-            ImGui::Text("CircleMovement"); 
+            ImGui::Text("LineMovement"); 
             ImGui::Text("CurrentTime: %f", line->GetElapsed()); 
 
             float d = line->GetDuration();
@@ -365,7 +370,7 @@ namespace ZPG
                 line->SetEndPoint(e);
             }
         }
-        else if (typeid(*transform) == typeid(CircleMovement))
+        else if (type == typeid(CircleMovement))
         {
             auto* circle = (CircleMovement*)transform;
 
@@ -394,6 +399,29 @@ namespace ZPG
             if (ImGui::DragFloat3("Direction", glm::value_ptr(dir), 0.1, -1.0, 1.0))
             {
                 circle->SetRotationAxis(dir);
+            }
+        }
+        else if (type == typeid(SplineMovement)) 
+        {
+            auto* spline = (SplineMovement*)transform;
+            auto& segs = spline->GetSegments();
+
+            for (auto& seg : segs) 
+            {
+                std::array<v3,4> points = seg.GetControlPoints();
+                
+                if (ImGui::DragFloat3("CP0", glm::value_ptr(points[0]), 0.01f)) {
+                    seg.SetPoint(0, points[0]);
+                }
+                if (ImGui::DragFloat3("CP1", glm::value_ptr(points[1]), 0.01f)) {
+                    seg.SetPoint(1, points[1]);
+                }
+                if (ImGui::DragFloat3("CP2", glm::value_ptr(points[2]), 0.01f)) {
+                    seg.SetPoint(2, points[2]);
+                }
+                if (ImGui::DragFloat3("CP3", glm::value_ptr(points[3]), 0.01f)) {
+                    seg.SetPoint(3, points[3]);
+                }
             }
         }
 
@@ -435,13 +463,13 @@ namespace ZPG
                 ImGui::Text("Material");
 
                 v4 albedo = material->GetAlbedo();
-                if (ImGui::ColorPicker4("Albedo", glm::value_ptr(albedo)))
+                if (ImGui::ColorPicker4("Albedo", glm::value_ptr(albedo), ImGuiColorEditFlags_HDR))
                 {
                     material->SetAlbedo(albedo);
                 }
 
                 v4 emissive = material->GetEmissive();
-                if (ImGui::ColorPicker4("Emissive", glm::value_ptr(emissive)))
+                if (ImGui::ColorPicker4("Emissive", glm::value_ptr(emissive), ImGuiColorEditFlags_HDR))
                 {
                     material->SetEmissive(emissive);
                 }
@@ -483,7 +511,8 @@ namespace ZPG
             ref<Entity> ent = entities[i];
             ImGui::PushID(ent.get());
 
-            std::string label = ent->GetModel()->GetName() + " #" + std::to_string(ent->GetEntityID());
+            std::string label = ent->GetModel()->GetName() 
+                + " #" + std::to_string(ent->GetEntityID());
 
             if (ImGui::TreeNodeEx(label.c_str()))
             {
@@ -491,7 +520,6 @@ namespace ZPG
                 auto& model = ent->GetModel();
 
                 TransformImGuiTreeNode(transform.get());
-
                 ModelImGuiTreeNode(model.get());
 
                 ImGui::TreePop();

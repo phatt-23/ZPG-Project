@@ -70,6 +70,7 @@ namespace ZPG
 
         // Rendering pipeline 
 
+    #if 1
         PushRenderPass(new DirectionalLightShadowRenderPass());
         PushRenderPass(new GeometryRenderPass());
         PushRenderPass(new TransitionRenderPass());
@@ -81,6 +82,22 @@ namespace ZPG
         PushRenderPass(new SkyRenderPass());
         PushRenderPass(new BlendBloomRenderPass());
 
+    #else
+
+        PushRenderPass(new DirectionalLightShadowRenderPass());
+        PushRenderPass(new GeometryRenderPass());
+        PushRenderPass(new TransitionRenderPass());
+
+        PushRenderPass(new EnvironmentLightRenderPass());
+        PushRenderPass(new PointLightRenderPass());
+        PushRenderPass(new SpotLightRenderPass());
+        PushRenderPass(new EntityRenderPass());
+
+        PushRenderPass(new ForwardTransparentRenderPass());
+        PushRenderPass(new SkyRenderPass());
+        PushRenderPass(new ToneMapRenderPass());
+        PushRenderPass(new SkyRenderPass());
+    #endif
 
         // this doesn't fit anywhere else
         s->m_RenderContext.SSBO.ProcessingSSBO.SetGamma(2.2f);

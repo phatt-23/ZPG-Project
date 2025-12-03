@@ -26,6 +26,13 @@ vec3 CalcLightSpot( SpotLight light,
                     vec3 N,
                     float shadow );
 
+float CalcBrightness( vec3 color );
+float CalcBrightness( vec3 color, vec3 contribution );
+
+vec3 CalcBrightnessSurpass( vec3 color );
+vec3 CalcBrightnessSurpass( vec3 color, float threshold );
+vec3 CalcBrightnessSurpass( vec3 color, float threshold, vec3 contribution );
+
 #endif
 
 #ifdef CALC_LIGHT_GLSL_IMPLEMENTATION
@@ -76,8 +83,8 @@ vec3 CalcLightSpot( SpotLight light, PhongProps phong, vec3 P, vec3 V, vec3 N, f
     float lightBeamSize = light.BeamSize;
     float lightBeamBlend = max(light.BeamBlend, 0.01);
 
-    float beamSizeCos = cos(radians(lightBeamSize));
-    float beamBlendCos = cos(radians(lightBeamSize * (1.0 - lightBeamBlend)));
+    float beamSizeCos = cos(radians(lightBeamSize));  // outer
+    float beamBlendCos = cos(radians(lightBeamSize * (1.0 - lightBeamBlend))); // inner
 
     if (beamBlendCos <= beamSizeCos) {
         return vec3(0.0);
@@ -94,6 +101,38 @@ vec3 CalcLightSpot( SpotLight light, PhongProps phong, vec3 P, vec3 V, vec3 N, f
 
     vec3 Lo = (diffuse + specular) * ScaleByA(light.Color) * beamContrib * atten;
     return Lo;
+}
+
+const vec3 CALC_LIGHT_DEFAULT_CONTRIBUTON = vec3(0.7, 0.7, 0.7);
+const float CALC_LIGHT_DEFAULT_THRESHOLD = 1.0;
+
+float CalcBrightness( vec3 color )
+{
+    return CalcBrightness( color, CALC_LIGHT_DEFAULT_CONTRIBUTON );
+}
+float CalcBrightness( vec3 color, vec3 contribution )
+{
+    return dot(color, contribution);
+}
+
+vec3 CalcBrightnessSurpass( vec3 color )
+{
+    return CalcBrightnessSurpass(
+        color, 
+        CALC_LIGHT_DEFAULT_THRESHOLD, 
+        CALC_LIGHT_DEFAULT_CONTRIBUTON
+    );
+}
+
+vec3 CalcBrightnessSurpass( vec3 color, float threshold )
+{
+    return CalcBrightnessSurpass(color, threshold, CALC_LIGHT_DEFAULT_CONTRIBUTON);
+}
+
+vec3 CalcBrightnessSurpass( vec3 color, float threshold, vec3 contribution )
+{
+    float brightness = CalcBrightness(color, contribution);
+    return (brightness > threshold) ? color : vec3(0.0);
 }
 
 #endif

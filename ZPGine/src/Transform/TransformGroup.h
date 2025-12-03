@@ -9,6 +9,7 @@ namespace ZPG
         TransformChainNone = 0,
         TransformChainPositionOnly = ZPG_BIT(1),
         TransformChainComplete = ZPG_BIT(2),
+        TransformChainRotation = ZPG_BIT(3),
         TransformChainDefault = TransformChainPositionOnly,
     };
 

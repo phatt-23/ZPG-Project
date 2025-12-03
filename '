@@ -35,7 +35,7 @@ namespace ZPG
             float ZdotR = dot(z, r);
 
             if (abs(ZdotR) > 0.999f) {
-                r = v3(1,0,0);
+                r = v3(0,0,0);
             }
 
             v3 x = normalize(cross(r, z));

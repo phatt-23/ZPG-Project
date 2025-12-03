@@ -41,17 +41,17 @@ ClientApp::ClientApp()
 
 void ClientApp::AttachScenes()
 {
-    m_SceneManager.AddScene("8-Shadow",         []{ return new CV8::ShadowScene(); });
-    m_SceneManager.AddScene("8-Skydome",        []{ return new CV8::SkydomeScene(); });
-    m_SceneManager.AddScene("8-Forest",         []{ return new CV8::ForestScene(); });
-    m_SceneManager.AddScene("10-Movement",      []{ return new CV10::MovementScene(); });
-    m_SceneManager.AddScene("10-Homo",          []{ return new CV10::HomoScene(); });
-    m_SceneManager.AddScene("10-Whack",         []{ return new CV10::WhackScene(); });
-    m_SceneManager.AddScene("10-Planets",       []{ return new CV10::PlanetScene(); });
-    m_SceneManager.AddScene("10-Spheres",       []{ return new CV10::SphereScene(); });
-    m_SceneManager.AddScene("11-Splines",       []{ return new CV11::SplineScene(); });
-    m_SceneManager.AddScene("11-SplineBuild",   []{ return new CV11::SplineBuildingScene(); });
-    m_SceneManager.AddScene("obhajoba-normal-map", []{ return new Obhajoba::NormalMapShowcaseScene(); });
+    m_SceneManager.AddScene("8-Shadow",             []{ return new CV8::ShadowScene(); });
+    m_SceneManager.AddScene("8-Skydome",            []{ return new CV8::SkydomeScene(); });
+    m_SceneManager.AddScene("8-Forest",             []{ return new CV8::ForestScene(); });
+    m_SceneManager.AddScene("10-Movement",          []{ return new CV10::MovementScene(); });
+    m_SceneManager.AddScene("10-Homo",              []{ return new CV10::HomoScene(); });
+    m_SceneManager.AddScene("10-Whack",             []{ return new CV10::WhackScene(); });
+    m_SceneManager.AddScene("10-Planets",           []{ return new CV10::PlanetScene(); });
+    m_SceneManager.AddScene("10-Spheres",           []{ return new CV10::SphereScene(); });
+    m_SceneManager.AddScene("11-Splines",           []{ return new CV11::SplineScene(); });
+    m_SceneManager.AddScene("11-SplineBuild",       []{ return new CV11::SplineBuildingScene(); });
+    m_SceneManager.AddScene("obhajoba-normal-map",  []{ return new Obhajoba::NormalMapShowcaseScene(); });
     m_SceneManager.SetActiveScene("11-SplineBuild");
 }
 
@@ -61,29 +61,32 @@ void ClientApp::OnImGuiRender()
 
     float fps = 1.0f / m_Delta.AsSeconds();
 
+    const auto& renderContext = Renderer::GetRenderContext();
+    const auto& renderStats = Renderer::GetStats();
+
     ImGui::Begin("Stats");
     ImGui::Text("FPS: %f\n", fps);
-    ImGui::Text("Submissions                : %d", Renderer::GetStats().Submissions);
+    ImGui::Text("Submissions                : %d", renderStats.Submissions);
     ImGui::SeparatorText("Batches");
-    ImGui::Text("Static GeometryBuffer      : %ld", Renderer::GetRenderContext().StaticBatches.GeometryBuffer.size());
-    ImGui::Text("Static Shadow              : %ld", Renderer::GetRenderContext().StaticBatches.Shadow.size());
-    ImGui::Text("Static ForwardOpaque       : %ld", Renderer::GetRenderContext().StaticBatches.ForwardOpaque.size());
-    ImGui::Text("Static ForwardTransparent  : %ld", Renderer::GetRenderContext().StaticBatches.ForwardTransparent.size());
+    ImGui::Text("Static GeometryBuffer      : %ld", renderContext.StaticBatches.GeometryBuffer.size());
+    ImGui::Text("Static Shadow              : %ld", renderContext.StaticBatches.Shadow.size());
+    ImGui::Text("Static ForwardOpaque       : %ld", renderContext.StaticBatches.ForwardOpaque.size());
+    ImGui::Text("Static ForwardTransparent  : %ld", renderContext.StaticBatches.ForwardTransparent.size());
     ImGui::Separator();
-    ImGui::Text("Dynamic GeometryBuffer     : %ld", Renderer::GetRenderContext().Batches.GeometryBuffer.size());
-    ImGui::Text("Dynamic Shadow             : %ld", Renderer::GetRenderContext().Batches.Shadow.size());
-    ImGui::Text("Dynamic ForwardOpaque      : %ld", Renderer::GetRenderContext().Batches.ForwardOpaque.size());
-    ImGui::Text("Dynamic ForwardTransparent : %ld", Renderer::GetRenderContext().Batches.ForwardTransparent.size());
+    ImGui::Text("Dynamic GeometryBuffer     : %ld", renderContext.Batches.GeometryBuffer.size());
+    ImGui::Text("Dynamic Shadow             : %ld", renderContext.Batches.Shadow.size());
+    ImGui::Text("Dynamic ForwardOpaque      : %ld", renderContext.Batches.ForwardOpaque.size());
+    ImGui::Text("Dynamic ForwardTransparent : %ld", renderContext.Batches.ForwardTransparent.size());
     ImGui::SeparatorText("Queues");
-    ImGui::Text("Static GeometryBuffer      : %ld", Renderer::GetRenderContext().StaticQueues.GeometryBuffer.size());
-    ImGui::Text("Static Shadow              : %ld", Renderer::GetRenderContext().StaticQueues.Shadow.size());
-    ImGui::Text("Static ForwardOpaque       : %ld", Renderer::GetRenderContext().StaticQueues.ForwardOpaque.size());
-    ImGui::Text("Static ForwardTransparent  : %ld", Renderer::GetRenderContext().StaticQueues.ForwardTransparent.size());
+    ImGui::Text("Static GeometryBuffer      : %ld", renderContext.StaticQueues.GeometryBuffer.size());
+    ImGui::Text("Static Shadow              : %ld", renderContext.StaticQueues.Shadow.size());
+    ImGui::Text("Static ForwardOpaque       : %ld", renderContext.StaticQueues.ForwardOpaque.size());
+    ImGui::Text("Static ForwardTransparent  : %ld", renderContext.StaticQueues.ForwardTransparent.size());
     ImGui::Separator();
-    ImGui::Text("Dynamic GeometryBuffer     : %ld", Renderer::GetRenderContext().Queues.GeometryBuffer.size());
-    ImGui::Text("Dynamic Shadow             : %ld", Renderer::GetRenderContext().Queues.Shadow.size());
-    ImGui::Text("Dynamic ForwardOpaque      : %ld", Renderer::GetRenderContext().Queues.ForwardOpaque.size());
-    ImGui::Text("Dynamic ForwardTransparent : %ld", Renderer::GetRenderContext().Queues.ForwardTransparent.size());
+    ImGui::Text("Dynamic GeometryBuffer     : %ld", renderContext.Queues.GeometryBuffer.size());
+    ImGui::Text("Dynamic Shadow             : %ld", renderContext.Queues.Shadow.size());
+    ImGui::Text("Dynamic ForwardOpaque      : %ld", renderContext.Queues.ForwardOpaque.size());
+    ImGui::Text("Dynamic ForwardTransparent : %ld", renderContext.Queues.ForwardTransparent.size());
     ImGui::End();
 
     ImGui::Begin("Scene Switcher");
@@ -96,14 +99,14 @@ void ClientApp::OnImGuiRender()
     }
     ImGui::End();
 
-    ShowPlots();
-    ShowSceneViewportInfo();
-    ShowMainMaps();
-    ShowGeometryBufferMaps();
-    ShowDirectionalShadowMap();
-    ShowSpotShadowFramebuffer();
+    // ShowPlots();
+    // ShowSceneViewportInfo();
+    // ShowMainMaps();
+    // ShowGeometryBufferMaps();
+    // ShowDirectionalShadowMap();
+    // ShowSpotShadowFramebuffer();
     // ShowPointShadowFramebuffer();
-    ShowCameraInfo();
+    // ShowCameraInfo();
     ShowProcessingInfo();
 }
 
@@ -276,10 +279,10 @@ void ClientApp::ShowCameraInfo()
         camera.CalcPerspectiveProjection();
     }
 
-    for (auto& corner : Renderer::GetRenderContext().ViewingFrustum.GetCorners())
-    {
-        ImGui::Text("Corner x: %f y: %f z: %f", corner.x, corner.y, corner.z);
-    }
+    // for (auto& corner : Renderer::GetRenderContext().ViewingFrustum.GetCorners())
+    // {
+    //     ImGui::Text("Corner x: %f y: %f z: %f", corner.x, corner.y, corner.z);
+    // }
 
     ImGui::End();
 }
@@ -303,15 +306,15 @@ void ClientApp::ShowProcessingInfo()
     }
 
     int bloom = ssbo.GetBloomAmount();
-    if (ImGui::DragInt("Bloom", &bloom))
+    if (ImGui::DragInt("Bloom", &bloom, 1, 0, 10))
     {
         ssbo.SetBloomAmount(bloom);
     }
 
-    auto texture = Renderer::GetRenderContext().Targets.BloomMap;
-    v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
-    f32 aspect = (f32)texture->GetWidth() / (f32)texture->GetHeight();
-    ImGui::Image(texture->GetRendererID(), ImVec2(size.x, size.x * 1.0/aspect), ImVec2(0, 1), ImVec2(1, 0));
+    // auto texture = Renderer::GetRenderContext().Targets.BloomMap;
+    // v2 size = { ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y };
+    // f32 aspect = (f32)texture->GetWidth() / (f32)texture->GetHeight();
+    // ImGui::Image(texture->GetRendererID(), ImVec2(size.x, size.x * 1.0/aspect), ImVec2(0, 1), ImVec2(1, 0));
 
     ImGui::End();
 }

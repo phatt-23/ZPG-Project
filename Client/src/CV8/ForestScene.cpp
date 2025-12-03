@@ -65,16 +65,33 @@ namespace CV8
 
 
         // Add lights
-        GetLightManager().AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.01)));
-        GetLightManager().AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.2), v3(-1, -1, -1)));
+        AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.01)));
+        AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.2), v3(-1, -1, -1)));
 
-        f32 planeSize = 40;
+        int groundExtent = 8;
+        float groundDist = 12.0;
+        f32 planeExtent = groundDist * groundExtent; 
+
+        // Add ground
+        for (int i = 0; i < groundExtent; i++)
+        {
+            for (int j = 0; j < groundExtent; j++)
+            {
+                auto transform = TransformGroup::Build()
+                                 .Add<Scale>(groundDist * 0.5)
+                                 .Add<Rotate>(90.0, v3(1, 0, 0))
+                                 .Add<Translate>(v3(groundDist * i, -groundDist, groundDist * j))
+                                 .Compose();
+
+                AddEntity(new Entity(m_LocalRes.GetModel("GrassBlock"), transform));
+            }
+        }
 
         // Add trees
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < 20; i++)
         {
-            f32 x = planeSize * Utility::GetRandomFloat(-1, 1);
-            f32 z = planeSize * Utility::GetRandomFloat(-1, 1);
+            f32 x = planeExtent * Utility::GetRandomFloat(0, 1);
+            f32 z = planeExtent * Utility::GetRandomFloat(0, 1);
 
             auto transform = TransformGroup::Build()
                              .Add<Rotate>(90, v3(1, 0, 0))
@@ -89,8 +106,8 @@ namespace CV8
         // Add bushes
         for (int i = 0; i < 50; i++)
         {
-            f32 x = planeSize * Utility::GetRandomFloat(-1, 1);
-            f32 z = planeSize * Utility::GetRandomFloat(-1, 1);
+            f32 x = planeExtent * Utility::GetRandomFloat(0, 1);
+            f32 z = planeExtent * Utility::GetRandomFloat(0, 1);
 
             auto transform = TransformGroup::Build()
                              .Add<Rotate>(-90, v3(1, 0, 0))
@@ -107,9 +124,9 @@ namespace CV8
         // Add fireflies
         for (int i = 0; i < 50; i++)
         {
-            f32 x = planeSize * Utility::GetRandomFloat(-1, 1);
-            f32 y = planeSize * Utility::GetRandomFloat(0.1, 0.3);
-            f32 z = planeSize * Utility::GetRandomFloat(-1, 1);
+            f32 x = planeExtent * Utility::GetRandomFloat(0, 1);
+            f32 y = Utility::GetRandomFloat(0.1, 0.3);
+            f32 z = planeExtent * Utility::GetRandomFloat(0, 1);
 
             auto transform = TransformGroup::Build()
                              .Add<Scale>(0.1)
@@ -123,48 +140,29 @@ namespace CV8
                 v3(0.0),
                 AttenComponent(0.2, 0.4)
             ));
-            GetLightManager().AddLight(pointLight);
-
-            GetEntityManager().AddEntity(
-                new PointLightEntity(pointLight, m_LocalRes.GetModel("Firefly"), transform));
-        }
-
-        // Add ground
-        int groundSize = 10;
-        float groundDist = 12.0;
-
-        for (int i = -groundSize; i < groundSize; i++)
-        {
-            for (int j = -groundSize; j < groundSize; j++)
-            {
-                auto transform = TransformGroup::Build()
-                                 .Add<Scale>(groundDist * 0.5)
-                                 .Add<Rotate>(90.0, v3(1, 0, 0))
-                                 .Add<Translate>(v3(groundDist * i, -groundDist, groundDist * j))
-                                 .Compose();
-
-                // GetEntityManager().AddStaticEntity(new Entity(m_LocalRes.GetModel("GrassBlock"), transform));
-                GetEntityManager().AddEntity(
-                    new Entity(
-                        m_LocalRes.GetModel("GrassBlock"),
-                        transform));
-            }
+            AddLight(pointLight);
+            AddEntity(new PointLightEntity(pointLight, m_LocalRes.GetModel("Firefly"), transform));
         }
 
         // Shrek and Fiona
-        for (int i = 0; i < 10; i++) {
-            f32 x = planeSize * Utility::GetRandomFloat(-1, 1);
-            f32 z = planeSize * Utility::GetRandomFloat(-1, 1);
+        for (int i = 0; i < 5; i++) 
+        {
+            f32 x = planeExtent * Utility::GetRandomFloat(0, 1);
+            f32 z = planeExtent * Utility::GetRandomFloat(0, 1);
 
             auto transform = TransformGroup::Build()
-                             .Add<Scale>(10.0)
+                             .Add<Scale>(5.0)
                              .Add<Translate>(x, 0.0, z)
                              .Compose();
 
-            GetEntityManager().AddEntity(
-                new Entity(
-                    m_LocalRes.GetModel(i % 2 ? "Shrek" : "Fiona"),
-                    transform));
+            auto shrekTransform = TransformGroup::Build()
+                             .Add<Translate>(0,1.5,0)
+                             .Add<Scale>(4.0)
+                             .Add<Translate>(z, 0.0, x)
+                             .Compose();
+
+            AddEntity(new Entity(m_LocalRes.GetModel("Fiona"), transform));
+            AddEntity(new Entity(m_LocalRes.GetModel("Shrek"), shrekTransform));
         }
     }
 
@@ -212,7 +210,7 @@ namespace CV8
         if (event.GetButtonCode() == ZPG_MOUSE_BUTTON_LEFT)
         {
             ZPG_INFO("Removing Entity ID: {0}", entityID);
-            GetEntityManager().RemoveEntity(entityID);
+            RemoveEntity(entityID);
         }
         else if (event.GetButtonCode() == ZPG_MOUSE_BUTTON_RIGHT)
         {
@@ -235,7 +233,7 @@ namespace CV8
                     .Compose()
             );
 
-            GetEntityManager().AddEntity(entity);
+            AddEntity(entity);
         }
 
         return false;

@@ -11,7 +11,8 @@
 
 namespace ZPG {
 
-    void RenderCommand::Init() {
+    void RenderCommand::Init() 
+    {
         ZPG_PROFILE_FUNCTION();
         ZPG_CORE_ASSERT(!s_RenderCommandInitialised, "RenderCommand was already initialized.");
 
@@ -26,22 +27,26 @@ namespace ZPG {
         s_RendererAPI->Init();
     }
 
-    void RenderCommand::Shutdown() {
+    void RenderCommand::Shutdown() 
+    {
         ZPG_PROFILE_FUNCTION();
         s_RendererAPI->Shutdown();
     }
 
-    void RenderCommand::SetClearColor(v4 color) {
+    void RenderCommand::SetClearColor(v4 color) 
+    {
         ZPG_PROFILE_FUNCTION();
         s_RendererAPI->SetClearColor(color);
     }
 
-    void RenderCommand::Clear() {
+    void RenderCommand::Clear() 
+    {
         ZPG_PROFILE_FUNCTION();
         s_RendererAPI->Clear();
     }
 
-    void RenderCommand::SetViewport(int x, int y, int width, int height) {
+    void RenderCommand::SetViewport(int x, int y, int width, int height) 
+    {
         ZPG_PROFILE_FUNCTION();
         s_RendererAPI->SetViewport(x, y, width, height);
     }

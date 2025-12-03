@@ -100,20 +100,9 @@ namespace CV11
                         v3{-20, 0, 20},                 // starting point (P0)
                         vec<SplineSegment>{
                             {
-                                {-20, 0.0, -20},        // control point 1 (P1)
-                                {20, 0.0, -20},         // control point 2 (P2)
-                                {20, 0.0, 20},          // end point of this segment (P3)
-                            },
-                            {
-                                {3*40, 0.0, -20},       // control point 2 (P2)
-                                {20, 0.0, -40},         // end point for this segment (P3)
-                                                        // There's only two control points here.
-                                                        // The first is the last control point of the previous segment.
-                                                        // The control point 1, is calculated from the previous segment's P2 and P3.
-                            },
-                            {
-                                {20, 0.0, 20},          // control point 2 (P3)
-                                {-20, 0.0, 20},         // final end point (P4)
+                                {-20, 10.0, 20},        // control point 1 (P1)
+                                {-20, 30.0, 20},         // control point 2 (P2)
+                                {20, 60.0, -20},          // end point of this segment (P3)
                             },
                         },
                         8.0f,

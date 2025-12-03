@@ -33,11 +33,11 @@ namespace ZPG
 
         m_ShaderProgram->Bind();
 
-        m_ShaderProgram->SetInt("g_Color0", RenderBindingPoints::GEOMETRY_POSITION_MAP);
-        m_ShaderProgram->SetInt("g_Color1", RenderBindingPoints::GEOMETRY_NORMAL_MAP);
-        m_ShaderProgram->SetInt("g_Color2", RenderBindingPoints::GEOMETRY_ALBEDO_METALLIC_MAP);
-        m_ShaderProgram->SetInt("g_Color3", RenderBindingPoints::GEOMETRY_EMISSIVE_ROUGHNESS_MAP);
-        m_ShaderProgram->SetInt("g_Color4", RenderBindingPoints::GEOMETRY_ENTITY_ID_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_POSITION_MAP, RenderBindingPoints::GEOMETRY_POSITION_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_NORMAL_MAP, RenderBindingPoints::GEOMETRY_NORMAL_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_ALBEDO_METALLIC_MAP, RenderBindingPoints::GEOMETRY_ALBEDO_METALLIC_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_EMISSIVE_ROUGHNESS_MAP, RenderBindingPoints::GEOMETRY_EMISSIVE_ROUGHNESS_MAP);
+        m_ShaderProgram->SetInt(CommonShaderUniforms::GEOMETRY_ENTITY_ID_MAP, RenderBindingPoints::GEOMETRY_ENTITY_ID_MAP);
 
         m_ShaderProgram->SetInt(CommonShaderUniforms::DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY, RenderBindingPoints::DIRECTIONAL_LIGHT_SHADOW_MAP_ARRAY);
         m_ShaderProgram->SetInt(CommonShaderUniforms::SPOTLIGHT_SHADOW_MAP_ARRAY, RenderBindingPoints::SPOTLIGHT_SHADOW_MAP_ARRAY);

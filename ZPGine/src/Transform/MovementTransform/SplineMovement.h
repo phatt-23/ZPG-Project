@@ -70,6 +70,9 @@ namespace ZPG
 
         v3 GetCurrentPosition() override;
         v3 GetCurrentHeading() override;
+        
+        const vec<SplineSegment>& GetSegments() const { return m_Segments; }
+        vec<SplineSegment>& GetSegments() { return m_Segments; }
 
         void Update(Timestep& ts) override;
     private:

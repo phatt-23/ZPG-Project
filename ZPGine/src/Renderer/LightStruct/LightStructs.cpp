@@ -99,76 +99,69 @@ namespace ZPG
 
         for (int i = 0; i < CascadeCount; i++)
         {
-            float near = zDistance;
-            float far = zDistance + zStep;
-            m4 frustumProjMatrix = glm::perspective(glm::radians(fov), ar, near, far);
+            float sliceNear = zDistance;
+            float sliceFar  = zDistance + zStep;
+            m4 frustumProj  = glm::perspective(glm::radians(fov), ar, sliceNear, sliceFar);
             zDistance += zStep;
 
             Frustum frustum;
-            frustum.Set(frustumViewMatrix, frustumProjMatrix);
-            const auto& frustumCorners = frustum.GetCorners();
-            
-            // find the frustum's center and extents
-            v3 frustumCenter(0.0);
-            for (auto& corner : frustumCorners)
-            {
-                frustumCenter += corner;
+            frustum.Set(frustumViewMatrix, frustumProj);
+            const auto& corners = frustum.GetCorners();
+
+            // compute center of the frustum slice in world space
+            v3 center(0.0f);
+            for (const auto& corner : corners) {
+                center += corner;
             }
-            frustumCenter /= frustumCorners.size();
-                
-            const m4 lightView = glm::lookAt(
-                frustumCenter - Direction,
-                frustumCenter,
+            center /= corners.size();
+
+            // build directional light view matrix looking at the slice
+            m4 lightView = glm::lookAt(
+                center - Direction,
+                center,
                 v3(0,1,0)
             );
 
-            // frustum extents
-            v3 maxExtents(std::numeric_limits<f32>::lowest());
-            v3 minExtents(std::numeric_limits<f32>::max());
-            for (auto& corner : frustumCorners)
+            // compute AABB of corners in light space
+            v3 minL(std::numeric_limits<f32>::max());
+            v3 maxL(std::numeric_limits<f32>::lowest());
+
+            for (const auto& corner : corners)
             {
-                v4 cornerLightSpace4(lightView * v4(corner, 1.0));
-                v3 cornerLightSpace(cornerLightSpace4 / cornerLightSpace4.w);
-                minExtents.x = std::min(cornerLightSpace.x, minExtents.x);
-                minExtents.y = std::min(cornerLightSpace.y, minExtents.y);
-                minExtents.z = std::min(cornerLightSpace.z, minExtents.z);
-                maxExtents.x = std::max(cornerLightSpace.x, maxExtents.x);
-                maxExtents.y = std::max(cornerLightSpace.y, maxExtents.y);
-                maxExtents.z = std::max(cornerLightSpace.z, maxExtents.z);
+                v4 ls = lightView * v4(corner, 1.0f);
+                v3 l  = v3(ls) / ls.w;
+                minL.x = std::min(minL.x, l.x);
+                minL.y = std::min(minL.y, l.y);
+                minL.z = std::min(minL.z, l.z);
+                maxL.x = std::max(maxL.x, l.x);
+                maxL.y = std::max(maxL.y, l.y);
+                maxL.z = std::max(maxL.z, l.z);
             }
 
-            /*
-             If I didn't have such agressive frustum culling, 
-             this would make sure to include some of the geometries 
-             that are outside the frustum, because they are also 
-             probably casting shadows into the visible scene.
-            */
+            float depthRange = maxL.z - minL.z;
 
-            constexpr float zMult = 4.0f;
-            constexpr float xyMult = 2.0f;
+            float xyPad  = 10.0f;               
+            float zPad   = depthRange * 1.0f;   
+            float shift  = zPad * 0.2f;         
 
-            if (minExtents.z < 0) { minExtents.z *= zMult; }
-            else                  { minExtents.z /= zMult; }
-            if (maxExtents.z < 0) { maxExtents.z /= zMult; }
-            else                  { maxExtents.z *= zMult; }
+            // move light camera back
+            lightView[3] -= glm::vec4(Direction * shift, 0.0f);
 
-            if (minExtents.x < 0) { minExtents.x *= xyMult; }
-            else                  { minExtents.x /= xyMult; }
-            if (maxExtents.x < 0) { maxExtents.x /= xyMult; }
-            else                  { maxExtents.x *= xyMult; }
+            // expand depth in light-space Z back and forward
+            minL.z -= zPad;
+            maxL.z += zPad;
 
-            if (minExtents.y < 0) { minExtents.y *= xyMult; }
-            else                  { minExtents.y /= xyMult; }
-            if (maxExtents.y < 0) { maxExtents.y /= xyMult; }
-            else                  { maxExtents.y *= xyMult; }
+            m4 lightProj = glm::ortho(
+                minL.x - xyPad, 
+                maxL.x + xyPad,
+                minL.y - xyPad, 
+                maxL.y + xyPad,
+                minL.z,        
+                maxL.z
+            );
 
-            const m4 lightProjection = glm::ortho(
-                minExtents.x, maxExtents.x, 
-                minExtents.y, maxExtents.y, 
-                minExtents.z, maxExtents.z);
-
-            PlaneDistance[i] = far;
-            ViewProj[i] = lightProjection * lightView;
+            PlaneDistance[i] = sliceFar;
+            ViewProj[i] = lightProj * lightView;
         }
     }
 

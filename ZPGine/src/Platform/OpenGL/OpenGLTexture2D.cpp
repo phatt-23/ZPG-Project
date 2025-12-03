@@ -84,6 +84,8 @@ namespace ZPG
         Invalidate();
         SetData(imageData, m_Width * m_Height * channels);
 
+        glGenerateTextureMipmap(m_RendererID);
+
         stbi_image_free(imageData);
     }
 
