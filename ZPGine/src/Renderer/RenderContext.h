@@ -5,6 +5,7 @@
 #include "Buffer/FrameBuffer.h"
 #include "Camera/Camera.h"
 #include "Renderer/DrawBatch.h"
+#include "Renderer/ShaderStorageBuffer/DebugShaderStorageBuffer.h"
 #include "Renderer/ShaderStorageBuffer/ProcessingShaderStorageBuffer.h"
 #include "Sky/Sky.h"
 #include "LightStruct/LightStructs.h"
@@ -51,6 +52,7 @@ namespace ZPG
             SpotLightShaderStorageBuffer SpotLightSSBO;
             MaterialShaderStorageBuffer MaterialSSBO;
             ProcessingShaderStorageBuffer ProcessingSSBO;
+            DebugShaderStorageBuffer DebugSSBO;
         } SSBO;
 
         struct RenderTargets
@@ -87,6 +89,7 @@ namespace ZPG
             vec<DrawCommand> GeometryBuffer;
             vec<DrawCommand> ForwardOpaque;
             vec<DrawCommand> ForwardTransparent;
+            vec<DrawCommand> CustomShaderProgram;
 
             void Clear();
         } Queues, StaticQueues;
@@ -97,6 +100,7 @@ namespace ZPG
             umap<DrawBatchKey, DrawBatch> GeometryBuffer;
             umap<DrawBatchKey, DrawBatch> ForwardOpaque;
             umap<DrawBatchKey, DrawBatch> ForwardTransparent;
+            umap<DrawBatchKey, DrawBatch> CustomShaderProgram;
 
             void Clear();
         } Batches, StaticBatches;

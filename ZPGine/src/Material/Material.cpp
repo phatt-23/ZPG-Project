@@ -54,6 +54,15 @@ namespace ZPG {
         return m_ShaderProgram;
     }
 
+    void Material::SetTilingFactor(const v2& tilingFactor) {
+        ZPG_PROFILE_FUNCTION();
+        m_TilingFactor = tilingFactor;
+    }
+
+    const v2& Material::GetTilingFactor() const {
+        return m_TilingFactor;
+    }
+
     void Material::SetAlbedoMap(const ref<Texture2D>& albedoMap) {
         ZPG_PROFILE_FUNCTION();
         m_AlbedoMap = albedoMap;

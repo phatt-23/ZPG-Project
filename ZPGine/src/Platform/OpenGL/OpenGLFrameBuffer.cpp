@@ -239,6 +239,10 @@ namespace ZPG
         return m_Specification;
     }
 
+    v2 OpenGLFrameBuffer::GetDimensions() const {
+        return v2(m_Specification.Width, m_Specification.Height);
+    }
+
     const std::unordered_map<FrameBufferAttachment, ref<Texture>>& OpenGLFrameBuffer::GetTextureAttachments() const {
         ZPG_PROFILE_FUNCTION();
         return m_TextureAttachments;

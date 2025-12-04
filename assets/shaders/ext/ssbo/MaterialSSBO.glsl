@@ -9,6 +9,8 @@ layout (std430, binding = BINDING_POINT_MATERIAL_SSBO) buffer MaterialStorageBuf
     vec4 Emissive;
     float Roughness;
     float Metallic;
+    float _pad[2];
+    vec2 TilingFactor;
 } ssbo_Material;
 
 uniform sampler2D u_AlbedoMap;

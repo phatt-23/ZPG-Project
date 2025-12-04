@@ -15,6 +15,7 @@ namespace ZPG
         RenderFeatureTransparent = RenderFeatureForward | ZPG_BIT(5),
         RenderFeatureStatic      = ZPG_BIT(6),
         RenderFeatureDynamic     = ZPG_BIT(7),
+        RenderFeatureUseCustomShaderProgram = ZPG_BIT(8),
     };
 
     class RenderFlags

@@ -17,7 +17,6 @@
 
 namespace ZPG
 {
-
     void EntityRenderPass::Init(RenderContext& context)
     {
         m_FrameBuffer = context.Targets.MainFrameBuffer;
@@ -43,14 +42,14 @@ namespace ZPG
                 #version 440 core
                 #include "ext/ssbo/EntitySSBO.glsl"
 
-                layout(location = 1) out int f_Color1;
+                layout(location = 1) out int f_EntityID;
 
                 in vec2 v_TexCoord;
                 uniform isampler2D g_EntityIDMap;
 
                 void main()
                 {
-                    f_Color1 = texture(g_EntityIDMap, v_TexCoord).r;
+                    f_EntityID = texture(g_EntityIDMap, v_TexCoord).r;
                 }
             )"),
         });

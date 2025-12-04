@@ -17,18 +17,21 @@ layout(location = 4) out int g_Color4;  // entityID
 
 void main()
 {
-    vec3 texAlbedo = texture(u_AlbedoMap, v_TexCoord).rgb;
-    vec3 texEmissive = texture(u_EmissiveMap, v_TexCoord).rgb;
-    float texMetallic  = texture(u_MetalnessMap, v_TexCoord).b;
-    float texRoughness = texture(u_RoughnessMap, v_TexCoord).g;
-    vec3 texNormal = texture(u_NormalMap, v_TexCoord).rgb;
+    vec2 tilingFactor = ssbo_Material.TilingFactor;
+    vec2 texCoord = v_TexCoord * tilingFactor;
+
+    vec3 texAlbedo = texture(u_AlbedoMap, texCoord).rgb;
+    vec3 texEmissive = texture(u_EmissiveMap, texCoord).rgb;
+    float texMetallic  = texture(u_MetalnessMap, texCoord).b;
+    float texRoughness = texture(u_RoughnessMap, texCoord).g;
+    vec3 texNormal = texture(u_NormalMap, texCoord).rgb;
 
     vec3 albedo = texAlbedo * ssbo_Material.Albedo.rgb;
     vec3 emissive = texEmissive * ssbo_Material.Emissive.rgb * ssbo_Material.Emissive.a;
     float metallic = clamp(texMetallic * ssbo_Material.Metallic, 0.0, 1.0);
     float roughness = clamp(texRoughness * ssbo_Material.Roughness, 0.0, 1.0);
 
-    vec3 tangentNormal = texture(u_NormalMap, v_TexCoord).rgb * 2.0 - 1.0;
+    vec3 tangentNormal = texture(u_NormalMap, texCoord).rgb * 2.0 - 1.0;
     vec3 normal = normalize(v_TBN * tangentNormal);
 
     g_Color0 = vec4(v_WorldPos, 1.0);

@@ -39,6 +39,7 @@ class Texture2D;
         virtual void AttachTexture(const ref<Texture>& texture, const FrameBufferAttachment& frameBufferAttachment) = 0;
 
         virtual const FrameBufferSpecification& GetSpecification() const = 0;
+        virtual v2 GetDimensions() const = 0;
 
         virtual const umap<FrameBufferAttachment, ref<Texture>>& GetTextureAttachments() const = 0;
         virtual const umap<FrameBufferAttachment, ref<Texture>>& GetColorTextureAttachments() const = 0;

@@ -17,6 +17,13 @@ namespace ZPG
         void SetShaderProgram(const ref<ShaderProgram>& shaderProgram);
         ref<ShaderProgram>& GetShaderProgram();
 
+    /*
+     * REMOVE
+     */
+
+        void SetTilingFactor(const v2& tilingFactor);
+        const v2& GetTilingFactor() const;
+
         void SetAlbedo(const v4& albedo);
         void SetRoughness(f32 roughness);
         void SetMetallic(f32 metallic);
@@ -55,6 +62,11 @@ namespace ZPG
         ref<Texture2D> m_RoughnessMap;
         ref<Texture2D> m_NormalMap;
         ref<Texture2D> m_EmissiveMap;
+
+    /*
+     * REMOVE
+     */
+        v2 m_TilingFactor = v2(1.0, 1.0);
     };
 
 }

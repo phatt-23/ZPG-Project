@@ -52,7 +52,7 @@ namespace ZPG
             ZPG_PROFILE_FUNCTION();
 
             static std::mt19937 rng(std::random_device{}()); 
-            static std::uniform_real_distribution<f32> dist(min, max);
+            std::uniform_real_distribution<f32> dist(min, max);
             return dist(rng); 
         }
     }

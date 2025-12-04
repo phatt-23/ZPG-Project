@@ -3,24 +3,20 @@
 //
 
 #include "ClientApp.h"
-
-#include "CV11/SplineBuildingScene.h"
-#include "Objahoba/NormalMapShowcaseScene.h"
 #include "ZPGine.h"
 
 #include <imgui.h>
 #include <ranges>
 
-#include "CV8/ForestScene.h"
-#include "CV8/SkydomeScene.h"
-#include "CV8/ShadowScene.h"
+#include "Obhajoba/ForestScene.h"
 #include "implot/implot.h"
-#include "CV10/MovementScene.h"
-#include "CV10/HomoScene.h"
-#include "CV10/WhackScene.h"
-#include "CV10/PlanetScene.h"
-#include "CV10/SphereScene.h"
-#include "CV11/SplineScene.h"
+
+#include "Obhajoba/NormalMapShowcaseScene.h"
+#include "Obhajoba/SphereScene.h"
+#include "Obhajoba/PlanetScene.h"
+#include "Obhajoba/HomoScene.h"
+#include "Obhajoba/SplineScene.h"
+#include "Obhajoba/WhackScene.h"
 
 
 using namespace ZPG;
@@ -41,18 +37,24 @@ ClientApp::ClientApp()
 
 void ClientApp::AttachScenes()
 {
-    m_SceneManager.AddScene("8-Shadow",             []{ return new CV8::ShadowScene(); });
-    m_SceneManager.AddScene("8-Skydome",            []{ return new CV8::SkydomeScene(); });
-    m_SceneManager.AddScene("8-Forest",             []{ return new CV8::ForestScene(); });
-    m_SceneManager.AddScene("10-Movement",          []{ return new CV10::MovementScene(); });
-    m_SceneManager.AddScene("10-Homo",              []{ return new CV10::HomoScene(); });
-    m_SceneManager.AddScene("10-Whack",             []{ return new CV10::WhackScene(); });
-    m_SceneManager.AddScene("10-Planets",           []{ return new CV10::PlanetScene(); });
-    m_SceneManager.AddScene("10-Spheres",           []{ return new CV10::SphereScene(); });
-    m_SceneManager.AddScene("11-Splines",           []{ return new CV11::SplineScene(); });
-    m_SceneManager.AddScene("11-SplineBuild",       []{ return new CV11::SplineBuildingScene(); });
-    m_SceneManager.AddScene("obhajoba-normal-map",  []{ return new Obhajoba::NormalMapShowcaseScene(); });
-    m_SceneManager.SetActiveScene("11-SplineBuild");
+    // m_SceneManager.AddScene("8-Shadow",             []{ return new CV8::ShadowScene(); });
+    // m_SceneManager.AddScene("8-Skydome",            []{ return new CV8::SkydomeScene(); });
+    // m_SceneManager.AddScene("8-Forest",             []{ return new CV8::ForestScene(); });
+    // m_SceneManager.AddScene("10-Movement",          []{ return new CV10::MovementScene(); });
+    // m_SceneManager.AddScene("10-Homo",              []{ return new CV10::HomoScene(); });
+    // m_SceneManager.AddScene("10-Whack",             []{ return new CV10::WhackScene(); });
+    // m_SceneManager.AddScene("10-Planets",           []{ return new CV10::PlanetScene(); });
+    // m_SceneManager.AddScene("10-Spheres",           []{ return new CV10::SphereScene(); });
+    // m_SceneManager.AddScene("11-Splines",           []{ return new CV11::SplineScene(); });
+    // m_SceneManager.AddScene("11-SplineBuild",       []{ return new CV11::SplineBuildingScene(); });
+    m_SceneManager.AddScene("Obhajoba - Normal Mapy",   []{ return new Obhajoba::NormalMapShowcaseScene(); });
+    m_SceneManager.AddScene("Obhajoba - Spheres",       []{ return new Obhajoba::SphereScene(); });
+    m_SceneManager.AddScene("Obhajoba - Planets",       []{ return new Obhajoba::PlanetScene(); });
+    m_SceneManager.AddScene("Obhajoba - Forest",        []{ return new Obhajoba::ForestScene(); });
+    m_SceneManager.AddScene("Obhajoba - Homo",          []{ return new Obhajoba::HomoScene(); });
+    m_SceneManager.AddScene("Obhajoba - Spline",        []{ return new Obhajoba::SplineScene(); });
+    m_SceneManager.AddScene("Obhajoba - Whack",         []{ return new Obhajoba::WhackScene(); });
+    // m_SceneManager.SetActiveScene("11-SplineBuild");
 }
 
 void ClientApp::OnImGuiRender()
@@ -108,6 +110,7 @@ void ClientApp::OnImGuiRender()
     // ShowPointShadowFramebuffer();
     // ShowCameraInfo();
     ShowProcessingInfo();
+    ShowDebugInfo();
 }
 
 void ClientApp::ShowPlots()
@@ -317,4 +320,26 @@ void ClientApp::ShowProcessingInfo()
     // ImGui::Image(texture->GetRendererID(), ImVec2(size.x, size.x * 1.0/aspect), ImVec2(0, 1), ImVec2(1, 0));
 
     ImGui::End();
+}
+
+void ClientApp::ShowDebugInfo()
+{
+    auto& ssbo = Renderer::GetRenderContextMut().SSBO.DebugSSBO;
+    const auto& data = ssbo.GetData();
+    int cascadeIndex = data.DirectionalCascadeIndex;
+
+    if(ImGui::Checkbox("Show Cascade Shadow Maps", &m_ShowCascadeShadowMaps)) 
+    {
+        ssbo.SetFlag(DebugFlag::ShowDirectionalShadowCascades, m_ShowCascadeShadowMaps);
+    }
+
+    if(ImGui::Checkbox("Render Cascade Map", &m_RenderCascadeToMain)) 
+    {
+        ssbo.SetFlag(DebugFlag::RenderDirectionalCascadeShadowMap, m_RenderCascadeToMain);
+    }
+
+    if (ImGui::SliderInt("Cascade Index", &cascadeIndex, 0, 2)) 
+    {
+        ssbo.SetDirectionalCascadeIndex(cascadeIndex);
+    }
 }

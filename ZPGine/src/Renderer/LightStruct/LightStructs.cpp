@@ -20,7 +20,7 @@ namespace ZPG
 
 
             float lightMax = std::max({Color.r, Color.g, Color.b});
-            float brightnessCutoff = 0.0001; // threshold
+            float brightnessCutoff = 0.05; // threshold
             float limit = lightMax / brightnessCutoff;
 
             float radius = (-linear + sqrt(linear * linear - 4 * quadratic * (constant - limit))) / (2 * quadratic);
@@ -99,7 +99,7 @@ namespace ZPG
 
         for (int i = 0; i < CascadeCount; i++)
         {
-            float sliceNear = zDistance;
+            float sliceNear = camNear;
             float sliceFar  = zDistance + zStep;
             m4 frustumProj  = glm::perspective(glm::radians(fov), ar, sliceNear, sliceFar);
             zDistance += zStep;
@@ -139,26 +139,13 @@ namespace ZPG
             }
 
             float depthRange = maxL.z - minL.z;
-
-            float xyPad  = 10.0f;               
-            float zPad   = depthRange * 1.0f;   
-            float shift  = zPad * 0.2f;         
-
-            // move light camera back
-            lightView[3] -= glm::vec4(Direction * shift, 0.0f);
+            float zPad = depthRange * 0.2f;   
 
             // expand depth in light-space Z back and forward
             minL.z -= zPad;
             maxL.z += zPad;
 
-            m4 lightProj = glm::ortho(
-                minL.x - xyPad, 
-                maxL.x + xyPad,
-                minL.y - xyPad, 
-                maxL.y + xyPad,
-                minL.z,        
-                maxL.z
-            );
+            m4 lightProj = glm::ortho( minL.x, maxL.x, minL.y, maxL.y, minL.z, maxL.z );
 
             PlaneDistance[i] = sliceFar;
             ViewProj[i] = lightProj * lightView;

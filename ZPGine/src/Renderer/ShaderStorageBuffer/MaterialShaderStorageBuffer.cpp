@@ -23,6 +23,7 @@ namespace ZPG
         internalLayout.Emissive = material.GetEmissive();
         internalLayout.Roughness = material.GetRoughness();
         internalLayout.Metallic = material.GetMetallic();
+        internalLayout.TilingFactor = material.GetTilingFactor();
 
         SetData(&internalLayout, sizeof(internalLayout));
 
@@ -60,7 +61,15 @@ namespace ZPG
         ZPG_SHADER_STORAGE_BUFFER_SET_DATA(&metallic, InternalLayout, Metallic);
         Unbind();
     }
-    void MaterialShaderStorageBuffer::Null() 
+
+    void MaterialShaderStorageBuffer::SetTilingFactor(const v2& tilingFactor) {
+        Bind();
+        v2 copy = tilingFactor;
+        ZPG_SHADER_STORAGE_BUFFER_SET_DATA(glm::value_ptr(copy), InternalLayout, TilingFactor);
+        Unbind();
+    }
+
+    void MaterialShaderStorageBuffer::Null()
     {
         byte data[sizeof(InternalLayout)] = {0};
         SetData(data, sizeof(InternalLayout));

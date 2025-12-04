@@ -67,8 +67,12 @@ vec3 CalcLightPoint( PointLight light, PhongProps phong, vec3 P, vec3 V, vec3 N,
     float NdotL = dot(N, L);
     float NdotH = max(dot(N, H), 0.0);
 
+    if (NdotL < 0.0) {
+        return vec3(0,0,0);
+    }
+
     vec3 diffuse = max(NdotL, 0.0) * ScaleByA(phong.DiffuseColor);
-    vec3 specular = pow(NdotH, phong.Shininess) * ScaleByA(phong.SpecularColor) * int(NdotL >= 0.0);
+    vec3 specular = pow(NdotH, phong.Shininess) * ScaleByA(phong.SpecularColor);
 
     vec3 Lo = (diffuse + specular) * ScaleByA(light.Color) * atten * (1.0 - shadow);
     return Lo;

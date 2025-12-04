@@ -26,6 +26,7 @@ namespace ZPG {
         void AttachTexture(const ref<Texture>& texture, const FrameBufferAttachment& frameBufferAttachment) override;
 
 		const FrameBufferSpecification& GetSpecification() const override;
+        v2 GetDimensions() const override;
 		const umap<FrameBufferAttachment, ref<Texture>>& GetTextureAttachments() const override;
 		const umap<FrameBufferAttachment, ref<Texture>>& GetColorTextureAttachments() const override;
 

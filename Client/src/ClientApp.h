@@ -24,6 +24,7 @@ public:
     void ShowSceneViewportInfo();
     void ShowCameraInfo();
     void ShowProcessingInfo();
+    void ShowDebugInfo();
 
 private:
     std::vector<float> fpsDataY;
@@ -31,8 +32,8 @@ private:
     const size_t maxSamples = 1000; // number of frames visible in plot
     float time = 0.0f;
 
-    bool m_ViewportFocused = false;
-    bool m_ViewportHovered = false;
+    bool m_ShowCascadeShadowMaps = false;
+    bool m_RenderCascadeToMain = false;
 };
 
 inline ZPG::Application* ZPG::CreateApplication() {

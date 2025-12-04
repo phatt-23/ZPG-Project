@@ -1,17 +1,12 @@
-//
-// Created by phatt on 11/3/25.
-//
-
 #include "ForestScene.h"
 
-#include "Renderer/Renderer.h"
-
-using namespace ZPG;
-
-namespace CV8
+namespace Obhajoba
 {
+    using namespace ZPG;
+
     ForestScene::ForestScene()
         : m_TransparentEntities()
+        , m_CustomShaderProgramEntities()
     {
         ref<SpotLight> spotlight = MakeRef(new SpotLight(
             ColorComponent(v4(1.0)),
@@ -27,6 +22,7 @@ namespace CV8
         SetCameraController(MakeRef(flashlightCameraController));
     }
 
+
     void ForestScene::OnLazyAttach()
     {
         m_LocalRes.LoadModel("Tree", "./assets/models/vendor/pine_tree/scene.gltf");
@@ -36,8 +32,21 @@ namespace CV8
         m_LocalRes.LoadModel("GrassBlock", "./assets/models/vendor/minecraft_grass_block/scene.gltf");
         m_LocalRes.LoadModel("Shrek", "./assets/models/vendor/shrek/shrek.obj");
         m_LocalRes.LoadModel("Fiona", "./assets/models/vendor/shrek/fiona.obj");
+        m_LocalRes.LoadModel("Ground", "./assets/models/plane/plane.gltf");
 
-        // SetSky(Skybox::Create(SkyboxSpecification{ .Directory = "./assets/textures/basic-skybox/" }));
+        auto& groundMaterial = m_LocalRes.GetModel("Ground")->GetMeshes().front()->GetMaterial();
+        groundMaterial->SetAlbedo(v4(0.2, 0.9, 0.1, 1.0));
+        groundMaterial->SetMetallic(0.0);
+
+        groundMaterial->SetTilingFactor(v2(10.0f));
+
+        auto groundTexture = Texture2D::Create("./assets/textures/grass.png");
+        glTextureParameteri(groundTexture->GetRendererID(), GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(groundTexture->GetRendererID(), GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        groundMaterial->SetAlbedoMap(groundTexture);
+        groundMaterial->SetAlbedo(v4(0.5, 0.5, 0.5, 1.0));
+
         SetSky(Skybox::Create({
             .Directory = "./assets/textures/stars-skybox/",
             .Filenames = {
@@ -62,7 +71,6 @@ namespace CV8
         m_LocalRes.GetModel("Shrek")->GetMeshes().front()->GetMaterial()->SetMetallic(0);
         m_LocalRes.GetModel("Fiona")->GetMeshes().front()->GetMaterial()->SetMetallic(0);
 
-
         // Add lights
         AddLight(new AmbientLight(v4(1.0, 1.0, 1.0, 0.01)));
         AddLight(new DirectionalLight(v4(1.0, 1.0, 1.0, 0.2), v3(-1, -1, -1)));
@@ -72,25 +80,18 @@ namespace CV8
         f32 planeExtent = groundDist * groundExtent; 
 
         // Add ground
-        for (int i = 0; i < groundExtent; i++)
         {
-            for (int j = 0; j < groundExtent; j++)
-            {
-                auto transform = TransformGroup::Build()
-                                 .Add<Scale>(groundDist * 0.5)
-                                 .Add<Rotate>(90.0, v3(1, 0, 0))
-                                 .Add<Translate>(v3(groundDist * i, -groundDist, groundDist * j))
-                                 .Compose();
-
-                AddEntity(new Entity(m_LocalRes.GetModel("GrassBlock"), transform));
-            }
+            auto transform = TransformGroup::Build()
+                .Add<Scale>(planeExtent)
+                .Compose();
+            GetEntityManager().AddStaticEntity(new Entity(m_LocalRes.GetModel("Ground"), transform));
         }
 
         // Add trees
         for (int i = 0; i < 20; i++)
         {
-            f32 x = planeExtent * Utility::GetRandomFloat(0, 1);
-            f32 z = planeExtent * Utility::GetRandomFloat(0, 1);
+            f32 x = planeExtent * Utility::GetRandomFloat(-1, 1);
+            f32 z = planeExtent * Utility::GetRandomFloat(-1, 1);
 
             auto transform = TransformGroup::Build()
                              .Add<Rotate>(90, v3(1, 0, 0))
@@ -99,14 +100,14 @@ namespace CV8
                              .Compose();
 
             // GetEntityManager().AddStaticEntity(new Entity(m_LocalRes.GetModel("Tree"), transform));
-            GetEntityManager().AddEntity(new Entity(m_LocalRes.GetModel("Tree"), transform));
+            AddEntity(new Entity(m_LocalRes.GetModel("Tree"), transform));
         }
 
         // Add bushes
         for (int i = 0; i < 50; i++)
         {
-            f32 x = planeExtent * Utility::GetRandomFloat(0, 1);
-            f32 z = planeExtent * Utility::GetRandomFloat(0, 1);
+            f32 x = planeExtent * Utility::GetRandomFloat(-1, 1);
+            f32 z = planeExtent * Utility::GetRandomFloat(-1, 1);
 
             auto transform = TransformGroup::Build()
                              .Add<Rotate>(-90, v3(1, 0, 0))
@@ -123,9 +124,9 @@ namespace CV8
         // Add fireflies
         for (int i = 0; i < 50; i++)
         {
-            f32 x = planeExtent * Utility::GetRandomFloat(0, 1);
-            f32 y = Utility::GetRandomFloat(0.1, 0.3);
-            f32 z = planeExtent * Utility::GetRandomFloat(0, 1);
+            f32 x = planeExtent * Utility::GetRandomFloat(-1, 1);
+            f32 y = Utility::GetRandomFloat(1.0, 3.0);
+            f32 z = planeExtent * Utility::GetRandomFloat(-1, 1);
 
             auto transform = TransformGroup::Build()
                              .Add<Scale>(0.1)
@@ -146,8 +147,8 @@ namespace CV8
         // Shrek and Fiona
         for (int i = 0; i < 5; i++) 
         {
-            f32 x = planeExtent * Utility::GetRandomFloat(0, 1);
-            f32 z = planeExtent * Utility::GetRandomFloat(0, 1);
+            f32 x = planeExtent * Utility::GetRandomFloat(-1, 1);
+            f32 z = planeExtent * Utility::GetRandomFloat(-1, 1);
 
             auto transform = TransformGroup::Build()
                              .Add<Scale>(5.0)
@@ -155,7 +156,7 @@ namespace CV8
                              .Compose();
 
             auto shrekTransform = TransformGroup::Build()
-                             .Add<Translate>(0,1.5,0)
+                             .Add<Translate>(0,1.4,0)
                              .Add<Scale>(4.0)
                              .Add<Translate>(z, 0.0, x)
                              .Compose();
@@ -174,9 +175,12 @@ namespace CV8
 
         for (const auto& entity : GetEntityManager().GetEntities())
         {
-            Renderer::Submit(*entity, RenderFeatureDeferred | RenderFeatureCastsShadow | RenderFeatureDynamic);
+            Renderer::Submit(*entity, RenderFeatureDeferred 
+                                    | RenderFeatureCastsShadow 
+                                    | RenderFeatureDynamic);
         }
-        for (auto& entity : m_TransparentEntities.GetEntities())
+
+        for (const auto& entity : m_TransparentEntities.GetEntities())
         {
             Renderer::Submit(*entity, RenderFeatureDynamic
                                     | RenderFeatureForward
@@ -238,3 +242,4 @@ namespace CV8
         return false;
     }
 }
+

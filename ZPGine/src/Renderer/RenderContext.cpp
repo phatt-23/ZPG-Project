@@ -21,6 +21,7 @@ namespace ZPG
             .SpotLightSSBO = SpotLightShaderStorageBuffer(RenderBindingPoints::SPOTLIGHT_SSBO, spec.SpotLightCapacity),
             .MaterialSSBO = MaterialShaderStorageBuffer(RenderBindingPoints::MATERIAL_SSBO),
             .ProcessingSSBO = ProcessingShaderStorageBuffer(RenderBindingPoints::PROCESSING_SSBO),
+            .DebugSSBO = DebugShaderStorageBuffer(RenderBindingPoints::DEBUG_SSBO),
         }
         , Targets{}
         , Queues{}
@@ -148,6 +149,7 @@ namespace ZPG
         GeometryBuffer.clear();
         ForwardOpaque.clear();
         ForwardTransparent.clear();
+        CustomShaderProgram.clear();
     }
 
     void RenderContext::DrawBatches::Clear()
@@ -156,6 +158,7 @@ namespace ZPG
         GeometryBuffer.clear();
         ForwardOpaque.clear();
         ForwardTransparent.clear();
+        CustomShaderProgram.clear();
     }
 
     void RenderContext::Lights::Clear()

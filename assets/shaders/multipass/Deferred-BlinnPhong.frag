@@ -5,6 +5,7 @@
 #include "ext/ssbo/EnvironmentLightSSBO.glsl"
 #include "ext/ssbo/PointLightSSBO.glsl"
 #include "ext/ssbo/SpotLightSSBO.glsl"
+#include "ext/ssbo/DebugSSBO.glsl"
 
 #define CALC_SHADOW_GLSL_IMPLEMENTATION
 #include "ext/shadow/CalcShadow.glsl"
@@ -88,7 +89,42 @@ void main()
 
     vec3 color = Lo + La + Le;
 
+    if (bool(ssbo_Debug.Flags & DEBUG_FLAG_SHOW_DIRECTIONAL_SHADOW_CASCADES))
+    {
+        // select cascade layer (debug view)
+        vec4 worldPosViewSpace4 = ssbo_Camera.View * vec4(P, 1.0);
+        vec3 worldPosViewSpace = worldPosViewSpace4.xyz / worldPosViewSpace4.w;
+        float depthValue = abs(worldPosViewSpace.z);
+            
+        DirectionalLight dirlight = ssbo_EnvironmentLight.DirLight;
+
+        int sliceIndex = dirlight.CascadeCount - 1;
+        for (int i = 0; i < dirlight.CascadeCount; ++i)
+        {
+            if (depthValue < dirlight.PlaneDistance[i])
+            {
+                sliceIndex = i;
+                break;
+            }
+        }
+
+        if (sliceIndex == 0)
+            color = vec3(1, 0, 0);
+        else if (sliceIndex == 1)
+            color = vec3(0, 1, 0);
+        else if (sliceIndex == 2)
+            color = vec3(0, 0, 1);
+        else if (sliceIndex == 3)
+            color = vec3(1, 0, 1);
+    }
+
     f_Color = vec4(color, 1.0);
+
+    if (bool(ssbo_Debug.Flags & DEBUG_FLAG_RENDER_DIRECTIONAL_CASCADE_SHADOW_MAP))
+    {
+        f_Color = vec4(texture(u_DirectionalLightShadowMapArray, vec3(v_TexCoord, ssbo_Debug.DirectionalCascadeIndex)));
+    }
+
     f_EntityID = entityID;
     f_Brightness = vec4(CalcBrightnessSurpass(color), 1.0);
 }

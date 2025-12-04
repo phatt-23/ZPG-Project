@@ -90,11 +90,10 @@ namespace ZPG
 
         PushRenderPass(new EnvironmentLightRenderPass());
         PushRenderPass(new PointLightRenderPass());
-        PushRenderPass(new SpotLightRenderPass());
+        // PushRenderPass(new SpotLightRenderPass());
         PushRenderPass(new EntityRenderPass());
 
         PushRenderPass(new ForwardTransparentRenderPass());
-        PushRenderPass(new SkyRenderPass());
         PushRenderPass(new ToneMapRenderPass());
         PushRenderPass(new SkyRenderPass());
     #endif
@@ -241,6 +240,11 @@ namespace ZPG
             command.mesh = mesh.get();
             command.transform = meshTransform.GetMatrix();
             drawCommands.push_back(command);
+        }
+
+        if (flags & RenderFeatureUseCustomShaderProgram)
+        {
+            ADD_COMMANDS(flags & RenderFeatureStatic, CustomShaderProgram, drawCommands);
         }
 
         if (flags & RenderFeatureCastsShadow)

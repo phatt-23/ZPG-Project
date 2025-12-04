@@ -32,30 +32,31 @@ namespace ZPG
     void PointLightRenderPass::Execute(RenderContext& context) 
     {
         m_FrameBuffer->Bind();
+
         glDisable(GL_DEPTH_TEST);
-
-
-        // additive blending
+        glDepthMask(GL_FALSE);
+        //
+        // // additive blending
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE);       
         glBlendEquation(GL_FUNC_ADD);
+        //
+        // // render only the back face, otherwise the light doubles when both sides render
+        // glEnable(GL_CULL_FACE);
+        // glCullFace(GL_FRONT);
 
-        // render only the back face, otherwise the light doubles when both sides render
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
 
         // pointlight
         m_ShaderProgram->Bind();
-        m_ShaderProgram->SetFloat2("u_ScreenSizeInv", 
-            1.0f / v2(m_FrameBuffer->GetSpecification().Width, m_FrameBuffer->GetSpecification().Height));
+        m_ShaderProgram->SetFloat2("u_ScreenSizeInv", 1.0f / m_FrameBuffer->GetDimensions());
         m_SphereVAO->Bind();
 
         int index = 0;
         for (const auto& light : context.Lights.PointLights)
         {
-            glm::mat4 scale = glm::scale(glm::mat4(1.0), glm::vec3(light.Radius));
-            glm::mat4 translate = glm::translate(glm::mat4(1.0), glm::vec3(light.Position));
-            glm::mat4 model = translate * scale;
+            m4 scale = glm::scale(m4(1.0), v3(light.Radius));
+            m4 translate = glm::translate(m4(1.0), v3(light.Position));
+            m4 model = translate * scale;
 
             m_ShaderProgram->SetMat4("u_Model", model);
             m_ShaderProgram->SetInt("u_Index", index++);
@@ -65,6 +66,7 @@ namespace ZPG
 
         // restore
         glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
         glDisable(GL_BLEND);
         glDisable(GL_CULL_FACE);
 

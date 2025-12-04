@@ -1,11 +1,8 @@
-//
-// Created by phatt on 11/26/25.
-//
 #pragma once
 
 #include "ZPGine.h"
 
-namespace CV10
+namespace Obhajoba
 {
     using namespace ZPG;
 
@@ -47,6 +44,4 @@ namespace CV10
     private:
         ResourceManager m_Resource;
     };
-
-
 }

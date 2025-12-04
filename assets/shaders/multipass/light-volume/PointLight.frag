@@ -7,7 +7,12 @@
 #define CALC_SHADOW_GLSL_IMPLEMENTATION
 #include "ext/shadow/CalcShadow.glsl"
 
-layout(location = 0) out vec4 f_Color0;
+#define CALC_LIGHT_GLSL_IMPLEMENTATION
+#include "ext/light/CalcLight.glsl"
+
+layout(location = 0) out vec4 f_Color;
+
+in vec2 v_TexCoord;
 
 uniform int u_Index;
 uniform vec2 u_ScreenSizeInv;
@@ -19,39 +24,33 @@ uniform sampler2D g_EmissiveRoughnessMap;
 
 void main()
 {
+    f_Color = vec4(1,0,0,1);
+
     vec2 texCoord = gl_FragCoord.xy * u_ScreenSizeInv;
+    // vec2 texCoord = v_TexCoord;
 
-    vec3 worldPos = texture(g_PositionMap, texCoord).rgb;
-    vec3 N = normalize(texture(g_NormalMap, texCoord).rgb * 2.0 - 1.0);
-    vec3 albedo = texture(g_AlbedoMetallicMap, texCoord).rgb;
-    float metallic = texture(g_AlbedoMetallicMap, texCoord).a;
-    vec3 emissive = texture(g_EmissiveRoughnessMap, texCoord).rgb;
-    float roughness = texture(g_EmissiveRoughnessMap, texCoord).a;
+    // extract material properties from maps
+    vec3 P = texture(g_PositionMap, texCoord).rgb;
+    vec3 worldNormal = texture(g_NormalMap, texCoord).rgb;
 
-    vec3 diffuseColor = albedo * clamp(1.0 - metallic, 0.01, 1.0);
-    float shininess = max(pow(1.0 - roughness, 4.0) * 512.0, 16.0);
-    vec3 baseSpecColor = mix(vec3(0.04), albedo, metallic);
-    float specIntensity = mix(0.5, 2.0, metallic) * mix(0.2, 1.0, pow(1.0 - roughness + 0.001, 2.0));
-    vec3 specularColor = baseSpecColor * specIntensity;
+    PBRProps pbr;
+    pbr.Albedo = vec4(texture(g_AlbedoMetallicMap, texCoord).rgb, 1.0);
+    pbr.Metallic = texture(g_AlbedoMetallicMap, texCoord).a;
+    pbr.Roughness = texture(g_EmissiveRoughnessMap, texCoord).a;
+    pbr.Emissive = vec4(texture(g_EmissiveRoughnessMap, texCoord).rgb, 1.0);
+
+    PhongProps phong = ConvertPBRToPhong(pbr);
+
+    vec3 N = normalize(worldNormal);
+    vec3 V = normalize(ssbo_Camera.CameraPosition - P);
 
     PointLight light = ssbo_PointLight.LightArray[u_Index];
 
-    vec3 L = normalize(light.Position - worldPos);
-    vec3 V = normalize(ssbo_Camera.CameraPosition - worldPos);
-    vec3 H = normalize(V + L);
+    // float shadow = 0.0;
+    // vec3 Lo = CalcLightPoint(light, phong, P, V, N, shadow);
 
-    float dist = length(light.Position - worldPos);
-    float atten = min(1.0 / (light.Attenuation.x * dist * dist + light.Attenuation.y * dist + light.Attenuation.z), 1.0);
+    // f_Color = vec4(N, 1.0);
+    f_Color = vec4(1,0,0, 1.0);
 
-    float NdotL = max(dot(N, L), 0.0);
-    float NdotH = max(dot(N, H), 0.0);
-
-    vec3 diffuse = NdotL * diffuseColor;
-    vec3 specular = pow(NdotH, shininess) * specularColor;
-
-    vec3 Lo = (diffuse + specular) * (light.Color.rgb * light.Color.a) * atten;
-
-    // Lo = Lo / (Lo + vec3(1.0));
-    // Lo = pow(Lo, vec3(1.0 / 2.2));
-    f_Color0 = vec4(Lo, 1.0);
+    // f_Color = vec4(Lo, 1.0);
 }
